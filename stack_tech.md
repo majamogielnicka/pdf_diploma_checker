@@ -27,3 +27,6 @@ Biblioteki (wersja wstępna):
 6. Merytoryka / semantyka
 - Ollama (LLM lokalny)
 - sentence-transformers
+
+7. GUI
+- PySide6
