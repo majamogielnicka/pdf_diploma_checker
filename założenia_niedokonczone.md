@@ -129,29 +129,78 @@ Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, ana
 ### Metryka punktowa dla modułu merytoryki (LLM)
 
 Ocena modułu merytorycznego wyrażana jest w procentach jako ważona suma trzech składowych:
-- **SOTA** – 25%,
-- **zgodność streszczeń z celem pracy** – 60%,
-- **analiza słów kluczowych / powtarzalności słów (na temat / nie na temat)** – 15%.
-
-Niech:
-- \(S_{\text{sota}}\in[0,1]\) – wynik dla SOTA,
-- \(S_{\text{goal}}\in[0,1]\) – wynik zgodności streszczeń z celem,
-- \(S_{\text{kw}}\in[0,1]\) – wynik dla słów kluczowych i powtarzalności.
+- wystąpienie SOTA – 25%,
+- zgodność streszczeń z celem pracy – 60%,
+- słowa kluczowe / powtarzalność słów (na temat / nie na temat) – 15%.
 
 Wynik końcowy:
 $$
-Score = 100\% \cdot \big(0.25\cdot S_{\text{sota}} + 0.60\cdot S_{\text{goal}} + 0.15\cdot S_{\text{kw}}\big)
+Score = 100 \cdot \big(0.25\cdot S_{\text{sota}} + 0.60\cdot S_{\text{goal}} + 0.15\cdot S_{\text{kw}}\big)
 $$
+
+W definicjach poniżej używane jest $I(\cdot)$, gdzie:
+$$
+I(\text{warunek})=
+\begin{cases}
+1, & \text{gdy warunek jest spełniony}\\
+0, & \text{w przeciwnym razie}
+\end{cases}
+$$
+
+---
 
 #### 1) Składowa SOTA (25%)
-SOTA oceniana jest na podstawie trzech reguł (każda 0/1), porównywanych z oceną człowieka:
-- wykrycie sekcji SOTA,
-- potwierdzenie SOTA przez cytowania i słowa kluczowe,
-- struktura SOTA (co najmniej 2 podrozdziały-metody).
+
+O obecności SOTA świadczą reguły z opisu modułu merytoryki:
+
+- Reguła 1: wykrycie SOTA na podstawie nagłówków i fraz.
+- Reguła 2: potwierdzenie SOTA na podstawie cytowań i słów kluczowych.
+- Reguła 3: struktura SOTA (co najmniej 2 podrozdziały-metody w spisie treści oraz pracy).
+
+Najpierw wyznaczany jest wynik każdej reguły jako 0/1:
+$$
+r_1 = I(\text{Reguła 1 spełniona}),\quad
+r_2 = I(\text{Reguła 2 spełniona}),\quad
+r_3 = I(\text{Reguła 3 spełniona})
+$$
+
+Następnie liczony jest procentowy „poziom pewności” wystąpienia SOTA:
+$$
+P_{\text{sota}} = \frac{r_1 + r_2 + r_3}{3}
+$$
+
+Składowa używana w metryce (w przedziale 0..1):
+$$
+S_{\text{sota}} = P_{\text{sota}}
+$$
+
+---
+
+#### 2) Zgodność streszczeń z celem pracy (60%)
+
+LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne $sim(G,G_{\text{hat}})$ w przedziale 0..1.
 
 $$
-S_{\text{sota}}=\frac{1}{3}\sum_{j=1}^{3}\mathbb{1}(\hat{y}_j=y_j)
+S_{\text{goal}} = sim(G, G_{\text{hat}})
 $$
+
+---
+
+#### 3) Słowa kluczowe i powtarzalność (15%)
+
+Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat). Wynik porównywany jest z oceną człowieka.
+
+$$
+S_{\text{kw}} = I(\widehat{KW} = KW)
+$$
+
+---
+
+**Wymagana skuteczność:**
+$$
+Score_{\text{avg}} \ge 70
+$$
+na zbiorze testowym (N prac).
 
 #### 2) Zgodność streszczeń z celem pracy (60%)
 LLM generuje streszczenia rozdziałów i na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G,\hat{G})\in[0,1]\).
