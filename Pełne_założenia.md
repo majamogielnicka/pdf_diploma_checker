@@ -207,24 +207,6 @@ $$
 Progi decyzyjne dla LLM są dobierane empirycznie na zbiorze testowym i zależą od zastosowanego modelu embeddingów.
 Wymagana skuteczność >= 70% na zbiorze testowym (N prac).
 
----
-
-#### 2) Zgodność streszczeń z celem pracy (60%)
-LLM generuje streszczenia rozdziałów i na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G,\hat{G})\in[0,1]\).
-
-$$
-S_{\text{goal}} = sim(G,\hat{G})
-$$
-
-#### 3) Słowa kluczowe i powtarzalność (15%)
-Na podstawie listy słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat). Wynik jest porównywany z oceną człowieka.
-
-$$
-S_{\text{kw}}=\mathbb{1}(\widehat{KW}=KW)
-$$
-
-Wymagana skuteczność końcowa wyliczona na podstawie ww wzoru: >= 70% na zbiorze testowym (N prac).
-
 ## 4.6 Analiza bibliografii
 - Analiza spójności zapisu (jednolita forma imion i nazwisk).
 - Generowanie oraz sortowanie podsumowania bibliografii wg kryterium.
