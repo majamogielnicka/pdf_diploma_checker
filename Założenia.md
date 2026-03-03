@@ -186,8 +186,8 @@ SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..
 
 ## 2) Zgodność streszczeń z celem pracy (60%)
 
-LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy $G_{\text{llm}}$.  
-Cel referencyjny $G$ wyznacza człowiek. Podobieństwo semantyczne liczone jest jako cosine similarity w relacji: cel pracy (G_llm) oraz streszczenie rozdziału.
+LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy korzystając z cosine similarity $G_{\text{llm}}$.  
+Podobieństwo refernecyjne $G$ wyznacza człowiek. Podobieństwo semantyczne liczone jest jako cosine similarity w relacji: cel pracy wyznaczony przez LLM oraz przez człowieka.
 
 $$
 S_{\text{goal}} = sim(G, G_{\text{llm}})
