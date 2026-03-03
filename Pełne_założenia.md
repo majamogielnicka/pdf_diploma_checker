@@ -220,7 +220,7 @@ F1 ≥ 0.80 oraz Precision ≥ 0.85.
 ---
 
 ## 4.7 Moduł plagiatu (zgodny z harmonogramem)
-Sprawdzanie plagiatu realizowane jest wyłącznie poprzez otwarcie w przeglądarce wyników wyszukiwania internetowego dla fragmentu wskazanego przez użytkownika (maksymalnie 1000 znaków).
+Sprawdzanie plagiatu realizowane jest wyłącznie poprzez otwarcie w przeglądarce wyników wyszukiwania internetowego dla fragmentu wskazanego przez użytkownika (maksymalnie 300 znaków).
 
 ---
 
