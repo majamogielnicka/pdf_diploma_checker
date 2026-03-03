@@ -47,7 +47,7 @@ Tryb pełny obejmuje:
 
 ## 3. Metryka pomiaru skuteczności działania
 
-Skuteczność modułów oceniana jest na zbiorze testowym **20 ręcznie sprawdzonych prac** (prawda referencyjna).  
+Skuteczność modułów oceniana jest na zbiorze testowym **10 ręcznie sprawdzonych prac** (prawda referencyjna).  
 Dla każdej kategorii liczone są **TP/FP/FN/TN** oraz metryki: **Precision**, **Recall**, **F1** oraz **Accuracy**.
 
 ### Definicje metryk
