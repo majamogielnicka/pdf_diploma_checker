@@ -129,14 +129,14 @@ Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, ana
 ### Metryka punktowa dla modułu merytoryki (LLM)
 
 Ocena modułu merytorycznego wyrażana jest w procentach jako ważona suma trzech składowych:
-- wystąpienie SOTA – 25%,
 - zgodność streszczeń z celem pracy – 60%,
-- słowa kluczowe / powtarzalność słów (na temat / nie na temat) – 15%.
+- wystąpienie SOTA – 20%,
+- słowa kluczowe / powtarzalność słów (na temat / nie na temat) – 20%.
 
 Wynik końcowy:
 
 $$
-Score = 100 \cdot \big(0.25\cdot S_{\text{sota}} + 0.60\cdot S_{\text{goal}} + 0.15\cdot S_{\text{kw}}\big)
+Score = 100 \cdot \big(0.60\cdot S_{\text{goal}} + 0.20\cdot S_{\text{sota}} + 0.20\cdot S_{\text{kw}}\big)
 $$
 
 W definicjach poniżej używane jest:
@@ -149,7 +149,7 @@ I(\text{warunek})=
 \end{cases}
 $$
 
-## 1) Składowa SOTA (25%)
+## 1) Składowa SOTA (20%)
 
 O obecności SOTA świadczą reguły z opisu modułu merytoryki:
 - Reguła 1: wykrycie SOTA na podstawie nagłówków i fraz.
@@ -182,30 +182,31 @@ $$
 S_{\text{sota}} = P_{\text{sota}}
 $$
 
-SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..1 (np. 0.67 oznacza spełnienie 2 z 3 reguł), a nie jako warunek zaliczenia.
+SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..1, a nie jako warunek zaliczenia.
 
 ## 2) Zgodność streszczeń z celem pracy (60%)
 
-LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy G_llm.  
-Cel referencyjny G wyznacza człowiek. Podobieństwo liczone za pomocą np. cosine similarity.
+LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy $G_{\text{llm}}$.  
+Cel referencyjny $G$ wyznacza człowiek. Podobieństwo semantyczne liczone jest jako cosine similarity w relacji: cel pracy (G_llm) oraz streszczenie rozdziału.
 
 $$
 S_{\text{goal}} = sim(G, G_{\text{llm}})
 $$
 
-## 3) Słowa kluczowe i powtarzalność (15%)
+## 3) Słowa kluczowe i powtarzalność (20%)
 
 Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat).  
-Ocena referencyjna człowieka dla wykrytych przez system słów ma postać binarną: 1 = na temat, 0 = nie na temat.  
-Wynik systemu również ma postać binarną. 
+Ocena referencyjna człowieka ma postać binarną: 1 = na temat, 0 = nie na temat.  
+Wynik systemu również ma postać binarną.
 
 $$
 S_{\text{kw}} = I(Topic\_hat = Topic)
 $$
 
+Progi decyzyjne dla LLM są dobierane empirycznie na zbiorze testowym i zależą od zastosowanego modelu embeddingów.  
+Wymagana skuteczność: Score\_avg >= 70% na zbiorze testowym (N prac).
 
-Progi decyzyjne dla LLM są dobierane empirycznie na zbiorze testowym i zależą od zastosowanego modelu embeddingów.
-Wymagana skuteczność >= 70% na zbiorze testowym (N prac).
+---
 
 ## 4.6 Analiza bibliografii
 - Analiza spójności zapisu (jednolita forma imion i nazwisk).
