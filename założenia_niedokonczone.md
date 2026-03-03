@@ -187,7 +187,7 @@ SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..
 ## 2) Zgodność streszczeń z celem pracy (60%)
 
 LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy G_llm.  
-Cel referencyjny G wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G, G_{\text{llm}})\) w przedziale 0..1.
+Cel referencyjny G wyznacza człowiek. Podobieństwo liczone za pomocą np. cosine similarity.
 
 $$
 S_{\text{goal}} = sim(G, G_{\text{llm}})
@@ -206,7 +206,10 @@ $$
 S_{\text{kw}} = I(Topic\_hat = Topic)
 $$
 
+Progi decyzyjne dla LLM są dobierane empirycznie na zbiorze testowym i zależą od zastosowanego modelu embeddingów.
 Wymagana skuteczność >= 70% na zbiorze testowym (N prac).
+
+---
 
 #### 2) Zgodność streszczeń z celem pracy (60%)
 LLM generuje streszczenia rozdziałów i na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G,\hat{G})\in[0,1]\).
