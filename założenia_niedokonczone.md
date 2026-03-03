@@ -139,7 +139,7 @@ $$
 Score = 100 \cdot \big(0.25\cdot S_{\text{sota}} + 0.60\cdot S_{\text{goal}} + 0.15\cdot S_{\text{kw}}\big)
 $$
 
-W definicjach poniżej używane jest \(I(\cdot)\):
+W definicjach poniżej używane jest:
 
 $$
 I(\text{warunek})=
