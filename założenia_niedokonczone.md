@@ -202,9 +202,7 @@ Wynik systemu również ma postać binarną.
 $$
 S_{\text{kw}} = I(Topic\_hat = Topic)
 $$
-$$
-S_{\text{kw}} = I(Topic\_hat = Topic)
-$$
+
 
 Progi decyzyjne dla LLM są dobierane empirycznie na zbiorze testowym i zależą od zastosowanego modelu embeddingów.
 Wymagana skuteczność >= 70% na zbiorze testowym (N prac).
