@@ -62,6 +62,8 @@ Opcjonalnie:
 - **matplotlib** – debug wizualny (podgląd wykrytych obszarów, bboxów, osi wykresów).
 - **scikit-image** – dodatkowe metryki jakości obrazu/cech.
 - **pytest** – testy jednostkowe.
+- **LLaVA** - do analizy danych na obrazach/wykresach
+- **EasyOCR** - do odczytywania danych i tekstów z wykresów
 
 ---
 
