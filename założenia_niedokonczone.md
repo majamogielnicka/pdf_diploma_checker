@@ -133,9 +133,6 @@ Ocena modułu merytorycznego wykonywana jest punktowo, a następnie przeliczana 
 **1) Cel pracy**  
 LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne sim(G, G_hat).
 
-$$
-P_{\text{goal}} = 3 \cdot \mathbb{1}\big(sim(G,\hat{G}) \ge T_G\big)
-$$
 
 **2) SOTA**  
 SOTA oceniane jest trzema regułami (po 1 pkt każda), porównywanymi z oceną człowieka.
