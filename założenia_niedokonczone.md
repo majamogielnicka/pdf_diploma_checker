@@ -138,41 +138,64 @@ $$
 Score = 100 \cdot \big(0.25\cdot S_{\text{sota}} + 0.60\cdot S_{\text{goal}} + 0.15\cdot S_{\text{kw}}\big)
 $$
 
-W definicjach poniżej używane jest $I(\cdot)$, gdzie:
+W definicjach poniżej używane jest $I(\cdot)$:
 $$
 I(\text{warunek})=
 \begin{cases}
-1, & \text{gdy warunek jest spełniony}\\
+1, & \text{gdy warunek jest spełniony} \\
 0, & \text{w przeciwnym razie}
 \end{cases}
 $$
 
----
-
 #### 1) Składowa SOTA (25%)
 
 O obecności SOTA świadczą reguły z opisu modułu merytoryki:
-
 - Reguła 1: wykrycie SOTA na podstawie nagłówków i fraz.
 - Reguła 2: potwierdzenie SOTA na podstawie cytowań i słów kluczowych.
 - Reguła 3: struktura SOTA (co najmniej 2 podrozdziały-metody w spisie treści oraz pracy).
 
-Najpierw wyznaczany jest wynik każdej reguły jako 0/1:
+Wyniki reguł:
 $$
-r_1 = I(\text{Reguła 1 spełniona}),\quad
-r_2 = I(\text{Reguła 2 spełniona}),\quad
+r_1 = I(\text{Reguła 1 spełniona})
+$$
+$$
+r_2 = I(\text{Reguła 2 spełniona})
+$$
+$$
 r_3 = I(\text{Reguła 3 spełniona})
 $$
 
-Następnie liczony jest procentowy „poziom pewności” wystąpienia SOTA:
+Poziom pewności wystąpienia SOTA:
 $$
 P_{\text{sota}} = \frac{r_1 + r_2 + r_3}{3}
 $$
 
-Składowa używana w metryce (w przedziale 0..1):
+Składowa używana w metryce:
 $$
 S_{\text{sota}} = P_{\text{sota}}
 $$
+
+#### 2) Zgodność streszczeń z celem pracy (60%)
+
+LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy $G_{\text{hat}}$. Cel referencyjny $G$ wyznacza człowiek. Liczone jest podobieństwo semantyczne $sim(G, G_{\text{hat}})$ w przedziale 0..1.
+
+$$
+S_{\text{goal}} = sim(G, G_{\text{hat}})
+$$
+
+#### 3) Słowa kluczowe i powtarzalność (15%)
+
+Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat). Wynik porównywany jest z oceną człowieka.
+
+$$
+S_{\text{kw}} = I(\widehat{KW} = KW)
+$$
+
+Wymagana skuteczność:
+$$
+Score_{\text{avg}} \ge 70
+$$
+na zbiorze testowym (N prac).
 
 ---
 
