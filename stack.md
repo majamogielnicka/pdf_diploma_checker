@@ -4,26 +4,23 @@
 
 ## 1) Layout / Parser PDF
 
-- **Język:** Python 3.11+
 - **PyMuPDF (fitz)** – ekstrakcja tekstu, pobieranie bounding boxów, odczyt rozmiaru i nazwy czcionki, wykrywanie obrazów, odczyt wymiarów strony, numeracja stron, pozycje bloków tekstu; szybkie przetwarzanie PDF.
 - **pdfplumber** – alternatywa dla PyMuPDF; przydatne do ekstrakcji tabel oraz analizy bardziej złożonych layoutów.
 - **NumPy** – obliczenia pomocnicze.
 - **regex / re** – reguły tekstowe: numeracja stron, podpisy rysunków/tabel, elementy struktury bibliografii, wzorce odwołań.
-- **JSON** – format danych raportowych..
 - **matplotlib** – debug wizualny (np. rysowanie bboxów, wizualizacja marginesów).
 - **pydantic** – walidacja struktur danych między modułami.
-- **pytest** – testy jednostkowe.
 
 ---
 
 ## 2) GUI i Plagiat
 
-- **Język:** Python 3.11+
 - **PySide6** – implementacja GUI.
-- **requests** – połączenia HTTP.
 - **BeautifulSoup4** – czyszczenie HTML i ekstrakcja tekstu ze stron.
 - **PyMuPDF (fitz)** – parser PDF (wyciąganie tekstu/fragmentów na potrzeby plagiatu).
-- **JSON** – wczytywanie konfiguracji
+- **webbrowser** – służy do otwierania stron internetowych w przeglądarce.
+- **urllib.parse** - analiza oraz budowa adresów URL.
+
 Opcjonalnie: 
 - **ScraperAPI** – zewnętrzne API.
 - **requests** – połączenia HTTP.
@@ -33,8 +30,6 @@ Opcjonalnie:
 
 ## 3) Lingwistyka (język, redakcja, bibliografia)
 
-- **Język:** Python 3.11+
-- **JSON** 
 - **Java 17+** – wymagana do działania `language_tool_python`.
 - **language_tool_python** – sprawdzanie gramatyki i interpunkcji.
 - **lingua-language-detector** – wykrywanie języka (PL/EN) oraz wykrywanie słów angielskich w polskim tekście.
@@ -42,13 +37,12 @@ Opcjonalnie:
 - **FlashText** – szybkie wyszukiwanie fraz (np. definicja skrótu przy pierwszym użyciu).
 - **thefuzz** – dopasowania tekstowe (np. dopasowanie cytowań do bibliografii, wstępna ocena spójności).
 - **spaCy** – analiza składniowa zdań (heurystyki: podmiot/orzeczenie, strona bierna).
-- **pandas** – analiza struktury składniowej zdań 
+- **pandas** – analiza struktury składniowej zdań. 
 
 ---
 
 ## 4) LLM + Vision (merytoryka + analiza obrazów/wykresów)
 
-- **Język:** Python 3.11+
 - **Ollama** – uruchamianie lokalnego modelu LLM.
 - **Modele LLM:**
   - **bielik** – język polski
@@ -61,12 +55,15 @@ Opcjonalnie:
 - **Pillow** – podstawowa obróbka obrazów (konwersje, przycięcia, formaty).
 - **matplotlib** – debug wizualny (podgląd wykrytych obszarów, bboxów, osi wykresów).
 - **scikit-image** – dodatkowe metryki jakości obrazu/cech.
-- **pytest** – testy jednostkowe.
-- **LLaVA** - do analizy danych na obrazach/wykresach
-- **EasyOCR** - do odczytywania danych i tekstów z wykresów
+- **LLaVA** - do analizy danych na obrazach/wykresach.
+- **EasyOCR** - do odczytywania danych i tekstów z wykresów.
 
 ---
 
-## 5) Wspólne konwencje danych i raportów
+## 5) Spis ogólny
 
+- **Język:** Python 3.11+.
+- **PyYAML** - obsługa formatu YAML, konfiguracja reguł 
 - **JSON** – konfiguracja reguł (wytyczne uczelni), raporty wyników (lista błędów, metadane).
+- **pytest** - testy jednostkowe.
+- 
