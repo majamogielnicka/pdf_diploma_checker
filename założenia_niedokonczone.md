@@ -134,11 +134,13 @@ Ocena modułu merytorycznego wyrażana jest w procentach jako ważona suma trzec
 - słowa kluczowe / powtarzalność słów (na temat / nie na temat) – 15%.
 
 Wynik końcowy:
+
 $$
 Score = 100 \cdot \big(0.25\cdot S_{\text{sota}} + 0.60\cdot S_{\text{goal}} + 0.15\cdot S_{\text{kw}}\big)
 $$
 
-W definicjach poniżej używane jest $I(\cdot)$:
+W definicjach poniżej używane jest \(I(\cdot)\):
+
 $$
 I(\text{warunek})=
 \begin{cases}
@@ -155,29 +157,35 @@ O obecności SOTA świadczą reguły z opisu modułu merytoryki:
 - Reguła 3: struktura SOTA (co najmniej 2 podrozdziały-metody w spisie treści oraz pracy).
 
 Wyniki reguł:
+
 $$
 r_1 = I(\text{Reguła 1 spełniona})
 $$
+
 $$
 r_2 = I(\text{Reguła 2 spełniona})
 $$
+
 $$
 r_3 = I(\text{Reguła 3 spełniona})
 $$
 
 Poziom pewności wystąpienia SOTA:
+
 $$
 P_{\text{sota}} = \frac{r_1 + r_2 + r_3}{3}
 $$
 
 Składowa używana w metryce:
+
 $$
 S_{\text{sota}} = P_{\text{sota}}
 $$
 
 #### 2) Zgodność streszczeń z celem pracy (60%)
 
-LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy $G_{\text{hat}}$. Cel referencyjny $G$ wyznacza człowiek. Liczone jest podobieństwo semantyczne $sim(G, G_{\text{hat}})$ w przedziale 0..1.
+LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy \(G_{\text{hat}}\).  
+Cel referencyjny \(G\) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G, G_{\text{hat}})\) w przedziale 0..1.
 
 $$
 S_{\text{goal}} = sim(G, G_{\text{hat}})
@@ -185,44 +193,19 @@ $$
 
 #### 3) Słowa kluczowe i powtarzalność (15%)
 
-Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat). Wynik porównywany jest z oceną człowieka.
+Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat).  
+Wynik porównywany jest z oceną człowieka.
 
 $$
-S_{\text{kw}} = I(\widehat{KW} = KW)
+S_{\text{kw}} = I(KW\_hat = KW)
 $$
 
 Wymagana skuteczność:
+
 $$
 Score_{\text{avg}} \ge 70
 $$
-na zbiorze testowym (N prac).
 
----
-
-#### 2) Zgodność streszczeń z celem pracy (60%)
-
-LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne $sim(G,G_{\text{hat}})$ w przedziale 0..1.
-
-$$
-S_{\text{goal}} = sim(G, G_{\text{hat}})
-$$
-
----
-
-#### 3) Słowa kluczowe i powtarzalność (15%)
-
-Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat). Wynik porównywany jest z oceną człowieka.
-
-$$
-S_{\text{kw}} = I(\widehat{KW} = KW)
-$$
-
----
-
-**Wymagana skuteczność:**
-$$
-Score_{\text{avg}} \ge 70
-$$
 na zbiorze testowym (N prac).
 
 #### 2) Zgodność streszczeń z celem pracy (60%)
