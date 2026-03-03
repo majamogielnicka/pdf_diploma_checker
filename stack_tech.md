@@ -67,5 +67,4 @@ Opcjonalnie:
 
 ## 5) Wspólne konwencje danych i raportów
 
-- **JSON** – konfiguracja reguł (wytyczne uczelni).
-- **JSON/CSV** – raporty wyników (lista błędów, metadane).
+- **JSON** – konfiguracja reguł (wytyczne uczelni), raporty wyników (lista błędów, metadane).
