@@ -127,38 +127,40 @@ Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, ana
 - Reguła 3: weryfikacja struktury SOTA poprzez obecność podrozdziałów opisujących metody/rozwiązania w obrębie sekcji SOTA. SOTA wygląda poprawnie, jeśli są co najmniej 2 podrozdziały-metody w spisie treści oraz pracy.
 
 ### Metryka punktowa dla modułu merytoryki (LLM)
+
 Ocena modułu merytorycznego wykonywana jest punktowo, a następnie przeliczana na procent maksymalnej liczby punktów. Cel pracy ma większą wagę niż SOTA.
 
 **1) Cel pracy (3 pkt)**  
 LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy \(\hat{G}\). Cel referencyjny \(G\) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G,\hat{G})\).
 
-\[
-P_{goal} = 3 \cdot \mathbb{1}(sim(G,\hat{G}) \ge T_G)
-\]
+$$
+P_{\text{goal}} = 3 \cdot \mathbb{1}\big(sim(G,\hat{G}) \ge T_G\big)
+$$
 
 **2) SOTA (łącznie 3 pkt)**  
 SOTA oceniane jest trzema regułami (po 1 pkt każda), porównywanymi z oceną człowieka.
 
-\[
-P_{sota} = \sum_{j=1}^{3} 1 \cdot \mathbb{1}(\hat{y}_j = y_j)
-\]
+$$
+P_{\text{sota}} = \sum_{j=1}^{3} 1 \cdot \mathbb{1}(\hat{y}_j = y_j)
+$$
 
 **3) Wynik końcowy**  
-\[
-S = P_{goal} + P_{sota}
-\]
-\[
-W = 6
-\]
-\[
-Score = \frac{S}{W}\cdot 100\%
-\]
-\[
-Score_{avg} = \frac{1}{N}\sum_{i=1}^{N} Score_i
-\]
 
-**Kryteria skuteczności:**  
-F1 dla każdej kategorii ≥ 0.75.
+$$
+S = P_{\text{goal}} + P_{\text{sota}}
+$$
+
+$$
+W = 6
+$$
+
+$$
+Score = \frac{S}{W}\cdot 100\%
+$$
+
+$$
+Score_{\text{avg}}=\frac{1}{N}\sum_{i=1}^{N}Score_i
+$$
 
 ---
 
@@ -176,5 +178,5 @@ Sprawdzanie plagiatu realizowane jest wyłącznie poprzez otwarcie w przeglądar
 
 ---
 
-# 6. Wymagania sprzętowe
+# 5. Wymagania sprzętowe
 - Tryb pełny: rekomendowane 8 GB VRAM dla modułów LLM/vision; pozostałe moduły działają na CPU.
