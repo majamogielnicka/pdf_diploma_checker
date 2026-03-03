@@ -223,8 +223,7 @@ $$
 S_{\text{kw}}=\mathbb{1}(\widehat{KW}=KW)
 $$
 
-**Wymagana skuteczność:**  
-- >= 70% na zbiorze testowym (N prac).
+Wymagana skuteczność końcowa wyliczona na podstawie ww wzoru: >= 70% na zbiorze testowym (N prac).
 
 ## 4.6 Analiza bibliografii
 - Analiza spójności zapisu (jednolita forma imion i nazwisk).
