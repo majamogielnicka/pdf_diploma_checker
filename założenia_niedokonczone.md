@@ -130,6 +130,14 @@ Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, ana
 
 Ocena modułu merytorycznego wykonywana jest punktowo, a następnie przeliczana na procent maksymalnej liczby punktów. Cel pracy ma większą wagę niż SOTA.
 
+$$
+P_{\text{goal}} =
+\begin{cases}
+3, & \text{gdy } sim(G,\hat{G}) \ge T_G \\
+0, & \text{w przeciwnym razie}
+\end{cases}
+$$
+
 **1) Cel pracy**  
 LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne sim(G, G_hat).
 
