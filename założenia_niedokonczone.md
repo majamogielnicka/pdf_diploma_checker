@@ -149,7 +149,7 @@ I(\text{warunek})=
 \end{cases}
 $$
 
-#### 1) Składowa SOTA (25%)
+## 1) Składowa SOTA (25%)
 
 O obecności SOTA świadczą reguły z opisu modułu merytoryki:
 - Reguła 1: wykrycie SOTA na podstawie nagłówków i fraz.
@@ -182,7 +182,9 @@ $$
 S_{\text{sota}} = P_{\text{sota}}
 $$
 
-#### 2) Zgodność streszczeń z celem pracy (60%)
+SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..1 (np. 0.67 oznacza spełnienie 2 z 3 reguł), a nie jako warunek zaliczenia.
+
+## 2) Zgodność streszczeń z celem pracy (60%)
 
 LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy \(G_{\text{hat}}\).  
 Cel referencyjny \(G\) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G, G_{\text{hat}})\) w przedziale 0..1.
@@ -191,7 +193,7 @@ $$
 S_{\text{goal}} = sim(G, G_{\text{hat}})
 $$
 
-#### 3) Słowa kluczowe i powtarzalność (15%)
+## 3) Słowa kluczowe i powtarzalność (15%)
 
 Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat).  
 Wynik porównywany jest z oceną człowieka.
