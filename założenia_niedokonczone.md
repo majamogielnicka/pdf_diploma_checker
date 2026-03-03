@@ -223,7 +223,7 @@ S_{\text{kw}}=\mathbb{1}(\widehat{KW}=KW)
 $$
 
 **Wymagana skuteczność:**  
-- \(Score_{\text{avg}} \ge 70\%\) na zbiorze testowym (N prac).
+- >= 70% na zbiorze testowym (N prac).
 
 ## 4.6 Analiza bibliografii
 - Analiza spójności zapisu (jednolita forma imion i nazwisk).
