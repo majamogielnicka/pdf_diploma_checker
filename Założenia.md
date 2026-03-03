@@ -115,7 +115,7 @@ F1 ≥ 0.75 oraz Precision ≥ 0.80.
 
 ---
 
-## 4.5 Analiza merytoryczna (LLM lokalny)
+## 4.5 Analiza merytoryczna 
 Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, analizę tematyki rozdziałów oraz weryfikację wystąpienia i spójności sekcji SOTA z celem pracy. Ocena dotyczy kompletności i zgodności z celem pracy.
 
 - Ekstrakcja celu pracy.
@@ -126,7 +126,7 @@ Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, ana
 - Reguła 2: weryfikacja wystąpienia SOTA poprzez zliczenie cytowań w sekcji oraz wykrycie słów kluczowych wskazujących na przegląd literatury.
 - Reguła 3: weryfikacja struktury SOTA poprzez obecność podrozdziałów opisujących metody/rozwiązania w obrębie sekcji SOTA. SOTA wygląda poprawnie, jeśli są co najmniej 2 podrozdziały-metody w spisie treści oraz pracy.
 
-### Metryka punktowa dla modułu merytoryki (LLM)
+### Metryka punktowa dla modułu merytoryki 
 
 Ocena modułu merytorycznego wyrażana jest w procentach jako ważona suma trzech składowych:
 - zgodność streszczeń z celem pracy – 60%,
@@ -186,8 +186,8 @@ SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..
 
 ## 2) Zgodność streszczeń z celem pracy (60%)
 
-LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy korzystając z cosine similarity $G_{\text{llm}}$.  
-Podobieństwo refernecyjne $G$ wyznacza człowiek. Podobieństwo semantyczne liczone jest jako cosine similarity w relacji: cel pracy wyznaczony przez LLM oraz przez człowieka.
+LLM generuje streszczenia rozdziałów, a następnie porównuje je do wyekstraktowanego celu pracy korzystając z cosine similarity $G_{\text{llm}}$.  
+Podobieństwo refernecyjne celu do treści $G$ wyznacza człowiek. Zgodność obydwu celi liczona jest jako cosine similarity w relacji: cel pracy wyznaczony przez LLM oraz przez człowieka.
 
 $$
 S_{\text{goal}} = sim(G, G_{\text{llm}})
