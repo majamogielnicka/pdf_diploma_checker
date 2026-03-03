@@ -186,29 +186,27 @@ SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..
 
 ## 2) Zgodność streszczeń z celem pracy (60%)
 
-LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy \(G_{\text{hat}}\).  
-Cel referencyjny \(G\) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G, G_{\text{hat}})\) w przedziale 0..1.
+LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy G_llm.  
+Cel referencyjny G wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G, G_{\text{llm}})\) w przedziale 0..1.
 
 $$
-S_{\text{goal}} = sim(G, G_{\text{hat}})
+S_{\text{goal}} = sim(G, G_{\text{llm}})
 $$
 
 ## 3) Słowa kluczowe i powtarzalność (15%)
 
 Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat).  
-Wynik porównywany jest z oceną człowieka.
+Ocena referencyjna człowieka dla wykrytych przez system słów ma postać binarną: 1 = na temat, 0 = nie na temat.  
+Wynik systemu również ma postać binarną. 
 
 $$
-S_{\text{kw}} = I(KW\_hat = KW)
+S_{\text{kw}} = I(Topic\_hat = Topic)
+$$
+$$
+S_{\text{kw}} = I(Topic\_hat = Topic)
 $$
 
-Wymagana skuteczność:
-
-$$
-Score_{\text{avg}} \ge 70
-$$
-
-na zbiorze testowym (N prac).
+Wymagana skuteczność >= 70% na zbiorze testowym (N prac).
 
 #### 2) Zgodność streszczeń z celem pracy (60%)
 LLM generuje streszczenia rozdziałów i na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G,\hat{G})\in[0,1]\).
