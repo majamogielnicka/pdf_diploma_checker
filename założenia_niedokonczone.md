@@ -130,21 +130,21 @@ Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, ana
 
 Ocena modułu merytorycznego wykonywana jest punktowo, a następnie przeliczana na procent maksymalnej liczby punktów. Cel pracy ma większą wagę niż SOTA.
 
-**1) Cel pracy (3 pkt)**  
-LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy \(\hat{G}\). Cel referencyjny \(G\) wyznacza człowiek. Liczone jest podobieństwo semantyczne \(sim(G,\hat{G})\).
+**1) Cel pracy**  
+LLM generuje streszczenia rozdziałów, a następnie na ich podstawie wyznacza cel pracy (G_hat). Cel referencyjny (G) wyznacza człowiek. Liczone jest podobieństwo semantyczne sim(G, G_hat).
 
 $$
 P_{\text{goal}} = 3 \cdot \mathbb{1}\big(sim(G,\hat{G}) \ge T_G\big)
 $$
 
-**2) SOTA (łącznie 3 pkt)**  
+**2) SOTA**  
 SOTA oceniane jest trzema regułami (po 1 pkt każda), porównywanymi z oceną człowieka.
 
 $$
 P_{\text{sota}} = \sum_{j=1}^{3} 1 \cdot \mathbb{1}(\hat{y}_j = y_j)
 $$
 
-**3) Wynik końcowy**  
+**3) Wynik końcowy**
 
 $$
 S = P_{\text{goal}} + P_{\text{sota}}
@@ -161,6 +161,9 @@ $$
 $$
 Score_{\text{avg}}=\frac{1}{N}\sum_{i=1}^{N}Score_i
 $$
+
+**Wymagana skuteczność:**  
+- Score_avg ≥ 70% na zbiorze testowym (N prac).  
 
 ---
 
