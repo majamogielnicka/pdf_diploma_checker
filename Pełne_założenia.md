@@ -116,7 +116,8 @@ F1 ≥ 0.75 oraz Precision ≥ 0.80.
 ---
 
 ## 4.5 Analiza merytoryczna 
-Komentarze odnośnie merytoryki oznaczone na początku pracy w celu zschowania spójności z ustaloną metryką. 
+Komentarze odnośnie merytoryki (np. brak SOTA, końcowa ocena merytoryki wyrażona w %) oznaczone na pierwszej stronie pracy w celu zachowania spójności z ustaloną metryką. 
+
 Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, analizę tematyki rozdziałów oraz weryfikację wystąpienia i spójności sekcji SOTA z celem pracy. Ocena dotyczy kompletności i zgodności z celem pracy.
 
 - Ekstrakcja celu pracy.
