@@ -58,7 +58,7 @@ Opcjonalnie:
 - **pydantic** – walidacja struktur wyników merytorycznych.
 - **NumPy** – obliczenia pomocnicze (progi podobieństwa, metryki).
 - **OpenCV** – analiza obrazów (kontrast, ostrość, heurystyki dla wykresów).
-- **Pillow (PIL)** – podstawowa obróbka obrazów (konwersje, przycięcia, formaty).
+- **Pillow** – podstawowa obróbka obrazów (konwersje, przycięcia, formaty).
 - **matplotlib** – debug wizualny (podgląd wykrytych obszarów, bboxów, osi wykresów).
 - **scikit-image** – dodatkowe metryki jakości obrazu/cech.
 - **pytest** – testy jednostkowe.
