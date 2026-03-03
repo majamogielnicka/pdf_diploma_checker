@@ -66,4 +66,3 @@ Opcjonalnie:
 - **PyYAML** - obsługa formatu YAML, konfiguracja reguł 
 - **JSON** – konfiguracja reguł (wytyczne uczelni), raporty wyników (lista błędów, metadane).
 - **pytest** - testy jednostkowe.
-- 
