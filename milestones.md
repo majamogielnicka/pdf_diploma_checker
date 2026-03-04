@@ -24,14 +24,13 @@ Kryterium skuteczności: Sgoal ≥ 60%
 ## Milestone 3: 20.05.2026
 Integracja modułów w aplikacji desktopowej
 - Wczytywanie danych wejściowych, analiza oraz generowanie PDF wyjściowego z naniesionymi komentarzami.
-Obsługa trybów szybkiego i dokładnego. 
-Kryterium skuteczności: czas wykonywania trybu szybkiego niewiększy niż 5 minut; szacowany czas wykonywania trybu pełnego dla pracy 40 - 60 stron niewiększy niż 40 min. \
+Obsługa trybów szybkiego i dokładnego. \
+Kryterium skuteczności: czas wykonywania trybu szybkiego niewiększy niż 5 minut; szacowany czas wykonywania trybu pełnego dla pracy 40 - 60 stron niewiększy niż 40 min. 
 - Weryfikacja dostosowania się do normy bibliograficznej (PN-ISO 690:2012) oraz wykrywanie braku spójności odnośników do literatury wewnątrz tekstu. \
-Kryterium skuteczności: F1 ≥ 0,90; precyzja ≥ 0,85;
-- Generowanie podsumownaia bibliografii oraz weryfikacja obecności słowa "Źródło:" przy rysunkach, które nie są wykresami. \
+Kryterium skuteczności: F1 ≥ 0,90; precyzja ≥ 0,85
+- Generowanie podsumownaia bibliografii oraz weryfikacja obecności słowa "Źródło:" przy rysunkach, które nie są wykresami. 
 - Wykrycie obrazów w grafice rastrowej. Weryfikacja poprawności odnoszenia się przez autora do wykresów. Detekcja niespójności czcionek na różnych wykresach. \
-Kryterium skuteczności: F1 ≥ 0,80; precyzja ≥ 0,75;
-- Kryterium skuteczności: Sgoal ≥ 70%
+Kryterium skuteczności: Sgoal ≥ 70%
 
 ## Deadline: 3.06.2026
 Wdrożenie obsługi błędów napotkanych podczas testowania aplikacji.
