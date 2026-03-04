@@ -7,7 +7,7 @@ Metryka zgodna z założeniami projektowymi, mierzona na datasecie 10 przykłado
 Kryterium skuteczności: F1 ≥ 0,90; precyzja ≥ 0,85
 - Weryfikacja interpunkcji, sprawdzanie podwójnych spacji, myślników oraz spójności zapisu symboli dziesiętnych. \
 Kryterium skuteczności: F1 ≥ 0,85; czułość ≥ 0,80
-- Lokalne modele językowe są skonfigurowane. Model poprawnie ekstraktuje cel pracy oraz wykrywa fragmenty odnoszące się do SOTA.\
+- Lokalne modele językowe są skonfigurowane. Modele poprawnie ekstraktują cel pracy oraz wykrywają fragmenty odnoszące się do SOTA na podstawie charakterystycznych fraz.\
 Kryterium skuteczności: Sgoal ≥ 20%
 - Działający system antyplagiatowy, czyli otwieranie wyników zaznaczonego fragmentu w wyszukiwarce. \
 
