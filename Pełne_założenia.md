@@ -13,9 +13,7 @@ Opracowanie lokalnego systemu analizy pracy dyplomowej w formacie PDF wraz z gen
 
 ### Czas wykonania
 - **Tryb szybki:** analiza w czasie ≤ **5 minut**.
-- **Tryb pełny:** szacowany czas dla pracy **40–60 stron**:
-  - **15–40 min (CPU)** lub
-  - **8–20 min (GPU 8 GB VRAM)**.
+- **Tryb pełny:** szacowany czas dla pracy **40–60 stron** ≤ **40 minut**.
 
 ### Zakres trybu szybkiego
 Tryb szybki obejmuje:
@@ -221,8 +219,3 @@ F1 ≥ 0.80 oraz Precision ≥ 0.85.
 
 ## 4.7 Moduł plagiatu (zgodny z harmonogramem)
 Sprawdzanie plagiatu realizowane jest wyłącznie poprzez otwarcie w przeglądarce wyników wyszukiwania internetowego dla fragmentu wskazanego przez użytkownika (maksymalnie 300 znaków).
-
----
-
-# 5. Wymagania sprzętowe
-- Tryb pełny: rekomendowane 8 GB VRAM dla modułów LLM/vision; pozostałe moduły działają na CPU.
