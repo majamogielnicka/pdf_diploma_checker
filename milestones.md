@@ -9,7 +9,7 @@ Kryterium skuteczności: F1 ≥ 0,90; precyzja ≥ 0,85
 Kryterium skuteczności: F1 ≥ 0,85; czułość ≥ 0,80
 - Lokalne modele językowe są skonfigurowane. Modele poprawnie ekstraktują cel pracy oraz wykrywają fragmenty odnoszące się do SOTA na podstawie charakterystycznych fraz.\
 Kryterium skuteczności: Ssota ≥ 33%
-- Działający system antyplagiatowy, czyli otwieranie wyników zaznaczonego fragmentu (do określonej liczby znaków) w wyszukiwarce. \
+- Działający system antyplagiatowy, czyli otwieranie wyników zaznaczonego fragmentu (do określonej liczby znaków) w wyszukiwarce. 
 
 ## Milestone 2: 22.04.2026
 Inicjowanie działania poszczególnych modułów przez skrypt główny. 
@@ -19,7 +19,7 @@ Kryterium skuteczności: F1 ≥ 0,85; czułość ≥ 0,80 
 Kryterium skuteczności: dla języka F1 ≥ 0,85; precyzja ≥ 0,80; Maksymalnie jeden fałszywy błąd na stronę tekstu
 - Wprowadzenie metryki oceny merytoryki. Ocena obecności i jakość przeglądu stanu wiedzy (SOTA) \
 Kryterium skuteczności: Sgoal ≥ 60%
-- Parsowanie struktury JSON i nakładanie adnotacji na dokument wynikowy PDF. \
+- Parsowanie struktury JSON i nakładanie adnotacji na dokument wynikowy PDF. 
 
 ## Milestone 3: 20.05.2026
 Integracja modułów w aplikacji desktopowej
