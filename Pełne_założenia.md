@@ -56,7 +56,7 @@ Dla każdej kategorii liczone są **TP/FP/FN/TN** oraz metryki: **Precision**, *
 
 ### Interpretacja
 - **Precyzja (Precision):** TP / (TP + FP) — jak często program poprawnie wykrywa błąd.
-- **Czułość (Recall):** TP / (TP + FN) — ile rzeczywistych błędów wykrył program.
+- **Czułość (Recall):** TP / (TP + FN) — jak często wykryty błąd jest błędem rzeczywistym.
 - **F1:** 2 · (Precyzja · Czułość) / (Precyzja + Czułość) — kompromis między precyzją i czułością.
 - **Dokładność (Accuracy):** (TP + TN) / (TP + TN + FP + FN) — ogólna poprawność klasyfikacji.
 
