@@ -1,0 +1,25 @@
+{
+    "category": "TYPOS",
+    "rule_id": "MORFOLOGIK_RULE_EN_GB",
+    "message": "Possible spelling mistake found.",
+    "replacements": [
+        "LINE",
+        "LINK",
+        "LIN",
+        "LINN",
+        "LIND",
+        "LINZ",
+        "LINT",
+        "LINO",
+        "LIQ",
+        "LINA",
+        "LING",
+        "LINY"
+    ],
+    "offset_in_context": 43,
+    "context": "...JSON JavaScript Object Notation. 13, 31 LINQ Language Integrated Query. 11, 45 LOC L...",
+    "offset": 599,
+    "error_length": 4,
+    "sentence": "13, 31\nLINQ Language Integrated Query.",
+    "rule_issue_type": "misspelling"
+}
