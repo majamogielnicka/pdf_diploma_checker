@@ -1,6 +1,26 @@
 import fitz  
 import os
 
+def fix_latex(text):
+    replace = { #Słownik znaków do podmiany.
+        "´s": "ś",
+        "´S": "Ś",
+        "´c": "ć",
+        "´C": "Ć",
+        "´z": "ź",
+        "´Z": "Ź",
+        "˙z": "ż",
+        "˙Z": "Ż",
+        "´n": "ń",
+        "´N": "Ń",
+        "´o": "ó",
+        "´O": "Ó",
+    }
+    for wrong, right in replace.items():
+        text = text.replace(wrong, right)
+    return text
+
+
 def analyze_thesis(file_path):
     if not os.path.exists(file_path):
         print(f"Błąd: Nie znaleziono pliku '{file_path}'")
@@ -30,6 +50,10 @@ def analyze_thesis(file_path):
         
             for j, b in enumerate(blocks):
                 x0, y0, x1, y1, text, block_no, block_type = b # b[0] to wierzczhołek x0 bloczka; b[4] to tekst w bloczku itd
+
+                #Obsługa niektórych LaTeX'ów
+                if meta.get('creator')=='LaTeX with hyperref':
+                    text = fix_latex(text)
             
                 f.write(f"Strona: {i+1}, Blok na stronie: {j} (ID: {block_no})\n")
             
@@ -41,12 +65,12 @@ def analyze_thesis(file_path):
             
                 f.write(f"Typ bloku: {'Tekst' if block_type == 0 else 'Grafika'}\n")
                 f.write(f"Tekst:\n{text.strip()}\n")
-                f.write("-" * 30 + "\n") 
-
-
+                f.write("-" * 30 + "\n\n") 
 
     doc.close()
 
+    
+
 if __name__ == "__main__":
-    MY_FILE = "1.pdf" # podaj nazwe PDF
+    MY_FILE = "prace/bm_inz_v1.pdf" # podaj nazwe PDF
     analyze_thesis(MY_FILE)
