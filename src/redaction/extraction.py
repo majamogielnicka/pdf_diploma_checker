@@ -42,6 +42,13 @@ class ImageInfo:
     height: int
 
 @dataclass
+class TableInfo:
+    bbox: tuple
+    row_count: int
+    col_count: int
+    data: List[List[str]] 
+
+@dataclass
 class PageData:
     number: int
     width: float
@@ -49,6 +56,7 @@ class PageData:
     margins: Dict[str, float] #tego nie ma w pdf, ale bedzie funkcja ktora sama liczy przy ekstrakcji pdfa
     text_blocks: List[TextBlock] = field(default_factory=list)
     images: List[ImageInfo] = field(default_factory=list)
+    tables: List[TableInfo] = field(default_factory=list)
 
 @dataclass
 class DocumentData:
@@ -135,6 +143,39 @@ def extractPDF(file_path: str) -> DocumentData:
             images=[]
         )
 
+        #TODO: znajdywanie tabel typu APA czyli, takich z niestandardowym obramowaniem bez linii poziomych albo jakichkolwiek linii. ogólna poprawa działania funkcji
+        #znajdowanie tabel, wyciąganie danych i zapisywanie do list
+        tabs = page.find_tables(strategy="lines_strict") 
+        for tab in tabs.tables:
+            extracted_data = tab.extract() # Wyciąga dane jako List[List[str]]
+
+            #zabezpieczenie przed zapisywaniem przypadkowo znalezionych elemetów które są z zasady za małe by być tabelami
+            if tab.row_count < 2 or tab.col_count < 2: 
+                continue
+
+            #usuwa entery i zamienia na spacje, można potem usunąć jakbyśmy chcieli widzieć gdzie są entery
+            cleaned_data = [ 
+                [cell.replace('\n', ' ').strip() if cell else "" for cell in row]
+                for row in extracted_data
+            ]
+
+            #zabezpieczenie przed zapisywaniem wykresów jako tabelek
+            total_cells = tab.row_count * tab.col_count 
+            if total_cells > 0:
+                filled_cells = sum(1 for row in cleaned_data for cell in row if cell != "")
+                fill_ratio = filled_cells / total_cells
+                
+                if fill_ratio < 0.30:
+                    continue        
+
+            cur_page.tables.append(TableInfo(
+                bbox=tab.bbox,
+                row_count=tab.row_count,
+                col_count=tab.col_count,
+                data=cleaned_data
+            ))      
+
+        
         for block in raw_dict["blocks"]:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
