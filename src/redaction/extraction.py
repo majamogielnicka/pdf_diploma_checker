@@ -87,7 +87,25 @@ def calculate_margins(blocks, width, height) -> Dict[str, float]:
         "left": margin_left,
         "right": margin_right
     }
-
+    
+def fix_latex(text):
+    replace = { #Słownik znaków do podmiany.
+        "´s": "ś",
+        "´S": "Ś",
+        "´c": "ć",
+        "´C": "Ć",
+        "´z": "ź",
+        "´Z": "Ź",
+        "˙z": "ż",
+        "˙Z": "Ż",
+        "´n": "ń",
+        "´N": "Ń",
+        "´o": "ó",
+        "´O": "Ó",
+    }
+    for wrong, right in replace.items():
+        text = text.replace(wrong, right)
+    return text
 
 def extractPDF(file_path: str) -> DocumentData:
     if not os.path.exists(file_path):
@@ -151,7 +169,7 @@ def _parse_text_block(raw_block: dict) -> TextBlock:
             #obsluga flag
             flags = raw_span["flags"]
             spans.append(TextSpan(
-                text=raw_span["text"],
+                text=fix_latex(raw_span["text"]),
                 font=raw_span["font"],
                 size=round(raw_span["size"], 2),
                 color=raw_span["color"],
