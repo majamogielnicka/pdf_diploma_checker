@@ -2,6 +2,7 @@ from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Any
 import os
 import fitz  # PyMuPDF
+import json
 
 #uzywam dekoratora dataclass bo:
 #ma fajne automatyczne funkcje jak tworzenie __init__ automatycznie
@@ -57,13 +58,34 @@ class DocumentData:
     def to_dict(self):  #zeby latwo bylo przeniesc do jsona
         return asdict(self)
     
-def calculate_margins(page) -> Dict[str, float]:
-    #TODO: napisac funkcje do liczenia marginesow (jakies szukanie max wychylen powinno wystarczyc)
+def calculate_margins(blocks, width, height) -> Dict[str, float]:
+    if not blocks:
+        return {"top": 0.0, "bottom": 0.0, "left": 0.0, "right": 0.0}
+
+    # inicjalizacja marginesów do optymalizacji (początkowo lewy maksymalnie po prawej, dolny maksymalnie na górze itd)
+    margin_top_buf = height # odczytane koordynaty są od góry do dołu (góra to y=0, dół to y=wysokość_dokumentu)
+    margin_bottom_buf = 0   
+    margin_left_buf = width
+    margin_right_buf = 0
+
+    for b in blocks: #iterowanie po rozmiarach każdego z bloczków, szukanie min/max wartości
+        x0, y0, x1, y1 = b["bbox"]
+        if x0 < margin_left_buf: margin_left_buf = x0
+        if y0 < margin_top_buf: margin_top_buf = y0
+        if x1 > margin_right_buf: margin_right_buf = x1
+        if y1 > margin_bottom_buf: margin_bottom_buf = y1
+
+    # wyznaczenie faltycznych wielkości marginesów
+    margin_top = margin_top_buf
+    margin_bottom = height - margin_bottom_buf
+    margin_left = margin_left_buf
+    margin_right = width - margin_right_buf
+        
     return {
-        "top": 0.0,
-        "bottom": 0.0,
-        "left": 0.0,
-        "right": 0.0
+        "top": margin_top,
+        "bottom": margin_bottom,
+        "left": margin_left,
+        "right": margin_right
     }
 
 
@@ -83,12 +105,14 @@ def extractPDF(file_path: str) -> DocumentData:
 
     for page_index, page in enumerate(doc):
         raw_dict = page.get_text("dict")
+        p_width = page.rect.width
+        p_height = page.rect.height
 
         cur_page = PageData(
             number=page_index + 1,
-            width=page.rect.width,
-            height=page.rect.height,
-            margins=calculate_margins(page),
+            width=p_width,
+            height=p_height,
+            margins=calculate_margins(raw_dict["blocks"], p_width, p_height),
             text_blocks=[],
             images=[]
         )
@@ -146,5 +170,9 @@ def _parse_text_block(raw_block: dict) -> TextBlock:
     return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"])
 
 #test:
+#print(extractPDF("1.pdf").to_dict())
+doc_data = extractPDF("1.pdf") 
+data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 
-print(extractPDF("example1.pdf").to_dict())
+with open("output.json", "w", encoding="utf-8") as f: # Zapis do pliku .json
+    json.dump(data_as_dictionary, f, indent=4, ensure_ascii=False)
