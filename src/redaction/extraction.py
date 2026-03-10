@@ -134,6 +134,18 @@ def extractPDF(file_path: str) -> DocumentData:
         print(f"plik nie istnieje")
         return
     
+    #sprawdzenie czy mamy folder "images", jeśli nie to tworzymy taki
+    os.makedirs("images", exist_ok=True)
+
+    #usuwanie obrazów z poprzedniego sprawdzania, żeby nie było chaosu
+    for filename in os.listdir("images"):
+        file_to_delete = os.path.join("images", filename)
+        try:
+            if os.path.isfile(file_to_delete):
+                os.remove(file_to_delete)
+        except Exception as e:
+            print(f"Nie udało się usunąć starego pliku {file_to_delete}: {e}")
+    
     #TODO: dalsza walidacja
     doc = fitz.open(file_path)
     metadata = doc.metadata
@@ -195,8 +207,12 @@ def extractPDF(file_path: str) -> DocumentData:
                     cur_page.text_blocks.append(text_block)
             
             elif block["type"] == 1:
-                img_path = f"images/p{page_index}_b{block['number']}.png"
-                #TODO: funkcja do zapisywania obrazow
+                ext = block.get("ext", "png")
+                img_path = f"images/p{page_index}_b{block['number']}.{ext}"
+
+                #zapisywanie obrazów
+                with open(img_path, "wb") as img_file:
+                    img_file.write(block["image"])
                 cur_page.images.append(ImageInfo(
                     path=img_path,
                     bbox=block["bbox"],
