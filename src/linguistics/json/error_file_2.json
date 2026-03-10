@@ -1,19 +1,6 @@
 {
-    "category": "TYPOS",
-    "rule_id": "MORFOLOGIK_RULE_EN_GB",
-    "message": "Possible spelling mistake found.",
-    "replacements": [
-        "Bergman",
-        "Berman",
-        "Harriman",
-        "Ferryman",
-        "Kerrigan",
-        "Jerrican"
-    ],
-    "offset_in_context": 43,
-    "context": "...loper Alex Russell and designer Frances Berriman, introduced the concept of Progressive ...",
-    "offset": 1359,
-    "error_length": 8,
-    "sentence": "One of them started in 2015, when two Google employees, developer Alex Russell and\ndesigner Frances Berriman, introduced the concept of Progressive Web Applications (PWAs).",
-    "rule_issue_type": "misspelling"
+    "category": "Separator dziesiętny",
+    "message": "Możliwe zastosowanie błędnego separatora dziesiętnego",
+    "offset": 228,
+    "error_length": 4
 }

@@ -2,18 +2,19 @@ import language_tool_python
 from lingua import Language, LanguageDetectorBuilder
 import os
 import json
+from linguistics_types import Error_type
+from decimal_point_extractor import decimal_check
+import dataclasses
 
-def extract_text(text_language: str, text_path: str) -> tuple[list, str]:
-
+def extract_text(text_path: str) -> str:
     """
-    Reads text from a file and performs an initial grammar and spelling check in the specified language.
+    Reads text from a file.
     
     Args:
-        text_language (str): The language in which the text is written ("en" for English, "pl" for Polish).
         text_path (str): The path to the text file to be read.
     
     Returns:
-        tuple[list, str]: A tuple containing the list of matches and the text content.
+        Text from a file extracted to a string.
     """
 
     for obj in os.listdir(os.path.join(os.path.dirname(__file__), "json")):
@@ -21,6 +22,22 @@ def extract_text(text_language: str, text_path: str) -> tuple[list, str]:
 
     with open(text_path, encoding='utf-8') as file:
         text = file.read()
+
+    return text
+
+
+def language_tool_analisys(text_language: str, text: str) -> list:
+    
+    """
+    Performs an initial grammar and spelling check in the specified language. Detects double spaces, some dashes and interpunction errors.
+    
+    Args:
+        text_language (str): The language in which the text is written ("en" for English, "pl" for Polish).
+        text (str): The string of text to be analysed.
+    
+    Returns:
+        list: A list of matches.
+    """
 
     if text_language == "en":
         tool_en = language_tool_python.LanguageTool('en-GB')
@@ -30,30 +47,11 @@ def extract_text(text_language: str, text_path: str) -> tuple[list, str]:
         tool_pl = language_tool_python.LanguageTool('pl-PL')
         matches = tool_pl.check(text)
     
-    return matches, text
-
-
-def extract_errors_to_json(matches: list, text_language: str, text: str) -> None:
-
-    """
-    Extracts errors from the list of matches and writes them to a JSON file.
-    
-    Args:
-        matches (list): A list of errors to be extracted.
-        text_language (str): The language in which the text is written ("en" for English, "pl" for Polish).
-        text (str): Text, which is being checked.
-
-    Returns:
-        None    
-    """
-    
     languages = [Language.ENGLISH, Language.POLISH]
     detector = LanguageDetectorBuilder.from_languages(*languages).build()
     tool_en = language_tool_python.LanguageTool('en-GB')
-    num = 0
     new_matches = []
     for match in matches:
-        
         if match.category == "TYPOS":
             sentence = match.sentence
             word = text[match.offset:match.offset + match.error_length]
@@ -69,34 +67,47 @@ def extract_errors_to_json(matches: list, text_language: str, text: str) -> None
         else:
             new_matches.append(match)
 
-    for match in new_matches:
+    return new_matches
+
+
+def extract_errors_to_json(matches: list) -> None:
+
+    """
+    Extracts errors from the list of matches and writes them to a JSON file.
+    
+    Args:
+        matches (list): A list of errors to be extracted.
+
+    Returns:
+        None    
+    """
+    num = 0
+    for match in matches:
         num += 1  
 
-        x = {
-            "category": match.category,
-            "rule_id": match.rule_id,
-            "message": match.message,
-            "replacements": match.replacements,
-            "offset_in_context": match.offset_in_context,
-            "context": match.context,
-            "offset": match.offset,
-            "error_length": match.error_length,
-            "sentence": match.sentence,
-            "rule_issue_type": match.rule_issue_type
-        }
-        
+        x = Error_type(
+            category= match.category,
+            message= match.message,
+            offset = match.offset,
+            error_length = match.error_length
+        )
+        x_serialized = dataclasses.asdict(x)
         f = open(os.path.join(os.path.dirname(__file__), "json",f"error_file_{num}.json"), "w", encoding="utf-8")
-        json.dump(x, f, ensure_ascii=False, indent=4)
+        json.dump(x_serialized, f, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":
+    text_path = os.path.join(os.path.dirname(__file__),'tests', 'test_2.txt')
+    if text_path.endswith("1.txt"):
+        text_language = "pl"
+    elif text_path.endswith("3.txt"):
+        text_language = "en"
+    else: text_language = "pl"
+    text = extract_text(text_path)
+    language_matches = language_tool_analisys(text_language, text)
+    decimal_matches = decimal_check(text_language, text)
+    matches = language_matches + decimal_matches
+    extract_errors_to_json(matches)
 
-   text_path = os.path.join(os.path.dirname(__file__),'tests', 'test_3.txt')
-   if text_path.endswith("1.txt"):
-       text_language = "pl"
-   elif text_path.endswith("3.txt"):
-       text_language = "en"
-   matches, text = extract_text(text_language, text_path)
-   extract_errors_to_json(matches, text_language, text)
 
 

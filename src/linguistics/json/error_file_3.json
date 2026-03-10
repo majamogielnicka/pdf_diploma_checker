@@ -1,14 +1,6 @@
 {
-    "category": "TYPOS",
-    "rule_id": "MORFOLOGIK_RULE_EN_GB",
-    "message": "Possible spelling mistake found.",
-    "replacements": [
-        "Home screen"
-    ],
-    "offset_in_context": 43,
-    "context": "... who reached the site using the \"Add to Homescreen\" function, and a three times lower data...",
-    "offset": 2148,
-    "error_length": 10,
-    "sentence": "The adoption of the new standard resulted in users spending\nthree times more time on the website, a 40% higher reengagement rate, a 70% higher conversion\nrate among users who reached the site using the \"Add to Homescreen\" function, and a three times\nlower data usage.",
-    "rule_issue_type": "misspelling"
+    "category": "Separator dziesiętny",
+    "message": "Możliwe zastosowanie błędnego separatora dziesiętnego",
+    "offset": 278,
+    "error_length": 5
 }
