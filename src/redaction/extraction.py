@@ -63,8 +63,17 @@ class DocumentData:
     metadata: Dict[str, Any]
     pages: List[PageData] = field(default_factory=list)
 
-    def to_dict(self):  #zeby latwo bylo przeniesc do jsona
+    def _to_dict(self):  #zeby latwo bylo przeniesc do jsona
         return asdict(self)
+    
+    def to_json(self, file_path: str, indent: int = 4) -> None:
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(self._to_dict(), f, ensure_ascii=False, indent=indent)
+            
+        except Exception as e:
+            #TODO: tutaj tez jakis wyjatek, trzeba ustalic standard zglaszania bledow
+            print(f"blad zapisu do pliku json: {e}")
     
 def calculate_margins(blocks, width, height) -> Dict[str, float]:
     if not blocks:
@@ -231,7 +240,10 @@ def _parse_text_block(raw_block: dict) -> TextBlock:
 #test:
 #print(extractPDF("1.pdf").to_dict())
 doc_data = extractPDF("1.pdf") 
-data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 
-with open("output.json", "w", encoding="utf-8") as f: # Zapis do pliku .json
-    json.dump(data_as_dictionary, f, indent=4, ensure_ascii=False)
+doc_data.to_json("output.json") 
+
+#data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
+#
+#with open("output.json", "w", encoding="utf-8") as f: # Zapis do pliku .json
+#    json.dump(data_as_dictionary, f, indent=4, ensure_ascii=False)
