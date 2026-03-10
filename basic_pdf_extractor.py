@@ -1,5 +1,6 @@
 import fitz  
 import os
+from pathlib import Path
 
 def fix_latex(text):
     replace = { #Słownik znaków do podmiany.
@@ -72,5 +73,6 @@ def analyze_thesis(file_path):
     
 
 if __name__ == "__main__":
-    MY_FILE = "prace/bm_inz_v1.pdf" # podaj nazwe PDF
-    analyze_thesis(MY_FILE)
+    path = Path("src/theses/gp.pdf")
+    #MY_FILE = "prace/bm_inz_v1.pdf" # podaj nazwe PDF
+    analyze_thesis(path)

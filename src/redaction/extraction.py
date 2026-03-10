@@ -3,6 +3,7 @@ from typing import List, Dict, Any
 import os
 import fitz  # PyMuPDF
 import json
+from pathlib import Path
 
 #uzywam dekoratora dataclass bo:
 #ma fajne automatyczne funkcje jak tworzenie __init__ automatycznie
@@ -239,8 +240,11 @@ def _parse_text_block(raw_block: dict) -> TextBlock:
 
 #test:
 #print(extractPDF("1.pdf").to_dict())
-doc_data = extractPDF("1.pdf") 
 
+pdf_path = Path("src/theses/gp.pdf")
+doc_data = extractPDF(pdf_path) 
+
+#TODO: dodac warunek sprqwdzjaacy blad do testow
 doc_data.to_json("output.json") 
 
 #data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
