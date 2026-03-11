@@ -65,7 +65,7 @@ def extract_plain_text_from_report(input_path: str, output_path: str = "plain_te
 
 
 def main():
-    base_dir = Path(__file__).resolve().parent / "src"
+    base_dir = Path(__file__).resolve().parent 
     raport_path = base_dir / "raport.txt"
     plain_text_path = base_dir / "plain_text.txt"
 

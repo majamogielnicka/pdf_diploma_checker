@@ -56,7 +56,7 @@ def get_summary(path):
 
 
 def main():
-    base_dir = Path(__file__).resolve().parents[2]
+    base_dir = Path(__file__).resolve().parent
     plain_text_path = base_dir / "plain_text.txt"
     print(get_summary(plain_text_path))
 
