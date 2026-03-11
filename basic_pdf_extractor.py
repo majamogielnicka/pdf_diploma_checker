@@ -70,8 +70,6 @@ def analyze_thesis(file_path):
 
     doc.close()
 
-    
-
 if __name__ == "__main__":
     path = Path("src/theses/gp.pdf")
     #MY_FILE = "prace/bm_inz_v1.pdf" # podaj nazwe PDF
