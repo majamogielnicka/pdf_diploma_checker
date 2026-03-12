@@ -5,6 +5,18 @@ MODEL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
 
 
 def get_summary(path):
+    """
+    Generuje jednozdaniowe podsumowanie tekstu pracy dyplomowej przy użyciu modelu LLM.
+
+    Args:
+        path: Ścieżka do pliku tekstowego (.txt) z treścią pracy.
+
+    Returns:
+        Jedno zdanie w języku polskim określające główne zamierzenie autora.
+
+    Raises:
+        FileNotFoundError: Gdy plik pod wskazany adresem nie istnieje.
+    """
     file_path = Path(path)
 
     if not file_path.exists():
@@ -40,7 +52,7 @@ def get_summary(path):
                 "stream": False,
                 "options": {
                     "temperature": 0.1,
-                    "num_predict": 80,
+                    "num_predict": 1000,
                     "top_p": 0.3
                 }
             },
@@ -56,6 +68,7 @@ def get_summary(path):
 
 
 def main():
+    """Punkt wejścia skryptu - inicjalizuje ścieżkę i wywołuje podsumowanie."""
     base_dir = Path(__file__).resolve().parent
     plain_text_path = base_dir / "plain_text.txt"
     print(get_summary(plain_text_path))

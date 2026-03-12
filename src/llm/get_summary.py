@@ -1,3 +1,11 @@
+"""
+Moduł do automatycznego streszczania tekstów medycznych przy użyciu modelu Bielik.
+
+Ten skrypt komunikuje się z lokalną instancją Ollama, aby wygenerować zwięzłe,
+jednozdaniowe podsumowania dostarczonych fragmentów tekstu.
+"""
+
+
 import requests
 
 MODEL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
@@ -13,6 +21,24 @@ fragment = """Ból ostry jest wywołany przez bezpośrednie uszkodzenie tkanek, 
                 kłujący."""
 
 def get_summary(fragment):
+
+    """
+    Generuje jednozdaniowe streszczenie fragmentu tekstu w języku polskim.
+
+    Funkcja wysyła zapytanie do lokalnego serwera Ollama (http://localhost:11434), 
+    wymuszając na modelu LLM specyficzny format odpowiedzi (jedno zdanie, bez list).
+
+    Args:
+        fragment: Surowy tekst, który ma zostać podsumowany.
+
+    Returns:
+        Jednozdaniowe streszczenie zwrócone przez model.
+
+    Raises:
+        requests.exceptions.RequestException: Występuje w przypadku problemów 
+            z połączeniem z serwerem Ollama lub przekroczenia czasu (timeout).
+    """
+
     prompt = f"""Streść poniższy fragment w jednym zdaniu.
                 Wymagania:
                 - odpowiedź wyłącznie po polsku
@@ -33,6 +59,7 @@ def get_summary(fragment):
     return resp.json()["response"]
 
 def main():
+    """Punkt wejścia do skryptu. Prezentuje działanie funkcji get_summary."""
     print(get_summary(fragment))
 
 if __name__ == "__main__":
