@@ -153,6 +153,7 @@ def extractPDF(file_path: str) -> DocumentData:
 
     for page_index, page in enumerate(doc):
         raw_dict = page.get_text("dict")
+        word_list = page.get_text("words")
         p_width = page.rect.width
         p_height = page.rect.height
 
@@ -202,7 +203,7 @@ def extractPDF(file_path: str) -> DocumentData:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
             if block["type"] == 0:
-                text_block = _parse_text_block(block)
+                text_block = _parse_text_block(block, word_list)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
             
@@ -225,25 +226,60 @@ def extractPDF(file_path: str) -> DocumentData:
     doc.close()
     return document_data
 
-def _parse_text_block(raw_block: dict) -> TextBlock:
+#Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
+#o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na 
+#detekcję czcionki, itd. W związku z tym użyto zarówno dicta jak i listy słów, aby połączyć korzyści.
+def _parse_text_block(raw_block: dict, word_list:list) -> TextBlock:
     lines = []
+    block_words = []
+
+    #Sprawdzanie, które słowa są w środk danego bloku, żeby nie sprawdzać każdego słowa
+    #na stronie czy nie należy do danego spana
+
+    for x in word_list:
+        if x[5] == raw_block["number"]:
+            block_words.append(x)
+
+
     for raw_line in raw_block["lines"]:
         spans = []
         for raw_span in raw_line["spans"]:
             if not raw_span["text"].strip():
                 continue
             
+            s_bbox = raw_span["bbox"]
+            span_words = []
+
+            for x in block_words:
+                #Sprawdzanie czy dane słowo należy do spanu z małym marginesem błędu (0.2), w razie
+                #problemów można zwiększyć
+                if (x[0] >= s_bbox[0] - 0.2 and x[1]>= s_bbox[1]-0.2 and x[2]<=s_bbox[2]+0.2 and x[3]<=s_bbox[3]+0.2): 
+                    span_words.append(x)
+
             #obsluga flag
             flags = raw_span["flags"]
-            spans.append(TextSpan(
-                text=fix_latex(raw_span["text"]),
-                font=raw_span["font"],
-                size=round(raw_span["size"], 2),
-                color=raw_span["color"],
-                bold=bool(flags & 16),
-                italic=bool(flags & 2),
-                bbox=raw_span["bbox"]
-            ))
+
+            if span_words:
+                for x in span_words:
+                    spans.append(TextSpan(
+                        text=fix_latex(x[4]),
+                        font=raw_span["font"],
+                        size=round(raw_span["size"], 2),
+                        color=raw_span["color"],
+                        bold=bool(flags & 16),
+                        italic=bool(flags & 2),
+                        bbox=(x[0],x[1],x[2],x[3])
+                    ))
+            else:
+                spans.append(TextSpan(
+                    text=fix_latex(raw_span["text"]),
+                    font=raw_span["font"],
+                    size=round(raw_span["size"], 2),
+                    color=raw_span["color"],                        bold=bool(flags & 16),
+                    italic=bool(flags & 2),
+                    bbox=raw_span["bbox"]
+                ))
+
         
         if spans:
             lines.append(TextLine(
