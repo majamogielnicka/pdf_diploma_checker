@@ -1,11 +1,3 @@
-"""
-Moduł do automatycznego streszczania tekstów medycznych przy użyciu modelu Bielik.
-
-Ten skrypt komunikuje się z lokalną instancją Ollama, aby wygenerować zwięzłe,
-jednozdaniowe podsumowania dostarczonych fragmentów tekstu.
-"""
-
-
 import requests
 
 MODEL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
