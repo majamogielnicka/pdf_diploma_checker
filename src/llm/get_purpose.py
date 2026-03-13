@@ -1,30 +1,11 @@
 import requests
 from pathlib import Path
+from text_extraction import get_content
 
-MODEL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
+MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
+MODEL_EN = "qwen2.5:latest"
 
-
-def get_summary(path):
-    """
-    Generuje jednozdaniowe podsumowanie tekstu pracy dyplomowej przy użyciu modelu LLM.
-
-    Args:
-        path: Ścieżka do pliku tekstowego (.txt) z treścią pracy.
-
-    Returns:
-        Jedno zdanie w języku polskim określające główne zamierzenie autora.
-
-    Raises:
-        FileNotFoundError: Gdy plik pod wskazany adresem nie istnieje.
-    """
-    file_path = Path(path)
-
-    if not file_path.exists():
-        raise FileNotFoundError(f"Nie znaleziono pliku: {file_path}")
-
-    full_text = file_path.read_text(encoding="utf-8").strip()
-
-    prompt = f"""
+prompt_pl = f"""
         Przeczytaj poniższy tekst pracy dyplomowej i wywnioskuj główne zamierzenie autora.
 
         Wymagania:
@@ -39,15 +20,22 @@ def get_summary(path):
         - nie dodawaj informacji spoza tekstu
         - zwróć tylko jedno końcowe zdanie
 
-        Tekst:
-        {full_text}
-        """
+        Tekst:"""
+
+def get_purpose(path, prompt, model):
+    text = get_content(path)
+
+    file_path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Nie znaleziono pliku: {file_path}")
+
+    prompt = prompt +text
 
     try:
         resp = requests.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": MODEL,
+                "model": model,
                 "prompt": prompt,
                 "stream": False,
                 "options": {
@@ -65,13 +53,16 @@ def get_summary(path):
 
     except requests.exceptions.ReadTimeout:
         return "Błąd: model nie odpowiedział na czas."
+    except requests.exceptions.ConnectionError:
+        return "Błąd: nie udało się połączyć z Ollamą."
+    except requests.exceptions.HTTPError as e:
+        return f"Błąd HTTP: {e}"
+    except Exception as e:
+        return f"Błąd: {e}"
 
 
 def main():
-    """Punkt wejścia skryptu - inicjalizuje ścieżkę i wywołuje podsumowanie."""
-    base_dir = Path(__file__).resolve().parent
-    plain_text_path = base_dir / "plain_text.txt"
-    print(get_summary(plain_text_path))
+    print(get_purpose("src/theses/doro.pdf", prompt_pl, MODEL_PL))
 
 
 if __name__ == "__main__":
