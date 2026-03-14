@@ -2,6 +2,8 @@ import requests
 import json
 from get_content import get_text 
 
+file_path, file_lang = "src/theses/doro.pdf", "pl"
+
 MODEL_PL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
 MODEL_EN = "qwen2.5:latest"  
 
@@ -81,6 +83,8 @@ Text to analyze:
 {text}
 """
 
+
+
 def chunk_text(text, chunk_size=3000):
     words = text.split()
     chunks = []
@@ -100,7 +104,7 @@ def chunk_text(text, chunk_size=3000):
         chunks.append(" ".join(current_chunk))
     return chunks
 
-def extract_sota_from_chunk(text_chunk, language):
+def find_vocabulary(text_chunk, language):
     if language == "pl":
         model = MODEL_PL
         context_str = "\n".join([f"- {c}" for c in CONTEXT_PL])
@@ -150,7 +154,7 @@ def extract_sota_from_chunk(text_chunk, language):
         print(f"[Błąd w fragmencie]: {e}")
         return []
 
-def analyze_thesis_sota(path, language):
+def find_sota(path, language):
     print(f"Rozpoczynam analizę pliku: {path} (Język: {language})")
     full_text = get_text(path)
     
@@ -161,7 +165,7 @@ def analyze_thesis_sota(path, language):
 
     for i, chunk in enumerate(chunks):
         print(f"  Analiza fragmentu {i+1}/{len(chunks)}...")
-        sentences = extract_sota_from_chunk(chunk, language)
+        sentences = find_vocabulary(chunk, language)
         if sentences:
             all_found_sota.extend(sentences)
 
@@ -177,4 +181,4 @@ def analyze_thesis_sota(path, language):
         print("Nie znaleziono żadnych odwołań do SOTA w tej pracy.")
 
 if __name__ == "__main__":
-    analyze_thesis_sota("src/theses/doro.pdf", "pl")
+    find_sota(file_path, file_lang)
