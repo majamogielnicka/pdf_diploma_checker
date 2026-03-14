@@ -1,1 +1,5 @@
-images/
+__pycache__/
+*.pyc
+env_zsd.sh
+
+/images
