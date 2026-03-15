@@ -1,7 +1,7 @@
 from pathlib import Path
 from get_purpose import get_purpose
-# from get_summary import get_summary
-# from get_headings import get_headings
+from get_content import split_subtitles
+from get_summary import get_summaries
 
 file_path, lng = Path("src/theses/doro.pdf"), "pl" #pl or en
 results_path = Path(__file__).resolve().parent / "results.txt"
@@ -13,13 +13,15 @@ def analyze_thesis(path, language):
     
     with open(results_path, "w", encoding="utf-8") as f:
         purpose = get_purpose(path, language)
-        print(purpose)
-        f.write(f"{purpose}\n")
+        print("CEL ", purpose)
+        f.write(f"cel: {purpose}\n")
 
-        # headings = get_headings(path)
-        # for heading in headings:
-        #     summary = get_summary(path, heading)
-        #     f.write(f"{summary}\n")
+        subtitles = split_subtitles(path)
+        summaries = get_summaries(subtitles, language)
+
+        print(summaries)
+        f.write(f"{summaries}\n")
+
 
 def main():
     analyze_thesis(file_path, lng)

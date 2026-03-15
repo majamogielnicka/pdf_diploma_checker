@@ -24,6 +24,15 @@ prompt_pl = f"""Streść poniższy fragment w jednym zdaniu.
                 Fragment:
                 """
 
+prompt_en = f"""Summarize the following fragment in one sentence.
+                Requirements:
+                - answer only in English
+                - max 1 sentence
+                - no quotes and no bullet points
+                - preserve the meaning and do not add information not present in the fragment
+                Fragment:
+                """
+
 def get_summary(fragment, model, prompt):
 
     """
@@ -53,8 +62,31 @@ def get_summary(fragment, model, prompt):
     resp.raise_for_status()
     return resp.json()["response"]
 
+
+def get_summaries(blocks, language):
+    if language == "pl":
+        model = MODEL_PL
+        prompt = prompt_pl
+    elif language == "en":
+        model = MODEL_EN
+        prompt = prompt_en
+
+    summaries = []
+
+    for block in blocks:
+        summary = get_summary(block.content, model, prompt)
+
+        summaries.append(
+            f"{block.id}. {block.number} {block.title}\n"
+            f"SUMMARY:\n{summary}\n"
+        )
+
+    return ("\n" + "-" * 80 + "\n").join(summaries)
+
+
 def main():
     print(get_summary(fragment, MODEL_PL, prompt_pl))
+
 
 if __name__ == "__main__":
     main()
