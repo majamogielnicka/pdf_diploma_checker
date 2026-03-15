@@ -5,6 +5,15 @@ import fitz  # PyMuPDF
 import json
 from pathlib import Path
 
+# Tryb debugu:
+# 0 - domyślny tryb, program działakorzystając z /thesis
+# 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
+# TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
+# Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
+debug_mode = 1 
+debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
+debug_path = "pdf_diploma_checker/src/redaction/redaction_debug/{debug_type}_example.pdf"
+
 #uzywam dekoratora dataclass bo:
 #ma fajne automatyczne funkcje jak tworzenie __init__ automatycznie
 #jest duzo bardziej czytelny (#team_c++)
@@ -47,6 +56,7 @@ class TableInfo:
     bbox: tuple
     row_count: int
     col_count: int
+    description: str 
     data: List[List[str]] 
 
 @dataclass
@@ -125,6 +135,31 @@ def fix_latex(text):
         text = text.replace(wrong, right)
     return text
 
+def find_table_description(table_bbox, text_blocks):
+    x0, y0, x1, y1 = table_bbox
+    potential_descriptions = []
+
+    for block in text_blocks:
+        bx0, by0, bx1, by1 = block.bbox
+        
+        # 1. Odległość pionowa (szukamy blisko tabeli)
+        is_close_above = by1 < y0 and abs(by1 - y0) < 5  # Nad tabelą
+        is_close_below = by0 > y1 and abs(by0 - y1) < 40  # Pod tabelą
+        
+        if is_close_above or is_close_below:
+            full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
+            
+            # 2. Heurystyka: Czy tekst zaczyna się od "Tabela" lub "Tab."?
+            # To eliminuje przypadkowe akapity tekstu głównego
+            if full_text.lower().startswith(("tabele", "tabela", "tab.")):
+                return full_text
+            
+            # Jeśli nie ma słowa kluczowego, zapiszmy to jako opcję zapasową
+            potential_descriptions.append(full_text)
+
+    # Jeśli nie znaleźliśmy nic ze słowem kluczowym, zwróć najbliższy blok (o ile istnieje)
+    return potential_descriptions[0] if potential_descriptions else ""
+
 def extractPDF(file_path: str) -> DocumentData:
     if not os.path.exists(file_path):
         #TODO:tutaj jakis wyjatek
@@ -167,37 +202,7 @@ def extractPDF(file_path: str) -> DocumentData:
         )
 
         #TODO: znajdywanie tabel typu APA czyli, takich z niestandardowym obramowaniem bez linii poziomych albo jakichkolwiek linii. ogólna poprawa działania funkcji
-        #znajdowanie tabel, wyciąganie danych i zapisywanie do list
-        tabs = page.find_tables(strategy="lines_strict") 
-        for tab in tabs.tables:
-            extracted_data = tab.extract() # Wyciąga dane jako List[List[str]]
-
-            #zabezpieczenie przed zapisywaniem przypadkowo znalezionych elemetów które są z zasady za małe by być tabelami
-            if tab.row_count < 2 or tab.col_count < 2: 
-                continue
-
-            #usuwa entery i zamienia na spacje, można potem usunąć jakbyśmy chcieli widzieć gdzie są entery
-            cleaned_data = [ 
-                [cell.replace('\n', ' ').strip() if cell else "" for cell in row]
-                for row in extracted_data
-            ]
-
-            #zabezpieczenie przed zapisywaniem wykresów jako tabelek
-            total_cells = tab.row_count * tab.col_count 
-            if total_cells > 0:
-                filled_cells = sum(1 for row in cleaned_data for cell in row if cell != "")
-                fill_ratio = filled_cells / total_cells
-                
-                if fill_ratio < 0.30:
-                    continue        
-
-            cur_page.tables.append(TableInfo(
-                bbox=tab.bbox,
-                row_count=tab.row_count,
-                col_count=tab.col_count,
-                data=cleaned_data
-            ))      
-
+        #znajdowanie tabel, wyciąganie danych i zapisywanie do list        
         
         for block in raw_dict["blocks"]:
             #typ 0 to tekst, typ 1 to obraz
@@ -221,6 +226,40 @@ def extractPDF(file_path: str) -> DocumentData:
                     height=block["height"]
                 ))
 
+        tabs = page.find_tables(strategy="lines_strict") 
+
+        for tab in tabs.tables:
+            extracted_data = tab.extract() # Wyciąga dane jako List[List[str]]
+
+            #zabezpieczenie przed zapisywaniem przypadkowo znalezionych elemetów które są z zasady za małe by być tabelami
+            if tab.row_count < 2 or tab.col_count < 2: 
+                continue
+
+            #usuwa entery i zamienia na spacje, można potem usunąć jakbyśmy chcieli widzieć gdzie są entery
+            cleaned_data = [ 
+                [cell.replace('\n', ' ').strip() if cell else "" for cell in row]
+                for row in extracted_data
+            ]
+
+            #zabezpieczenie przed zapisywaniem wykresów jako tabelek
+            total_cells = tab.row_count * tab.col_count 
+            if total_cells > 0:
+                filled_cells = sum(1 for row in cleaned_data for cell in row if cell != "")
+                fill_ratio = filled_cells / total_cells
+                
+                if fill_ratio < 0.30:
+                    continue        
+            description = find_table_description(tab.bbox, cur_page.text_blocks)
+
+            cur_page.tables.append(TableInfo(
+                bbox=tab.bbox,
+                row_count=tab.row_count,
+                col_count=tab.col_count,
+                description=description,
+                data=cleaned_data,
+                
+            ))      
+        
         document_data.pages.append(cur_page)
 
     doc.close()
@@ -293,11 +332,21 @@ def _parse_text_block(raw_block: dict, word_list:list) -> TextBlock:
 #test:
 #print(extractPDF("1.pdf").to_dict())
 
-pdf_path = Path("src/theses/gp.pdf")
-doc_data = extractPDF(pdf_path) 
+
+if debug_mode == 0:
+    pdf_path = Path("pdf_diploma_checker/src/theses/ch.pdf")
+elif debug_mode == 1:
+    candidate = Path(debug_path.format(debug_type=debug_type))
+    if candidate.exists():
+        pdf_path = candidate
+    else:
+        print(f"Debug PDF not found: {candidate}. Falling back to default thesis path.")
+        pdf_path = Path("src/theses/gp.pdf")
+
+doc_data = extractPDF(pdf_path)
 
 #TODO: dodac warunek sprqwdzjaacy blad do testow
-doc_data.to_json("output.json") 
+doc_data.to_json("pdf_diploma_checker/src/redaction/output.json") 
 
 #data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 #
