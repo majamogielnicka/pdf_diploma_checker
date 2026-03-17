@@ -141,7 +141,7 @@ if __name__ == "__main__":
     if pdf_path.exists():
         raw_data = extractPDF(str(pdf_path))
         final_doc = PDFMapper.map_to_schema(raw_data)
-        final_doc.to_json("output.json")
+        final_doc.to_json("pdf_diploma_checker/src/redaction/output.json")
         print("JSON wygenerowany")
     else:
         print(f"Błąd: Nie znaleziono pliku {pdf_path}")
