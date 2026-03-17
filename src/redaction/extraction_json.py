@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Union
 import os
 import fitz  # PyMuPDF
 import json
@@ -10,7 +10,7 @@ from pathlib import Path
 # 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
 # Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
-debug_mode = 1 
+debug_mode = 0 
 debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
 debug_path = "pdf_diploma_checker/src/redaction/redaction_debug/{debug_type}_example.pdf"
 
@@ -85,6 +85,12 @@ class DocumentData:
         except Exception as e:
             #TODO: tutaj tez jakis wyjatek, trzeba ustalic standard zglaszania bledow
             print(f"blad zapisu do pliku json: {e}")
+
+
+
+
+
+
     
 def calculate_margins(blocks, width, height) -> Dict[str, float]:
     if not blocks:
@@ -142,19 +148,17 @@ def find_table_description(table_bbox, text_blocks):
     for block in text_blocks:
         bx0, by0, bx1, by1 = block.bbox
         
-        # 1. Odległość pionowa (szukamy blisko tabeli)
+        # 1. Szukanie odległości pionowej 
         is_close_above = by1 < y0 and abs(by1 - y0) < 5  # Nad tabelą
         is_close_below = by0 > y1 and abs(by0 - y1) < 40  # Pod tabelą
         
         if is_close_above or is_close_below:
             full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
             
-            # 2. Heurystyka: Czy tekst zaczyna się od "Tabela" lub "Tab."?
-            # To eliminuje przypadkowe akapity tekstu głównego
+            # 2. Szukanie czy tekst zaczyna się od "Tabela" lub "Tab."
             if full_text.lower().startswith(("tabele", "tabela", "tab.")):
                 return full_text
             
-            # Jeśli nie ma słowa kluczowego, zapiszmy to jako opcję zapasową
             potential_descriptions.append(full_text)
 
     # Jeśli nie znaleźliśmy nic ze słowem kluczowym, zwróć najbliższy blok (o ile istnieje)
