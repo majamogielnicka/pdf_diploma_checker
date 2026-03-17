@@ -5,15 +5,6 @@ import fitz  # PyMuPDF
 import json
 from pathlib import Path
 
-# Tryb debugu:
-# 0 - domyślny tryb, program działakorzystając z /thesis
-# 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
-# TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
-# Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
-debug_mode = 1 
-debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
-debug_path = "pdf_diploma_checker/src/redaction/redaction_debug/{debug_type}_example.pdf"
-
 #uzywam dekoratora dataclass bo:
 #ma fajne automatyczne funkcje jak tworzenie __init__ automatycznie
 #jest duzo bardziej czytelny (#team_c++)
@@ -50,13 +41,13 @@ class ImageInfo:
     bbox: tuple
     width: int
     height: int
+    image_type: str 
 
 @dataclass
 class TableInfo:
     bbox: tuple
     row_count: int
     col_count: int
-    description: str 
     data: List[List[str]] 
 
 @dataclass
@@ -135,30 +126,169 @@ def fix_latex(text):
         text = text.replace(wrong, right)
     return text
 
-def find_table_description(table_bbox, text_blocks):
-    x0, y0, x1, y1 = table_bbox
-    potential_descriptions = []
+def extract_tables(page: fitz.Page, drawings: list, cur_page: PageData) -> list:
+    table_bboxes = []
+    #TODO: znajdywanie tabel typu APA czyli, takich z niestandardowym obramowaniem bez linii poziomych albo jakichkolwiek linii. ogólna poprawa działania funkcji
+    #znajdowanie tabel, wyciąganie danych i zapisywanie do list
+    tabs = page.find_tables(strategy="lines_strict") 
+    for tab in tabs.tables:
+        extracted_data = tab.extract() # Wyciąga dane jako List[List[str]]
 
-    for block in text_blocks:
-        bx0, by0, bx1, by1 = block.bbox
+        #zabezpieczenie przed zapisywaniem przypadkowo znalezionych elemetów które są z zasady za małe by być tabelami
+        if tab.col_count < 2: 
+            continue
+        if tab.row_count == 2 and tab.col_count == 2:
+            continue
         
-        # 1. Odległość pionowa (szukamy blisko tabeli)
-        is_close_above = by1 < y0 and abs(by1 - y0) < 5  # Nad tabelą
-        is_close_below = by0 > y1 and abs(by0 - y1) < 40  # Pod tabelą
-        
-        if is_close_above or is_close_below:
-            full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
-            
-            # 2. Heurystyka: Czy tekst zaczyna się od "Tabela" lub "Tab."?
-            # To eliminuje przypadkowe akapity tekstu głównego
-            if full_text.lower().startswith(("tabele", "tabela", "tab.")):
-                return full_text
-            
-            # Jeśli nie ma słowa kluczowego, zapiszmy to jako opcję zapasową
-            potential_descriptions.append(full_text)
+        is_flowchart = False
+        for d in drawings:
+            d_rect = fitz.Rect(d["rect"])
 
-    # Jeśli nie znaleźliśmy nic ze słowem kluczowym, zwróć najbliższy blok (o ile istnieje)
-    return potential_descriptions[0] if potential_descriptions else ""
+            if d_rect.intersects(tab.bbox):
+                for item in d["items"]:
+
+                    if item[0] == "l":
+                        p1, p2 = item[1], item[2]
+
+                        if abs(p1.x - p2.x) > 1 and abs(p1.y - p2.y) > 1:
+                            is_flowchart = True
+                            break
+                    elif item[0] in ("c", "q"): 
+                        is_flowchart = True
+                        break
+            if is_flowchart:
+                break
+
+        if is_flowchart:
+            continue
+        #usuwa entery i zamienia na spacje, można potem usunąć jakbyśmy chcieli widzieć gdzie są entery
+        cleaned_data = [ 
+            [cell.replace('\n', ' ').strip() if cell else "" for cell in row]
+            for row in extracted_data
+        ]
+
+        #zabezpieczenie przed zapisywaniem wykresów jako tabelek
+        total_cells = tab.row_count * tab.col_count 
+        if total_cells > 0:
+            filled_cells = sum(1 for row in cleaned_data for cell in row if cell != "")
+            fill_ratio = filled_cells / total_cells
+            
+            if fill_ratio < 0.40:
+                continue        
+        
+        total_chars = sum(len(cell) for row in cleaned_data for cell in row)
+        if total_chars > 0:
+            max_chars_in_cell = max(len(cell) for row in cleaned_data for cell in row)
+            
+            if max_chars_in_cell / total_chars > 0.80:
+                continue
+
+        avg_chars_per_cell = total_chars / filled_cells
+        if fill_ratio < 0.55 and avg_chars_per_cell < 15:
+            continue 
+            
+        
+        table_bboxes.append(fitz.Rect(tab.bbox))
+        cur_page.tables.append(TableInfo(
+            bbox=tab.bbox,
+            row_count=tab.row_count,
+            col_count=tab.col_count,
+            data=cleaned_data
+        ))      
+
+    return table_bboxes
+
+def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, table_bboxes: list, cur_page: PageData) -> None:
+    if not drawings:
+        return
+
+    vector_bboxes = []
+    for d in drawings:
+       
+       # tutaj jest zakomentowane zabezpieczenie przed zapisywaniem podpisów typu "Praca własna", 
+       # które są na szarym tle i są uznawane za grafikę wektorową
+       # Póki co nwm czy to dobrze czy to źle ale jak źle to można odkomentować 
+       # PS. nie testowane na wszystkich pdf bo to trwa i trwa
+       # ~Maciej, 17.03
+       '''
+       color = d.get("color")
+       fill = d.get("fill")
+       
+       is_invisible = False
+
+       if color is None and fill is None:
+           is_invisible = True
+
+       elif color is None and fill is not None:
+           if len(fill) in (1, 3) and min(fill) >= 0.98: 
+               is_invisible = True
+           elif len(fill) == 4 and max(fill) <= 0.02: 
+               is_invisible = True
+               
+       if is_invisible:
+           continue
+       '''
+       rect = d["rect"]
+       if max(rect.width, rect.height) > 2:
+           vector_bboxes.append(fitz.Rect(rect))
+    
+    merged_bboxes = vector_bboxes.copy()
+    changed = True
+    
+    while changed:
+        changed = False
+        new_merged = []
+        
+        while len(merged_bboxes) > 0:
+            current = merged_bboxes.pop(0)
+            expanded_current = current + (-50, -50, 50, 50)
+            
+            i = 0
+            while i < len(merged_bboxes):
+                if expanded_current.intersects(merged_bboxes[i]):
+                    current = current | merged_bboxes[i]
+                    expanded_current = current + (-50, -50, 50, 50)
+                    merged_bboxes.pop(i)
+                    changed = True
+                else:
+                    i += 1
+            new_merged.append(current)
+        merged_bboxes = new_merged
+
+    MIN_PHYSICAL_WIDTH = 40
+    MIN_PHYSICAL_HEIGHT = 20
+    
+    for i, bbox in enumerate(merged_bboxes):
+        if bbox.width > MIN_PHYSICAL_WIDTH and bbox.height > MIN_PHYSICAL_HEIGHT:
+            aspect_ratio = bbox.width / bbox.height
+            
+            if aspect_ratio < 15.0 and aspect_ratio > 0.1:
+                
+                is_invalid = False
+                
+                for t_bbox in table_bboxes:
+                    intersect = bbox & t_bbox 
+                    if intersect.is_valid and not intersect.is_empty:
+                        overlap_area = intersect.width * intersect.height
+                        bbox_area = bbox.width * bbox.height
+                        if bbox_area > 0 and (overlap_area / bbox_area) > 0.15:
+                            is_invalid = True
+                            break
+                                
+                if is_invalid:
+                    continue
+
+                pix = page.get_pixmap(clip=bbox)
+                img_path = f"images/p{page_index}_vec_{i}.png"
+                pix.save(img_path)
+                
+                cur_page.images.append(ImageInfo(
+                    path=img_path,
+                    bbox=(bbox.x0, bbox.y0, bbox.x1, bbox.y1),
+                    width=pix.width,
+                    height=pix.height,
+                    image_type="vector"
+                ))
 
 def extractPDF(file_path: str) -> DocumentData:
     if not os.path.exists(file_path):
@@ -201,9 +331,10 @@ def extractPDF(file_path: str) -> DocumentData:
             images=[]
         )
 
-        #TODO: znajdywanie tabel typu APA czyli, takich z niestandardowym obramowaniem bez linii poziomych albo jakichkolwiek linii. ogólna poprawa działania funkcji
-        #znajdowanie tabel, wyciąganie danych i zapisywanie do list        
-        
+        drawings = page.get_drawings()
+
+        table_bboxes = extract_tables(page, drawings, cur_page)
+
         for block in raw_dict["blocks"]:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
@@ -213,6 +344,21 @@ def extractPDF(file_path: str) -> DocumentData:
                     cur_page.text_blocks.append(text_block)
             
             elif block["type"] == 1:
+                x0, y0, x1, y1 = block["bbox"]
+                phys_width = x1 - x0
+                phys_height = y1 - y0
+                
+                MIN_PHYSICAL_WIDTH = 20
+                MIN_PHYSICAL_HEIGHT = 20
+                
+                if phys_width < MIN_PHYSICAL_WIDTH or phys_height < MIN_PHYSICAL_HEIGHT:
+                    continue
+
+                if phys_height > 0:
+                    aspect_ratio = phys_width / phys_height
+                    if aspect_ratio > 15.0 or aspect_ratio < 0.15:
+                        continue
+                
                 ext = block.get("ext", "png")
                 img_path = f"images/p{page_index}_b{block['number']}.{ext}"
 
@@ -223,43 +369,12 @@ def extractPDF(file_path: str) -> DocumentData:
                     path=img_path,
                     bbox=block["bbox"],
                     width=block["width"],
-                    height=block["height"]
+                    height=block["height"],
+                    image_type="raster"
                 ))
 
-        tabs = page.find_tables(strategy="lines_strict") 
+        extract_vector_graphics(page, drawings, page_index, table_bboxes, cur_page)      
 
-        for tab in tabs.tables:
-            extracted_data = tab.extract() # Wyciąga dane jako List[List[str]]
-
-            #zabezpieczenie przed zapisywaniem przypadkowo znalezionych elemetów które są z zasady za małe by być tabelami
-            if tab.row_count < 2 or tab.col_count < 2: 
-                continue
-
-            #usuwa entery i zamienia na spacje, można potem usunąć jakbyśmy chcieli widzieć gdzie są entery
-            cleaned_data = [ 
-                [cell.replace('\n', ' ').strip() if cell else "" for cell in row]
-                for row in extracted_data
-            ]
-
-            #zabezpieczenie przed zapisywaniem wykresów jako tabelek
-            total_cells = tab.row_count * tab.col_count 
-            if total_cells > 0:
-                filled_cells = sum(1 for row in cleaned_data for cell in row if cell != "")
-                fill_ratio = filled_cells / total_cells
-                
-                if fill_ratio < 0.30:
-                    continue        
-            description = find_table_description(tab.bbox, cur_page.text_blocks)
-
-            cur_page.tables.append(TableInfo(
-                bbox=tab.bbox,
-                row_count=tab.row_count,
-                col_count=tab.col_count,
-                description=description,
-                data=cleaned_data,
-                
-            ))      
-        
         document_data.pages.append(cur_page)
 
     doc.close()
@@ -278,7 +393,6 @@ def _parse_text_block(raw_block: dict, word_list:list) -> TextBlock:
     for x in word_list:
         if x[5] == raw_block["number"]:
             block_words.append(x)
-
 
     for raw_line in raw_block["lines"]:
         spans = []
@@ -332,21 +446,11 @@ def _parse_text_block(raw_block: dict, word_list:list) -> TextBlock:
 #test:
 #print(extractPDF("1.pdf").to_dict())
 
-
-if debug_mode == 0:
-    pdf_path = Path("pdf_diploma_checker/src/theses/ch.pdf")
-elif debug_mode == 1:
-    candidate = Path(debug_path.format(debug_type=debug_type))
-    if candidate.exists():
-        pdf_path = candidate
-    else:
-        print(f"Debug PDF not found: {candidate}. Falling back to default thesis path.")
-        pdf_path = Path("src/theses/gp.pdf")
-
-doc_data = extractPDF(pdf_path)
+pdf_path = Path("src/theses/ch.pdf")
+doc_data = extractPDF(pdf_path) 
 
 #TODO: dodac warunek sprqwdzjaacy blad do testow
-doc_data.to_json("pdf_diploma_checker/src/redaction/output.json") 
+doc_data.to_json("output.json") 
 
 #data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 #
