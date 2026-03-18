@@ -60,14 +60,24 @@ def language_tool_analisys(text_language: str, text: str) -> list:
                 en_matches = tool_en.check(word)
                 for en_match in en_matches:
                     en_match.sentence = sentence
+                    en_match.offset += match.offset
                 new_matches.extend(en_matches)
                 continue
             else:
                 new_matches.append(match)
         else:
             new_matches.append(match)
-
-    return new_matches
+    errors = []
+    for new_match in new_matches:
+        error = Error_type(
+            content = text[new_match.offset:new_match.offset + new_match.error_length],
+            category= new_match.category,
+            message= new_match.message,
+            offset = new_match.offset,
+            error_length = new_match.error_length
+        )
+        errors.append(error)
+    return errors
 
 
 def extract_errors_to_json(matches: list) -> None:
@@ -84,30 +94,11 @@ def extract_errors_to_json(matches: list) -> None:
     num = 0
     for match in matches:
         num += 1  
-
-        x = Error_type(
-            category= match.category,
-            message= match.message,
-            offset = match.offset,
-            error_length = match.error_length
-        )
-        x_serialized = dataclasses.asdict(x)
+        match_serialized = dataclasses.asdict(match)
         f = open(os.path.join(os.path.dirname(__file__), "json",f"error_file_{num}.json"), "w", encoding="utf-8")
-        json.dump(x_serialized, f, ensure_ascii=False, indent=4)
+        json.dump(match_serialized, f, ensure_ascii=False, indent=4)
 
 
-if __name__ == "__main__":
-    text_path = os.path.join(os.path.dirname(__file__),'tests', 'test_2.txt')
-    if text_path.endswith("1.txt"):
-        text_language = "pl"
-    elif text_path.endswith("3.txt"):
-        text_language = "en"
-    else: text_language = "pl"
-    text = extract_text(text_path)
-    language_matches = language_tool_analisys(text_language, text)
-    decimal_matches = decimal_check(text_language, text)
-    matches = language_matches + decimal_matches
-    extract_errors_to_json(matches)
 
 
 
