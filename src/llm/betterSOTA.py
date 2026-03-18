@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from get_content import get_content, ChapterBlock
+from extract_citations import analyze_sota_citations
 
 MODEL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
 
@@ -122,9 +123,14 @@ def find_sota_chapter(path: str, output_dir: str = "."):
     
     print(f"\nZapisano podsumowanie do pliku: {output_filename.absolute()}")
 
+    if sota_chapters:
+        sota_ids = [ch['id'] for ch in sota_chapters]
+        print(f"\nPrzekazuję wykryte ID ({sota_ids}) do skryptu cytowań...")
+        analyze_sota_citations(path, sota_ids, output_dir)
+
 if __name__ == "__main__": 
-    file_path = "pdf_diploma_checker/src/theses/ch.pdf"
-    folder_docelowy = "pdf_diploma_checker/src/llm/wyniki"
+    file_path = "src/theses/jabi.pdf"
+    folder_docelowy = "src/llm/wyniki"
     
     if Path(file_path).exists():
         find_sota_chapter(file_path, output_dir=folder_docelowy)
