@@ -350,7 +350,7 @@ elif debug_mode == 1:
 doc_data = extractPDF(pdf_path)
 
 #TODO: dodac warunek sprqwdzjaacy blad do testow
-doc_data.to_json("pdf_diploma_checker/src/redaction/output.json") 
+doc_data.to_json("output.json") 
 
 #data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 #

@@ -8,13 +8,15 @@ import re # Regular Expressions - manipulacja tekstem za pomocą wzorców
 class WordInfo: # Położenie XY oraz relatywne słowa
     word_index: int
     text: str
+    start_char: int    
+    end_char: int      
     font: str
     size: float
     bold: bool
     italic: bool
     bbox: List[float]
     page_number: int
-
+    
 @dataclass
 class HeadingInfo: # Informacje o nagłówkach (TODO)
     level: int

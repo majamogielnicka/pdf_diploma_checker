@@ -63,6 +63,7 @@ class PDFMapper:
                 full_text = ""
                 words_info = []
                 word_counter = 0
+                current_pos = 0
 
                 temp_text = "".join(s.text for l in block.lines for s in l.spans).strip().lower()
                 
@@ -85,17 +86,27 @@ class PDFMapper:
 
                 for line in block.lines:
                     for span in line.spans:
-                        full_text += span.text + " "
-                        words_info.append(WordInfo(
+                        word_text = span.text
+                        start_char = current_pos
+                        end_char = start_char + len(word_text)
+                        
+                        w_info = WordInfo(
                             word_index=word_counter,
-                            text=span.text,
+                            text=word_text,
+                            start_char=start_char,
+                            end_char=end_char,
                             font=span.font,
                             size=span.size,
                             bold=span.bold,
                             italic=span.italic,
                             bbox=list(span.bbox),
                             page_number=page.number
-                        ))
+                        )
+                        words_info.append(w_info)
+                        
+                        # Budujemy tekst i aktualizujemy pozycję dla następnego słowa
+                        full_text += word_text + " "
+                        current_pos = end_char + 1  # +1, bo dodaliśmy spację
                         word_counter += 1
                 
                 full_text = full_text.strip()
