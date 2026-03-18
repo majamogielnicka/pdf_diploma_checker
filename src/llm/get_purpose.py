@@ -1,6 +1,5 @@
 import requests
 from get_content import get_text
-from sota_vocabulary import chunk_text
 
 path, language = "src/theses/doro.pdf", "pl"
 
@@ -76,6 +75,25 @@ Requirements:
 
 Partial descriptions:
 """
+
+def chunk_text(text, chunk_size=3000):
+    words = text.split()
+    chunks = []
+    current_chunk = []
+    current_length = 0
+    
+    for word in words:
+        current_length += len(word) + 1
+        if current_length > chunk_size:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = [word]
+            current_length = len(word) + 1
+        else:
+            current_chunk.append(word)
+            
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+    return chunks
 
 def ask_ollama(prompt, model):
     resp = requests.post(

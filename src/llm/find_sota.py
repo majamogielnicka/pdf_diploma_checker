@@ -16,6 +16,11 @@ Rozdział SOTA charakteryzuje się:
 3. Wskazywaniem luk w obecnej wiedzy lub opisywaniem historii problemu.
 4. Jest to CIĄGŁY TEKST (narracja), a nie lista punktów, spis nagłówków czy bibliografia.
 
+CZEGO UNIKAĆ (To NIE JEST SOTA):
+- Rozdziały techniczne i organizacyjne (np. opis struktury pracy, podział ról w zespole, instrukcje obsługi, opis działania stworzonej aplikacji).
+- Słowniki pojęć, wykazy skrótów, spisy tabel.
+- Zwykłe wymienianie bibliografii bez narracji.
+
 Tytuł ocenianego rozdziału: {title}
 Fragment treści: {content}
 
@@ -77,7 +82,7 @@ def find_sota_chapter(path: str, output_dir: str = "."):
     BLACKLIST = [
         "spis treści", "bibliografia", "spis rysunków", "spis tabel", 
         "streszczenie", "abstract", "lista skrótów", "załącznik", "literatura",
-        "indeks", "opis dyplomu", "oświadczenie"
+        "indeks", "opis dyplomu", "oświadczenie", "opis pracy", "cel pracy"
     ]
 
     for block in blocks:
@@ -127,12 +132,3 @@ def find_sota_chapter(path: str, output_dir: str = "."):
         sota_ids = [ch['id'] for ch in sota_chapters]
         print(f"\nPrzekazuję wykryte ID ({sota_ids}) do skryptu cytowań...")
         analyze_sota_citations(path, sota_ids, output_dir)
-
-if __name__ == "__main__": 
-    file_path = "src/theses/jabi.pdf"
-    folder_docelowy = "src/llm/wyniki"
-    
-    if Path(file_path).exists():
-        find_sota_chapter(file_path, output_dir=folder_docelowy)
-    else:
-        print(f"Błąd: Nie znaleziono pliku {file_path}")
