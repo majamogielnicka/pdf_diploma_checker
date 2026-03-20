@@ -1,0 +1,15 @@
+{
+	"interlinia": "1.5",
+	"minimalna_liczba_stron": "60",
+	"maksymalna_liczba_stron": "80",
+	"rozmiar_czcionki": "10",
+	"margines": "lustrzany",
+	"format": "A4",
+	"orientacja": "pionowa",
+	"justowanie": "tak",
+	"czcionka": {
+		"1" : "FF Sanuk Pro Light",
+		"2" : "FF Sanuk Pro Medium",
+		"3" : "Arial"
+	}
+}
