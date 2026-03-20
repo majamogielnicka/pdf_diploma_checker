@@ -4,13 +4,14 @@ import os
 import fitz  # PyMuPDF
 import json
 from pathlib import Path
+import statistics
 
 # Tryb debugu:
 # 0 - domyślny tryb, program działakorzystając z /thesis
 # 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
 # Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
-debug_mode = 1
+debug_mode = 0
 debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
 debug_path = "src/redaction/redaction_debug/{debug_type}_example.pdf"
 
@@ -33,7 +34,10 @@ class TextSpan:
 class TextLine:
     spans: List[TextSpan]
     bbox: tuple
-    baseline: float #odleglosc od dolnej krawedzi
+    baseline: float # odleglosc od dolnej krawedzi
+    alignement: str = "unknown"
+    spacing_consistency: bool = True # czy równe odstępy między słowami w linijce
+    # gap_to_r: float = 0.0 # debug
 
 @dataclass
 class TextBlock:
@@ -117,6 +121,50 @@ def calculate_margins(blocks, width, height) -> Dict[str, float]:
         "left": margin_left,
         "right": margin_right
     }
+
+import statistics
+
+# Analizza justowania
+def analyze_line_alignment(line: TextLine, page_width: float, margins: Dict[str, float], tolerance: float = 5.0) -> tuple:
+    l_x0, _, l_x1, _ = line.bbox
+    
+    # Obszar tekstu wyznaczony przez marginesy
+    content_start = margins["left"]
+    content_end = page_width - margins["right"]
+    
+    dist_left = abs(l_x0 - content_start)
+    dist_right = abs(l_x1 - content_end)
+    
+    # Sprawdzenie czy dotyka obu marginesów
+    is_at_left = dist_left <= tolerance
+    is_at_right = dist_right <= tolerance
+    
+    # Obliczanie odstępów między spanami
+    gaps = []
+    if len(line.spans) > 1:
+        for i in range(len(line.spans) - 1):
+            gap = line.spans[i+1].bbox[0] - line.spans[i].bbox[2]
+            if gap > 0: 
+                gaps.append(gap)
+    
+    is_consistent = True
+    if len(gaps) > 1:
+        # Sprawdzemie justowania poprzez odchylenie standardowe
+        std_dev = statistics.stdev(gaps)
+        if std_dev > 1.0: # próg czułości 
+            is_consistent = False
+
+    # Logika rozpoznawania stylu
+    if is_at_left and is_at_right and not is_consistent:
+        return "justified", False, dist_right # justowanie niepełne (błędne bo nierówne odstępy)
+    elif is_at_left and is_at_right: 
+        return "justified", True, dist_right # justowanie pełne
+    elif abs(dist_left - dist_right) <= tolerance:
+        return "center", True, dist_right # tekst wyśrodkowany
+    elif is_at_right: 
+        return "right", True, dist_right # tekst wyrównany do prawej
+    else:
+        return "left", True, dist_right # tekst wyrównany do lewej 
     
 def fix_latex(text):
     replace = { #Słownik znaków do podmiany.
@@ -374,7 +422,7 @@ def extractPDF(file_path: str) -> DocumentData:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
             if block["type"] == 0:
-                text_block = _parse_text_block(block, word_list)
+                text_block = _parse_text_block(block, word_list, p_width, cur_page.margins)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
             
@@ -419,7 +467,7 @@ def extractPDF(file_path: str) -> DocumentData:
 #Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
 #o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na 
 #detekcję czcionki, itd. W związku z tym użyto zarówno dicta jak i listy słów, aby połączyć korzyści.
-def _parse_text_block(raw_block: dict, word_list:list) -> TextBlock:
+def _parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float]) -> TextBlock:
     lines = []
     block_words = []
 
@@ -471,11 +519,18 @@ def _parse_text_block(raw_block: dict, word_list:list) -> TextBlock:
 
         
         if spans:
-            lines.append(TextLine(
+            curr_line = TextLine(
                 spans=spans,
                 bbox=raw_line["bbox"],
                 baseline=raw_line["wmode"]
-            ))
+            )
+
+            # analiza justowania
+            alignment, consistent, gap_toright = analyze_line_alignment(curr_line, page_width, margins)
+            curr_line.alignement = alignment
+            curr_line.spacing_consistency = consistent
+            # curr_line.gap_to_r = gap_toright #debug
+            lines.append(curr_line)
             
     return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"])
 
