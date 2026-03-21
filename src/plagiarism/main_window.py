@@ -2,7 +2,7 @@ import os
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
     QScrollArea, QLabel, QPushButton, QSplitter, 
-    QLineEdit, QStackedWidget, QFileDialog
+    QLineEdit, QStackedWidget, QFileDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize, QPointF
 from PySide6.QtGui import QPixmap
@@ -137,7 +137,24 @@ class PDFReader(QMainWindow):
         self.start_page.render_doc_list(pliki)
 
     def load_pdf(self, path):
+        if not os.path.exists(path):
+            QMessageBox.critical(self, "Błąd", f"Nie odnaleziono pliku:\n{path}")
+            return
+
+        # Próba załadowania dokumentu
         self.document.load(path)
+        
+        # Sprawdzanie błędów przy użyciu Twoich nazw z listy
+        current_error = self.document.error()
+        
+        #sprawdzenie czy haslo
+        if current_error == QPdfDocument.Error.IncorrectPassword:
+            QMessageBox.warning(self, "Plik zabezpieczony", "Ten PDF wymaga hasła (lub podano błędne).")
+            return
+        elif self.document.status() == QPdfDocument.Status.Error:
+            QMessageBox.critical(self, "Błąd", "Nie udało się załadować pliku PDF.")
+            return
+
         if self.document.pageCount() > 0:
             self.title_label.setText(os.path.basename(path))
             self.total_pages_label.setText(f" / {self.document.pageCount()} ")
