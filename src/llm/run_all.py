@@ -4,10 +4,10 @@ from get_content import split_subtitles
 from get_summary import get_summaries
 from find_sota import find_sota_chapter
 
-file_path, lng = Path("src/theses/jago.pdf"), "pl"
+file_path, lng = Path("src/theses/jabi.pdf"), "pl"
 
 output_dir = Path("src/llm/wyniki")
-results_path = output_dir / "results.txt"
+results_path = output_dir / f"results_{file_path.stem}.txt"
 
 def analyze_thesis(path, language):
     if not path.exists():
@@ -23,10 +23,11 @@ def analyze_thesis(path, language):
         subtitles = split_subtitles(path)
         summaries = get_summaries(subtitles, language)
         
-        find_sota_chapter(str(path), output_dir=str(output_dir))
-
         print(summaries)
         f.write(f"{summaries}\n")
+        
+    print("\nRozpoczynam analizę SOTA...")
+    find_sota_chapter(str(path), output_dir=str(output_dir))
 
 def main():
     analyze_thesis(file_path, lng)
