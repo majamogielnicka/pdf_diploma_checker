@@ -138,7 +138,7 @@ class SelectablePdfView(QPdfView):
                 self.selection_page_idx = i
                 self.selection_pdf_rect = QRectF(start_x, start_y, end_x - start_x, end_y - start_y)
                 
-                #extracting text
+                #wyodrebnianie tekstu
                 collected_lines = []
                 current_scan_y = start_y
                 while current_scan_y <= end_y:
@@ -174,7 +174,17 @@ class SelectablePdfView(QPdfView):
         QApplication.clipboard().setText(self.selected_text)
 
     def check_plagiarism(self):
-        if not self.selected_text: return
-        clean_text = self.selected_text.replace('\n', ' ').replace('\r', '').strip()
+        if not self.selected_text:
+            # Możesz wysłać sygnał do statusbaru w main_window
+            return
+            
+        # Usunięcie zbędnych białych znaków
+        clean_text = " ".join(self.selected_text.split())
+        
+        # limit maksymalnie 300 znaków
+        if len(clean_text) > 300:
+            clean_text = clean_text[:300]
+            print("Ostrzeżenie: Przekroczono limit 300 znaków. Tekst został przycięty.")
+
         encoded_phrase = quote_plus(f'"{clean_text}"')
         webbrowser.open(f"https://www.google.com/search?q={encoded_phrase}")
