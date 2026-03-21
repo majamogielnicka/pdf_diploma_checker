@@ -13,7 +13,22 @@ class saving_files:
         
         try:
             with open(self.index_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                data = json.load(f)
+                
+            #walidacja
+            required_keys = ["prace", "konfiguracje_regul"]
+            if not all(key in data for key in required_keys):
+                print("Błąd: Niepoprawny format index.json. Przywracanie struktury.")
+                return self._create_initial_index()
+                
+            # Filtrowanie nieistniejących plików
+            if "prace" in data:
+                data["prace"] = [p for p in data["prace"] if os.path.exists(p['sciezka_lokalna'])]
+                
+            return data
+        except (json.JSONDecodeError, KeyError):
+            return self._create_initial_index()
+            
         except json.JSONDecodeError:
             print("Ostrzeżenie: Plik index.json jest uszkodzony. Tworzenie nowego.")
             return self._create_initial_index()
