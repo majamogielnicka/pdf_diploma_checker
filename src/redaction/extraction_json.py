@@ -22,6 +22,7 @@ debug_path = "src/redaction/redaction_debug/{debug_type}_example.pdf"
 
 @dataclass
 class TextSpan:
+    span_id: int
     text: str
     font: str
     size: float
@@ -375,6 +376,7 @@ def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, ta
                 ))
 
 def extractPDF(file_path: str) -> DocumentData:
+    current_span_id = 0
     if not os.path.exists(file_path):
         #TODO:tutaj jakis wyjatek
         #musimy ustalić standard zglaszania bledow
@@ -424,7 +426,7 @@ def extractPDF(file_path: str) -> DocumentData:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
             if block["type"] == 0:
-                text_block, last_block_btmline = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline)
+                text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
             
@@ -469,7 +471,7 @@ def extractPDF(file_path: str) -> DocumentData:
 #Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
 #o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na 
 #detekcję czcionki, itd. W związku z tym użyto zarówno dicta jak i listy słów, aby połączyć korzyści.
-def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float], last_block_btmline: float) -> TextBlock:
+def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float], last_block_btmline: float, current_span_id: int) -> tuple[TextBlock, float, int]:
     lines = []
     block_words = []
     prev_bottomline = last_block_btmline
@@ -506,7 +508,9 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
 
             if span_words:
                 for x in span_words:
+                    current_span_id += 1
                     spans.append(TextSpan(
+                        span_id=current_span_id,
                         text=fix_latex(x[4]),
                         font=raw_span["font"],
                         size=round(raw_span["size"], 2),
@@ -516,11 +520,14 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
                         bbox=(x[0],x[1],x[2],x[3])
                     ))
             else:
+                current_span_id += 1
                 spans.append(TextSpan(
+                    span_id=current_span_id,
                     text=fix_latex(raw_span["text"]),
                     font=raw_span["font"],
                     size=round(raw_span["size"], 2),
-                    color=raw_span["color"],                        bold=bool(flags & 16),
+                    color=raw_span["color"],                        
+                    bold=bool(flags & 16),
                     italic=bool(flags & 2),
                     bbox=raw_span["bbox"]
                 ))
@@ -543,7 +550,7 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             # curr_line.gap_to_r = gap_toright #debug
             lines.append(curr_line)
             
-    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"]), prev_bottomline
+    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"]), prev_bottomline, current_span_id
 
 def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float:
     if prev_line is not None:
@@ -556,7 +563,7 @@ def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float:
 #print(extractPDF("1.pdf").to_dict())
 
 if debug_mode == 0:
-    pdf_path = Path("src/theses/ch.pdf")
+    pdf_path = Path("pdf_diploma_checker/src/theses/ch.pdf")
 elif debug_mode == 1:
     candidate = Path(debug_path.format(debug_type=debug_type))
     if candidate.exists():
@@ -568,7 +575,7 @@ elif debug_mode == 1:
 doc_data = extractPDF(pdf_path)
 
 #TODO: dodac warunek sprqwdzjaacy blad do testow
-doc_data.to_json("src/redaction/output.json") 
+doc_data.to_json("pdf_diploma_checker/src/redaction/output.json") 
 
 #data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 #
