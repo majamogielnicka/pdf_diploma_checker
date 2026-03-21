@@ -38,6 +38,7 @@ class TextLine:
     alignement: str = "unknown"
     spacing_consistency: bool = True # czy równe odstępy między słowami w linijce
     # gap_to_r: float = 0.0 # debug
+    line_spacing: float = 0.0
 
 @dataclass
 class TextBlock:
@@ -417,12 +418,13 @@ def extractPDF(file_path: str) -> DocumentData:
         drawings = page.get_drawings()
 
         # table_bboxes = extract_tables(page, drawings, cur_page)
+        last_block_btmline = None #Ostatnia linia w bloku - do interlinii
 
         for block in raw_dict["blocks"]:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
             if block["type"] == 0:
-                text_block = _parse_text_block(block, word_list, p_width, cur_page.margins)
+                text_block, last_block_btmline = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
             
@@ -467,9 +469,10 @@ def extractPDF(file_path: str) -> DocumentData:
 #Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
 #o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na 
 #detekcję czcionki, itd. W związku z tym użyto zarówno dicta jak i listy słów, aby połączyć korzyści.
-def _parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float]) -> TextBlock:
+def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float], last_block_btmline: float) -> TextBlock:
     lines = []
     block_words = []
+    prev_bottomline = last_block_btmline
 
     #Sprawdzanie, które słowa są w środk danego bloku, żeby nie sprawdzać każdego słowa
     #na stronie czy nie należy do danego spana
@@ -480,12 +483,17 @@ def _parse_text_block(raw_block: dict, word_list:list, page_width: float, margin
 
     for raw_line in raw_block["lines"]:
         spans = []
+        max_font_size = 0.0 #Do znalezienia słowa o największej czcionce w linijce.
+
         for raw_span in raw_line["spans"]:
             if not raw_span["text"].strip():
                 continue
             
             s_bbox = raw_span["bbox"]
             span_words = []
+
+            if raw_span["size"] > max_font_size:
+                max_font_size = raw_span["size"]
 
             for x in block_words:
                 #Sprawdzanie czy dane słowo należy do spanu z małym marginesem błędu (0.2), w razie
@@ -519,12 +527,15 @@ def _parse_text_block(raw_block: dict, word_list:list, page_width: float, margin
 
         
         if spans:
+            curr_bottomline = raw_line["bbox"][3]
+            spacing = line_spacing(curr_bottomline, prev_bottomline, max_font_size)
             curr_line = TextLine(
                 spans=spans,
                 bbox=raw_line["bbox"],
-                baseline=raw_line["wmode"]
+                baseline=raw_line["wmode"],
+                line_spacing=spacing
             )
-
+            prev_bottomline = curr_bottomline
             # analiza justowania
             alignment, consistent, gap_toright = analyze_line_alignment(curr_line, page_width, margins)
             curr_line.alignement = alignment
@@ -532,13 +543,20 @@ def _parse_text_block(raw_block: dict, word_list:list, page_width: float, margin
             # curr_line.gap_to_r = gap_toright #debug
             lines.append(curr_line)
             
-    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"])
+    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"]), prev_bottomline
+
+def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float:
+    if prev_line is not None:
+        return round((curr_line - prev_line)/font_size,2)
+    else: 
+        return 0.0
+
 
 #test:
 #print(extractPDF("1.pdf").to_dict())
 
 if debug_mode == 0:
-    pdf_path = Path("src/theses/doju1.pdf")
+    pdf_path = Path("src/theses/ch.pdf")
 elif debug_mode == 1:
     candidate = Path(debug_path.format(debug_type=debug_type))
     if candidate.exists():
