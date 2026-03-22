@@ -58,6 +58,7 @@ class ImageInfo:
     width: int
     height: int
     image_type: str 
+    description: str 
 
 @dataclass
 class TableInfo:
@@ -187,30 +188,85 @@ def fix_latex(text):
         text = text.replace(wrong, right)
     return text
 
-def find_table_description(table_bbox, text_blocks):
+def find_table_description(table_bbox, text_blocks, priority_side=None):
+    #TODO: poprawić tak, żeby nie wykrywało obrazów w spisie treści, bibliografii itd (ale to jak już będziemy mieli spis treści, bibliografie itd)
     x0, y0, x1, y1 = table_bbox
-    potential_descriptions = []
+    # Rozdzielamy potencjalne opisy na górę i dół oraz sprawdzamy słowa kluczowe
+    kw_matches = {"above": [], "below": []}
+    other_matches = {"above": [], "below": []}
 
     for block in text_blocks:
         bx0, by0, bx1, by1 = block.bbox
         
         # 1. Szukanie odległości pionowej 
-        is_close_above = by1 < y0 and abs(by1 - y0) < 5  # Nad tabelą
-        is_close_below = by0 > y1 and abs(by0 - y1) < 40  # Pod tabelą
+        is_close_above =  abs(by1 - y0) < 40  # Nad tabelą
+        is_close_below =  abs(by0 - y1) < 60  # Pod tabelą
         
         if is_close_above or is_close_below:
             full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
+            side = "above" if is_close_above else "below"
             
             # 2. Szukanie czy tekst zaczyna się od "Tabela" lub "Tab."
-            if full_text.lower().startswith(("tabele", "tabela", "tab.")):
-                return full_text
+            if full_text.lower().startswith(("tabele", "tabela", "tab.", "table", "tab")):
+                kw_matches[side].append(full_text)
+            else:
+                other_matches[side].append(full_text)
+
+    # Ustalenie kolejności sprawdzania
+    primary = priority_side if priority_side else "above"
+    secondary = "below" if primary == "above" else "above"
+
+    # Priorytetyzacja:
+    # 1. Słowo kluczowe na preferowanej stronie
+    if kw_matches[primary]: return kw_matches[primary][0], primary
+    # 2. Słowo kluczowe na jakiejkolwiek stronie
+    if kw_matches[secondary]: return kw_matches[secondary][0], secondary
+    # 3. Zwykły tekst na preferowanej stronie
+    if other_matches[primary]: return other_matches[primary][0], primary
+    # 4. Zwykły tekst na jakiejkolwiek stronie
+    if other_matches[secondary]: return other_matches[secondary][0], secondary
+
+    return "", priority_side
+
+def find_image_description(image_bbox, text_blocks, priority_side=None):
+    x0, y0, x1, y1 = image_bbox
+    kw_matches = {"above": [], "below": []}
+    other_matches = {"above": [], "below": []}
+
+    for block in text_blocks:
+        bx0, by0, bx1, by1 = block.bbox
+        
+        # Tolerancja odległości (obrazy często mają podpisy ciut dalej niż tabele)
+        is_close_above = abs(by1 - y0) < 40
+        is_close_below = abs(by0 - y1) < 40
+        
+        if is_close_above or is_close_below:
+            full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
+            if not full_text: continue
             
-            potential_descriptions.append(full_text)
+            side = "above" if is_close_above else "below"
+            
+            # Słowa kluczowe dla obrazów
+            img_keywords = ("rysunek", "rys.", "fot.", "ilustracja", "wykres", "figure", "fig.", "photo", "img", "image")
+            
+            if full_text.lower().startswith(img_keywords):
+                kw_matches[side].append(full_text)
+            else:
+                other_matches[side].append(full_text)
 
-    # Jeśli nie znaleźliśmy nic ze słowem kluczowym, zwróć najbliższy blok (o ile istnieje)
-    return potential_descriptions[0] if potential_descriptions else ""
+    # Obrazy zwykle mają podpisy na dole
+    primary = priority_side if priority_side else "below"
+    secondary = "above" if primary == "below" else "below"
 
-def extract_tables(page: fitz.Page, drawings: list, cur_page: PageData) -> list:
+    # Logika priorytetów (identyczna jak w tabelach):
+    if kw_matches[primary]: return kw_matches[primary][0], primary
+    if kw_matches[secondary]: return kw_matches[secondary][0], secondary
+    if other_matches[primary]: return other_matches[primary][0], primary
+    if other_matches[secondary]: return other_matches[secondary][0], secondary
+
+    return "", None
+
+def extract_tables(page: fitz.Page, drawings: list, cur_page: PageData, priority_side=None) -> tuple[list, str]:
     table_bboxes = []
     #TODO: znajdywanie tabel typu APA czyli, takich z niestandardowym obramowaniem bez linii poziomych albo jakichkolwiek linii. ogólna poprawa działania funkcji
     #znajdowanie tabel, wyciąganie danych i zapisywanie do list
@@ -271,7 +327,10 @@ def extract_tables(page: fitz.Page, drawings: list, cur_page: PageData) -> list:
         if fill_ratio < 0.55 and avg_chars_per_cell < 15:
             continue 
             
-        description = find_table_description(tab.bbox, cur_page.text_blocks)
+        description, found_side = find_table_description(tab.bbox, cur_page.text_blocks, priority_side)
+        if description and priority_side is None:
+            priority_side = found_side
+
         table_bboxes.append(fitz.Rect(tab.bbox))
         cur_page.tables.append(TableInfo(
             bbox=tab.bbox,
@@ -281,9 +340,9 @@ def extract_tables(page: fitz.Page, drawings: list, cur_page: PageData) -> list:
             data=cleaned_data
         ))      
 
-    return table_bboxes
+    return table_bboxes, priority_side
 
-def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, table_bboxes: list, cur_page: PageData) -> None:
+def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, table_bboxes: list, cur_page: PageData, priority_side=None) -> str:
     if not drawings:
         return
 
@@ -362,6 +421,14 @@ def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, ta
                                 
                 if is_invalid:
                     continue
+                description, found_side = find_image_description(
+                (bbox.x0, bbox.y0, bbox.x1, bbox.y1), 
+                    cur_page.text_blocks, 
+                    priority_side
+                )
+        
+                if description and priority_side is None:
+                    priority_side = found_side
 
                 pix = page.get_pixmap(clip=bbox)
                 img_path = f"images/p{page_index}_vec_{i}.png"
@@ -372,8 +439,10 @@ def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, ta
                     bbox=(bbox.x0, bbox.y0, bbox.x1, bbox.y1),
                     width=pix.width,
                     height=pix.height,
-                    image_type="vector"
+                    image_type="vector",
+                    description=description
                 ))
+    return priority_side
 
 def extractPDF(file_path: str) -> DocumentData:
     current_span_id = 0
@@ -402,6 +471,11 @@ def extractPDF(file_path: str) -> DocumentData:
     metadata = doc.metadata
     document_data = DocumentData(metadata=metadata)
 
+    # Priorytet dla wykrywania tabel i obrazów na górze lub dole (z reguły jest to stałe dla pracy)
+    detected_priority = None
+    detected_img_priority = "below"
+    
+
     for page_index, page in enumerate(doc):
         raw_dict = page.get_text("dict")
         word_list = page.get_text("words")
@@ -422,6 +496,7 @@ def extractPDF(file_path: str) -> DocumentData:
         # table_bboxes = extract_tables(page, drawings, cur_page)
         last_block_btmline = None #Ostatnia linia w bloku - do interlinii
 
+        # Najpierw wyciągamy wszystkie bloki tekstowe ze strony
         for block in raw_dict["blocks"]:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
@@ -429,8 +504,10 @@ def extractPDF(file_path: str) -> DocumentData:
                 text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
-            
-            elif block["type"] == 1:
+        
+        # Dopiero po zebraniu tekstu procesujemy obrazy, aby opisy pod nimi były już dostępne
+        for block in raw_dict["blocks"]:
+            if block["type"] == 1:
                 x0, y0, x1, y1 = block["bbox"]
                 phys_width = x1 - x0
                 phys_height = y1 - y0
@@ -446,9 +523,14 @@ def extractPDF(file_path: str) -> DocumentData:
                     if aspect_ratio > 15.0 or aspect_ratio < 0.15:
                         continue
                 
+                description, found_side = find_image_description(block["bbox"], cur_page.text_blocks, detected_img_priority)
+                if description and detected_img_priority is None:
+                    detected_img_priority = found_side
+
                 ext = block.get("ext", "png")
                 img_path = f"images/p{page_index}_b{block['number']}.{ext}"
 
+                
                 #zapisywanie obrazów
                 with open(img_path, "wb") as img_file:
                     img_file.write(block["image"])
@@ -457,11 +539,12 @@ def extractPDF(file_path: str) -> DocumentData:
                     bbox=block["bbox"],
                     width=block["width"],
                     height=block["height"],
-                    image_type="raster"
+                    image_type="raster",
+                    description=description
                 ))
 
-        table_bboxes = extract_tables(page, drawings, cur_page)
-        extract_vector_graphics(page, drawings, page_index, table_bboxes, cur_page)      
+        table_bboxes, detected_priority = extract_tables(page, drawings, cur_page, detected_priority)
+        detected_img_priority = extract_vector_graphics(page, drawings, page_index, table_bboxes, cur_page, detected_img_priority)
 
         document_data.pages.append(cur_page)
 
@@ -563,7 +646,7 @@ def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float:
 #print(extractPDF("1.pdf").to_dict())
 
 if debug_mode == 0:
-    pdf_path = Path("pdf_diploma_checker/src/theses/ch.pdf")
+    pdf_path = Path("pdf_diploma_checker/src/theses/zusz.pdf")
 elif debug_mode == 1:
     candidate = Path(debug_path.format(debug_type=debug_type))
     if candidate.exists():
