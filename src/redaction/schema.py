@@ -1,3 +1,6 @@
+'''
+W tym pliku mamy całą strukturę danych z pdf'a podzieloną logicznie.
+'''
 from dataclasses import dataclass, field, asdict
 import json
 from typing import List, Dict, Any, Union, Optional
