@@ -6,6 +6,9 @@ import json
 from pathlib import Path
 import statistics
 
+input_path = Path("src/theses/doju1.pdf")
+output_path = Path("./src/output.json")
+
 # Tryb debugu:
 # 0 - domyślny tryb, program działakorzystając z /thesis
 # 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
@@ -657,7 +660,7 @@ def dominant_spacing(doc: fitz.Document) ->float:
 #print(extractPDF("1.pdf").to_dict())
 
 if debug_mode == 0:
-    pdf_path = Path("src/theses/doro.pdf")
+    pdf_path = Path(input_path)
 elif debug_mode == 1:
     candidate = Path(debug_path.format(debug_type=debug_type))
     if candidate.exists():
@@ -669,7 +672,7 @@ elif debug_mode == 1:
 doc_data = extractPDF(pdf_path)
 
 #TODO: dodac warunek sprqwdzjaacy blad do testow
-doc_data.to_json("./src/redaction/output.json") 
+doc_data.to_json(output_path) 
 
 #data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 #
