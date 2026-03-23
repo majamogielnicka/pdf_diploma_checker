@@ -142,9 +142,12 @@ LIST_PATTERNS = {
     "number_with_bracket": r"^\d+\)",
     "letter_with_dot": r"^[a-z]\.",
     "letter_with_bracket": r"^[a-z]\)",
-    "bullet": r"^[•●○■]",
+    "bullet": r"^[••●○■]",
     "dash": r"^[-\u2013\u2014]"
 }
+HEADER_PATTERN = r"^\d+(\.\d+)*\s+"  # Wykrywa 1.1, 1.2.1 itd.
+CAPTION_PATTERN = r"^(Tabela|Tab|Rysunek|Rys|Wykres|Fig|Figure)\s+\d+"
+TOC_DOTS_PATTERN = r"\.{4,}" # Wykrywa ciągi kropek w spisie treści
 
 # Klasyfikacja typu bloku (paragraf lub lista) na podstawie tego czy zaczyna się od typowych elementów dla listy
 def classify_block_content(text: str):
