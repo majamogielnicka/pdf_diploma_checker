@@ -2,6 +2,7 @@
 pdoc==16.0.0
 pip==24.0
 requests==2.32.5
+fitz==0.0.1.dev2
 
 
 # --- External Requirements (UV Lock Guard) ---
