@@ -2,10 +2,44 @@ import re
 import fitz
 from dataclasses import dataclass
 from pathlib import Path
+from collections import Counter
+import fitz
 
-file_path = Path("src/theses/ch.pdf")
-output_path = Path("src/llm/blocks.txt")
-summaries_path = Path("src/llm/subtitles.txt")
+file_path = Path("src/theses/doju1.pdf")
+output_path = Path("src/llm/wyniki/blocks.txt")
+summaries_path = Path("src/llm/wyniki/subtitles.txt")
+
+
+def get_font_size(pdf_path):
+    doc = fitz.open(pdf_path)
+    sizes = []
+
+    for page in doc:
+        page_dict = page.get_text("dict", sort=True)
+
+        for block in page_dict["blocks"]:
+            if "lines" not in block:
+                continue
+
+            for line in block["lines"]:
+                for span in line["spans"]:
+                    text = span["text"].strip()
+                    if text and not text.isdigit():
+                        sizes.append(round(float(span["size"]), 1))
+
+    doc.close()
+
+    if not sizes:
+        return 11.0
+
+    counts = Counter(sizes)
+    body_size = counts.most_common(1)[0][0]
+    larger_sizes = sorted(size for size in counts if size > body_size)
+
+    if larger_sizes:
+        return larger_sizes[0]
+
+    return body_size
 
 
 @dataclass
@@ -43,7 +77,7 @@ def get_content(path):
     current_title = ""
     current_text_parts = []
     block_id = 1
-    font_size = 11
+    font_size = get_font_size(path)
 
     for page in doc:
         page_dict = page.get_text("dict", sort=True)
