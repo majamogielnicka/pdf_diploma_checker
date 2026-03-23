@@ -1,102 +1,12 @@
-from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Any
+'''
+Tutaj znajdują się funkcje odpowiedzialne za ekstrakcję danych z PDF do jsona (surprise, surprise).
+W przyszłości proponuje to przenieść jako metody struktury zamiast oddzielnych funkcji do wszystkiego
+'''
 import os
 import fitz  # PyMuPDF
-import json
-from pathlib import Path
 import statistics
-
-input_path = Path("pdf_diploma_checker/src/theses/kana.pdf")
-output_path = Path("pdf_diploma_checker/src/output.json")
-
-# Tryb debugu:
-# 0 - domyślny tryb, program działakorzystając z /thesis
-# 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
-# TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
-# Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
-debug_mode = 0
-debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
-debug_path = "pdf_diploma_checker/src/redaction/redaction_debug/{debug_type}_example.pdf"
-
-#uzywam dekoratora dataclass bo:
-#ma fajne automatyczne funkcje jak tworzenie __init__ automatycznie
-#jest duzo bardziej czytelny (#team_c++)
-#ma wbudowana funkcje asdict() (potem sie przyda do jsona)
-
-@dataclass
-class TextSpan:
-    span_id: int
-    text: str
-    font: str
-    size: float
-    color: int
-    bold: bool
-    italic: bool
-    bbox: tuple #(x0, y0, x1, y1)
-
-@dataclass
-class TextLine:
-    spans: List[TextSpan]
-    bbox: tuple
-    baseline: float # odleglosc od dolnej krawedzi
-    alignement: str = "unknown"
-    spacing_consistency: bool = True # czy równe odstępy między słowami w linijce
-    # gap_to_r: float = 0.0 # debug
-    line_spacing: float = 0.0
-
-@dataclass
-class TextBlock:
-    block_id: int
-    lines: List[TextLine]
-    bbox: tuple
-
-#moja propozycja:   ~Bartek 08.03
-#jesli chodzi o zdjecia to wydaje mi sie ze najlepiej bedzie trzymac tylko sciezke zamiast calego obrazu zeby bylo czytelniej
-#wszystkie obrazy z pdf'a beda ekstraktowane do folderu /images
-
-@dataclass
-class ImageInfo:
-    path: str
-    bbox: tuple
-    width: int
-    height: int
-    image_type: str 
-    description: str 
-
-@dataclass
-class TableInfo:
-    bbox: tuple
-    row_count: int
-    col_count: int
-    description: str
-    data: List[List[str]] 
-
-@dataclass
-class PageData:
-    number: int
-    width: float
-    height: float
-    margins: Dict[str, float] #tego nie ma w pdf, ale bedzie funkcja ktora sama liczy przy ekstrakcji pdfa
-    text_blocks: List[TextBlock] = field(default_factory=list)
-    images: List[ImageInfo] = field(default_factory=list)
-    tables: List[TableInfo] = field(default_factory=list)
-
-@dataclass
-class DocumentData:
-    metadata: Dict[str, Any]
-    pages: List[PageData] = field(default_factory=list)
-
-    def _to_dict(self):  #zeby latwo bylo przeniesc do jsona
-        return asdict(self)
-    
-    def to_json(self, file_path: str, indent: int = 4) -> None:
-        try:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(self._to_dict(), f, ensure_ascii=False, indent=indent)
-            
-        except Exception as e:
-            #TODO: tutaj tez jakis wyjatek, trzeba ustalic standard zglaszania bledow
-            print(f"blad zapisu do pliku json: {e}")
+from bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
+from typing import Dict
     
 def calculate_margins(blocks, width, height) -> Dict[str, float]:
     if not blocks:
@@ -127,8 +37,6 @@ def calculate_margins(blocks, width, height) -> Dict[str, float]:
         "left": margin_left,
         "right": margin_right
     }
-
-import statistics
 
 # Analizza justowania
 def analyze_line_alignment(line: TextLine, page_width: float, margins: Dict[str, float], tolerance: float = 5.0) -> tuple:
@@ -656,25 +564,3 @@ def dominant_spacing(doc: fitz.Document) ->float:
     spacings = []
     for page in doc:
         blocks = page.get_text("dict")
-#test:
-#print(extractPDF("1.pdf").to_dict())
-
-if debug_mode == 0:
-    pdf_path = Path(input_path)
-elif debug_mode == 1:
-    candidate = Path(debug_path.format(debug_type=debug_type))
-    if candidate.exists():
-        pdf_path = candidate
-    else:
-        print(f"Debug PDF not found: {candidate}. Falling back to default thesis path.")
-        pdf_path = Path("src/theses/gp.pdf")
-
-doc_data = extractPDF(pdf_path)
-
-#TODO: dodac warunek sprqwdzjaacy blad do testow
-doc_data.to_json(output_path) 
-
-#data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
-#
-#with open("output.json", "w", encoding="utf-8") as f: # Zapis do pliku .json
-#    json.dump(data_as_dictionary, f, indent=4, ensure_ascii=False)

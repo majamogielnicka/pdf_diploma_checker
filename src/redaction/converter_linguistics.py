@@ -1,3 +1,11 @@
+'''
+Struktura (wraz z wieloma metodami) do mapowania surowych danych 
+z ekstrakcji PDF na bardziej ustrukturyzowany format, który jest 
+przyjazny dla dalszej analizy lingwistycznej i NLP.
+Według moich założeń (Bartek 23.03) ta struktura nie ma otwierać na nowo pliku
+lecz korzystać z wyekstraktowanej już z pdf'a struktury DocumentData (bare_struct.py).
+Do poprawy lub nie ¯\_(ツ)_/¯
+'''
 import re
 import statistics
 from schema import (
@@ -6,9 +14,7 @@ from schema import (
     classify_block_content, strip_list_marker
 )
 from extraction_json import DocumentData, extractPDF
-from pathlib import Path
 from schema import PageArtifact 
-from typing import List, Dict, Any, Union, Optional
 
 class PDFMapper:
     
@@ -273,14 +279,3 @@ class PDFMapper:
                 new_doc.floating_elements.visual_elements.append(ve)
 
         return new_doc
-
-if __name__ == "__main__":
-    pdf_path = Path("pdf_diploma_checker/src/theses/kana.pdf")
-    
-    if pdf_path.exists():
-        raw_data = extractPDF(str(pdf_path))
-        final_doc = PDFMapper.map_to_schema(raw_data)
-        final_doc.to_json("pdf_diploma_checker/src/redaction/output.json")
-        print("JSON wygenerowany")
-    else:
-        print(f"Błąd: Nie znaleziono pliku {pdf_path}")
