@@ -1,6 +1,7 @@
 import requests
 
-MODEL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
+MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
+MODEL_EN = "qwen2.5:latest"
 
 fragment = """Ból ostry jest wywołany przez bezpośrednie uszkodzenie tkanek, lub bodźca, który
                 uszkadza tkanki, co uruchamia nocyceptory. Jest to typ bólu, który pełni funkcję ochronną,
@@ -12,7 +13,27 @@ fragment = """Ból ostry jest wywołany przez bezpośrednie uszkodzenie tkanek, 
                 i rozpoznanie jest łatwe, co ułatwia leczenie. Może mieć charakter na przykład rwący czy
                 kłujący."""
 
-def get_summary(fragment):
+
+prompt_pl = f"""Streść poniższy fragment w jednym zdaniu.
+                Wymagania:
+                - odpowiedź wyłącznie po polsku
+                - max 1 zdanie
+                - bez cytatów i bez wypunktowań
+                - nie używaj angielskich słów
+                - zachowaj sens, nie dodawaj informacji spoza fragmentu
+                Fragment:
+                """
+
+prompt_en = f"""Summarize the following fragment in one sentence.
+                Requirements:
+                - answer only in English
+                - max 1 sentence
+                - no quotes and no bullet points
+                - preserve the meaning and do not add information not present in the fragment
+                Fragment:
+                """
+
+def get_summary(fragment, model, prompt):
 
     """
     Generuje jednozdaniowe streszczenie fragmentu tekstu w języku polskim.
@@ -31,28 +52,41 @@ def get_summary(fragment):
             z połączeniem z serwerem Ollama lub przekroczenia czasu (timeout).
     """
 
-    prompt = f"""Streść poniższy fragment w jednym zdaniu.
-                Wymagania:
-                - odpowiedź wyłącznie po polsku
-                - max 1 zdanie
-                - bez cytatów i bez wypunktowań
-                - nie używaj angielskich słów
-                - zachowaj sens, nie dodawaj informacji spoza fragmentu
-                Fragment:
-                {fragment}
-                """
+    prompt = prompt + fragment
 
     resp = requests.post(
         "http://localhost:11434/api/generate",
-        json={"model": MODEL, "prompt": prompt, "stream": False},
+        json={"model": model, "prompt": prompt, "stream": False},
         timeout=120
     )
     resp.raise_for_status()
     return resp.json()["response"]
 
+
+def get_summaries(blocks, language):
+    if language == "pl":
+        model = MODEL_PL
+        prompt = prompt_pl
+    elif language == "en":
+        model = MODEL_EN
+        prompt = prompt_en
+
+    summaries = []
+
+    for block in blocks:
+        summary = get_summary(block.content, model, prompt)
+
+        summaries.append(
+            f"{block.id}. {block.number} {block.title}\n"
+            f"SUMMARY:\n{summary}\n"
+        )
+
+    return ("\n" + "-" * 80 + "\n").join(summaries)
+
+
 def main():
-    """Punkt wejścia do skryptu. Prezentuje działanie funkcji get_summary."""
-    print(get_summary(fragment))
+    print(get_summary(fragment, MODEL_PL, prompt_pl))
+
 
 if __name__ == "__main__":
     main()

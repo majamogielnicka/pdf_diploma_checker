@@ -1,5 +1,10 @@
 __pycache__/
 *.pyc
 env_zsd.sh
-
+venv/
+.venv/
+env/
+.env/
 /images
+.vscode
+src/llm/wyniki/
