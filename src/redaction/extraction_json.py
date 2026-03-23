@@ -6,6 +6,9 @@ import json
 from pathlib import Path
 import statistics
 
+input_path = Path("pdf_diploma_checker/src/theses/kana.pdf")
+output_path = Path("pdf_diploma_checker/src/output.json")
+
 # Tryb debugu:
 # 0 - domyślny tryb, program działakorzystając z /thesis
 # 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
@@ -13,7 +16,7 @@ import statistics
 # Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
 debug_mode = 0
 debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
-debug_path = "src/redaction/redaction_debug/{debug_type}_example.pdf"
+debug_path = "pdf_diploma_checker/src/redaction/redaction_debug/{debug_type}_example.pdf"
 
 #uzywam dekoratora dataclass bo:
 #ma fajne automatyczne funkcje jak tworzenie __init__ automatycznie
@@ -474,8 +477,8 @@ def extractPDF(file_path: str) -> DocumentData:
     # Priorytet dla wykrywania tabel i obrazów na górze lub dole (z reguły jest to stałe dla pracy)
     detected_priority = None
     detected_img_priority = "below"
-    
-
+    #Do wykrycia interlinii
+    all_spacings = []
     for page_index, page in enumerate(doc):
         raw_dict = page.get_text("dict")
         word_list = page.get_text("words")
@@ -495,13 +498,12 @@ def extractPDF(file_path: str) -> DocumentData:
 
         # table_bboxes = extract_tables(page, drawings, cur_page)
         last_block_btmline = None #Ostatnia linia w bloku - do interlinii
-
         # Najpierw wyciągamy wszystkie bloki tekstowe ze strony
         for block in raw_dict["blocks"]:
             #typ 0 to tekst, typ 1 to obraz
             #TODO: rozroznianie obrazow rastrowych i wektorowych
             if block["type"] == 0:
-                text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id)
+                text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id, all_spacings)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
         
@@ -542,6 +544,11 @@ def extractPDF(file_path: str) -> DocumentData:
                     image_type="raster",
                     description=description
                 ))
+        if all_spacings: #Znajdywanie średniej interlinii wykorzystywanej w pliku
+            for s in range(len(all_spacings)):
+                all_spacings[s] = round(all_spacings[s], 1)
+            mode = statistics.mode(all_spacings)
+            document_data.metadata["avarge_line_spacing"] = mode
 
         table_bboxes, detected_priority = extract_tables(page, drawings, cur_page, detected_priority)
         detected_img_priority = extract_vector_graphics(page, drawings, page_index, table_bboxes, cur_page, detected_img_priority)
@@ -554,7 +561,7 @@ def extractPDF(file_path: str) -> DocumentData:
 #Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
 #o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na 
 #detekcję czcionki, itd. W związku z tym użyto zarówno dicta jak i listy słów, aby połączyć korzyści.
-def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float], last_block_btmline: float, current_span_id: int) -> tuple[TextBlock, float, int]:
+def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float], last_block_btmline: float, current_span_id: int, all_spacings: list) -> tuple[TextBlock, float, int]:
     lines = []
     block_words = []
     prev_bottomline = last_block_btmline
@@ -619,6 +626,10 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
         if spans:
             curr_bottomline = raw_line["bbox"][3]
             spacing = line_spacing(curr_bottomline, prev_bottomline, max_font_size)
+
+            if spacing > 0.5 and spacing <3.0:
+                all_spacings.append(spacing)
+
             curr_line = TextLine(
                 spans=spans,
                 bbox=raw_line["bbox"],
@@ -637,16 +648,19 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
 
 def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float:
     if prev_line is not None:
-        return round((curr_line - prev_line)/font_size,2)
+        return round((curr_line - prev_line)/font_size/1.2,2) #Z jakiegoś powodu trzeba przeskalować do 1.2 ??
     else: 
         return 0.0
 
-
+def dominant_spacing(doc: fitz.Document) ->float:
+    spacings = []
+    for page in doc:
+        blocks = page.get_text("dict")
 #test:
 #print(extractPDF("1.pdf").to_dict())
 
 if debug_mode == 0:
-    pdf_path = Path("pdf_diploma_checker/src/theses/zusz.pdf")
+    pdf_path = Path(input_path)
 elif debug_mode == 1:
     candidate = Path(debug_path.format(debug_type=debug_type))
     if candidate.exists():
@@ -658,7 +672,7 @@ elif debug_mode == 1:
 doc_data = extractPDF(pdf_path)
 
 #TODO: dodac warunek sprqwdzjaacy blad do testow
-doc_data.to_json("pdf_diploma_checker/src/redaction/output.json") 
+doc_data.to_json(output_path) 
 
 #data_as_dictionary = doc_data.to_dict() # Konwersja na słownik
 #
