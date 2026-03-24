@@ -1,13 +1,15 @@
 '''
-Jest to zbiór funkcji sprawdzających poprawność PDF'a z plikiem konfiguracyjnym.
-Z założenia będą one używać wielu metod z naszych struktur, które, jak zakładam,
-będą powstawały w trakcie pisania i udoskonalania tych właśnie funkcji.
-Oczywiście oprócz tego znajduje się tutaj cały parser pliku konfiguracyjnego.
+Klasa Configuration odpowiedzialna za przechowywanie konfiguracji z wbudowanym 
+konstruktorem parsującym dane z pliku json oraz walidującym.
+Klasa ConfigValidationError to niestandardowy wyjątek do obsługi błędów walidacji konfiguracji.
+Klasa Validator do sprawdzania błędów pdf'a na podstawie konfiguracji
  '''
 
-from bare_struct import *
+from bare_struct import DocumentData
 import json
 import logging # proponuje omówić wspólne mechanizmy logów do błędów i debugowania ~Bartek 24.03
+from dataclasses import dataclass
+from typing import List
 
 class ConfigValidationError(Exception):
     #TODO jak mówię o systemie błędów to mam na myśli (błędy opisane zrozumiale dla nas)
@@ -73,3 +75,60 @@ class Configuration:
             raise ConfigValidationError(f"brakujący klucz w konfiguracji: {e}")
         except ValueError as e:
             raise ConfigValidationError(f"niepoprawny typ danych w konfiguracji: {e}")
+
+@dataclass     
+class Issue:
+    category: str
+    description: str
+    page: int
+    xy: tuple
+
+class Validator:
+    def __init__(self, config: Configuration):
+        self.config = config
+        self.issues = [] # lista błędów
+
+    def validate_pdf(self, doc_data: DocumentData) -> List[str]:
+        pass
+
+    def check_page_count(self, doc_data: DocumentData) -> bool:
+        page_count = doc_data.get_page_count()
+        if page_count < self.config.min_stron:
+            self.issues.append(Issue(
+                category="Strony",
+                description=f"Dokument ma {page_count} stron, mniej niż minimalna liczba {self.config.min_stron}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        elif page_count > self.config.max_stron:
+            self.issues.append(Issue(
+                category="Strony",
+                description=f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.max_stron}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        else:
+            logging.info(f"Redaction: liczba stron {page_count} jest w dozwolonym zakresie")
+            return True
+    
+    def check_font_size(self, doc_data: DocumentData) -> bool:
+        most_used_font_size = max(doc_data.get_font_size_usage(), key=doc_data.get_font_size_usage().get, default=None)
+        if most_used_font_size is None:
+            logging.warning("Redaction: nie można określić rozmiaru czcionki")
+            return True
+        elif most_used_font_size != self.config.font_size:
+            self.issues.append(Issue(
+                category="Czcionka",
+                description=f"Rozmiar czcionki: {most_used_font_size}, oczekiwany: {self.config.font_size}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        else:
+            logging.info(f"Redaction: rozmiar czcionki {most_used_font_size} jest zgodny z wymaganiami")
+            return True
+
+
+        

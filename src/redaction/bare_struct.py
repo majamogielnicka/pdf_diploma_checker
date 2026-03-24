@@ -88,3 +88,16 @@ class DocumentData:
         except Exception as e:
             #TODO: tutaj tez jakis wyjatek, trzeba ustalic standard zglaszania bledow
             print(f"blad zapisu do pliku json: {e}")
+
+    def get_page_count(self) -> int:
+        return len(self.pages)
+    
+    #zwraca słownik z rozmiarami czcionek i ich ilością wystąpień
+    def get_font_size_usage(self) -> Dict[float, int]: 
+        font_usage = {}
+        for page in self.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    for span in line.spans:
+                        font_usage[span.size] = font_usage.get(span.size, 0) + 1
+        return font_usage
