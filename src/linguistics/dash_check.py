@@ -8,7 +8,7 @@ def dash_check(text_language, blocks):
     Analizuje bloki tekstu pod kątem poprawności użycia myślników, półpauz i pauz.
     """
     checked_matches = []
-    
+    dash_counter = 0
     for block in blocks.logical_blocks:
         if not isinstance(block, ParagraphBlock):
             continue
@@ -104,7 +104,7 @@ def dash_check(text_language, blocks):
                     page_end=end_page,
                     word_idxs=word_idxs
                 ))
-        
+        dash_counter=dach_counter+1
         checked_matches.extend(errors_in_block)
 
     return checked_matches
