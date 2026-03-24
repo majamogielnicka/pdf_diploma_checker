@@ -1,5 +1,6 @@
 from language_error_extractor import *
 from decimal_point_extractor import decimal_check
+from dash_check import dash_check
 from exeptions_check import *
 from list_check import check_coherence_in_list
 from pathlib import PurePath
@@ -76,6 +77,7 @@ if __name__ == "__main__":
             text_language = 'en' if file.endswith('en.json') else 'pl'
             blocks = from_dict(document)
             decimal_matches = decimal_check(text_language, blocks)
+            dash_matches = dash_check(text_language, blocks)
             language_matches = language_tool_analisys(text_language, blocks)
             list_matches = check_coherence_in_list(blocks, text_language)
             checked_exeptions = check_exeptions(language_matches, blocks, text_language)
