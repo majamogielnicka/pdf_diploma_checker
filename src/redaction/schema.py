@@ -40,10 +40,13 @@ class ListItem:
     marker_type: str
     text: str
     bbox: List[float]
+    words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
 class ListBlock:
     block_id: Union[int, str]
+    content: str
+    words: List[WordInfo]
     items: List[ListItem]
     bbox: List[float]
     type: str = "list"
