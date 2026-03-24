@@ -6,3 +6,7 @@ class Error_type:
     message: str
     offset: int
     error_length: int
+    block_id: int
+    page_start: int
+    page_end: int
+    word_idxs: list[int]

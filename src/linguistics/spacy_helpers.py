@@ -5,7 +5,7 @@ nlp_en = spacy.load('en_core_web_sm')
 nlp_pl = spacy.load('pl_core_news_md')
 
 @functools.cache
-def lemmatization(word, text_language):
+def lemmatization(word_base, text_language):
     '''
     Extracts the lemma of a word
     
@@ -16,6 +16,7 @@ def lemmatization(word, text_language):
     Returns:
         tuple(lemma(str), is_found(bool)): A tuple of extracted word and bolean value True if lemma has been found. 
     '''
+    word = word_base.lower()
     if text_language == "pl":
         nlp = nlp_pl
     else:

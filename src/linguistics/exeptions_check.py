@@ -3,42 +3,56 @@ from collections import defaultdict
 import re
 from linguistics_types import Error_type
 from spacy_helpers import lemmatization
+from src.redaction.schema import ParagraphBlock
+#from proper_check import check_if_proper
 
-#set for proper_names as we don't need to count them, defaultdict for exeptions as we need to count their occurences and its more optimal than normal dict
-exeptions = defaultdict(int)
-proper_names = {}
-
-#TODO:thinking of a way to export a set of exeptions, to count they appearances in whole pdf.
-#TODO: adjust word coordinates to json yet to be received from redaction group.
-def check_exeptions(matches, text, text_language):
+def check_exeptions(matches, blocks, text_language):
     '''
     Checks potentially false positive python language tool error with different criteria.
     
     Args:
         matches (list): A list of Error_type, containing python_language_tool errors of type TYPOS
         text_language (str): pl for Polish or en for English.
-        text (str): Text from the currently checked block.
+        blocks (FinalDocument): contains string and metadata of each word
     
     Returns:
         valid_errors (list): List of Error_type, containing errors that did not meet the criteria
     '''
-
+    potential_exeptions = defaultdict(list)
     valid_errors = []
+    blocks_to_check = defaultdict(list)
+
     for match in matches:
-        word = match.content
-        inside_quotes = check_quotes(match, text)
-        if match.category == 'TYPOS':
-            proper_name = False
-            if match.content.isupper():
-                proper_name = True
-            #TODO: check with proper name list
-            else:
-                lemma, is_found = lemmatization(word, text_language)
-                exeptions[lemma.lower()] +=1
-        if not inside_quotes and not proper_name:
-            valid_errors.append(match)
-        #check_font()
-    print(exeptions)
+        blocks_to_check[f'{match.block_id}_{match.page_start}'].append(match)
+
+    for block in blocks.logical_blocks:
+        if not isinstance(block, ParagraphBlock) or not block.words:
+            continue
+        block_key = f'{block.block_id}_{block.words[0].page_number}'
+        if block_key in blocks_to_check:
+            for match in blocks_to_check[block_key]:
+                text = block.content
+                word = match.content
+                potential_exeption = False
+                proper_name = False
+                inside_quotes = check_quotes(match, text)
+                if not inside_quotes and not proper_name:
+                    if match.category == 'TYPOS' or match.category == 'CASING':
+                        if match.category == 'TYPOS':
+                            lemma, is_found = lemmatization(word, text_language)
+                            # if check_if_proper(block, match, proper_names, lemma, text_language):
+                            #     continue
+                            potential_exeptions[lemma].append(match)
+                            potential_exeption = True
+                if not inside_quotes and not proper_name and not potential_exeption:
+                    valid_errors.append(match)
+    exeptions = []    
+    for lemma, match_list in potential_exeptions.items():
+        if len(match_list) > 2:
+            exeptions.extend(match_list)
+        else:
+            valid_errors.extend(match_list)
+
     return valid_errors
 
 
@@ -64,8 +78,6 @@ def check_lemma(lemma, text_language):
         is_valid = True
     
     return is_valid
-
-#def check_font
 
 
 def check_quotes(match, text):   
