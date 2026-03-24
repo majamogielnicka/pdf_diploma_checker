@@ -1,6 +1,5 @@
 [
     {
-        "_comment": "Wielka litera w środku listy wyliczeniowej, gdy pozostałe elementy zaczynają się małą literą.",
         "content": "Brak odpowiedzi serwera;",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -16,7 +15,6 @@
         ]
     },
     {
-        "_comment": "Ostatni element listy zdaniowej powinien kończyć się kropką.",
         "content": "Uruchomiono testy integracyjne",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -32,7 +30,6 @@
         ]
     },
     {
-        "_comment": "Wielka litera w środku listy wyliczeniowej, gdy pozostałe elementy zaczynają się małą literą.",
         "content": "Brak zgodności schematu;",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -48,7 +45,6 @@
         ]
     },
     {
-        "_comment": "Ostatni element listy zdaniowej powinien kończyć się kropką.",
         "content": "Uruchomiono testy regresyjne",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -64,7 +60,6 @@
         ]
     },
     {
-        "_comment": "Element listy zdaniowej zaczyna się małą literą, chociaż pozostałe elementy mają styl zdaniowy.",
         "content": "zespół opisał ryzyka.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -80,7 +75,6 @@
         ]
     },
     {
-        "_comment": "Element listy zdaniowej zaczyna się małą literą, chociaż pozostałe elementy mają styl zdaniowy.",
         "content": "zespół zebrał wymagania.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -96,7 +90,6 @@
         ]
     },
     {
-        "_comment": "Nieostatni element listy wyliczeniowej ma kropkę zamiast średnika lub przecinka.",
         "content": "ocena wpływu zmian.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -112,7 +105,6 @@
         ]
     },
     {
-        "_comment": "Wielka litera w środku listy wyliczeniowej, gdy pozostałe elementy zaczynają się małą literą.",
         "content": "Niezgodność danych wejściowych;",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -128,7 +120,6 @@
         ]
     },
     {
-        "_comment": "Ostatni element listy wyliczeniowej powinien kończyć się kropką.",
         "content": "brak potwierdzenia odbioru",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -144,7 +135,6 @@
         ]
     },
     {
-        "_comment": "weryfikacja wymagań; — ostatni element listy wyliczeniowej kończy się średnikiem zamiast kropką.",
         "content": "-weryfikacja wymagań.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -159,7 +149,6 @@
         ]
     },
     {
-        "_comment": "Brak modułu raportowania; — wielka litera w liście gdzie pozostałe elementy zaczynają się cyfrą (neutral).",
         "content": "Brak modułu raportowania;",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -175,7 +164,6 @@
         ]
     },
     {
-        "_comment": "Uruchomiono proces weryfikacji — ostatni element listy letter_with_dot bez kropki.",
         "content": "-Uruchomiono proces weryfikacji.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",

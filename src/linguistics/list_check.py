@@ -86,7 +86,7 @@ def check_coherence_in_list(document, text_language):
                     neutral_id.append(item.item_id)
                 endings.append(item_text[-1])
             if endings:
-                dominant_ending = max(set(endings), key=endings.count)
+                dominant_ending = max(sorted(set(endings)), key=endings.count)
 
             all_definition_like = True
             for item in block.items:

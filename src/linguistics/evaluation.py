@@ -131,6 +131,7 @@ if __name__ == "__main__":
         if file.endswith(".json"):
             mock_data_files.append(file)
     results_path = base_dir / "results" / "evaluation_results.txt"
+    os.makedirs(base_dir / "results", exist_ok=True)
     with open(results_path, "w", encoding="utf-8") as out_file:
         for mock_data_file in mock_data_files:
             correct_errors = load_json(str(expected_errors_dir / f"expected_errors_from_{mock_data_file}"))

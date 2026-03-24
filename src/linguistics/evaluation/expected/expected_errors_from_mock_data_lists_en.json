@@ -1,6 +1,5 @@
 [
     {
-        "_comment": "Uppercase start inside an enumeration list where the other items start with lowercase.",
         "content": "Missing authentication token,",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -16,7 +15,6 @@
         ]
     },
     {
-        "_comment": "The last item in a sentence-style list should end with a period.",
         "content": "Run the integration tests",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -33,7 +31,6 @@
         ]
     },
     {
-        "_comment": "Uppercase start inside an enumeration list where the other items start with lowercase.",
         "content": "Missing schema compatibility,",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -49,7 +46,6 @@
         ]
     },
     {
-        "_comment": "The last item in a sentence-style list should end with a period.",
         "content": "Executed the regression tests",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -66,7 +62,6 @@
         ]
     },
     {
-        "_comment": "This sentence-style item starts with lowercase, while the list uses sentence case.",
         "content": "the team described the risks.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -84,7 +79,6 @@
         ]
     },
     {
-        "_comment": "This sentence-style item starts with lowercase, while the list uses sentence case.",
         "content": "the team gathered the requirements.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -102,7 +96,6 @@
         ]
     },
     {
-        "_comment": "Uppercase start inside an enumeration list where the other items start with lowercase.",
         "content": "Impact assessment,",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -117,7 +110,6 @@
         ]
     },
     {
-        "_comment": "The last/standalone sentence-style item should end with a period.",
         "content": "Verified the backup configuration",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -134,7 +126,6 @@
         ]
     },
     {
-        "_comment": "test plan. ends with period while dominant ending is comma — inconsistent ending.",
         "content": "test plan.",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -149,7 +140,6 @@
         ]
     },
     {
-        "_comment": "schema validation; ends with semicolon while dominant ending is comma.",
         "content": "schema validation;",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
@@ -164,7 +154,6 @@
         ]
     },
     {
-        "_comment": "Run the test suite — last item of letter_with_dot list missing period.",
         "content": "Run the test suite",
         "category": "LIST_COHERENCE",
         "message": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
