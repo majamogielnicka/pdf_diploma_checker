@@ -145,7 +145,7 @@ class Validator:
         if most_used_font_size is None:
             logging.warning("Redaction: nie można określić rozmiaru czcionki")
             return True
-        elif most_used_font_size != self.config.font_size:
+        elif abs(most_used_font_size - self.config.font_size) > 0.1: # dopuszczalna różnica 0.1
             self.issues.append(Issue(
                 category="Czcionka",
                 description=f"Rozmiar czcionki: {most_used_font_size}, oczekiwany: {self.config.font_size}",
@@ -244,7 +244,7 @@ class Validator:
         logging.info("Redaction: wszystkie używane czcionki są dozwolone")
         return True
     
-	def check_justification(self, doc_data: DocumentData) -> bool:
+    def check_justification(self, doc_data: DocumentData) -> bool:
         expected_justified = self.config.justowanie
         issues_found = False
 
