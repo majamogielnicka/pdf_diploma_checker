@@ -33,13 +33,14 @@ class TextLine:
     alignement: str = "unknown"
     spacing_consistency: bool = True # czy równe odstępy między słowami w linijce
     # gap_to_r: float = 0.0 # debug
-    line_spacing: float = 0.0
+    line_spacing: float | None = None
 
 @dataclass
 class TextBlock:
     block_id: int
     lines: List[TextLine]
     bbox: tuple
+    block_type: str = "text"
 
 #moja propozycja:   ~Bartek 08.03
 #jesli chodzi o zdjecia to wydaje mi sie ze najlepiej bedzie trzymac tylko sciezke zamiast calego obrazu zeby bylo czytelniej
