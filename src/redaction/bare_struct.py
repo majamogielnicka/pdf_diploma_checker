@@ -93,6 +93,16 @@ class DocumentData:
     def get_page_count(self) -> int:
         return len(self.pages)
     
+    #zwraca słownik z nazwami czcionek i ich ilością wystąpień
+    def get_font_usage(self) -> Dict[str, int]: 
+        font_usage = {}
+        for page in self.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    for span in line.spans:
+                        font_usage[span.font] = font_usage.get(span.font, 0) + 1
+        return font_usage
+    
     #zwraca słownik z rozmiarami czcionek i ich ilością wystąpień
     def get_font_size_usage(self) -> Dict[float, int]: 
         font_usage = {}
@@ -114,3 +124,17 @@ class DocumentData:
         for page in self.pages:
             dimensions[page.number] = (page.width, page.height)
         return dimensions
+    
+    def get_dominant_line_spacing(self) -> float | None:
+        spacing_counts = {}
+        for page in self.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    if line.line_spacing is not None:
+                        spacing_counts[line.line_spacing] = spacing_counts.get(line.line_spacing, 0) + 1
+        
+        if not spacing_counts:
+            return None
+        
+        dominant_spacing = max(spacing_counts, key=spacing_counts.get)
+        return dominant_spacing

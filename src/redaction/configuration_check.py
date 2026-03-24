@@ -91,6 +91,23 @@ class Validator:
     def validate_pdf(self, doc_data: DocumentData) -> List[str]:
         pass
 
+    def check_interline_spacing(self, doc_data: DocumentData) -> bool:
+        line_spacing = doc_data.get_line_spacing()
+        if line_spacing is None:
+            logging.warning("Redaction: nie można określić interlinii")
+            return True
+        elif abs(line_spacing - self.config.interlinia) > 0.1: # dopuszczalna różnica 0.1
+            self.issues.append(Issue(
+                category="Interlinia",
+                description=f"Interlinia: {line_spacing}, oczekiwana: {self.config.interlinia}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        else:
+            logging.info(f"Redaction: interlinia {line_spacing} jest zgodna z wymaganiami")
+            return True
+        
     def check_page_count(self, doc_data: DocumentData) -> bool:
         page_count = doc_data.get_page_count()
         if page_count < self.config.min_stron:
@@ -200,6 +217,21 @@ class Validator:
         logging.info("Redaction: orientacja stron jest zgodna z wymaganiami")
         return True
 
-    
+    def check_fonts(self, doc_data: DocumentData) -> bool:
+        font_usage = doc_data.get_font_usage()
+        if not font_usage:
+            logging.warning("Redaction: nie można określić używanych czcionek")
+            return True
+        for font in font_usage.keys():
+            if font not in self.config.font_list:
+                self.issues.append(Issue(
+                    category="Czcionka",
+                    description=f"Używana czcionka '{font}' nie jest dozwolona",
+                    page=0,
+                    xy=(0, 0)
+                ))
+                return False
+        logging.info("Redaction: wszystkie używane czcionki są dozwolone")
+        return True
 
         
