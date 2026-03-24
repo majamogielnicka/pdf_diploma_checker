@@ -89,7 +89,17 @@ class Validator:
         self.issues = [] # lista błędów
 
     def validate_pdf(self, doc_data: DocumentData) -> List[str]:
-        pass
+        self.issues.clear() # czyścimy poprzednie błędy
+
+        self.check_interline_spacing(doc_data)
+        self.check_page_count(doc_data)
+        self.check_font_size(doc_data)
+        self.check_margins(doc_data)
+        self.check_orientation(doc_data)
+        self.check_fonts(doc_data)
+        self.check_justification(doc_data)
+
+        return [f"{issue.category}: {issue.description} (strona {issue.page})" for issue in self.issues]
 
     def check_interline_spacing(self, doc_data: DocumentData) -> bool:
         line_spacing = doc_data.get_line_spacing()
