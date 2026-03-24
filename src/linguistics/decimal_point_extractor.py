@@ -60,6 +60,7 @@ def check_decimal_matches(potential_matches, block):
     Returns:
         tuple[list, str]: A tuple containing the list of matches and the text content. 
     """
+    decimal_counter = 0
     text = block.content
     black_list = {"%", "$", "€", "£", "zł", "usd", "eur", "gbp", "°"}
     #for now set with declensions, it's faster than using spacy.
@@ -91,5 +92,6 @@ def check_decimal_matches(potential_matches, block):
                 error_message = "Możliwe zastosowanie błędnego separatora dziesiętnego"
 
             match.message = error_message
+            decimal_counter = decimal_counter + 1
             checked_matches.append(match)
-    return checked_matches
+    return checked_matches, decimal_counter

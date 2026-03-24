@@ -76,9 +76,9 @@ if __name__ == "__main__":
                 document = json.load(f)
             text_language = 'en' if file.endswith('en.json') else 'pl'
             blocks = from_dict(document)
-            decimal_matches = decimal_check(text_language, blocks)
+            decimal_matches, decimal_counter = decimal_check(text_language, blocks)
             dash_matches = dash_check(text_language, blocks)
-            language_matches = language_tool_analisys(text_language, blocks)
+            language_matches, whitespace_counter = language_tool_analisys(text_language, blocks)
             list_matches = check_coherence_in_list(blocks, text_language)
             checked_exeptions = check_exeptions(language_matches, blocks, text_language)
             matches = checked_exeptions + decimal_matches + list_matches

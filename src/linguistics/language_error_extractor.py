@@ -19,7 +19,7 @@ def language_tool_analisys(text_language, blocks):
     Returns:
         list: A list of matches.
     """
-
+    whitespace_counter = 0
     tool_en = language_tool_python.LanguageTool('en-GB')
     tool_pl = language_tool_python.LanguageTool('pl-PL') if text_language == "pl" else None
     if text_language == "pl":
@@ -41,6 +41,8 @@ def language_tool_analisys(text_language, blocks):
 
         new_matches = []
         for match in matches:
+            if match.rule_id == 'WHITESPACE_RULE':
+                whitespace_counter = whitespace_counter + 1
             if match.category == "TYPOS" and text_language == "pl":
                 word = contents[match.offset:match.offset + match.error_length]
                 if detector.detect_language_of(word) == Language.ENGLISH:
@@ -65,7 +67,7 @@ def language_tool_analisys(text_language, blocks):
                 page_end = end_page,
                 word_idxs = word_idxs,
             ))
-    return errors
+    return errors, whitespace_counter
 
     
 def extract_errors_to_json(matches):
