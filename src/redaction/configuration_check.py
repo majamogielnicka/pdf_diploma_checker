@@ -130,5 +130,76 @@ class Validator:
             logging.info(f"Redaction: rozmiar czcionki {most_used_font_size} jest zgodny z wymaganiami")
             return True
 
+    def check_margins(self, doc_data: DocumentData) -> bool:
+        margins = doc_data.get_margins()
+        if not margins:
+            logging.warning("Redaction: nie można określić marginesów")
+            return True
+        if self.config.margin_type == "lustrzany":
+            if len(margins) < 2:
+                logging.warning("Redaction: zbyt mało stron do oceny marginesów lustrzanych")
+                return True
+            
+            for page_num, margin in margins.items():
+                if page_num % 2 == 1: # strona nieparzysta
+                    if margin.get("left", 0) <= margin.get("right", 0):
+                        self.issues.append(Issue(
+                            category="Marginesy",
+                            description=f"Strona {page_num}: oczekiwany większy margines po lewej stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}",
+                            page=page_num,
+                            xy=(0, 0)
+                        ))
+                        return False
+                else: # strona parzysta
+                    if margin.get("right", 0) <= margin.get("left", 0):
+                        self.issues.append(Issue(
+                            category="Marginesy",
+                            description=f"Strona {page_num}: oczekiwany większy margines po prawej stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}",
+                            page=page_num,
+                            xy=(0, 0)
+                        ))
+                        return False
+                    margins[page_num]["left"], margins[page_num]["right"] = margins[page_num]["right"], margins[page_num]["left"]
+            
+            org_margin = margins[1]
+            for page_num, margin in margins.items():
+                if margin != org_margin:
+                    self.issues.append(Issue(
+                        category="Marginesy",
+                        description=f"Strona {page_num}: marginesy różnią się od innych stron: {margin} vs {org_margin}",
+                        page=page_num,
+                        xy=(0, 0)
+                    ))
+                    return False
+            logging.info("Redaction: marginesy lustrzane są zgodne na wszystkich stronach")
+            return True
+
+    def check_format(self, doc_data: DocumentData) -> bool:
+
+        return True
+    
+    def check_orientation(self, doc_data: DocumentData) -> bool:
+        doc_data.get_page_dimensions()
+        for page_num, (width, height) in doc_data.get_page_dimensions().items():
+            if self.config.orientation == "pionowa" and width > height:
+                self.issues.append(Issue(
+                    category="Orientacja",
+                    description=f"Strona {page_num}: oczekiwana orientacja pionowa, wymiary strony: {width}x{height}",
+                    page=page_num,
+                    xy=(0, 0)
+                ))
+                return False
+            elif self.config.orientation == "pozioma" and height > width:
+                self.issues.append(Issue(
+                    category="Orientacja",
+                    description=f"Strona {page_num}: oczekiwana orientacja pozioma, wymiary strony: {width}x{height}",
+                    page=page_num,
+                    xy=(0, 0)
+                ))
+                return False
+        logging.info("Redaction: orientacja stron jest zgodna z wymaganiami")
+        return True
+
+    
 
         

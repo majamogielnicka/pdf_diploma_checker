@@ -105,8 +105,12 @@ class DocumentData:
     
     def get_margins(self) -> Dict[str, float]:
         margins = {}
-        if self.pages:
-            for page in self.pages:
-                margins[page.number] = page.margins
+        for page in self.pages:
+            margins[page.number] = page.margins
         return margins
 
+    def get_page_dimensions(self) -> Dict[int, tuple]:
+        dimensions = {}
+        for page in self.pages:
+            dimensions[page.number] = (page.width, page.height)
+        return dimensions
