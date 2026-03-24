@@ -14,7 +14,7 @@
     },
     {
         "content": "5,1",
-        "category": "DECIMAL",
+        "category": "TYPOGRAPHY",
         "message": "Możliwe zastosowanie błędnego separatora dziesiętnego",
         "offset": null,
         "error_length": 3,
@@ -39,10 +39,25 @@
         ]
     },
     {
+        "content": "5,1",
+        "category": "DECIMAL",
+        "message": "Niepoprawny separator dziesiętny",
+        "offset": null,
+        "error_length": 3,
+        "block_id": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "word_idxs": [
+            306
+        ],
+        "start": 1920,
+        "end": 1923
+    },
+    {
         "content": "444,17",
         "category": "DECIMAL",
         "message": "Możliwe zastosowanie błędnego separatora dziesiętnego",
-        "offset": null,
+        "offset": 3905,
         "error_length": 6,
         "block_id": 1,
         "page_start": null,
