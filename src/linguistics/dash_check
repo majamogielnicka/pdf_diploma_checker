@@ -26,7 +26,7 @@ def dash_check(text_language, blocks):
                 start_page, end_page, word_idxs = get_match_info(block, match.start(), 1)
                 errors_in_block.append(Error_type(
                     content="– / —",
-                    category="Interpunkcja - Myślniki",
+                    category="PUNCTUATION",
                     message="Niekonsekwencja: w tekście użyto zarówno półpauz, jak i pauz.",
                     offset=match.start(),
                     error_length=1,
@@ -42,7 +42,7 @@ def dash_check(text_language, blocks):
             start_page, end_page, word_idxs = get_match_info(block, m.start(), len(m.group()))
             errors_in_block.append(Error_type(
                 content=m.group(),
-                category="Interpunkcja - Myślniki",
+                category="PUNCTUATION",
                 message="Błąd: Spacje wokół dywizu.",
                 offset=m.start(),
                 error_length=len(m.group()),
@@ -60,7 +60,7 @@ def dash_check(text_language, blocks):
                 start_page, end_page, word_idxs = get_match_info(block, m.start(), len(m.group()))
                 errors_in_block.append(Error_type(
                     content=m.group(),
-                    category="Interpunkcja - Myślniki",
+                    category="PUNCTUATION",
                     message="Brak spacji wokół myślnika we wtrąceniu.",
                     offset=m.start(),
                     error_length=len(m.group()),
@@ -79,7 +79,7 @@ def dash_check(text_language, blocks):
                     start_page, end_page, word_idxs = get_match_info(block, m.start(), len(content))
                     errors_in_block.append(Error_type(
                         content=content,
-                        category="Interpunkcja - Daty",
+                        category="PUNCTUATION",
                         message="W angielskich datach nie używaspacji wokół się półpauzy (–).",
                         offset=m.start(),
                         error_length=len(content),
@@ -95,7 +95,7 @@ def dash_check(text_language, blocks):
                 start_page, end_page, word_idxs = get_match_info(block, m.start(), len(m.group()))
                 errors_in_block.append(Error_type(
                     content=m.group(),
-                    category="Interpunkcja - Daty",
+                    category="PUNCTUATION",
                     message="W polskich zakresach dat/liczb nie używa się spacji wokół myślnika.",
                     offset=m.start(),
                     error_length=len(m.group()),
