@@ -1,12 +1,9 @@
 from linguistics_types import Error_type
-import spacy_helpers
+from src.redaction.schema import ListBlock
+from check_item_in_list import check_item, has_verb, is_upper_and_dot
+import re
 
-NLP_MODELS: dict = {
-    "pl": spacy_helpers.nlp_pl,
-    "en": spacy_helpers.nlp_en,
-}
-
-def add_match(items_by_id, num):
+def add_match(items_by_id, num, block_id):
 
     """
     Creates an error object for a specific list item.
@@ -21,81 +18,108 @@ def add_match(items_by_id, num):
 
     item = items_by_id[num]
     return Error_type(
-                content = item['text'],
+                content = item.text,
                 category = "LIST_COHERENCE",
                 message = "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
                 offset = 0,
-                error_length = len(item['text'])
+                error_length = len(item.text),
+                block_id = block_id,
+                page_start = item.words[0].page_number if item.words else None,
+                page_end = item.words[-1].page_number if item.words else None,
+                word_idxs = [word.word_index for word in item.words]
             )
 
-def get_nlp(language):
-    return NLP_MODELS[language]
-
-def has_verb(text, language):
-    nlp = get_nlp(language)
-    return any(token.pos_ in ("VERB", "AUX") for token in nlp(text))
-
-def is_upper_and_dot(full_text):
-    return full_text[0].isupper() and full_text.endswith(".")
-
-def check_item(full_text, last_item, second_to_last, text_language, sentence_style):
+def is_short_definition(text, text_language):
 
     """
-    Checks and validates the punctuation correctness of a list item.
+    Checks if the text is a short definition.
     
     Args:
-        full_text (str): List item text.
-        last_item (bool): True if the item is the last in the list.
-        second_to_last (bool): True if the item is the second to last in the list.
-        text_language (str): Language code: 'pl' for Polish or 'en' for English.
-        sentence_style (bool): True if the list uses uppercase.
- 
+        text (str): Text to check.
+        text_language (str): pl for Polish or en for English.
+    
     Returns:
-        bool: True if the item is valid, False if it contains an error.
+        bool: True if the text is a short definition, False otherwise.
     """
 
-    is_en = True if text_language == "en" else False
-    if has_verb(full_text, text_language) and sentence_style:
-        return is_upper_and_dot(full_text)
-    else:
-        if not full_text[0].islower() and not is_en:
-            return False
-        if last_item:
-            return full_text.endswith(".") or (is_en and full_text[-1].isalnum())
-        if second_to_last and is_en:
-            return full_text.endswith(("; and", "; or", ",", ";", ", and", ", or")) or full_text[-1].isalnum()
-        return full_text.endswith((";", ",")) or (is_en and full_text[-1].isalnum())
+    match = re.match(r'^((\S+\s){1,4})[–—\-−:]\s', text)
+    if match:
+        prefix = match.group(1)
+        return not has_verb(prefix, text_language)
+    return False
 
 def check_coherence_in_list(document, text_language):
     """
     Checks for lack of coherence in a list of items.
     
     Args:
-        document (dict): Parsed JSON document.
+        document (FinalDocument): Parsed JSON document.
         text_language (str): pl for Polish or en for English.
     
     Returns:
         list[Error_type]: List of detected errors.
     """
     matches = []
+    symbols = set(r"""`~!@#$%^&*()_-+={[}}|\:;"'<,>.?/""")
+    quote_marks = {'"', '„', '”', '«', '»'}
 
-    for block in document['logical_blocks']:
-        if block['type'] == "list":
+    for block in document.logical_blocks:
+        if isinstance(block, ListBlock):            
             matches_numbers = []
-            items_by_id = {item['item_id']: item for item in block['items']}
-            upper_id = [item['item_id'] for item in block['items'] if item['text'].strip()[0].isupper()]
-            lower_id = [item['item_id'] for item in block['items'] if item['text'].strip()[0].islower()]
+            items_by_id = {}
+            for item in block.items:
+                items_by_id[item.item_id] = item
+            upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
+            for item in block.items:
+                item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
+                if item_text[0] in quote_marks:
+                    quote_id.append(item.item_id)
+                    continue
+                if (re.match(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s', item_text) or is_short_definition(item_text, text_language)):
+                    definition_id.append(item.item_id)
+                    continue
+                if item_text[0].isupper():
+                    upper_id.append(item.item_id)
+                elif item_text[0].islower():
+                    lower_id.append(item.item_id)
+                else:
+                    neutral_id.append(item.item_id)
+                endings.append(item_text[-1])
+            if endings:
+                dominant_ending = max(set(endings), key=endings.count)
+
+            all_definition_like = True
+            for item in block.items:
+                if item.item_id not in definition_id and item.item_id not in quote_id:
+                    item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
+                    has_separator = bool(re.search(r'\s[–—\-−:]\s', item_text))
+                    if not has_separator:
+                        all_definition_like = False
+                        break
+            if all_definition_like:
+                continue
+            inconsistent_list_ids = set()
+            inconsistent_list_ids.update(quote_id + definition_id)
             inconsistent = False
             if len(upper_id) > len(lower_id):
                 sentence_style = True
             elif len(upper_id) == len(lower_id):
-                inconsistent = True
+                upper_items_text = [items_by_id[i].text for i in upper_id]
+                upper_has_verb = sum(has_verb(t, text_language) for t in upper_items_text)
+                if upper_has_verb > len(upper_id) / 2:
+                    inconsistent = False
+                    sentence_style = True
+                else:
+                    inconsistent = True
+                    sentence_style = False
+            elif len(neutral_id) == len(block.items):
+                inconsistent = False
                 sentence_style = False
             else:
                 sentence_style = False
 
             inconsistent_list = []
-            inconsistent_list_ids = set()
+
             if inconsistent:
                 matches_numbers.extend(upper_id + lower_id)
                 inconsistent_list_ids.update(upper_id + lower_id)
@@ -104,34 +128,46 @@ def check_coherence_in_list(document, text_language):
                 for item in inconsistent_list:
                     matches_numbers.append(item)
                     inconsistent_list_ids.add(item)
-            for item in block['items']:
-                if item['item_id'] in inconsistent_list_ids:
+            for item in block.items:
+                if item.item_id in inconsistent_list_ids:
                     continue
                 last_item = False
                 second_to_last = False
 
-                full_text = item['text'].strip()
+                full_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
 
-                if len(block['items']) == 1:
+                if len(block.items) == 1:
                     last_item = True
                 else:
-                    if item == block['items'][-1]:
+                    if item == block.items[-1]:
                         last_item = True
-                    elif item == block['items'][-2]:
+                    elif item == block.items[-2]:
                         second_to_last = True
             
-                if item['marker_type'] =="number_with_dot" or item['marker_type'] == "letter_with_dot":
+                if item.marker_type =="number_with_dot" or item.marker_type == "letter_with_dot":
                     if is_upper_and_dot(full_text):
                         continue
+                    elif item.item_id in neutral_id:
+                        match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
+                        if match:
+                            if not check_item(full_text[match.start():], last_item, second_to_last, text_language, sentence_style, dominant_ending):
+                                matches_numbers.append(item.item_id)
+                        continue
                     else:
-                        matches_numbers.append(item['item_id'])
-                else:               
-                    if not check_item(full_text, last_item, second_to_last, text_language, sentence_style):
-                        matches_numbers.append(item['item_id'])
+                        matches_numbers.append(item.item_id)
+                else: 
+                    if item.item_id in neutral_id:
+                        match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
+                        if match:
+                            if not check_item(full_text[match.start():], last_item, second_to_last, text_language, sentence_style, dominant_ending):
+                                matches_numbers.append(item.item_id)
+                        continue
+                    if not check_item(full_text, last_item, second_to_last, text_language, sentence_style, dominant_ending):
+                        matches_numbers.append(item.item_id)
                 
             if len(matches_numbers) != 0:
                 for num in matches_numbers:
-                    match = add_match(items_by_id, num)
+                    match = add_match(items_by_id, num, block.block_id)
                     matches.append(match)
 
     return matches
