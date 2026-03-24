@@ -102,3 +102,11 @@ class DocumentData:
                     for span in line.spans:
                         font_usage[span.size] = font_usage.get(span.size, 0) + 1
         return font_usage
+    
+    def get_margins(self) -> Dict[str, float]:
+        margins = {}
+        if self.pages:
+            for page in self.pages:
+                margins[page.number] = page.margins
+        return margins
+
