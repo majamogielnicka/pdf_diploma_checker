@@ -1,3 +1,10 @@
+'''
+Nie wiem co to, dajcie znać czy jest potzrebne.
+Jeśli ktoś potrzebuje z jakiegoś powodu ekstrakcji do .txt
+to można zrobić dodatkową metodę do naszych gotowych już struktur
+zamiast tego co jest pod spodem.
+Nie daje przykładu użycia.
+'''
 import fitz  
 import os
 
