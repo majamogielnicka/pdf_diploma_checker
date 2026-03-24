@@ -1,8 +1,8 @@
-from language_error_extractor import *
-from decimal_point_extractor import decimal_check
-from dash_check import dash_check
-from exeptions_check import *
-from list_check import check_coherence_in_list
+from src.linguistics.language_error_extractor import *
+from src.linguistics.decimal_point_extractor import decimal_check
+from src.linguistics.dash_check import dash_check
+from src.linguistics.exeptions_check import *
+from src.linguistics.list_check import check_coherence_in_list
 from pathlib import PurePath
 from src.redaction.schema import FinalDocument, ParagraphBlock, ListBlock, WordInfo, HeadingInfo, ListItem
 from typing import Dict, Any

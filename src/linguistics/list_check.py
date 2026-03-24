@@ -1,6 +1,6 @@
-from linguistics_types import Error_type
+from src.linguistics.linguistics_types import Error_type
 from src.redaction.schema import ListBlock
-from check_item_in_list import check_item, has_verb, is_upper_and_dot
+from src.linguistics.check_item_in_list import check_item, has_verb, is_upper_and_dot
 import re
 
 def add_match(items_by_id, num, block_id):

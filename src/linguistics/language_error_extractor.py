@@ -2,10 +2,10 @@ import language_tool_python
 from lingua import Language, LanguageDetectorBuilder
 import os
 import json
-from linguistics_types import Error_type
+from src.linguistics.linguistics_types import Error_type
 import dataclasses
 from src.redaction.schema import *
-from helpers import get_match_info
+from src.linguistics.helpers import get_match_info
 
 def language_tool_analisys(text_language, blocks):
     
