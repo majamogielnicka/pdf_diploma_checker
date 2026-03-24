@@ -2,20 +2,19 @@
 Struktura (wraz z wieloma metodami) do mapowania surowych danych 
 z ekstrakcji PDF na bardziej ustrukturyzowany format, który jest 
 przyjazny dla dalszej analizy lingwistycznej i NLP.
-Według moich założeń (Bartek 23.03) ta struktura nie ma otwierać na nowo pliku
-lecz korzystać z wyekstraktowanej już z pdf'a struktury DocumentData (bare_struct.py).
-Do poprawy lub nie ¯\_(ツ)_/¯
 '''
 import re
 import statistics
+
 from schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
-from extraction_json import DocumentData, extractPDF
+from extraction_json import DocumentData, extractPDF, calculate_margins
 from schema import PageArtifact 
 
+#### wersja temporary, jutro sprawdz 
 class PDFMapper:
     
     # Sprawdznie, czyy kolejny blok należy do danego podpunktu listy
@@ -42,8 +41,15 @@ class PDFMapper:
         if not paragraph_buffer:
             return
     
-        combined_content = " ".join(data['content'] for data in paragraph_buffer)
+        combined_content = ""
+        for i, data in enumerate(paragraph_buffer):
+            content = data['content']
+            if i > 0:
+                if not combined_content.rstrip().endswith('-'):
+                    combined_content += " "
+            combined_content += content
         combined_words = []
+
         for data in paragraph_buffer:
             combined_words.extend(data['words'])
     
@@ -61,16 +67,25 @@ class PDFMapper:
     def empty_list_buffer(logical_blocks, list_buffer): 
         if not list_buffer:
             return
+        
+        items = [data['item'] for data in list_buffer]
+        all_words = []
+        for item in items:
+            all_words.extend(item.words)
+            
+        combined_content = "\n".join(item.text for item in items)
 
-        if (len(list_buffer) > 1 ):
+        if (len(items) > 1):
             first_item_data = list_buffer[0]
             new_list_block = ListBlock(
                 block_id=f"list_{first_item_data['block_id']}",
-                items=[data['item'] for data in list_buffer],
+                content=combined_content,
+                words=all_words,
+                items=items,
                 bbox=first_item_data['bbox'] 
             )
             
-            all_bboxes = [data['bbox'] for data in list_buffer]
+            all_bboxes = [item.bbox for item in items]
             new_list_block.bbox = [
                 min(b[0] for b in all_bboxes),
                 min(b[1] for b in all_bboxes),
@@ -81,17 +96,20 @@ class PDFMapper:
         
         else:
             data = list_buffer[0]
-            if data['item'].marker_type == "number_with_dot":
+            item = data['item']
+            if item.marker_type == "number_with_dot":
                 logical_blocks.append(ParagraphBlock(
                     block_id=data['block_id'],
-                    content=data['item'].text,
-                    words=data['words'] 
+                    content=item.text,
+                    words=item.words 
                 ))
             else:
                 new_list_block = ListBlock(
                     block_id=f"list_{data['block_id']}",
-                    items=[data['item']],
-                    bbox=data['bbox']
+                    content=item.text,
+                    words=item.words,
+                    items=[item],
+                    bbox=item.bbox
                 )
                 logical_blocks.append(new_list_block)
         
@@ -114,7 +132,15 @@ class PDFMapper:
 
             page_table_descs = {t.description for t in page.tables if t.description}
             page_img_descs = {img.description for img in page.images if img.description}
-        
+
+            margins = calculate_margins(
+                [{"bbox": b.bbox} for b in page.text_blocks], 
+                page.width, 
+                page.height
+            )
+            x0_margin = margins["left"]            
+            margin_indent_thresh = 7.5
+
             for block in page.text_blocks:
                 full_text = ""
                 words_info = []
@@ -127,7 +153,6 @@ class PDFMapper:
                 # Uproszczone sprawdzanie artefaktów na dole i górze strony 
                 if (y1 < top_thresh or y0 > bottom_thresh):
                     
-                    
                     new_artifact = PageArtifact(
                         artifact_id=block.block_id,
                         type="nr strony (tymczasowo uproszczone)", #TODO: rozbudować klasyfikację artefaktów
@@ -139,8 +164,30 @@ class PDFMapper:
                     
                     continue
 
+                last_y1 = None
+
                 for line in block.lines:
-                    # 1. Wyliczamy medianę przerw dla bieżącej linii
+                    # Lewy koordynat x linii (do sprawdzenia, czy nowy akapit)
+                    line_x0 = line.spans[0].bbox[0] if line.spans else block.bbox[0]
+                    line_x1 = line.spans[-1].bbox[2] if line.spans else block.bbox[2]
+
+                    
+                    # Sprawdzanie, czy nowy akapit jeśli za duża różnica w pionie między linijkami
+                    current_y0 = line.spans[0].bbox[1] if line.spans else line.bbox[1]
+                    current_y1 = line.spans[-1].bbox[3] if line.spans else line.bbox[3]
+    
+                    if last_y1 is not None:
+                        vertical_gap = current_y0 - last_y1
+                        line_height = current_y1 - current_y0
+                        if vertical_gap > line_height * 1.5:
+                            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    
+                    last_y1 = current_y1
+                    
+                    if paragraph_buffer and (line_x0 > x0_margin + margin_indent_thresh):
+                        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+
+                    # Wyliczenie mediany przerw dla bieżącej linii (do wykrycia podwójnych spacji)
                     line_gaps = []
                     for i in range(len(line.spans) - 1):
                         g = line.spans[i+1].bbox[0] - line.spans[i].bbox[2]
@@ -158,14 +205,18 @@ class PDFMapper:
                             current_gap = span.bbox[0] - prev_span_x1
                             
                             # Zawsze dodajemy bazową spację, bo extraction_json wycina wszystko
-                            full_text += " "
-                            
-                            # Sprawdzamy, czy nie jesteśmy po znaku interpunkcyjnym
-                            after_punct = full_text.strip().endswith(('.', '!', '?', ':', ';'))
-                            
-                            # Jeśli przerwa jest duża (np. > 1.8 mediany) i nie po kropce -> druga spacja
-                            if current_gap > 1.8 * m_gap and not after_punct:
+                            if not (full_text.rstrip().endswith('-') and abs(line_x1 - span.bbox[2]) < 50):
                                 full_text += " "
+                            
+                                # Sprawdzenie, czy nie jesteśmy po znaku interpunkcyjnym
+                                after_punct = full_text.strip().endswith(('.', '!', '?', ':', ';'))
+                            
+                                # Jeśli przerwa jest duża (np. > 1.2 mediany) i nie po kropce -> druga spacja
+                                if current_gap > 1.2 * m_gap and not after_punct:
+                                    full_text += " "
+                                # Jeśli przerwa jeszcze większa (np. > 1.5 mediany) i po kropce -> druga spacja
+                                if current_gap > 1.5 * m_gap and after_punct:
+                                    full_text += " "
 
                         start_char = len(full_text)
                         words_info.append(WordInfo(
@@ -185,7 +236,7 @@ class PDFMapper:
                         prev_span_x1 = span.bbox[2]
                         word_counter += 1
                     
-                    if not full_text.endswith(" "):
+                    if not full_text.endswith(" ") and not full_text.rstrip().endswith("-"):
                         full_text += " "
                 
                 full_text = full_text.strip()
@@ -227,32 +278,39 @@ class PDFMapper:
                     ))
                     continue
 
-                block_type, marker_type = classify_block_content(full_text) # Klasyfikacja jako lista lup paragraf (początkowa, później sprawdzana ilość elementów)
-
                 block_type, marker_type = classify_block_content(full_text)
 
                 if block_type == "list":
                     PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
                     cleaned_text = strip_list_marker(full_text, marker_type)
                     list_buffer.append({
-                        'item': ListItem(item_id=block.block_id, marker_type=marker_type, text=cleaned_text, bbox=list(block.bbox)),
+                        'item': ListItem(
+                            item_id=block.block_id, 
+                            marker_type=marker_type, 
+                            text=cleaned_text, 
+                            bbox=list(block.bbox),
+                            words=words_info
+                        ),
                         'words': words_info,
                         'block_id': block.block_id,
                         'bbox': list(block.bbox),
                         'original_text': full_text
                     })
                 elif list_buffer and PDFMapper.is_continuation(list_buffer[-1]['bbox'], list(block.bbox)):
-                    last_item = list_buffer[-1]
-                    last_item['item'].text += " " + full_text
-                    last_item['words'].extend(words_info)
+                    last_item_data = list_buffer[-1]
+                    connector = "" if last_item_data['item'].text.rstrip().endswith('-') else " "
+                    last_item_data['item'].text += connector + full_text
+                    last_item_data['item'].words.extend(words_info)
                     
                     b = list(block.bbox)
-                    last_item['bbox'] = [
-                        min(last_item['bbox'][0], b[0]),
-                        min(last_item['bbox'][1], b[1]),
-                        max(last_item['bbox'][2], b[2]),
-                        max(last_item['bbox'][3], b[3])
+                    last_item_data['item'].bbox = [
+                        min(last_item_data['item'].bbox[0], b[0]),
+                        min(last_item_data['item'].bbox[1], b[1]),
+                        max(last_item_data['item'].bbox[2], b[2]),
+                        max(last_item_data['item'].bbox[3], b[3])
                     ]
+                    # Synchronizacja bbox w słowniku bufora
+                    last_item_data['bbox'] = last_item_data['item'].bbox
                 else:
                     PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     paragraph_buffer.append({
@@ -260,11 +318,6 @@ class PDFMapper:
                         'words': words_info,
                         'block_id': block.block_id
                     })
-
-                    
-
-            PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
-            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
 
             for table in page.tables: # Mapowanie tabel jako elementów pływających
                 ve = VisualElement(
@@ -277,5 +330,9 @@ class PDFMapper:
                     format={"num_rows": table.row_count, "num_columns": table.col_count}
                 )
                 new_doc.floating_elements.visual_elements.append(ve)
+
+        # Opróżnianie buforów dopiero po przetworzeniu wszystkich stron, by uniknąć urywania akapitów
+        PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
 
         return new_doc
