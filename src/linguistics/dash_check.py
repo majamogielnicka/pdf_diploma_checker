@@ -104,7 +104,7 @@ def dash_check(text_language, blocks):
                     page_end=end_page,
                     word_idxs=word_idxs
                 ))
-        dash_counter=dach_counter+1
+        dash_counter += len(errors_in_block)
         checked_matches.extend(errors_in_block)
 
-    return checked_matches
+    return checked_matches, dash_counter
