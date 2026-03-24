@@ -40,19 +40,38 @@ class PDFMapper:
     def empty_paragraph_buffer(logical_blocks, paragraph_buffer):
         if not paragraph_buffer:
             return
-    
+
         combined_content = ""
+        combined_words = []
+        current_offset = 0
+
         for i, data in enumerate(paragraph_buffer):
             content = data['content']
+
+            # Oblicz separator (spacja lub brak, jeśli łącznik)
+            separator = ""
             if i > 0:
                 if not combined_content.rstrip().endswith('-'):
-                    combined_content += " "
-            combined_content += content
-        combined_words = []
+                    separator = " "
 
-        for data in paragraph_buffer:
-            combined_words.extend(data['words'])
-    
+            for word in data['words']:
+                shift = current_offset + len(separator)
+                combined_words.append(WordInfo(
+                    word_index=len(combined_words),  # globalny, unikalny indeks
+                    text=word.text,
+                    start_char=word.start_char + shift,
+                    end_char=word.end_char + shift,
+                    font=word.font,
+                    size=word.size,
+                    bold=word.bold,
+                    italic=word.italic,
+                    bbox=word.bbox,
+                    page_number=word.page_number
+                ))
+
+            combined_content += separator + content
+            current_offset = len(combined_content)
+
         logical_blocks.append(ParagraphBlock(
             block_id=paragraph_buffer[0]['block_id'],
             content=combined_content,
