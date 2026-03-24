@@ -4,7 +4,7 @@ from get_content import split_subtitles
 from get_summary import get_summaries
 from find_sota import find_sota_chapter
 
-file_path, lng = Path("src/theses/jabi.pdf"), "pl"
+file_path, lng = Path("src/theses/ch.pdf"), "pl"
 
 output_dir = Path("src/llm/wyniki")
 results_path = output_dir / f"results_{file_path.stem}.txt"

@@ -142,7 +142,7 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
     if not sota_chapter:
         print(f"\n[INFO] Nie znaleziono po tytule. Uruchamiam analizę AI ({'Bielik' if language == 'pl' else 'Qwen'})...")
         llm_candidates = []
-        THRESHOLD = 85
+        THRESHOLD = 90 
         
         for block in valid_blocks:
             print(f"-> Analiza AI Bloku {block.id}: {block.title[:50]}...")
@@ -158,14 +158,31 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
                 })
                 
         if llm_candidates:
-            llm_candidates.sort(key=lambda x: x["score"], reverse=True)
-            best_llm_candidate = llm_candidates[0]
-            sota_chapter = best_llm_candidate["block"]
-            selection_method = "KROK 2 (Analiza sztucznej inteligencji - LLM)"
-            print(f"\n[SUKCES KROK 2] LLM wytypował SOTA: '{sota_chapter.title}' (Pewność: {best_llm_candidate['score']}%)")
+            perfect_candidates = [c for c in llm_candidates if c["score"] == 100]
+            
+            if perfect_candidates:
+                best_llm_candidate = perfect_candidates[0]
+                sota_chapter = best_llm_candidate["block"]
+                selection_method = "KROK 2 (Analiza AI - Pewność 100%)"
+                print(f"\n[SUKCES KROK 2] LLM przyznał 100% pewności: '{sota_chapter.title}'")
+            else:
+                print("\n[INFO] AI wskazało kandydatów (>= 90%), ale bez 100% pewności. Decyduje liczba unikalnych cytowań...")
+                max_cites = -1
+                
+                for c in llm_candidates:
+                    cites = len(set(extract_citations(c["block"].content)))
+                    print(f"   -> LLM Kandydat: '{c['block'].title[:40]}...' | Pewność: {c['score']}% | Unikalne cytowania: {cites}")
+                    if cites > max_cites:
+                        max_cites = cites
+                        best_llm_candidate = c
+                        
+                if best_llm_candidate:
+                    sota_chapter = best_llm_candidate["block"]
+                    selection_method = f"KROK 2 + CYTOWANIA (Pewność LLM: {best_llm_candidate['score']}%, Cytowań: {max_cites})"
+                    print(f"\n[SUKCES KROK 2/3] Wytypowano SOTA na podstawie cytowań spośród faworytów AI: '{sota_chapter.title}'")
 
     if not sota_chapter:
-        print("\n[INFO] AI nie znalazło SOTA. Rozpoczynam liczenie przypisów jako wariant awaryjny...")
+        print("\n[INFO] AI nie znalazło SOTA (brak wyników >= 90%). Rozpoczynam liczenie przypisów jako wariant awaryjny...")
         is_fallback = True
         max_unique = -1
         best_block = None
@@ -180,7 +197,7 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
                 
         if best_block and max_unique > 0:
             sota_chapter = best_block
-            selection_method = "KROK 3 (Najwięcej unikalnych cytowań)"
+            selection_method = "KROK 3 (Najwięcej unikalnych cytowań w całej pracy)"
             fallback_reason = f"zawiera najwięcej unikalnych cytowań w całej pracy ({max_unique})."
             print(f"\n[SUKCES KROK 3 - FALLBACK] Wybrano awaryjnie SOTA: '{sota_chapter.title}'")
 
@@ -192,8 +209,10 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
         
         if not is_fallback and not best_llm_candidate:
             summary_lines.append("\nUzasadnienie: Rozdział posiadał tytuł wskazujący bezpośrednio na przegląd wiedzy.")
+        elif best_llm_candidate and best_llm_candidate["score"] == 100:
+            summary_lines.append(f"\nUzasadnienie AI (Pewność 100%): {best_llm_candidate['reason']}")
         elif best_llm_candidate:
-            summary_lines.append(f"\nUzasadnienie AI (Pewność {best_llm_candidate['score']}%): {best_llm_candidate['reason']}")
+            summary_lines.append(f"\nUzasadnienie: Wybrano na podstawie wysokiej oceny AI ({best_llm_candidate['score']}%) i przewagi w liczbie cytowań.")
         elif is_fallback:
             summary_lines.append(f"\nUzasadnienie: Nie wykryto SOTA semantycznie. Wybrano ten rozdział, ponieważ {fallback_reason}")
     else:
@@ -217,8 +236,8 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
         analyze_sota_citations(path, [sota_chapter.id], output_dir)
 
 if __name__ == "__main__":
-    test_file_path = "src/theses/kana.pdf"
-    test_language = "en" 
+    test_file_path = "src/theses/jago.pdf"
+    test_language = "pl" 
     test_output_dir = "src/llm/wyniki"
     
     print(f"--- URUCHAMIANIE TRYBU TESTOWEGO DLA: {test_file_path} ({test_language}) ---")

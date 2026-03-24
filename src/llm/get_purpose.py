@@ -3,15 +3,15 @@ from pathlib import Path
 
 from get_content import get_content, ChapterBlock
 
-MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
-MODEL_EN = "qwen2.5:latest"
+MODEL_PL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
+MODEL_EN = "qwen2.5:14b"
 
 PROMPT_PL = """
 Przeczytaj poniższy rozdział pracy dyplomowej i wywnioskuj główne zamierzenie autora.
 
 Wymagania:
 - odpowiedź wyłącznie po polsku
-- dokładnie jedno zdanie
+- opis celu pracy MUSI być jedym zdaniem
 - forma rzeczowa i bezosobowa
 - zacznij od formy typu: "Stworzenie...", "Opracowanie...", "Zaprojektowanie..."
 - nie używaj form typu: "celem było", "autor chciał", "głównym zamierzeniem było"
@@ -144,8 +144,8 @@ def get_purpose(path, language="pl"):
     return generate_purpose_from_chapter(purpose_block, language)
 
 def main():
-    path = Path("src/theses/doro.pdf")
-    language = "pl"
+    path = Path("src/theses/kana.pdf")
+    language = "en"
     print(get_purpose(path, language))
 
 if __name__ == "__main__":
