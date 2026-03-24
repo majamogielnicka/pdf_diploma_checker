@@ -527,7 +527,10 @@ def extractPDF(file_path: str) -> DocumentData:
     detected_img_priority = "below"
     #Do wykrycia interlinii
     all_spacings = []
-    
+    page_format, orientation = check_page_format(doc[0])
+    document_data.metadata["page_format"] = page_format
+    document_data.metadata["page_orientation"] = orientation
+
     for page_index, page in enumerate(doc):
         raw_dict = page.get_text("dict")
         word_list = page.get_text("words")
@@ -751,6 +754,20 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             lines.append(curr_line)
             
     return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text"), prev_bottomline, current_span_id
+
+def check_page_format(page: fitz.Page, tolerance: float = 10) -> str:
+    width = page.rect.width
+    height = page.rect.height
+
+    if height<width:
+        orientacja = "pozioma"
+    else:
+        orientacja = "pionowa"
+
+    if (abs(595-width)<=tolerance and abs(842-height)<=tolerance) or (abs(595-height)<=tolerance and abs(595-width)<=tolerance):
+        return "A4",orientacja
+    else:
+        return "incorrect", orientacja
 
 def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float | None:
     if prev_line is not None:
