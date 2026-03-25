@@ -68,10 +68,13 @@ class PageData:
     number: int
     width: float
     height: float
+    orientation: str
+    format: str
     margins: Dict[str, float] #tego nie ma w pdf, ale bedzie funkcja ktora sama liczy przy ekstrakcji pdfa
     text_blocks: List[TextBlock] = field(default_factory=list)
     images: List[ImageInfo] = field(default_factory=list)
     tables: List[TableInfo] = field(default_factory=list)
+
 
 @dataclass
 class DocumentData:

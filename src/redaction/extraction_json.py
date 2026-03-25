@@ -527,9 +527,6 @@ def extractPDF(file_path: str) -> DocumentData:
     detected_img_priority = "below"
     #Do wykrycia interlinii
     all_spacings = []
-    page_format, orientation = check_page_format(doc[0])
-    document_data.metadata["page_format"] = page_format
-    document_data.metadata["page_orientation"] = orientation
 
     for page_index, page in enumerate(doc):
         raw_dict = page.get_text("dict")
@@ -537,13 +534,17 @@ def extractPDF(file_path: str) -> DocumentData:
         p_width = page.rect.width
         p_height = page.rect.height
 
+        page_format, page_orientation = check_page_format(p_width, p_height)
+
         cur_page = PageData(
             number=page_index + 1,
             width=p_width,
             height=p_height,
             margins=calculate_margins(raw_dict["blocks"], p_width, p_height),
             text_blocks=[],
-            images=[]
+            images=[],
+            orientation = page_orientation,
+            format = page_format
         )
 
         drawings = page.get_drawings()
@@ -755,19 +756,25 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             
     return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text"), prev_bottomline, current_span_id
 
-def check_page_format(page: fitz.Page, tolerance: float = 10) -> str:
-    width = page.rect.width
-    height = page.rect.height
+def check_page_format(width, height, tolerance: float = 10) -> str:
 
     if height<width:
-        orientacja = "pozioma"
+        orientation = "pozioma"
     else:
-        orientacja = "pionowa"
+        orientation = "pionowa"
 
-    if (abs(595-width)<=tolerance and abs(842-height)<=tolerance) or (abs(595-height)<=tolerance and abs(595-width)<=tolerance):
-        return "A4",orientacja
-    else:
-        return "incorrect", orientacja
+    formats = {
+        "A5": (420, 595),
+        "A4": (595, 842),
+        "A3": (842, 1191)
+    }
+
+    for name, (w,h) in formats.items():
+        for name, (w, h) in formats.items():
+            if (abs(width - w) <= tolerance and abs(height - h) <= tolerance) or (abs(width - h) <= tolerance and abs(height - w) <= tolerance):
+                return name, orientation
+            
+    return "incorrect", orientation
 
 def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float | None:
     if prev_line is not None:

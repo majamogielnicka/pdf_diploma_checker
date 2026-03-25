@@ -98,6 +98,7 @@ class Validator:
         self.check_orientation(doc_data)
         self.check_fonts(doc_data)
         self.check_justification(doc_data)
+        self.check_format(doc_data)
 
         return [f"{issue.category}: {issue.description} (strona {issue.page})" for issue in self.issues]
 
@@ -202,7 +203,28 @@ class Validator:
             return True
 
     def check_format(self, doc_data: DocumentData) -> bool:
+        tolerance = 10
 
+        formats = {
+            "A5": (420, 595),
+            "A4": (595, 842),
+            "A3": (842, 1191)
+        }
+
+        if self.config.format not in formats:
+            logging.warning("Redaction: nieznany format strony w konfiguracji")
+            return False
+        exp_w,exp_h = formats[self.config.format]
+        for page_num, (width,height) in doc_data.get_page_dimensions().items():
+            if not ((abs(width - exp_w)<=tolerance and abs(height-exp_h)<=tolerance) or (abs(width-exp_h)<=tolerance and abs(height-exp_w)<=tolerance)):
+                self.issues.append(Issue(
+                    category="Format",
+                    description = f"Strona {page_num}: oczekiwany format {self.config.format}, wymiary strony: {width} x {height}",
+                    page = page_num,
+                    xy = (0, 0)
+                ))
+                return False
+        logging.info("Redaction:format stron jest zgodny z wymaganiami")
         return True
     
     def check_orientation(self, doc_data: DocumentData) -> bool:

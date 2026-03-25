@@ -2,7 +2,7 @@
 from pathlib import Path
 from extraction_json import extractPDF
 
-input_path = Path("pdf_diploma_checker/src/theses/doju1.pdf")
+input_path = Path("pdf_diploma_checker/src/redaction/mock_data/01_word_online_365.pdf")
 output_path = Path("pdf_diploma_checker/src/output.json")
 
 # Tryb debugu:
