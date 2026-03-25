@@ -32,8 +32,8 @@ def language_tool_analisys(text_language, blocks):
     for block in blocks.logical_blocks:
         if isinstance(block, ParagraphBlock):
             contents = block.content
-        # elif isinstance(block, ListItem):
-        #     contents = block.text
+        elif isinstance(block, ListBlock):
+            contents = " ".join(item.text for item in block.items if item.text)
         else:
             continue
 

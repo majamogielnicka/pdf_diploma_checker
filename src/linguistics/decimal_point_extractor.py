@@ -1,6 +1,6 @@
 import re
 from src.linguistics.linguistics_types import Error_type
-from src.redaction.schema import ParagraphBlock
+from src.redaction.schema import ParagraphBlock, ListBlock
 from src.linguistics.helpers import get_match_info
 from src.linguistics.exeptions_check import check_quotes
 
@@ -16,6 +16,7 @@ def decimal_check(text_language, blocks):
     Returns:
         list: The list of matches and the text content.
     """
+    counter = 0
     checked_matches = []
     if text_language == 'pl':
         regex = r'(?<![\d.a-zA-Z])\d+\.\d+(?!\.?\d)'
@@ -26,9 +27,8 @@ def decimal_check(text_language, blocks):
         potential_matches = []
         if isinstance(block, ParagraphBlock):
             text = block.content
-        # once lists are fixed, to be added
-        # elif isinstance(block, ListItem):
-        #     contents = block.text
+        elif isinstance(block, ListBlock):
+            text = " ".join(item.text for item in block.items if item.text)
         else:
             continue
         regexes = list(re.finditer(regex, text))
@@ -45,8 +45,10 @@ def decimal_check(text_language, blocks):
                 page_end = end_page,
                 word_idxs = word_idxs,
             ))
-        checked_matches.extend(check_decimal_matches(potential_matches, block))
-    return checked_matches
+        checked_match, decimal_counter = check_decimal_matches(potential_matches, block)
+        checked_matches.extend(checked_match)
+        counter += decimal_counter
+    return checked_matches, counter
 
 def check_decimal_matches(potential_matches, block):
 
