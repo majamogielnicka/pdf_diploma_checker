@@ -13,7 +13,7 @@ sys.path.insert(0, str(SRC_DIR / "redaction"))
 from src.redaction.extraction_json import extractPDF
 from src.redaction.converter_linguistics import PDFMapper
 
-file_path = PROJECT_ROOT / "src" / "theses" / "doro.pdf"
+file_path = PROJECT_ROOT / "src" / "theses" / "zusz.pdf"
 
 NUMBERED_HEADING_RE = re.compile(r"^\s*(\d+\.\d+(?:\.\d+)*)(?:\.)?\s+(.+?)\s*$")
 HEADING_WITH_PREFIX_RE = re.compile(r"^\s*(?:\d+\.\s+)?(\d+\.\d+(?:\.\d+)*)(?:\.)?\s+(.+?)\s*$")

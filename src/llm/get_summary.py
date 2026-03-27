@@ -12,7 +12,8 @@ sys.path.insert(0, str(SRC_DIR))
 
 pdf_path = SRC_DIR / "theses" / "zusz.pdf"
 
-MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
+#MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
+MODEL_PL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
 MODEL_EN = "qwen2.5:latest"
 
 PROMPT_PL = """Streść poniższy fragment pracy dyplomowej w dokładnie jednym zdaniu.
@@ -59,7 +60,7 @@ def get_summary(fragment, model, prompt):
             "options": {
                 "temperature": 0.0,
                 "top_p": 0.2,
-                "num_predict": 120
+                "num_predict": 200
             }
         },
         timeout=120
