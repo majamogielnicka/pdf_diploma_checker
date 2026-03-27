@@ -6,13 +6,13 @@ przyjazny dla dalszej analizy lingwistycznej i NLP.
 import re
 import statistics
 
-from schema import (
+from .schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
-from extraction_json import DocumentData, extractPDF, calculate_margins
-from schema import PageArtifact 
+from .extraction_json import DocumentData, extractPDF, calculate_margins
+from .schema import PageArtifact 
 
 #### wersja temporary, jutro sprawdz 
 class PDFMapper:
