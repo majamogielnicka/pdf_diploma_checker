@@ -1,8 +1,8 @@
-from language_error_extractor import *
-from decimal_point_extractor import decimal_check
-from dash_check import dash_check
-from exeptions_check import *
-from list_check import check_coherence_in_list
+from src.linguistics.language_error_extractor import *
+from src.linguistics.decimal_point_extractor import decimal_check
+from src.linguistics.dash_check import dash_check
+from src.linguistics.exeptions_check import *
+from src.linguistics.list_check import check_coherence_in_list
 from pathlib import PurePath
 from src.redaction.schema import FinalDocument, ParagraphBlock, ListBlock, WordInfo, HeadingInfo, ListItem
 from typing import Dict, Any
@@ -69,6 +69,7 @@ if __name__ == "__main__":
     mock_data_dir = eval_dir / "mock_data"
     prediction_errors_dir = eval_dir / "prediction_errors"
     os.makedirs(prediction_errors_dir, exist_ok=True)
+    file_num = 0
     for file in os.listdir(mock_data_dir):
         if file.endswith(".json"):
             json_path = mock_data_dir / file
@@ -76,9 +77,9 @@ if __name__ == "__main__":
                 document = json.load(f)
             text_language = 'en' if file.endswith('en.json') else 'pl'
             blocks = from_dict(document)
-            decimal_matches = decimal_check(text_language, blocks)
-            dash_matches = dash_check(text_language, blocks)
-            language_matches = language_tool_analisys(text_language, blocks)
+            decimal_matches, decimal_counter = decimal_check(text_language, blocks)
+            dash_matches, dash_counter = dash_check(text_language, blocks)
+            language_matches, whitespace_counter = language_tool_analisys(text_language, blocks)
             list_matches = check_coherence_in_list(blocks, text_language)
             checked_exeptions = check_exeptions(language_matches, blocks, text_language)
             matches = checked_exeptions + decimal_matches + list_matches
@@ -91,3 +92,11 @@ if __name__ == "__main__":
                     dict_matches.append(m_dict)
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(dict_matches, f, ensure_ascii=False, indent=4)
+            decimal_correct = [65, 66, 64, 51, 60]
+            dash_correct = [68, 61, 67, 64, 58]
+            whitespace_correct = [148, 149, 0, 0, 0]
+            print(f"Document: {file}")
+            print(f"Decimal counter: {decimal_counter} from {decimal_correct[file_num]}")
+            print(f"Whitespace counter: {whitespace_counter} from {whitespace_correct[file_num]}")
+            print(f"Dash counter: {dash_counter} from {dash_correct[file_num]}")
+            file_num += 1
