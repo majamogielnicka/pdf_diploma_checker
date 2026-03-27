@@ -4,15 +4,22 @@ from get_subtitles import extract_subtitles_from_pdf
 from get_summary import get_summaries
 from find_sota import find_sota_chapter
 
-file_path, lng = Path("src/theses/ch.pdf"), "pl"
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent.parent
+SRC_DIR = PROJECT_ROOT / "src"
 
-output_dir = Path("src/llm/wyniki")
+file_path = SRC_DIR / "theses" / "ch.pdf"
+lng = "pl"
+
+output_dir = SRC_DIR / "llm" / "wyniki"
 results_path = output_dir / f"results_{file_path.stem}.txt"
 
 
 def analyze_thesis(path, language):
+    path = Path(path).resolve()
+
     if not path.exists():
-        raise FileNotFoundError("Nie znaleziono pliku")
+        raise FileNotFoundError(f"Nie znaleziono pliku: {path}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -29,7 +36,7 @@ def analyze_thesis(path, language):
         f.write(f"{summaries}\n")
 
     print("\nRozpoczynam analizę SOTA...")
-    find_sota_chapter(str(path), output_dir=str(output_dir))
+    find_sota_chapter(str(path), language=language, output_dir=str(output_dir))
 
 
 def main():

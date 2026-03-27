@@ -15,14 +15,19 @@ pdf_path = SRC_DIR / "theses" / "zusz.pdf"
 MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
 MODEL_EN = "qwen2.5:latest"
 
-PROMPT_PL = """Streść poniższy fragment w jednym zdaniu.
-Wymagania:
-- odpowiedź wyłącznie po polsku
-- max 1 zdanie
-- bez cytatów i bez wypunktowań
-- nie używaj angielskich słów
-- zachowaj sens, nie dodawaj informacji spoza fragmentu
-Fragment:
+prompt_pl = """Streść poniższy fragment pracy dyplomowej w dokładnie jednym zdaniu.
+
+Zasady:
+- odpowiedź tylko po polsku
+- zwróć tylko jedno zdanie
+- nie powtarzaj polecenia
+- nie przepisuj słowa „Wymagania” ani „Fragment”
+- nie używaj wypunktowań
+- nie cytuj
+- nie dodawaj informacji spoza tekstu
+- jeśli fragment jest urwany lub niepełny, streść tylko to, co wynika z treści
+
+Tekst do streszczenia:
 """
 
 PROMPT_EN = """Summarize the following fragment in one sentence.
@@ -40,7 +45,16 @@ def get_summary(fragment, model, prompt):
 
     resp = requests.post(
         "http://localhost:11434/api/generate",
-        json={"model": model, "prompt": full_prompt, "stream": False},
+        json={
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.0,
+                "top_p": 0.2,
+                "num_predict": 120
+            }
+        }
         timeout=120
     )
     resp.raise_for_status()
