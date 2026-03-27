@@ -1,83 +1,63 @@
 import requests
+from pathlib import Path
+from get_subtitles import extract_subtitles_from_pdf
 
 MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
 MODEL_EN = "qwen2.5:latest"
 
-fragment = """Ból ostry jest wywołany przez bezpośrednie uszkodzenie tkanek, lub bodźca, który
-                uszkadza tkanki, co uruchamia nocyceptory. Jest to typ bólu, który pełni funkcję ochronną,
-                powstaje w sytuacjach zagrożenia, po operacjach i oparzeniach. Ból ostry, jest
-                krótkotrwałym odczuciem, ustępującym, gdy bodziec przestaje działać na ciało.
-                W leczeniu bólu, stosuje się farmakoterapię opioidami, niesteroidowymi lekami
-                przeciwzapalnymi, jak również blokady nerwowe.
-                Cechuje się krótkim czasem trwania do 3 miesięcy, przeważnie jego lokalizacja
-                i rozpoznanie jest łatwe, co ułatwia leczenie. Może mieć charakter na przykład rwący czy
-                kłujący."""
+PROMPT_PL = """Streść poniższy fragment w jednym zdaniu.
+Wymagania:
+- odpowiedź wyłącznie po polsku
+- max 1 zdanie
+- bez cytatów i bez wypunktowań
+- nie używaj angielskich słów
+- zachowaj sens, nie dodawaj informacji spoza fragmentu
+Fragment:
+"""
 
+PROMPT_EN = """Summarize the following fragment in one sentence.
+Requirements:
+- answer only in English
+- max 1 sentence
+- no quotes and no bullet points
+- preserve the meaning and do not add information not present in the fragment
+Fragment:
+"""
 
-prompt_pl = f"""Streść poniższy fragment w jednym zdaniu.
-                Wymagania:
-                - odpowiedź wyłącznie po polsku
-                - max 1 zdanie
-                - bez cytatów i bez wypunktowań
-                - nie używaj angielskich słów
-                - zachowaj sens, nie dodawaj informacji spoza fragmentu
-                Fragment:
-                """
-
-prompt_en = f"""Summarize the following fragment in one sentence.
-                Requirements:
-                - answer only in English
-                - max 1 sentence
-                - no quotes and no bullet points
-                - preserve the meaning and do not add information not present in the fragment
-                Fragment:
-                """
 
 def get_summary(fragment, model, prompt):
-
-    """
-    Generuje jednozdaniowe streszczenie fragmentu tekstu w języku polskim.
-
-    Funkcja wysyła zapytanie do lokalnego serwera Ollama (http://localhost:11434), 
-    wymuszając na modelu LLM specyficzny format odpowiedzi (jedno zdanie, bez list).
-
-    Args:
-        fragment: Surowy tekst, który ma zostać podsumowany.
-
-    Returns:
-        Jednozdaniowe streszczenie zwrócone przez model.
-
-    Raises:
-        requests.exceptions.RequestException: Występuje w przypadku problemów 
-            z połączeniem z serwerem Ollama lub przekroczenia czasu (timeout).
-    """
-
-    prompt = prompt + fragment
+    full_prompt = prompt + fragment
 
     resp = requests.post(
         "http://localhost:11434/api/generate",
-        json={"model": model, "prompt": prompt, "stream": False},
+        json={"model": model, "prompt": full_prompt, "stream": False},
         timeout=120
     )
     resp.raise_for_status()
-    return resp.json()["response"]
+    return resp.json()["response"].strip()
 
 
-def get_summaries(blocks, language):
+def get_summaries(subtitles, language):
     if language == "pl":
         model = MODEL_PL
-        prompt = prompt_pl
+        prompt = PROMPT_PL
     elif language == "en":
         model = MODEL_EN
-        prompt = prompt_en
+        prompt = PROMPT_EN
+    else:
+        raise ValueError("Nieobsługiwany język")
 
     summaries = []
 
-    for block in blocks:
-        summary = get_summary(block.content, model, prompt)
+    for i, sub in enumerate(subtitles, start=1):
+        content = sub["content"].strip()
+        if not content:
+            continue
+
+        summary = get_summary(content, model, prompt)
 
         summaries.append(
-            f"{block.id}. {block.number} {block.title}\n"
+            f"{i}. {sub['number']} {sub['title']}\n"
             f"SUMMARY:\n{summary}\n"
         )
 
@@ -85,7 +65,13 @@ def get_summaries(blocks, language):
 
 
 def main():
-    print(get_summary(fragment, MODEL_PL, prompt_pl))
+    pdf_path = Path("src/theses/zusz.pdf")
+    language = "pl"
+
+    subtitles = extract_subtitles_from_pdf(pdf_path)
+    summaries = get_summaries(subtitles, language)
+
+    print(summaries)
 
 
 if __name__ == "__main__":
