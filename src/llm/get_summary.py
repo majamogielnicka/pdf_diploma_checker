@@ -1,6 +1,16 @@
 import requests
 from pathlib import Path
 from get_subtitles import extract_subtitles_from_pdf
+import sys
+
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent.parent
+SRC_DIR = PROJECT_ROOT / "src"
+
+sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(SRC_DIR))
+
+pdf_path = SRC_DIR / "theses" / "zusz.pdf"
 
 MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
 MODEL_EN = "qwen2.5:latest"
@@ -65,7 +75,6 @@ def get_summaries(subtitles, language):
 
 
 def main():
-    pdf_path = Path("src/theses/zusz.pdf")
     language = "pl"
 
     subtitles = extract_subtitles_from_pdf(pdf_path)
