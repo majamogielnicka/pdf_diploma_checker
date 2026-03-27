@@ -355,3 +355,32 @@ class PDFMapper:
         PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
 
         return new_doc
+
+MULTISPACE_RE = re.compile(r"\s+")
+
+
+def clean_ws(text: str) -> str:
+    text = text.replace("\u00ad", "")
+    text = text.replace("\xa0", " ")
+    return MULTISPACE_RE.sub(" ", text).strip()
+
+
+def get_plain_text(pdf_path):
+    raw_doc = extractPDF(str(pdf_path))
+    mapped_doc = PDFMapper.map_to_schema(raw_doc)
+
+    parts = []
+
+    for block in mapped_doc.logical_blocks:
+        block_type = getattr(block, "type", None)
+        text = clean_ws(getattr(block, "content", "") or "")
+
+        if not text:
+            continue
+
+        if block_type in {"list", "table_description", "img_decription"}:
+            continue
+
+        parts.append(text)
+
+    return clean_ws(" ".join(parts))
