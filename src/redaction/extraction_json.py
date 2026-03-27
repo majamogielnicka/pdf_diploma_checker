@@ -5,9 +5,18 @@ W przyszłości proponuje to przenieść jako metody struktury zamiast oddzielny
 import os
 import fitz  # PyMuPDF
 import statistics
-from bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
 from typing import Dict
 import re
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent.parent
+REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
+
+sys.path.insert(0, str(REDACTION_DIR))
+
+from bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
 
 
 # Tryb debugu:
