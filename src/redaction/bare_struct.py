@@ -33,13 +33,14 @@ class TextLine:
     alignement: str = "unknown"
     spacing_consistency: bool = True # czy równe odstępy między słowami w linijce
     # gap_to_r: float = 0.0 # debug
-    line_spacing: float = 0.0
+    line_spacing: float | None = None
 
 @dataclass
 class TextBlock:
     block_id: int
     lines: List[TextLine]
     bbox: tuple
+    block_type: str = "text"
 
 #moja propozycja:   ~Bartek 08.03
 #jesli chodzi o zdjecia to wydaje mi sie ze najlepiej bedzie trzymac tylko sciezke zamiast calego obrazu zeby bylo czytelniej
@@ -67,10 +68,13 @@ class PageData:
     number: int
     width: float
     height: float
+    orientation: str
+    format: str
     margins: Dict[str, float] #tego nie ma w pdf, ale bedzie funkcja ktora sama liczy przy ekstrakcji pdfa
     text_blocks: List[TextBlock] = field(default_factory=list)
     images: List[ImageInfo] = field(default_factory=list)
     tables: List[TableInfo] = field(default_factory=list)
+
 
 @dataclass
 class DocumentData:
@@ -88,3 +92,52 @@ class DocumentData:
         except Exception as e:
             #TODO: tutaj tez jakis wyjatek, trzeba ustalic standard zglaszania bledow
             print(f"blad zapisu do pliku json: {e}")
+
+    def get_page_count(self) -> int:
+        return len(self.pages)
+    
+    #zwraca słownik z nazwami czcionek i ich ilością wystąpień
+    def get_font_usage(self) -> Dict[str, int]: 
+        font_usage = {}
+        for page in self.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    for span in line.spans:
+                        font_usage[span.font] = font_usage.get(span.font, 0) + 1
+        return font_usage
+    
+    #zwraca słownik z rozmiarami czcionek i ich ilością wystąpień
+    def get_font_size_usage(self) -> Dict[float, int]: 
+        font_usage = {}
+        for page in self.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    for span in line.spans:
+                        font_usage[span.size] = font_usage.get(span.size, 0) + 1
+        return font_usage
+    
+    def get_margins(self) -> Dict[str, float]:
+        margins = {}
+        for page in self.pages:
+            margins[page.number] = page.margins
+        return margins
+
+    def get_page_dimensions(self) -> Dict[int, tuple]:
+        dimensions = {}
+        for page in self.pages:
+            dimensions[page.number] = (page.width, page.height)
+        return dimensions
+    
+    def get_dominant_line_spacing(self) -> float | None:
+        spacing_counts = {}
+        for page in self.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    if line.line_spacing is not None:
+                        spacing_counts[line.line_spacing] = spacing_counts.get(line.line_spacing, 0) + 1
+        
+        if not spacing_counts:
+            return None
+        
+        dominant_spacing = max(spacing_counts, key=spacing_counts.get)
+        return dominant_spacing

@@ -2,7 +2,7 @@
 from pathlib import Path
 from extraction_json import extractPDF
 
-input_path = Path("pdf_diploma_checker/src/theses/kana.pdf")
+input_path = Path("pdf_diploma_checker/src/redaction/mock_data/01_word_online_365.pdf")
 output_path = Path("pdf_diploma_checker/src/output.json")
 
 # Tryb debugu:
@@ -33,7 +33,7 @@ doc_data = extractPDF(pdf_path)
 #TODO: dodac warunek sprqwdzjaacy blad do testow
 doc_data.to_json(output_path) 
 
-'''-----------------------przykład dla converter_linguistics.py-----------------------'''
+'''-----------------------przykład dla converter_linguistics.py-----------------------
 from pathlib import Path
 from converter_linguistics import PDFMapper
 pdf_path = Path("pdf_diploma_checker/src/theses/kana.pdf")
@@ -44,4 +44,4 @@ if pdf_path.exists():
     final_doc.to_json("pdf_diploma_checker/src/redaction/output.json")
     print("JSON wygenerowany")
 else:
-    print(f"Błąd: Nie znaleziono pliku {pdf_path}")
+    print(f"Błąd: Nie znaleziono pliku {pdf_path}") '''

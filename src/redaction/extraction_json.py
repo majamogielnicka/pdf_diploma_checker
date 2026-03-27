@@ -5,8 +5,18 @@ W przyszłości proponuje to przenieść jako metody struktury zamiast oddzielny
 import os
 import fitz  # PyMuPDF
 import statistics
-from bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
 from typing import Dict
+import re
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent.parent
+REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
+
+sys.path.insert(0, str(REDACTION_DIR))
+
+from bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
 
 
 # Tryb debugu:
@@ -526,12 +536,14 @@ def extractPDF(file_path: str) -> DocumentData:
     detected_img_priority = "below"
     #Do wykrycia interlinii
     all_spacings = []
-    
+
     for page_index, page in enumerate(doc):
         raw_dict = page.get_text("dict")
         word_list = page.get_text("words")
         p_width = page.rect.width
         p_height = page.rect.height
+
+        page_format, page_orientation = check_page_format(p_width, p_height)
 
         cur_page = PageData(
             number=page_index + 1,
@@ -539,7 +551,9 @@ def extractPDF(file_path: str) -> DocumentData:
             height=p_height,
             margins=calculate_margins(raw_dict["blocks"], p_width, p_height),
             text_blocks=[],
-            images=[]
+            images=[],
+            orientation = page_orientation,
+            format = page_format
         )
 
         drawings = page.get_drawings()
@@ -550,7 +564,8 @@ def extractPDF(file_path: str) -> DocumentData:
         for block in raw_dict["blocks"]:
             #typ 0 to tekst, typ 1 to obraz
             if block["type"] == 0:
-                text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id, all_spacings)
+                is_ftr = is_footer(block, p_height, page_index + 1)
+                text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id, all_spacings, is_ftr)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
 
@@ -659,7 +674,7 @@ def extractPDF(file_path: str) -> DocumentData:
 #Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
 #o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na
 #detekcję czcionki, itd. W związku z tym użyto zarówno dicta jak i listy słów, aby połączyć korzyści.
-def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float], last_block_btmline: float, current_span_id: int, all_spacings: list) -> tuple[TextBlock, float, int]:
+def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins: Dict[str, float], last_block_btmline: float, current_span_id: int, all_spacings: list, is_ftr:bool) -> tuple[TextBlock, float, int]:
     lines = []
     block_words = []
     prev_bottomline = last_block_btmline
@@ -722,11 +737,17 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
 
         
         if spans:
+            spacing = None
             curr_bottomline = raw_line["bbox"][3]
-            spacing = line_spacing(curr_bottomline, prev_bottomline, max_font_size)
-
-            if spacing > 0.5 and spacing <3.0:
-                all_spacings.append(spacing)
+            if prev_bottomline is not None:
+                spacing = line_spacing(curr_bottomline, prev_bottomline, max_font_size)
+                if not is_ftr:
+                    if spacing > 0.5 and spacing <3.0:
+                        all_spacings.append(spacing)
+                    else:
+                        spacing = None
+                else:
+                    spacing = None
 
             curr_line = TextLine(
                 spans=spans,
@@ -742,16 +763,60 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             # curr_line.gap_to_r = gap_toright #debug
             lines.append(curr_line)
             
-    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"]), prev_bottomline, current_span_id
+    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text"), prev_bottomline, current_span_id
 
-def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float:
+def check_page_format(width, height, tolerance: float = 10) -> str:
+
+    if height<width:
+        orientation = "pozioma"
+    else:
+        orientation = "pionowa"
+
+    formats = {
+        "A5": (420, 595),
+        "A4": (595, 842),
+        "A3": (842, 1191)
+    }
+
+    for name, (w,h) in formats.items():
+        for name, (w, h) in formats.items():
+            if (abs(width - w) <= tolerance and abs(height - h) <= tolerance) or (abs(width - h) <= tolerance and abs(height - w) <= tolerance):
+                return name, orientation
+            
+    return "incorrect", orientation
+
+def line_spacing(curr_line: float, prev_line: float, font_size: float) -> float | None:
     if prev_line is not None:
         return round((curr_line - prev_line)/font_size/1.2,2) #Z jakiegoś powodu trzeba przeskalować do 1.2 ??
     else:
-        return 0.0
+        return None
 
 def dominant_spacing(doc: fitz.Document) ->float:
     spacings = []
     for page in doc:
         blocks = page.get_text("dict")
 
+def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: float = 0.88) -> bool:
+    bbox = raw_block["bbox"]
+
+    if bbox[1]<(page_height)*0.88:
+        return False
+
+    text_content = ""
+    for line in raw_block.get("lines", []):
+        for span in line.get("spans", []):
+            text_content+= span.get("text","")
+    
+    clean_text = text_content.lower().strip()#zmieniamy na male litery
+    patterns = [
+        rf"^{page_num}$",
+        rf"strona\s+{page_num}$",
+        rf"str\.\s*{page_num}$",
+        rf"^{page_num}\s*/\s*\d+$",
+        rf"^{page_num}\s+z\s+\d+$",
+    ]
+    for p in patterns:
+        if re.search(p,clean_text):
+            return True
+
+    return False
