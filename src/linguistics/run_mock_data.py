@@ -3,6 +3,7 @@ from src.linguistics.decimal_point_extractor import decimal_check
 from src.linguistics.dash_check import dash_check
 from src.linguistics.exeptions_check import *
 from src.linguistics.list_check import check_coherence_in_list
+from src.linguistics.personal_form_check import *
 from pathlib import PurePath
 from src.redaction.schema import FinalDocument, ParagraphBlock, ListBlock, WordInfo, HeadingInfo, ListItem
 from typing import Dict, Any
@@ -82,10 +83,11 @@ if __name__ == "__main__":
             language_matches, whitespace_counter = language_tool_analisys(text_language, blocks)
             list_matches = check_coherence_in_list(blocks, text_language)
             checked_exeptions = check_exeptions(language_matches, blocks, text_language)
-            matches = checked_exeptions + decimal_matches + list_matches
+            language_style_matches = personal_form_check(blocks, text_language)
+            matches = checked_exeptions + decimal_matches + list_matches + language_style_matches
             output_path = prediction_errors_dir / f'predictions_{file}'
             dict_matches = []
-            checked_categories = {'PUNCTUATION', 'LIST_COHERENCE', 'DECIMAL', 'TYPOGRAPHY'}
+            checked_categories = {'PUNCTUATION', 'LIST_COHERENCE', 'DECIMAL', 'TYPOGRAPHY', 'PERSONAL_FORM'}
             for match in matches:
                 if match.category in checked_categories:
                     m_dict = dataclasses.asdict(match)
