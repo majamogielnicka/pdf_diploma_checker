@@ -4,6 +4,7 @@ from src.linguistics.dash_check import dash_check
 from src.linguistics.exeptions_check import *
 from src.linguistics.list_check import check_coherence_in_list
 from src.linguistics.personal_form_check import *
+from src.linguistics.proper_names import get_proper_names
 from pathlib import PurePath
 from src.redaction.schema import FinalDocument, ParagraphBlock, ListBlock, WordInfo, HeadingInfo, ListItem
 from typing import Dict, Any
@@ -78,11 +79,12 @@ if __name__ == "__main__":
                 document = json.load(f)
             text_language = 'en' if file.endswith('en.json') else 'pl'
             blocks = from_dict(document)
+            proper_names = get_proper_names(blocks, text_language)
             decimal_matches, decimal_counter = decimal_check(text_language, blocks)
             dash_matches, dash_counter = dash_check(text_language, blocks)
             language_matches, whitespace_counter = language_tool_analisys(text_language, blocks)
             list_matches = check_coherence_in_list(blocks, text_language)
-            checked_exeptions = check_exeptions(language_matches, blocks, text_language)
+            checked_exeptions = check_exeptions(language_matches, blocks, text_language, proper_names)
             language_style_matches = personal_form_check(blocks, text_language)
             matches = checked_exeptions + decimal_matches + list_matches + language_style_matches
             output_path = prediction_errors_dir / f'predictions_{file}'

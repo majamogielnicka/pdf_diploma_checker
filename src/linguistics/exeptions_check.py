@@ -4,9 +4,9 @@ import re
 from src.linguistics.linguistics_types import Error_type
 from src.linguistics.spacy_helpers import lemmatization
 from src.redaction.schema import ParagraphBlock
-#from proper_check import check_if_proper
-
-def check_exeptions(matches, blocks, text_language):
+from src.linguistics.proper_check import check_if_proper
+ 
+def check_exeptions(matches, blocks, text_language, proper_names):
     '''
     Checks potentially false positive python language tool error with different criteria.
     
@@ -14,6 +14,7 @@ def check_exeptions(matches, blocks, text_language):
         matches (list): A list of Error_type, containing python_language_tool errors of type TYPOS
         text_language (str): pl for Polish or en for English.
         blocks (FinalDocument): contains string and metadata of each word
+        proper_names (set): A collection of known proper names in the document.
     
     Returns:
         valid_errors (list): List of Error_type, containing errors that did not meet the criteria
@@ -40,8 +41,8 @@ def check_exeptions(matches, blocks, text_language):
                     if match.category == 'TYPOS' or match.category == 'CASING':
                         if match.category == 'TYPOS':
                             lemma, is_found = lemmatization(word, text_language)
-                            # if check_if_proper(block, match, proper_names, lemma, text_language):
-                            #     continue
+                            if check_if_proper(block, match, proper_names, lemma, text_language):
+                                continue
                             potential_exeptions[lemma].append(match)
                             potential_exeption = True
                 if not inside_quotes and not proper_name and not potential_exeption:
