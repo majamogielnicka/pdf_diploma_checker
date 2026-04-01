@@ -2,7 +2,7 @@
 from pathlib import Path
 from extraction_json import extractPDF
 
-input_path = Path("pdf_diploma_checker/src/redaction/mock_data/01_word_online_365.pdf")
+input_path = Path("pdf_diploma_checker/src/redaction/mock_data/05_lualatex.pdf")
 output_path = Path("pdf_diploma_checker/src/output.json")
 
 # Tryb debugu:
@@ -10,7 +10,7 @@ output_path = Path("pdf_diploma_checker/src/output.json")
 # 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
 # Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
-debug_mode = 0
+debug_mode = 1
 debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
 debug_path = "pdf_diploma_checker/src/redaction/redaction_debug/{debug_type}_example.pdf"
 
@@ -21,7 +21,7 @@ debug_path = "pdf_diploma_checker/src/redaction/redaction_debug/{debug_type}_exa
 if debug_mode == 0:
     pdf_path = Path(input_path)
 elif debug_mode == 1:
-    candidate = Path(debug_path.format(debug_type=debug_type))
+    candidate = Path(debug_path.format(debug_type="blankpages"))
     if candidate.exists():
         pdf_path = candidate
     else:

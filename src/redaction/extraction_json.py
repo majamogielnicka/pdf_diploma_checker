@@ -545,6 +545,8 @@ def extractPDF(file_path: str) -> DocumentData:
 
         page_format, page_orientation = check_page_format(p_width, p_height)
 
+        blank_page = True
+
         cur_page = PageData(
             number=page_index + 1,
             width=p_width,
@@ -553,7 +555,8 @@ def extractPDF(file_path: str) -> DocumentData:
             text_blocks=[],
             images=[],
             orientation = page_orientation,
-            format = page_format
+            format = page_format,
+            is_blank = True
         )
 
         drawings = page.get_drawings()
@@ -568,6 +571,8 @@ def extractPDF(file_path: str) -> DocumentData:
                 text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id, all_spacings, is_ftr)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
+                    if not is_ftr:
+                        blank_page = False
 
         # Dopiero po zebraniu tekstu procesujemy obrazy, aby opisy pod nimi były już dostępne  
         for block in raw_dict["blocks"]:
@@ -664,8 +669,12 @@ def extractPDF(file_path: str) -> DocumentData:
             document_data.metadata["avarge_line_spacing"] = mode
 
         table_bboxes, detected_priority = extract_tables(page, drawings, cur_page, detected_priority)
+        if table_bboxes: 
+            blank_page = False
         detected_img_priority = extract_vector_graphics(page, drawings, page_index, table_bboxes, cur_page, detected_img_priority)    
-
+        if len(cur_page.images) > 0:
+            blank_page = False
+        cur_page.is_blank = blank_page
         document_data.pages.append(cur_page)
 
     doc.close()
