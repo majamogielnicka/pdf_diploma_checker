@@ -10,3 +10,11 @@ class Error_type:
     page_start: int
     page_end: int
     word_idxs: list[int]
+
+@dataclass
+class Analisys_type:
+    passive_count: int
+    active_count: int
+    impersonal_count: int
+    wrong_person_count: int
+    passive_ratio: str
