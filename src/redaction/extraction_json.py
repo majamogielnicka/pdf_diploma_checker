@@ -504,6 +504,112 @@ def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, ta
 
     return priority_side
 
+def extract_raster_images(blocks: list, drawings: list, page_width: float, page_height: float, page_index: int, cur_page: PageData, priority_side=None) -> str:
+    """
+    Extracts raster images from PDF blocks, filters them (removes backgrounds, small icons), and saves them to images.
+    
+    Args:
+        blocks (list): A list of blocks extracted from page.get_text("dict")["blocks"].
+        drawings (list): A list of vector drawings on the page, used for collision detection.
+        page_width (float): The width of the page.
+        page_height (float): The height of the page.
+        page_index (int): The index of the current page, used for generating image filenames.
+        cur_page (PageData): The data object for the current page where extracted image metadata is appended.
+        priority_side (str, optional): The preferred side (above/below) to look for descriptions.
+        
+    Returns:
+        str: The updated priority_side for images.
+    """
+    for block in blocks:
+        if block["type"] == 1:
+            x0, y0, x1, y1 = block["bbox"]
+            phys_width = x1 - x0
+            phys_height = y1 - y0
+            img_rect = fitz.Rect(block["bbox"])
+
+            MIN_PHYSICAL_WIDTH = 20
+            MIN_PHYSICAL_HEIGHT = 20
+            
+            if phys_width < MIN_PHYSICAL_WIDTH or phys_height < MIN_PHYSICAL_HEIGHT:
+                continue
+
+            if phys_width < 40 and phys_height < 40:
+                is_inline_with_text = False
+                for t_block in cur_page.text_blocks:
+                    t_rect = fitz.Rect(t_block.bbox) + (-2, -2, 2, 2)
+                    if img_rect.intersects(t_rect):
+                        is_inline_with_text = True
+                        break
+                        
+                is_in_drawing = False
+                for d in drawings:
+                    d_rect = fitz.Rect(d["rect"])
+                    if d_rect.width < page_width * 0.9 and d_rect.height < page_height * 0.9:
+                        if img_rect.intersects(d_rect):
+                            is_in_drawing = True
+                            break
+                            
+                if is_inline_with_text and not is_in_drawing:
+                    continue
+                    
+                if not is_in_drawing and block["width"] < 150 and block["height"] < 150:
+                    continue
+
+            if phys_height > 0:
+                aspect_ratio = phys_width / phys_height
+                if aspect_ratio > 15.0 or aspect_ratio < 0.15:
+                    continue
+                
+                if phys_height < 35 and aspect_ratio > 2.5:
+                    continue
+
+            try:
+                pix = fitz.Pixmap(block["image"])
+                if pix.is_unicolor:
+                    continue
+            except:
+                pass
+
+            is_background = False
+            if img_rect.height < 60:
+                for t_block in cur_page.text_blocks:
+                    for line in t_block.lines:
+                        t_rect = fitz.Rect(line.bbox)
+                        intersect = img_rect & t_rect
+                        if intersect.is_valid and not intersect.is_empty:
+                            overlap_area = intersect.width * intersect.height
+                            img_area = img_rect.width * img_rect.height
+                            if overlap_area / img_area > 0.6:
+                                is_background = True
+                                break
+                    if is_background:
+                        break
+                        
+            if is_background:
+                continue
+            
+            description, found_side = find_image_description(block["bbox"], cur_page.text_blocks, priority_side)
+            if description and priority_side is None:
+                priority_side = found_side
+
+            ext = block.get("ext", "png")
+            img_path = f"images/p{page_index}_b{block['number']}.{ext}"
+
+            # zapisywanie obrazów
+            with open(img_path, "wb") as img_file:
+                img_file.write(block["image"])
+                
+            cur_page.images.append(ImageInfo(
+                path=img_path,
+                bbox=block["bbox"],
+                width=block["width"],
+                height=block["height"],
+                image_type="raster",
+                description=description
+            ))
+            
+    return priority_side
+
 def extractPDF(file_path: str) -> DocumentData:
     current_span_id = 0
     if not os.path.exists(file_path):
@@ -574,94 +680,17 @@ def extractPDF(file_path: str) -> DocumentData:
                     if not is_ftr:
                         blank_page = False
 
-        # Dopiero po zebraniu tekstu procesujemy obrazy, aby opisy pod nimi były już dostępne  
-        for block in raw_dict["blocks"]:
-            if block["type"] == 1:
-                x0, y0, x1, y1 = block["bbox"]
-                phys_width = x1 - x0
-                phys_height = y1 - y0
-                img_rect = fitz.Rect(block["bbox"])
+        # Dopiero po zebraniu tekstu procesujemy obrazy rastrowe, aby opisy pod nimi były już dostępne  
+        detected_img_priority = extract_raster_images(
+            blocks=raw_dict["blocks"],
+            drawings=drawings,
+            page_width=p_width,
+            page_height=p_height,
+            page_index=page_index,
+            cur_page=cur_page,
+            priority_side=detected_img_priority
+        )
 
-                MIN_PHYSICAL_WIDTH = 20
-                MIN_PHYSICAL_HEIGHT = 20
-                
-                if phys_width < MIN_PHYSICAL_WIDTH or phys_height < MIN_PHYSICAL_HEIGHT:
-                    continue
-
-                if phys_width < 40 and phys_height < 40:
-                    is_inline_with_text = False
-                    for t_block in cur_page.text_blocks:
-                        t_rect = fitz.Rect(t_block.bbox) + (-2, -2, 2, 2)
-                        if img_rect.intersects(t_rect):
-                            is_inline_with_text = True
-                            break
-                            
-                    is_in_drawing = False
-                    for d in drawings:
-                        d_rect = fitz.Rect(d["rect"])
-                        if d_rect.width < p_width * 0.9 and d_rect.height < p_height * 0.9:
-                            if img_rect.intersects(d_rect):
-                                is_in_drawing = True
-                                break
-                                
-                    if is_inline_with_text and not is_in_drawing:
-                        continue
-                        
-                    if not is_in_drawing and block["width"] < 150 and block["height"] < 150:
-                        continue
-
-                if phys_height > 0:
-                    aspect_ratio = phys_width / phys_height
-                    if aspect_ratio > 15.0 or aspect_ratio < 0.15:
-                        continue
-                    
-                    if phys_height < 35 and aspect_ratio > 2.5:
-                        continue
-
-                try:
-                    pix = fitz.Pixmap(block["image"])
-                    if pix.is_unicolor:
-                        continue
-                except:
-                    pass
-
-                img_rect = fitz.Rect(block["bbox"])
-                is_background = False
-                if img_rect.height < 60:
-                    for t_block in cur_page.text_blocks:
-                        for line in t_block.lines:
-                            t_rect = fitz.Rect(line.bbox)
-                            intersect = img_rect & t_rect
-                            if intersect.is_valid and not intersect.is_empty:
-                                overlap_area = intersect.width * intersect.height
-                                img_area = img_rect.width * img_rect.height
-                                if overlap_area / img_area > 0.6:
-                                    is_background = True
-                                    break
-                        if is_background:
-                            break
-                            
-                if is_background:
-                    continue
-                
-                description, found_side = find_image_description(block["bbox"], cur_page.text_blocks, detected_img_priority)
-                if description and detected_img_priority is None:
-                    detected_img_priority = found_side
-
-                ext = block.get("ext", "png")
-                img_path = f"images/p{page_index}_b{block['number']}.{ext}"
-
-                #zapisywanie obrazów
-                with open(img_path, "wb") as img_file:
-                    img_file.write(block["image"])
-                cur_page.images.append(ImageInfo(
-                    path=img_path,
-                    bbox=block["bbox"],
-                    width=block["width"],
-                    height=block["height"],
-                    image_type="raster",
-                    description=description
-                ))
         if all_spacings: #Znajdywanie średniej interlinii wykorzystywanej w pliku
             for s in range(len(all_spacings)):
                 all_spacings[s] = round(all_spacings[s], 1)
