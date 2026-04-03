@@ -1,0 +1,17 @@
+{
+    "prace": [
+        {
+            "nazwa_pliku": "StronaTytulowa_197585-3.pdf",
+            "sciezka_lokalna": "/home/m/Downloads/StronaTytulowa_197585-3.pdf",
+            "typ": "inzynierska",
+            "data_dodania": "2026-03-16"
+        },
+        {
+            "nazwa_pliku": "bosh.pdf",
+            "sciezka_lokalna": "/home/m/uni/sem6/zsd/data/bosh.pdf",
+            "typ": "inzynierska",
+            "data_dodania": "2026-03-16"
+        }
+    ],
+    "konfiguracje_regul": []
+}
