@@ -14,6 +14,7 @@ def sentence_check(blocks, text_language):
         blocks (FinalDocument): The string of text to be analysed.
     Returns:
         list: A list of matches.
+        analisys (Analisys_type): Statistics about sentence structures in the document.
     '''
     passive_count = 0
     active_count = 0
@@ -31,9 +32,10 @@ def sentence_check(blocks, text_language):
         else:
             continue
         content = nlp(text)
-        for sentence in content.sents:
+        for idx, sentence in enumerate(content.sents):
             passive = False
             quotes = False
+            
             for token in sentence:
                 if token.morph.get("Person") and token.morph.get("Person")[0] not in {'3', '0'}:
                     start_page, end_page, word_idxs = get_match_info(block, token.idx, len(token))
@@ -59,10 +61,12 @@ def sentence_check(blocks, text_language):
                     passive = True
                 elif token.morph.get("Person") and token.morph.get("Person")[0] == "0":
                     impersonal_count +=1
-                    #TODO: bezosobowe zwrotne in polish
+                elif text_language =='pl'and token.text == "się":
+                    if token.head and token.head.morph.get("Person")[0] == "3":
+                        if not any(child.dep_ == "nsubj" for child in token.head.children):
+                            impersonal_count +=1
             if passive:
                 passive_count += 1
-                #print(sentence.text)
             elif not quotes:
                 active_count += 1
 
@@ -73,8 +77,5 @@ def sentence_check(blocks, text_language):
         wrong_person_count= len(checked_matches),
         impersonal_count= impersonal_count
     )
-    #print(analisys.active_count, " ", analisys.passive_count, " ", analisys.impersonal_count, " ", analisys.wrong_person_count)
     return checked_matches, analisys
     
-
-#TODO: detect too long sentences
