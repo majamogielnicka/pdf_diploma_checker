@@ -1,8 +1,10 @@
 import os
+import json
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
     QScrollArea, QLabel, QPushButton, QSplitter, 
-    QLineEdit, QStackedWidget, QFileDialog, QMessageBox
+    QLineEdit, QStackedWidget, QFileDialog, QMessageBox,
+    QDialog
 )
 from PySide6.QtCore import Qt, QSize, QPointF
 from PySide6.QtGui import QPixmap
@@ -13,11 +15,14 @@ from select_text import SelectablePdfView
 from start_page import StartPage
 from saving_files import saving_files
 import styles
+from analysis_dialog import AnalysisDialog
+
+from PySide6.QtWidgets import QFrame
 
 class PDFReader(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Analizator PDF")
+        self.setWindowTitle("Analiza PDF")
         self.resize(1300, 900)
         self.manager = saving_files()
         self.document = QPdfDocument(self)
@@ -26,6 +31,7 @@ class PDFReader(QMainWindow):
         self.setCentralWidget(self.stack)
 
         self.start_page = StartPage()
+        # Połączenie sygnałów ze strony startowej
         self.start_page.add_btn.clicked.connect(self.open_file_dialog)
         self.start_page.fileDropped.connect(self.load_and_switch)
         self.start_page.openRequested.connect(self.load_and_switch)
@@ -47,6 +53,7 @@ class PDFReader(QMainWindow):
 
         splitter = QSplitter(Qt.Horizontal)
         
+        #Panel miniatur
         self.thumb_area = QScrollArea()
         self.thumb_area.setFixedWidth(160)
         self.thumb_area.setWidgetResizable(True)
@@ -55,12 +62,14 @@ class PDFReader(QMainWindow):
         self.thumb_layout.setAlignment(Qt.AlignTop)
         self.thumb_area.setWidget(self.thumb_widget)
 
+        #Główny widok PDF
         self.pdf_view = SelectablePdfView()
         self.pdf_view.setDocument(self.document)
         self.pdf_view.setPageMode(QPdfView.PageMode.MultiPage)
         self.pdf_view.setStyleSheet(styles.PDF_VIEW_STYLE)
         self.pdf_view.pageNavigator().currentPageChanged.connect(self.update_page_input)
 
+        #Panel boczny
         self.right_panel = QWidget()
         self.right_panel.setFixedWidth(300)
         self.right_panel.setStyleSheet(styles.RIGHT_PANEL_STYLE)
@@ -114,25 +123,31 @@ class PDFReader(QMainWindow):
         l.addWidget(self.zoom_label)
         l.addWidget(btn_in)
         l.addStretch(1)
-        l.addWidget(QLabel("PL | EN", styleSheet=styles.LANG_BTN_STYLE))
+        l.addWidget(QLabel(" ", styleSheet=styles.LANG_BTN_STYLE))
         
         return toolbar
 
     def open_file_dialog(self):
         path, _ = QFileDialog.getOpenFileName(self, "Wybierz PDF", "", "PDF Files (*.pdf)")
-        if path: self.load_and_switch(path)
+        if path: 
+            self.load_and_switch(path)
 
     def load_and_switch(self, path):
-        nazwa = os.path.basename(path)
-        self.manager.dodaj_prace(nazwa, path, "inzynierska")
-        
-        self.load_pdf(path)
-        self.stack.setCurrentIndex(1)
-        
-        self.refresh_file_list()
+        """Uruchamia okno analizy i po akceptacji ładuje PDF."""
+        dialog = AnalysisDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            nazwa = os.path.basename(path)
+            self.manager.dodaj_prace(nazwa, path, "inzynierska")
+            
+            self.load_pdf(path)
+            
+            #Przełączamy na czytnik tylko jeśli dokument jest gotowy
+            if self.document.status() == QPdfDocument.Status.Ready:
+                self.stack.setCurrentIndex(1)
+            
+            self.refresh_file_list()
 
     def refresh_file_list(self):
-        #Pobiera dane z managera i odświeża widok StartPage.
         pliki = self.manager.data.get("prace", [])
         self.start_page.render_doc_list(pliki)
 
@@ -141,15 +156,12 @@ class PDFReader(QMainWindow):
             QMessageBox.critical(self, "Błąd", f"Nie odnaleziono pliku:\n{path}")
             return
 
-        # Próba załadowania dokumentu
         self.document.load(path)
         
-        # Sprawdzanie błędów przy użyciu Twoich nazw z listy
+        #Sprawdzanie błędów
         current_error = self.document.error()
-        
-        #sprawdzenie czy haslo
         if current_error == QPdfDocument.Error.IncorrectPassword:
-            QMessageBox.warning(self, "Plik zabezpieczony", "Ten PDF wymaga hasła (lub podano błędne).")
+            QMessageBox.warning(self, "Plik zabezpieczony", "Ten PDF wymaga hasła.")
             return
         elif self.document.status() == QPdfDocument.Status.Error:
             QMessageBox.critical(self, "Błąd", "Nie udało się załadować pliku PDF.")
@@ -161,6 +173,22 @@ class PDFReader(QMainWindow):
             self.generate_thumbnails()
             self.pdf_view.setZoomFactor(1.0)
             self.zoom_label.setText("100%")
+            
+            #Wczytywanie błędów z template.json
+            self.load_template_errors()
+
+    def load_template_errors(self):
+        json_path = "storage/errors_output3.json"
+        if not os.path.exists(json_path):
+            return
+            
+        try:
+            with open(json_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                bledy = data.get("wykryte_bledy", [])
+                self.pdf_view.add_errors(bledy) 
+        except Exception as e:
+            print(f"Błąd podczas wczytywania błędów: {e}")
 
     def generate_thumbnails(self):
         for i in reversed(range(self.thumb_layout.count())):
