@@ -1,10 +1,10 @@
-from src.linguistics.spacy_helpers import nlp_pl, nlp_en
+from .spacy_helpers import nlp_pl, nlp_en
 from spacy.symbols import VERB
 import spacy
-from src.redaction.schema import *
-from src.linguistics.exeptions_check import check_quotes
-from src.linguistics.helpers import get_match_info
-from src.linguistics.linguistics_types import Error_type, Analisys_type
+from src.analysis.extraction.schema import *
+from .exeptions_check import check_quotes
+from .helpers import get_match_info
+from .linguistics_types import Error_type, Analisys_type
 
 def sentence_check(blocks, text_language):
     '''
@@ -14,6 +14,7 @@ def sentence_check(blocks, text_language):
         blocks (FinalDocument): The string of text to be analysed.
     Returns:
         list: A list of matches.
+        analisys (Analisys_type): Statistics about sentence structures in the document.
     '''
     passive_count = 0
     active_count = 0
@@ -31,7 +32,7 @@ def sentence_check(blocks, text_language):
         else:
             continue
         content = nlp(text)
-        for sentence in content.sents:
+        for idx, sentence in enumerate(content.sents):
             passive = False
             quotes = False
             for token in sentence:
@@ -48,7 +49,6 @@ def sentence_check(blocks, text_language):
                     page_end = end_page,
                     word_idxs = word_idxs,
                 )
-                    print(match.content)
                     if not check_quotes(match, text):
                         checked_matches.append(match)
                     else:
@@ -59,10 +59,12 @@ def sentence_check(blocks, text_language):
                     passive = True
                 elif token.morph.get("Person") and token.morph.get("Person")[0] == "0":
                     impersonal_count +=1
-                    #TODO: bezosobowe zwrotne in polish
+                elif text_language =='pl'and token.text == "się":
+                    if token.head.morph.get("Person") and token.head.morph.get("Person")[0] == "3":
+                        if not any(child.dep_ == "nsubj" for child in token.head.children):
+                            impersonal_count +=1
             if passive:
                 passive_count += 1
-                #print(sentence.text)
             elif not quotes:
                 active_count += 1
 
@@ -73,8 +75,4 @@ def sentence_check(blocks, text_language):
         wrong_person_count= len(checked_matches),
         impersonal_count= impersonal_count
     )
-    #print(analisys.active_count, " ", analisys.passive_count, " ", analisys.impersonal_count, " ", analisys.wrong_person_count)
     return checked_matches, analisys
-    
-
-#TODO: detect too long sentences

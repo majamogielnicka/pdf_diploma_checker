@@ -1,4 +1,4 @@
-import src.linguistics.spacy_helpers as spacy_helpers
+from . import spacy_helpers
 
 NLP_MODELS: dict = {
     "pl": spacy_helpers.nlp_pl,

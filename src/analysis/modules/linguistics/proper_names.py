@@ -1,5 +1,5 @@
-from src.linguistics.spacy_helpers import nlp_pl, nlp_en
-from src.redaction.schema import ParagraphBlock, ListBlock
+from .spacy_helpers import nlp_pl, nlp_en
+from src.analysis.extraction.schema import ParagraphBlock, ListBlock
 
 
 def get_proper_names(document, text_language):

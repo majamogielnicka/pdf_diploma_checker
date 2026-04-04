@@ -2,10 +2,10 @@ import language_tool_python
 from lingua import Language, LanguageDetectorBuilder
 import os
 import json
-from src.linguistics.linguistics_types import Error_type
+from .linguistics_types import Error_type
 import dataclasses
-from src.redaction.schema import *
-from src.linguistics.helpers import get_match_info
+from src.analysis.extraction.schema import *
+from .helpers import get_match_info
 
 def language_tool_analisys(text_language, blocks):
     
@@ -83,14 +83,21 @@ def extract_errors_to_json(matches):
     """
     #check only milestone 1 categories
     #checked_categories = {'PUNCTUATION', 'LIST_COHERENCE', 'DECIMAL', 'TYPOGRAPHY'}
-    num = 0
+    # num = 0
+    # for match in matches:
+    #     #if match.category in checked_categories:
+    #         num += 1  
+    #         match_serialized = dataclasses.asdict(match)
+    #         f = open(os.path.join(os.path.dirname(__file__), "json",f"error_file_{num}.json"), "w", encoding="utf-8")
+    #         json.dump(match_serialized, f, ensure_ascii=False, indent=4)
+    all_matches = []
     for match in matches:
-        #if match.category in checked_categories:
-            num += 1  
-            match_serialized = dataclasses.asdict(match)
-            f = open(os.path.join(os.path.dirname(__file__), "json",f"error_file_{num}.json"), "w", encoding="utf-8")
-            json.dump(match_serialized, f, ensure_ascii=False, indent=4)
+        all_matches.append(dataclasses.asdict(match))
 
+    output_path = os.path.join(os.path.dirname(__file__), "errors.json")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(all_matches, f, ensure_ascii=False, indent=4)
 
 
 

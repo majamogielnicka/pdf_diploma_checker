@@ -1,7 +1,7 @@
 import re
-from src.linguistics.spacy_helpers import lemmatization
-from src.redaction.schema import ParagraphBlock, WordInfo
-from src.linguistics.linguistics_types import Error_type
+from .spacy_helpers import lemmatization
+from src.analysis.extraction.schema import ParagraphBlock, WordInfo
+from .linguistics_types import Error_type
 
 
 def check_if_proper(block, match, proper_names, lemma, text_language):

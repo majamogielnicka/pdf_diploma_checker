@@ -1,10 +1,10 @@
 import language_tool_python
 from collections import defaultdict
 import re
-from src.linguistics.linguistics_types import Error_type
-from src.linguistics.spacy_helpers import lemmatization
-from src.redaction.schema import ParagraphBlock
-from src.linguistics.proper_check import check_if_proper
+from .linguistics_types import Error_type
+from .spacy_helpers import lemmatization
+from src.analysis.extraction.schema import ParagraphBlock
+from .proper_check import check_if_proper
  
 def check_exeptions(matches, blocks, text_language, proper_names):
     '''
