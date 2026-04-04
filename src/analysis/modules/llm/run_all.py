@@ -1,46 +1,255 @@
+import sys
+import traceback
+import importlib
+from datetime import datetime
 from pathlib import Path
-from get_purpose import get_purpose
-from get_subtitles import extract_subtitles_from_pdf
-from get_summary import get_summaries
-from find_sota import find_sota_chapter
+
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
+PROJECT_ROOT = BASE_DIR.parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
 
-file_path = SRC_DIR / "theses" / "ch.pdf"
-lng = "pl"
+for p in (PROJECT_ROOT, SRC_DIR):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
 
-output_dir = SRC_DIR / "llm" / "wyniki"
-results_path = output_dir / f"results_{file_path.stem}.txt"
+file_path = PROJECT_ROOT / "data" / "zusz.pdf"
+
+OUTPUT_DIR = BASE_DIR / "wyniki"
 
 
-def analyze_thesis(path, language):
-    path = Path(path).resolve()
+def import_function(module_names, function_names):
+    errors = []
 
-    if not path.exists():
-        raise FileNotFoundError(f"Nie znaleziono pliku: {path}")
+    for module_name in module_names:
+        try:
+            module = importlib.import_module(module_name)
+        except Exception as e:
+            errors.append(f"[IMPORT] {module_name}: {e}")
+            continue
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+        for function_name in function_names:
+            func = getattr(module, function_name, None)
+            if callable(func):
+                return func, None
 
-    with open(results_path, "w", encoding="utf-8") as f:
-        purpose = get_purpose(path, language)
-        print("CEL", purpose)
-        f.write(f"CEL:\n{purpose}\n\n")
+        errors.append(
+            f"[BRAK FUNKCJI] {module_name}: nie znaleziono żadnej z funkcji {function_names}"
+        )
 
-        subtitles = extract_subtitles_from_pdf(path)
-        summaries = get_summaries(subtitles, language)
+    return None, "\n".join(errors)
 
-        print(summaries)
-        f.write("STRESZCZENIA ROZDZIAŁÓW I PODROZDZIAŁÓW:\n")
-        f.write(f"{summaries}\n")
 
-    print("\nRozpoczynam analizę SOTA...")
-    find_sota_chapter(str(path), language=language, output_dir=str(output_dir))
+def try_call(func, *variants):
+    last_type_error = None
+
+    for args, kwargs in variants:
+        try:
+            return func(*args, **kwargs), None
+        except TypeError as e:
+            last_type_error = e
+        except Exception as e:
+            return None, f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
+
+    if last_type_error is not None:
+        return None, f"TypeError: {last_type_error}"
+
+    return None, "Nie udało się wywołać funkcji."
+
+
+def normalize_summaries(value):
+    if value is None:
+        return None
+
+    if isinstance(value, str):
+        return [{"summary": value}]
+
+    if isinstance(value, dict):
+        if "summaries" in value:
+            return normalize_summaries(value["summaries"])
+        return [value]
+
+    if isinstance(value, list):
+        normalized = []
+        for item in value:
+            if isinstance(item, dict):
+                normalized.append({
+                    "number": item.get("number"),
+                    "title": item.get("title"),
+                    "display": item.get("display"),
+                    "summary": item.get("summary") or item.get("content") or item.get("text")
+                })
+            else:
+                normalized.append({"summary": str(item)})
+        return normalized
+
+    return [{"summary": str(value)}]
+
+
+def analyze_thesis(pdf_path: Path) -> dict:
+    result = {
+        "input_file": str(pdf_path.resolve()),
+        "generated_at": datetime.now().isoformat(),
+        "purpose": None,
+        "heading_summaries": None,
+        "errors": {},
+    }
+
+    purpose_func, purpose_import_error = import_function(
+        module_names=[
+            "analysis.modules.llm.get_purpose",
+        ],
+        function_names=[
+            "get_purpose",
+            "get_purpose_details",
+        ],
+    )
+
+    if purpose_func is None:
+        result["errors"]["purpose_import"] = purpose_import_error
+    else:
+        value, err = try_call(
+            purpose_func,
+            ((pdf_path, "pl"), {}),
+            ((pdf_path,), {}),
+        )
+
+        if err:
+            result["errors"]["purpose"] = err
+        else:
+            if isinstance(value, dict):
+                result["purpose"] = value.get("purpose", value)
+                if value.get("warning"):
+                    result["errors"]["purpose_warning"] = value["warning"]
+                if value.get("error"):
+                    result["errors"]["purpose_details"] = value["error"]
+            else:
+                result["purpose"] = value
+
+    subtitles_func, subtitles_import_error = import_function(
+        module_names=[
+            "analysis.modules.llm.get_subtitles",
+            "analysis.modules.llm.subtitles",
+            "analysis.modules.llm.extract_subtitles",
+        ],
+        function_names=[
+            "get_subtitles",
+            "extract_subtitles_from_pdf",
+            "extract_and_dump_subtitles",
+        ],
+    )
+
+    subtitles_value = None
+
+    if subtitles_func is None:
+        result["errors"]["subtitles_import"] = subtitles_import_error
+    else:
+        value, err = try_call(
+            subtitles_func,
+            ((pdf_path,), {}),
+            ((pdf_path, "pl"), {}),
+            ((pdf_path, None), {}),
+        )
+
+        if err:
+            result["errors"]["subtitles"] = err
+        else:
+            subtitles_value = value
+
+    summary_func, summary_import_error = import_function(
+        module_names=[
+            "analysis.modules.llm.get_summary",
+            "analysis.modules.llm.summary",
+        ],
+        function_names=[
+            "get_summary",
+            "generate_summaries",
+            "summarize_subtitles",
+        ],
+    )
+
+    if summary_func is None:
+        result["errors"]["summaries_import"] = summary_import_error
+    else:
+        pdf_path_str = str(pdf_path)
+
+        value, err = try_call(
+            summary_func,
+            ((pdf_path_str,), {}),
+            ((pdf_path_str, "pl"), {}),
+            ((pdf_path_str, subtitles_value), {}),
+            ((pdf_path_str, subtitles_value, "pl"), {}),
+        )
+
+        if err:
+            result["errors"]["summaries"] = err
+        else:
+            result["heading_summaries"] = normalize_summaries(value)
+
+    return result
+
+
+def save_result_txt(result: dict, pdf_path: Path) -> Path:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = OUTPUT_DIR / f"{pdf_path.stem}_results.txt"
+
+    lines = []
+    lines.append(f"Plik: {result['input_file']}")
+    lines.append(f"Wygenerowano: {result['generated_at']}")
+    lines.append("")
+
+    lines.append("CEL PRACY")
+    lines.append(result["purpose"] if result["purpose"] else "Brak")
+    lines.append("")
+
+    lines.append("STRESZCZENIA NAGŁÓWKÓW")
+    summaries = result.get("heading_summaries")
+
+    if summaries:
+        for item in summaries:
+            display = item.get("display")
+            number = item.get("number")
+            title = item.get("title")
+            summary = item.get("summary") or ""
+
+            if display:
+                lines.append(display)
+            elif number and title:
+                lines.append(f"{number} {title}")
+            elif title:
+                lines.append(title)
+            else:
+                lines.append("Sekcja")
+
+            lines.append(summary.strip() if summary else "Brak streszczenia")
+            lines.append("")
+    else:
+        lines.append("Brak")
+        lines.append("")
+
+    lines.append("BŁĘDY")
+    if result["errors"]:
+        for key, value in result["errors"].items():
+            lines.append(f"{key}: {value}")
+    else:
+        lines.append("Brak")
+
+    output_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    return output_path
 
 
 def main():
-    analyze_thesis(file_path, lng)
+    pdf_path = Path(file_path)
+
+    if not pdf_path.exists():
+        print(f"Błąd: plik nie istnieje: {pdf_path}")
+        return
+
+    result = analyze_thesis(pdf_path)
+    output_path = save_result_txt(result, pdf_path)
+
+    print(f"Wynik zapisano do: {output_path}")
 
 
 if __name__ == "__main__":

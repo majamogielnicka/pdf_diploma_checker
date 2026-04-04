@@ -4,16 +4,16 @@ import sys
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
-SRC_DIR = PROJECT_ROOT / "src"
+SRC_DIR = PROJECT_ROOT 
 
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(SRC_DIR))
 sys.path.insert(0, str(SRC_DIR / "redaction"))
 
-from src.redaction.extraction_json import extractPDF
-from src.redaction.converter_linguistics import PDFMapper
+from src.analysis.extraction.extraction_json import extractPDF
+from src.analysis.extraction.converter_linguistics import PDFMapper
 
-file_path = PROJECT_ROOT / "src" / "theses" / "zusz.pdf"
+file_path = PROJECT_ROOT / "data" / "zusz.pdf"
 
 NUMBERED_HEADING_RE = re.compile(r"^\s*(\d+\.\d+(?:\.\d+)*)(?:\.)?\s+(.+?)\s*$")
 HEADING_WITH_PREFIX_RE = re.compile(r"^\s*(?:\d+\.\s+)?(\d+\.\d+(?:\.\d+)*)(?:\.)?\s+(.+?)\s*$")
@@ -231,7 +231,7 @@ def print_subtitles(subtitles, max_chars: int = 250):
         print("-" * 80)
 
 
-def extract_and_dump_subtitles(pdf_path: Path, txt_path: Path | None = None):
+def get_subtitles(pdf_path: Path, txt_path: Path | None = None):
     subtitles = extract_subtitles_from_pdf(pdf_path)
 
     if txt_path is not None:
@@ -244,7 +244,7 @@ def main():
     pdf_path = Path(file_path)
     txt_path = Path("src/llm/wyniki/subtitles.txt")
 
-    subtitles = extract_and_dump_subtitles(pdf_path, txt_path)
+    subtitles = get_subtitles(pdf_path, txt_path)
     print_subtitles(subtitles)
 
 

@@ -1,0 +1,20 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\zusz.pdf
+Wygenerowano: 2026-04-04T14:15:46.450230
+
+CEL PRACY
+{ "text": "Wybór odpowiedniego materiału do druku 3D jest kluczowy dla uzyskania pożądanych właściwości końcowego produktu.
+
+STRESZCZENIA NAGŁÓWKÓW
+Brak
+
+BŁĘDY
+summaries: HTTPError: 400 Client Error: Bad Request for url: http://localhost:11434/api/generate
+Traceback (most recent call last):
+  File "c:\Users\Wiktor\zsd\pdf_diploma_checker\src\analysis\modules\llm\run_all.py", line 49, in try_call
+    return func(*args, **kwargs), None
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Wiktor\zsd\pdf_diploma_checker\src\analysis\modules\llm\get_summary.py", line 68, in get_summary
+    resp.raise_for_status()
+  File "c:\Users\Wiktor\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: http://localhost:11434/api/generate
