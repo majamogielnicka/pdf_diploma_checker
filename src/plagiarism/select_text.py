@@ -1,17 +1,44 @@
 import webbrowser
 from urllib.parse import quote_plus
-from PySide6.QtWidgets import QMenu, QApplication, QRubberBand 
+from PySide6.QtWidgets import QMenu, QApplication, QRubberBand, QPushButton, QToolTip
 from PySide6.QtCore import Qt, QPoint, QRect, QRectF, Signal, QPointF, QSize
 from PySide6.QtGui import QAction
 from PySide6.QtPdfWidgets import QPdfView
 import styles
+
+class ErrorMarker(QPushButton):
+    def __init__(self, error_data, parent=None):
+        super().__init__(parent)
+        self.data = error_data
+        self.setFixedSize(20, 20)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 0, 0, 180);
+                border: 2px solid white;
+                border-radius: 10px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: red; }
+        """)
+        self.setText("!")
+        #Wyświetlanie informacji po kliknięciu
+        self.clicked.connect(self.show_details)
+
+    def show_details(self):
+        info = (f"<b>Błąd:</b> {self.data.get('kategoria', 'Nieznany')}<br>"
+                f"<b>Tekst:</b> {self.data.get('znaleziony_tekst', '')}<br>"
+                f"<b>Sugestia:</b> {self.data.get('sugestia', '')}<br>"
+                f"<b>Komentarz:</b> {self.data.get('komentarz', '')}")
+        QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
 
 class SelectablePdfView(QPdfView):
     textCopied = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
+        self.markers = []
         self.selection_box = QRubberBand(QRubberBand.Rectangle, self)
         self.origin = QPoint()
         self.selection_pdf_rect = None 
@@ -20,11 +47,58 @@ class SelectablePdfView(QPdfView):
         #naprawienie pozycji po scrollu
         self.verticalScrollBar().valueChanged.connect(self.update_selection_box_pos)
         self.horizontalScrollBar().valueChanged.connect(self.update_selection_box_pos)
+        self.verticalScrollBar().valueChanged.connect(self.update_markers_pos)
+        self.horizontalScrollBar().valueChanged.connect(self.update_markers_pos)
 
-    #naprawa pozycji po resize okienka
+    def clear_markers(self):
+        for m in self.markers:
+            m.deleteLater()
+        self.markers = []
+
+    def add_errors(self, errors_list):
+        self.clear_markers()
+        for err in errors_list:
+            marker = ErrorMarker(err, self.viewport())
+            self.markers.append(marker)
+        self.update_markers_pos()
+
+    def update_markers_pos(self):
+        doc = self.document()
+        if not doc or doc.pageCount() == 0: return
+
+        dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
+        zoom = self.zoomFactor()
+        
+        for marker in self.markers:
+            err = marker.data
+            page_idx = err.get("strona", 1) - 1
+            coords = err.get("wspolrzedne", {"x": 0, "y": 0})
+            
+            #Obliczamy pozycję Y strony
+            target_page_y_px = self.documentMargins().top()
+            for i in range(page_idx):
+                size_pt = doc.pagePointSize(i)
+                target_page_y_px += (size_pt.height() * zoom * (dpi_y / 72.0)) + self.pageSpacing()
+
+            #Obliczamy pozycję X
+            size_pt = doc.pagePointSize(page_idx)
+            page_w_px = size_pt.width() * zoom * (dpi_x / 72.0)
+            viewport_w = self.viewport().width()
+            x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
+
+            #Przeliczamy współrzędne błędu (x, y) na piksele
+            px_x = x_start_px + (coords["x"] * zoom * (dpi_x / 72.0)) - self.horizontalScrollBar().value()
+            px_y = target_page_y_px + (coords["y"] * zoom * (dpi_y / 72.0)) - self.verticalScrollBar().value()
+
+            #pozycjonowanie markeru
+            marker.move(int(px_x - 10), int(px_y - 10))
+            marker.show()
+
+    #naprawione resizeowanie
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.update_selection_box_pos()
+        self.update_markers_pos()
 
     def update_selection_box_pos(self):
         #jesli rysujemy badz nie ma prostokata to nie przeliczamy
@@ -175,10 +249,9 @@ class SelectablePdfView(QPdfView):
 
     def check_plagiarism(self):
         if not self.selected_text:
-            # Możesz wysłać sygnał do statusbaru w main_window
             return
             
-        # Usunięcie zbędnych białych znaków
+        #Usunięcie zbędnych białych znaków
         clean_text = " ".join(self.selected_text.split())
         
         # limit maksymalnie 300 znaków
