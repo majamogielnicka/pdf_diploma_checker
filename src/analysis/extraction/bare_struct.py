@@ -62,6 +62,7 @@ class TableInfo:
     col_count: int
     description: str
     data: List[List[str]] 
+    table_type: str = "classic"
 
 @dataclass
 class PageData:
@@ -74,6 +75,7 @@ class PageData:
     text_blocks: List[TextBlock] = field(default_factory=list)
     images: List[ImageInfo] = field(default_factory=list)
     tables: List[TableInfo] = field(default_factory=list)
+    is_blank: bool = False
 
 
 @dataclass
