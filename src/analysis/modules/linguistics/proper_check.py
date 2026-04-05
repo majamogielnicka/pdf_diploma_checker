@@ -20,16 +20,15 @@ def check_if_proper(block, match, proper_names, lemma, text_language):
     """
     
     regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
-    content = match.content
     block_words = block.words
     words = []
-    if any(char.isdigit() for char in content):
+    if any(char.isdigit() for char in lemma):
         return True
-    elif regex.search(content) != None:
+    elif regex.search(lemma) != None:
         return True
-    elif content.isupper():
+    elif lemma.isupper():
         return True
-    elif content.isascii() == True:
+    elif lemma.isascii() == True:
         return True
     else:
         for word in block_words:    

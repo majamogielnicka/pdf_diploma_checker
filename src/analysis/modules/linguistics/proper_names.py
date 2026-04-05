@@ -41,6 +41,16 @@ def get_proper_names(document, text_language):
                             continue
                         proper_names.append(ent.text) 
 
+            if block.type == "keywords":
+                number = 0
+                for word in block.words: 
+                    number += 1
+                    if word.text == "Słowa" and block.words[number].text.startswith("kluczowe") or word.text.startswith("Keywords"):
+                        continue
+                    else:
+                        proper_names.append(word.text)
+                        print(word.text)
+
         if isinstance(block, ListBlock):
             for item in block.items:
                 if text_language == "pl":
@@ -60,5 +70,5 @@ def get_proper_names(document, text_language):
                             proper_names.append(ent.text)  
 
     proper_names = set(proper_names)
-    print(proper_names)
+    #print(proper_names)
     return proper_names

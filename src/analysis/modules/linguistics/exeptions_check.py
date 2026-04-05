@@ -35,9 +35,8 @@ def check_exeptions(matches, blocks, text_language, proper_names):
                 text = block.content
                 word = match.content
                 potential_exeption = False
-                proper_name = False
                 inside_quotes = check_quotes(match, text)
-                if not inside_quotes and not proper_name:
+                if not inside_quotes:
                     if match.category == 'TYPOS' or match.category == 'CASING':
                         if match.category == 'TYPOS':
                             lemma, is_found = lemmatization(word, text_language)
@@ -45,7 +44,7 @@ def check_exeptions(matches, blocks, text_language, proper_names):
                                 continue
                             potential_exeptions[lemma].append(match)
                             potential_exeption = True
-                if not inside_quotes and not proper_name and not potential_exeption:
+                if not inside_quotes and not potential_exeption:
                     valid_errors.append(match)
     exeptions = []    
     for lemma, match_list in potential_exeptions.items():
