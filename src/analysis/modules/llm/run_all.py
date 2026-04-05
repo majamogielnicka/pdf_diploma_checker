@@ -15,7 +15,6 @@ for p in (PROJECT_ROOT, SRC_DIR):
         sys.path.insert(0, p_str)
 
 file_path = PROJECT_ROOT / "data" / "zusz.pdf"
-
 OUTPUT_DIR = BASE_DIR / "wyniki"
 
 
@@ -58,6 +57,23 @@ def try_call(func, *variants):
     return None, "Nie udało się wywołać funkcji."
 
 
+def normalize_purpose(value):
+    if value is None:
+        return None
+
+    if isinstance(value, str):
+        return value.strip()
+
+    if isinstance(value, dict):
+        for key in ("purpose", "text", "result", "response"):
+            item = value.get(key)
+            if item:
+                return str(item).strip()
+        return str(value).strip()
+
+    return str(value).strip()
+
+
 def normalize_summaries(value):
     if value is None:
         return None
@@ -74,12 +90,16 @@ def normalize_summaries(value):
         normalized = []
         for item in value:
             if isinstance(item, dict):
-                normalized.append({
-                    "number": item.get("number"),
-                    "title": item.get("title"),
-                    "display": item.get("display"),
-                    "summary": item.get("summary") or item.get("content") or item.get("text")
-                })
+                normalized.append(
+                    {
+                        "number": item.get("number"),
+                        "title": item.get("title"),
+                        "display": item.get("display"),
+                        "summary": item.get("summary")
+                        or item.get("content")
+                        or item.get("text"),
+                    }
+                )
             else:
                 normalized.append({"summary": str(item)})
         return normalized
@@ -91,6 +111,7 @@ def analyze_thesis(pdf_path: Path) -> dict:
     result = {
         "input_file": str(pdf_path.resolve()),
         "generated_at": datetime.now().isoformat(),
+        "thesis_name": pdf_path.stem,
         "purpose": None,
         "heading_summaries": None,
         "errors": {},
@@ -113,19 +134,20 @@ def analyze_thesis(pdf_path: Path) -> dict:
             purpose_func,
             ((pdf_path, "pl"), {}),
             ((pdf_path,), {}),
+            ((str(pdf_path), "pl"), {}),
+            ((str(pdf_path),), {}),
         )
 
         if err:
             result["errors"]["purpose"] = err
         else:
+            result["purpose"] = normalize_purpose(value)
+
             if isinstance(value, dict):
-                result["purpose"] = value.get("purpose", value)
                 if value.get("warning"):
                     result["errors"]["purpose_warning"] = value["warning"]
                 if value.get("error"):
                     result["errors"]["purpose_details"] = value["error"]
-            else:
-                result["purpose"] = value
 
     subtitles_func, subtitles_import_error = import_function(
         module_names=[
@@ -148,7 +170,9 @@ def analyze_thesis(pdf_path: Path) -> dict:
         value, err = try_call(
             subtitles_func,
             ((pdf_path,), {}),
+            ((str(pdf_path),), {}),
             ((pdf_path, "pl"), {}),
+            ((str(pdf_path), "pl"), {}),
             ((pdf_path, None), {}),
         )
 
@@ -163,23 +187,22 @@ def analyze_thesis(pdf_path: Path) -> dict:
             "analysis.modules.llm.summary",
         ],
         function_names=[
-            "get_summary",
-            "generate_summaries",
             "summarize_subtitles",
+            "generate_summaries",
         ],
     )
 
     if summary_func is None:
         result["errors"]["summaries_import"] = summary_import_error
     else:
-        pdf_path_str = str(pdf_path)
-
         value, err = try_call(
             summary_func,
-            ((pdf_path_str,), {}),
-            ((pdf_path_str, "pl"), {}),
-            ((pdf_path_str, subtitles_value), {}),
-            ((pdf_path_str, subtitles_value, "pl"), {}),
+            ((pdf_path,), {}),
+            ((str(pdf_path),), {}),
+            ((pdf_path, subtitles_value), {}),
+            ((str(pdf_path), subtitles_value), {}),
+            ((pdf_path, subtitles_value, "pl"), {}),
+            ((str(pdf_path), subtitles_value, "pl"), {}),
         )
 
         if err:
@@ -197,6 +220,9 @@ def save_result_txt(result: dict, pdf_path: Path) -> Path:
     lines = []
     lines.append(f"Plik: {result['input_file']}")
     lines.append(f"Wygenerowano: {result['generated_at']}")
+    lines.append("")
+    lines.append("NAZWA PRACY")
+    lines.append(result.get("thesis_name") or pdf_path.stem)
     lines.append("")
 
     lines.append("CEL PRACY")

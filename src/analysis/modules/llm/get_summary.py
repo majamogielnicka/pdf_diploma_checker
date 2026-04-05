@@ -1,19 +1,29 @@
 import sys
+from datetime import datetime
 from pathlib import Path
+
 import requests
-from get_subtitles import extract_subtitles_from_pdf
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
+PROJECT_ROOT = BASE_DIR.parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
+OUTPUT_DIR = BASE_DIR / "wyniki"
 
-sys.path.insert(0, str(PROJECT_ROOT))
-sys.path.insert(0, str(SRC_DIR))
+for p in (PROJECT_ROOT, SRC_DIR):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
 
-pdf_path = SRC_DIR / "theses" / "zusz.pdf"
+try:
+    from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
+except Exception:
+    from get_subtitles import extract_subtitles_from_pdf
 
-#MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
-MODEL_PL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
+
+DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "zusz.pdf"
+
+# MODEL_PL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
+MODEL_PL = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest"
 MODEL_EN = "qwen2.5:latest"
 
 PROMPT_PL = """Streść poniższy fragment pracy dyplomowej w dokładnie jednym zdaniu.
@@ -48,7 +58,15 @@ Text to summarize:
 """
 
 
-def get_summary(fragment, model, prompt):
+def get_thesis_name(pdf_path: Path) -> str:
+    return pdf_path.stem
+
+
+def get_summary(fragment: str, model: str, prompt: str) -> str:
+    fragment = (fragment or "").strip()
+    if not fragment:
+        return ""
+
     full_prompt = prompt + fragment
 
     resp = requests.post(
@@ -60,16 +78,26 @@ def get_summary(fragment, model, prompt):
             "options": {
                 "temperature": 0.0,
                 "top_p": 0.2,
-                "num_predict": 200
-            }
+                "num_predict": 200,
+                "num_ctx": 2048,
+            },
         },
-        timeout=120
+        timeout=120,
     )
-    resp.raise_for_status()
-    return resp.json()["response"].strip()
+
+    if not resp.ok:
+        raise RuntimeError(f"Ollama {resp.status_code}: {resp.text}")
+
+    data = resp.json()
+    return data.get("response", "").strip()
 
 
-def get_summaries(subtitles, language):
+def summarize_subtitles(pdf_path, subtitles=None, language="pl"):
+    pdf_path = Path(pdf_path)
+
+    if subtitles is None:
+        subtitles = extract_subtitles_from_pdf(pdf_path)
+
     if language == "pl":
         model = MODEL_PL
         prompt = PROMPT_PL
@@ -79,30 +107,88 @@ def get_summaries(subtitles, language):
     else:
         raise ValueError("Nieobsługiwany język")
 
-    summaries = []
+    results = []
 
-    for i, sub in enumerate(subtitles, start=1):
-        content = sub["content"].strip()
+    for sub in subtitles:
+        content = (sub.get("content") or "").strip()
         if not content:
             continue
 
         summary = get_summary(content, model, prompt)
 
-        summaries.append(
-            f"{i}. {sub['number']} {sub['title']}\n"
-            f"SUMMARY:\n{summary}\n"
+        number = sub.get("number")
+        title = sub.get("title")
+        display = sub.get("display")
+
+        if not display:
+            if number and title:
+                display = f"{number} {title}"
+            elif title:
+                display = title
+            elif number:
+                display = str(number)
+            else:
+                display = "Sekcja"
+
+        results.append(
+            {
+                "number": number,
+                "title": title,
+                "display": display,
+                "summary": summary,
+            }
         )
 
-    return ("\n" + "-" * 80 + "\n").join(summaries)
+    return results
+
+
+generate_summaries = summarize_subtitles
+
+
+def save_summaries_txt(pdf_path: Path, summaries, thesis_name: str | None = None) -> Path:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    pdf_path = Path(pdf_path)
+    thesis_name = thesis_name or get_thesis_name(pdf_path)
+    output_path = OUTPUT_DIR / f"{pdf_path.stem}_summaries.txt"
+
+    lines = []
+    lines.append(f"Plik: {pdf_path.resolve()}")
+    lines.append(f"Wygenerowano: {datetime.now().isoformat()}")
+    lines.append("")
+    lines.append("NAZWA PRACY")
+    lines.append(thesis_name)
+    lines.append("")
+    lines.append("STRESZCZENIA NAGŁÓWKÓW")
+
+    if summaries:
+        for item in summaries:
+            lines.append(item.get("display") or "Sekcja")
+            lines.append(item.get("summary") or "Brak streszczenia")
+            lines.append("")
+    else:
+        lines.append("Brak")
+        lines.append("")
+
+    output_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    return output_path
 
 
 def main():
-    language = "pl"
+    pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PDF_PATH
+    language = sys.argv[2] if len(sys.argv) > 2 else "pl"
 
+    if not pdf_path.exists():
+        print(f"Błąd: plik nie istnieje: {pdf_path}")
+        return
+
+    thesis_name = get_thesis_name(pdf_path)
     subtitles = extract_subtitles_from_pdf(pdf_path)
-    summaries = get_summaries(subtitles, language)
+    summaries = summarize_subtitles(pdf_path, subtitles, language)
+    output_path = save_summaries_txt(pdf_path, summaries, thesis_name)
 
-    print(summaries)
+    print(f"Nazwa pracy: {thesis_name}")
+    print(f"Wynik zapisano do: {output_path}")
 
 
 if __name__ == "__main__":
