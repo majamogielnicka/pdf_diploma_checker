@@ -1043,11 +1043,6 @@ def extractPDF(file_path: str) -> DocumentData:
             document_data.metadata["avarge_line_spacing"] = mode
 
         table_bboxes, detected_priority = extract_tables(page, drawings, cur_page, detected_priority)
-<<<<<<< HEAD:src/redaction/extraction_json.py
-        if table_bboxes: 
-            blank_page = False
-        detected_img_priority = extract_vector_graphics(page, drawings, page_index, table_bboxes, cur_page, detected_img_priority)    
-=======
 
         apa_bboxes, detected_priority = extract_apa_tables(page, drawings, cur_page, table_bboxes, detected_priority)
 
@@ -1058,7 +1053,6 @@ def extractPDF(file_path: str) -> DocumentData:
         if all_table_bboxes: 
             blank_page = False
         detected_img_priority = extract_vector_graphics(page, drawings, page_index, all_table_bboxes, cur_page, detected_img_priority)    
->>>>>>> redaction-temp:src/analysis/extraction/extraction_json.py
         if len(cur_page.images) > 0:
             blank_page = False
         cur_page.is_blank = blank_page

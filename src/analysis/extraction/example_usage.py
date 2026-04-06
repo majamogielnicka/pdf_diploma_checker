@@ -9,13 +9,8 @@ if str(BASE_DIR) not in sys.path:
 
 from extraction_json import extractPDF
 
-<<<<<<< HEAD:src/redaction/example_usage.py
-input_path = Path("pdf_diploma_checker/src/redaction/mock_data/05_lualatex.pdf")
-output_path = Path("pdf_diploma_checker/src/output.json")
-=======
 input_path = PROJECT_ROOT / "data" / "zusz.pdf"
 output_path = PROJECT_ROOT / "src" / "output.json"
->>>>>>> redaction-temp:src/analysis/extraction/example_usage.py
 
 # Tryb debugu:
 # 0 - domyślny tryb, program działakorzystając z /thesis
