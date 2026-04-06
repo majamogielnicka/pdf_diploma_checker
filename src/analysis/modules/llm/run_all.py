@@ -17,13 +17,20 @@ for p in (PROJECT_ROOT, SRC_DIR):
 file_path = PROJECT_ROOT / "data" / "zusz.pdf"
 OUTPUT_DIR = BASE_DIR / "wyniki"
 
+try:
+    from analysis.modules.llm.similarity import compute_similarity_for_summaries
+except Exception:
+    from similarity import compute_similarity_for_summaries
+
 
 def import_function(module_names, function_names):
     errors = []
 
     for module_name in module_names:
         try:
+            importlib.invalidate_caches()
             module = importlib.import_module(module_name)
+            module = importlib.reload(module)
         except Exception as e:
             errors.append(f"[IMPORT] {module_name}: {e}")
             continue
@@ -95,6 +102,7 @@ def normalize_summaries(value):
                         "number": item.get("number"),
                         "title": item.get("title"),
                         "display": item.get("display"),
+                        "content": item.get("content"),
                         "summary": item.get("summary")
                         or item.get("content")
                         or item.get("text"),
@@ -107,13 +115,14 @@ def normalize_summaries(value):
     return [{"summary": str(value)}]
 
 
-def analyze_thesis(pdf_path: Path) -> dict:
+def analyze_thesis(pdf_path):
     result = {
         "input_file": str(pdf_path.resolve()),
         "generated_at": datetime.now().isoformat(),
         "thesis_name": pdf_path.stem,
         "purpose": None,
         "heading_summaries": None,
+        "average_similarity": None,
         "errors": {},
     }
 
@@ -149,38 +158,6 @@ def analyze_thesis(pdf_path: Path) -> dict:
                 if value.get("error"):
                     result["errors"]["purpose_details"] = value["error"]
 
-    subtitles_func, subtitles_import_error = import_function(
-        module_names=[
-            "analysis.modules.llm.get_subtitles",
-            "analysis.modules.llm.subtitles",
-            "analysis.modules.llm.extract_subtitles",
-        ],
-        function_names=[
-            "get_subtitles",
-            "extract_subtitles_from_pdf",
-            "extract_and_dump_subtitles",
-        ],
-    )
-
-    subtitles_value = None
-
-    if subtitles_func is None:
-        result["errors"]["subtitles_import"] = subtitles_import_error
-    else:
-        value, err = try_call(
-            subtitles_func,
-            ((pdf_path,), {}),
-            ((str(pdf_path),), {}),
-            ((pdf_path, "pl"), {}),
-            ((str(pdf_path), "pl"), {}),
-            ((pdf_path, None), {}),
-        )
-
-        if err:
-            result["errors"]["subtitles"] = err
-        else:
-            subtitles_value = value
-
     summary_func, summary_import_error = import_function(
         module_names=[
             "analysis.modules.llm.get_summary",
@@ -197,12 +174,10 @@ def analyze_thesis(pdf_path: Path) -> dict:
     else:
         value, err = try_call(
             summary_func,
+            ((pdf_path, None, "pl"), {}),
+            ((str(pdf_path), None, "pl"), {}),
             ((pdf_path,), {}),
             ((str(pdf_path),), {}),
-            ((pdf_path, subtitles_value), {}),
-            ((str(pdf_path), subtitles_value), {}),
-            ((pdf_path, subtitles_value, "pl"), {}),
-            ((str(pdf_path), subtitles_value, "pl"), {}),
         )
 
         if err:
@@ -210,16 +185,33 @@ def analyze_thesis(pdf_path: Path) -> dict:
         else:
             result["heading_summaries"] = normalize_summaries(value)
 
+    if result["purpose"] and result["heading_summaries"]:
+        try:
+            similarity_result = compute_similarity_for_summaries(
+                result["purpose"],
+                result["heading_summaries"]
+            )
+            result["heading_summaries"] = similarity_result["items"]
+            result["average_similarity"] = similarity_result["average_similarity"]
+        except Exception as e:
+            result["errors"]["similarity"] = str(e)
+
     return result
 
 
-def save_result_txt(result: dict, pdf_path: Path) -> Path:
+def save_result_txt(result, pdf_path):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     output_path = OUTPUT_DIR / f"{pdf_path.stem}_results.txt"
 
     lines = []
     lines.append(f"Plik: {result['input_file']}")
     lines.append(f"Wygenerowano: {result['generated_at']}")
+    lines.append("")
+    lines.append("ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO")
+    if result.get("average_similarity") is not None:
+        lines.append(f"{result['average_similarity']:.6f}")
+    else:
+        lines.append("Brak")
     lines.append("")
     lines.append("NAZWA PRACY")
     lines.append(result.get("thesis_name") or pdf_path.stem)
@@ -238,6 +230,7 @@ def save_result_txt(result: dict, pdf_path: Path) -> Path:
             number = item.get("number")
             title = item.get("title")
             summary = item.get("summary") or ""
+            cosine_similarity = item.get("cosine_similarity")
 
             if display:
                 lines.append(display)
@@ -248,7 +241,16 @@ def save_result_txt(result: dict, pdf_path: Path) -> Path:
             else:
                 lines.append("Sekcja")
 
+            lines.append("SUMMARY:")
             lines.append(summary.strip() if summary else "Brak streszczenia")
+
+            if cosine_similarity is not None:
+                lines.append(f"COSINE_SIMILARITY: {cosine_similarity:.6f}")
+            else:
+                lines.append("COSINE_SIMILARITY: Brak")
+
+            lines.append("")
+            lines.append("-" * 80)
             lines.append("")
     else:
         lines.append("Brak")

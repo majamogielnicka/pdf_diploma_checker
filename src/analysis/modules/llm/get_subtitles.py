@@ -3,12 +3,15 @@ from pathlib import Path
 import sys
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
-SRC_DIR = PROJECT_ROOT 
+PROJECT_ROOT = BASE_DIR.parents[3]
+SRC_DIR = PROJECT_ROOT / "src"
 
-sys.path.insert(0, str(PROJECT_ROOT))
-sys.path.insert(0, str(SRC_DIR))
-sys.path.insert(0, str(SRC_DIR / "redaction"))
+for p in (PROJECT_ROOT, SRC_DIR):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
+
+
 
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.converter_linguistics import PDFMapper

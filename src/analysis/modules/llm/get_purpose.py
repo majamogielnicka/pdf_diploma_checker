@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
-
 import requests
-
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
@@ -15,23 +13,22 @@ for p in (PROJECT_ROOT, SRC_DIR):
 
 from analysis.extraction.converter_linguistics import get_plain_text
 
+file_path = PROJECT_ROOT / "data" / "kana.pdf"
+language = "en"
 
-file_path = PROJECT_ROOT / "data" / "inż_1_.pdf"
-language = "pl"
-
-MODEL_PL = "bielik-11b-v3-q4km:latest"
-MODEL_EN = "qwen2.5:latest"
-
+MODEL_NAME = "gemma3local"
 OUTPUT_DIR = BASE_DIR / "wyniki"
 
+CHUNK_SIZE = 2000
+MAX_CHUNKS = 20
+REQUEST_TIMEOUT = 600
 
-def ask_ollama(prompt, model, num_predict=60):
-    model = model.strip()
 
+def ask_ollama(prompt, num_predict=60):
     resp = requests.post(
         "http://localhost:11434/api/generate",
         json={
-            "model": model,
+            "model": MODEL_NAME,
             "prompt": prompt,
             "stream": False,
             "keep_alive": "15m",
@@ -39,20 +36,25 @@ def ask_ollama(prompt, model, num_predict=60):
                 "temperature": 0.0,
                 "num_predict": num_predict,
                 "top_p": 0.2,
-                "num_ctx": 4096,
-            },
+                "num_ctx": 4096
+            }
         },
-        timeout=600,
+        timeout=REQUEST_TIMEOUT
     )
 
     if not resp.ok:
         raise requests.exceptions.HTTPError(
             f"{resp.status_code}: {resp.text}",
-            response=resp,
+            response=resp
         )
 
-    data = resp.json()
-    return data.get("response", "").strip()
+    return resp.json().get("response", "").strip()
+
+
+def normalize_text(text):
+    if not text:
+        return ""
+    return " ".join(str(text).split()).strip()
 
 
 def prepare_text(path):
@@ -60,10 +62,10 @@ def prepare_text(path):
     raw_text = get_plain_text(path)
     plain_text_path = OUTPUT_DIR / f"{path.stem}_plain_text.txt"
     plain_text_path.write_text(raw_text, encoding="utf-8")
-    return " ".join(raw_text.split()).strip()
+    return normalize_text(raw_text)
 
 
-def split_into_chunks(text, chunk_size=2000, max_chunks=20):
+def split_into_chunks(text, chunk_size=CHUNK_SIZE, max_chunks=MAX_CHUNKS):
     text = text[: chunk_size * max_chunks].strip()
     chunks = []
 
@@ -82,7 +84,7 @@ Wyodrębnij z fragmentu wyłącznie treść głównego celu pracy.
 
 Zasady:
 - odpowiedź tylko po polsku
-- jeśli da się ustalić cel, zwróć wyłącznie jedną krótką frazę rzeczownikową
+- jeśli da się ustalić cel, zwróć wyłącznie jedną frazę rzeczownikową
 - nie zwracaj pełnego zdania
 - nie dodawaj żadnego wstępu ani komentarza
 - nie używaj form typu: "Celem pracy jest", "Praca ma na celu", "Cel pracy to"
@@ -102,19 +104,21 @@ Fragment:
 
 def build_candidate_prompt_en(content):
     return f"""
-Read the thesis fragment and decide whether the main purpose of the thesis can be determined from it.
-
-Look especially for explicit purpose statements in the introduction, abstract, or passages describing the author's intention.
+Extract only the main thesis purpose from the fragment.
 
 Rules:
 - answer only in English
-- if the thesis purpose can be determined from this fragment, return exactly one sentence
-- if it cannot be determined reliably from this fragment, return exactly: NONE
-- do not summarize the text
-- do not quote literally
-- do not create a list
-- do not add commentary
-- the answer should be factual, impersonal, and not start with phrases such as "The purpose of this thesis is" or "This thesis aims to"
+- return only a noun phrase
+- do not return a full sentence
+- do not start with: this thesis, the thesis, this work, the aim of this thesis, the purpose of this thesis
+- do not add any explanation or commentary
+- do not summarize the fragment
+- if the purpose cannot be determined reliably, return exactly: NONE
+
+Correct form:
+optimization of 3D printing parameters for improved electrical conductivity
+evaluation of the effectiveness of the selected method in the study group
+development of a decision-support model
 
 Fragment:
 {content}
@@ -143,16 +147,16 @@ Kandydaci:
 def build_final_prompt_en(candidates):
     joined = "\n".join(f"- {c}" for c in candidates)
     return f"""
-Based on the candidates below, choose the single best formulation of the thesis purpose.
+Choose the single best thesis purpose from the candidates below.
 
 Rules:
 - answer only in English
-- return exactly one sentence
-- choose only one best purpose
-- do not create a list
-- do not comment
+- return only a short noun phrase
+- do not return a full sentence
+- do not start with: this thesis, the thesis, this work, the aim of this thesis, the purpose of this thesis
+- do not add any explanation or commentary
 - do not add information beyond the candidates
-- the answer should be factual, impersonal, and not start with phrases such as "The purpose of this thesis is" or "This thesis aims to"
+- if none is reliable, return exactly: NONE
 
 Candidates:
 {joined}
@@ -160,7 +164,7 @@ Candidates:
 
 
 def normalize_candidate(text):
-    return " ".join(text.split()).strip()
+    return normalize_text(text).strip(" .:-")
 
 
 def collect_purpose_candidates(text, language="pl"):
@@ -170,14 +174,12 @@ def collect_purpose_candidates(text, language="pl"):
     for chunk in chunks:
         if language == "pl":
             prompt = build_candidate_prompt_pl(chunk)
-            result = ask_ollama(prompt, MODEL_PL, num_predict=60)
-            result = normalize_candidate(result)
+            result = normalize_candidate(ask_ollama(prompt, num_predict=60))
             if result and result != "BRAK":
                 candidates.append(result)
         else:
             prompt = build_candidate_prompt_en(chunk)
-            result = ask_ollama(prompt, MODEL_EN, num_predict=60)
-            result = normalize_candidate(result)
+            result = normalize_candidate(ask_ollama(prompt, num_predict=60))
             if result and result != "NONE":
                 candidates.append(result)
 
@@ -194,18 +196,18 @@ def collect_purpose_candidates(text, language="pl"):
 
 
 def get_purpose(path, language="pl"):
-    file_path = Path(path)
+    path = Path(path)
 
-    if not file_path.exists():
-        raise FileNotFoundError(f"Nie znaleziono pliku: {file_path}")
+    if not path.exists():
+        raise FileNotFoundError(f"Nie znaleziono pliku: {path}")
 
-    full_text = prepare_text(file_path)
+    full_text = prepare_text(path)
 
     if not full_text:
         return "Błąd: nie udało się odczytać treści pracy."
 
     try:
-        candidates = collect_purpose_candidates(full_text, language=language)
+        candidates = collect_purpose_candidates(full_text, language)
 
         if not candidates:
             if language == "pl":
@@ -217,12 +219,17 @@ def get_purpose(path, language="pl"):
 
         if language == "pl":
             final_prompt = build_final_prompt_pl(candidates)
-            return normalize_candidate(ask_ollama(final_prompt, MODEL_PL, num_predict=60))
-        elif language == "en":
+            result = normalize_candidate(ask_ollama(final_prompt, num_predict=60))
+            return result if result else "Brak jasno określonego celu pracy."
+
+        if language == "en":
             final_prompt = build_final_prompt_en(candidates)
-            return normalize_candidate(ask_ollama(final_prompt, MODEL_EN, num_predict=60))
-        else:
-            return "Błąd: nieobsługiwany język."
+            result = normalize_candidate(ask_ollama(final_prompt, num_predict=60))
+            if not result or result == "NONE":
+                return "No clearly defined thesis purpose found."
+            return result
+
+        return "Błąd: nieobsługiwany język."
 
     except requests.exceptions.ReadTimeout:
         return "Błąd: model nie odpowiedział na czas."

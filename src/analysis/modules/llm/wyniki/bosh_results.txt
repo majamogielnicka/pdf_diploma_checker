@@ -1,0 +1,21 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\bosh.pdf
+Wygenerowano: 2026-04-05T10:52:34.534754
+
+NAZWA PRACY
+bosh
+
+CEL PRACY
+Błąd HTTP: 500: {"error":"llama runner process has terminated: %!w(\u003cnil\u003e)"}. Szczegóły: {"error":"llama runner process has terminated: %!w(\u003cnil\u003e)"}
+
+STRESZCZENIA NAGŁÓWKÓW
+Brak
+
+BŁĘDY
+summaries: ValueError: Nieobsługiwany język
+Traceback (most recent call last):
+  File "c:\Users\Wiktor\zsd\pdf_diploma_checker\src\analysis\modules\llm\run_all.py", line 52, in try_call
+    return func(*args, **kwargs), None
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Wiktor\zsd\pdf_diploma_checker\src\analysis\modules\llm\get_summary.py", line 163, in get_summaries
+    raise ValueError("Nieobsługiwany język")
+ValueError: Nieobsługiwany język
