@@ -50,6 +50,27 @@ class PDFMapper:
     def is_acronym(text: str) -> bool:
         pattern = r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)'        
         return bool(re.match(pattern, text.strip()))
+    
+    # Sprawdzenie, czy dany blok nalezy do tabeli, w celu uniknięcia dubloiwania elementów
+    @staticmethod
+    def is_inside_table(block_bbox: list, table_bboxes: list) -> bool:
+        bx0, by0, bx1, by1 = block_bbox
+        block_area = (bx1 - bx0) * (by1 - by0)
+        
+        if block_area <= 0: 
+            return False
+
+        for tx0, ty0, tx1, ty1 in table_bboxes:
+            ix0 = max(bx0, tx0 - 5)
+            iy0 = max(by0, ty0 - 5)
+            ix1 = min(bx1, tx1 + 5)
+            iy1 = min(by1, ty1 + 5)
+
+            if ix0 < ix1 and iy0 < iy1:
+                intersect_area = (ix1 - ix0) * (iy1 - iy0)
+                if intersect_area / block_area > 0.5: 
+                    return True
+        return False
 
     
     # Mergowanie linijek w spójne akapity
@@ -200,6 +221,8 @@ class PDFMapper:
             page_table_descs = {t.description for t in page.tables if t.description}
             page_img_descs = {img.description for img in page.images if img.description}
 
+            table_bboxes = [t.bbox for t in page.tables]
+
             margins = calculate_margins(
                 [{"bbox": b.bbox} for b in page.text_blocks], 
                 page.width, 
@@ -209,6 +232,8 @@ class PDFMapper:
             margin_indent_thresh = 7.5
 
             for block in page.text_blocks:
+                if PDFMapper.is_inside_table(block.bbox, table_bboxes):
+                    continue
                 full_text = ""
                 words_info = []
                 word_counter = 0
