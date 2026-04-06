@@ -1,0 +1,527 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\inż_1_.pdf
+Wygenerowano: 2026-04-06T16:19:23.447586
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.660454
+
+NAZWA PRACY
+inż_1_
+
+CEL PRACY
+Estymacja kierunku spojrzenia to proces oceny kierunku patrzenia człowieka na podstawie obrazu twarzy wokół oczu
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Cel pracy
+SUMMARY:
+Praca bada skuteczność drobnoziarnistych sieci neuro-nowych w estymacji kierunku spojrzenia, porównując pięć modeli na trzech zbiorach danych i oceniając ich zdolność do generalizacji.
+COSINE_SIMILARITY: 0.712134
+
+--------------------------------------------------------------------------------
+
+1.2 Struktura pracy
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.583437
+
+--------------------------------------------------------------------------------
+
+2.1 Drobnoziarnista analiza obrazów
+SUMMARY:
+Drobnoziarnista analiza obrazów skupia się na identyfikacji i wyszukiwaniu obrazów z bardzo subtelnymi różnicami między podkategoriami w obrębie jednej kategorii, ignorując cechy, które mogłyby prowadzić do błędnych klasyfikacji.
+COSINE_SIMILARITY: 0.686470
+
+--------------------------------------------------------------------------------
+
+2.1.1 Techniki rozpoznawania obrazów różni ˛acych si˛e szczegółami
+SUMMARY:
+Artykuł opisuje trzy metody rozpoznawania obrazów drobnoziarnistych: podsieć lokalizacji-klasyfikacji, całościowe kodowanie cech oraz rozpoznawanie z zewnętrznymi informacjami.
+COSINE_SIMILARITY: 0.676936
+
+--------------------------------------------------------------------------------
+
+2.2 Estymacja kierunku spojrzenia
+SUMMARY:
+Estymacja kierunku spojrzenia polega na określeniu kąta spojrzenia, a najnowsze, najbardziej elastyczne techniki wykorzystują metody oparte na wyglądzie.
+COSINE_SIMILARITY: 0.793339
+
+--------------------------------------------------------------------------------
+
+2.2.1 Metody estymacji kierunku spojrzenia
+SUMMARY:
+Literatura dzieli estymację kierunku spojrzenia na metody oparte na przyłączonych sensorach, modele błąd cech i wygląd, a najnowszymi i najbardziej elastycznymi technikami są metody oparte na wyglądzie, które oceniają kierunek spojrzenia na podstawie zdjęć oczu.
+COSINE_SIMILARITY: 0.775738
+
+--------------------------------------------------------------------------------
+
+2.2.2 Estymacja kierunku spojrzenia jako zadanie drobnoziarniste
+SUMMARY:
+Model musi nauczyć się rozpoznawać kierunek wzroku na podstawie drobnych cech anatomicznych, ignorując przy tym inne, mniej istotne aspekty obrazu.
+COSINE_SIMILARITY: 0.693470
+
+--------------------------------------------------------------------------------
+
+2.2.3 Formułowanie zadania: klasyfikacja i regresja
+SUMMARY:
+Zadanie estymacji kierunku spojrzenia może być interpretowane jako klasyfikacja lub regresja, a wybór funkcji straty – Błęd Sredniokwadratowy, Średni Błąd bezwzględny lub Entropia Krzyżowa – zależy od charakteru zadania i metryk oceny jakości estymacji.
+COSINE_SIMILARITY: 0.740491
+
+--------------------------------------------------------------------------------
+
+2.3 Mechanizmy uwagi w gł˛ebokim uczeniu
+SUMMARY:
+Mechanizmy uwagi w klasyfikacji wizualnej skupiają się na istotnych obszarach przestrzennych lub elementach, wykorzystując kanały map cech i kodując relacje między wejściowymi danymi.
+COSINE_SIMILARITY: 0.642490
+
+--------------------------------------------------------------------------------
+
+2.3.1 Uwaga kanałowa
+SUMMARY:
+Kanałowa ocena opiera się na analizie poszczególnych kanałów map cech, z uwzględnieniem różnego wpływu poszczególnych cech na ostateczną estymację.
+COSINE_SIMILARITY: 0.721305
+
+--------------------------------------------------------------------------------
+
+2.3.2 Uwaga przestrzenna
+SUMMARY:
+Uwaga przestrzenna wykrywa dyskryminujące obszary przestrzenne, przypisując wyniki do fragmentów map cech.
+COSINE_SIMILARITY: 0.644214
+
+--------------------------------------------------------------------------------
+
+2.3.3 Uwaga wewn˛etrzna
+SUMMARY:
+Self-attention to zaawansowany mechanizm kodujący relacje między elementami wejściowymi, porównujący dwie mapy cech w celu określenia stopnia podobieństwa między nimi.
+COSINE_SIMILARITY: 0.594280
+
+--------------------------------------------------------------------------------
+
+2.4 Podstawowe architektury analizy obrazów
+SUMMARY:
+Splotowe sieci neuronowe i sieci typu transformer są dwoma architekturami, które wykazują największą skuteczność w analizie obrazów.
+COSINE_SIMILARITY: 0.642384
+
+--------------------------------------------------------------------------------
+
+2.4.1 Splotowe sieci neuronowe (CNN)
+SUMMARY:
+Splotowe sieci neuronowe wykorzystują warstwy konwolucyjne i pooling do automatycznego uczenia się cech charakterystycznych, a następnie klasyfikacji danych w zastosowaniach takich jak widzenie komputerowe i diagnostyka medyczna.
+COSINE_SIMILARITY: 0.620435
+
+--------------------------------------------------------------------------------
+
+2.4.2 Sieci typu transformer
+SUMMARY:
+Sieci typu transformer, wprowadzone w 2017 roku, wykorzystują mechanizmy uwagi typu self-attention do przetwarzania języka naturalnego, widzenia komputerowego, przetwarzania audio i analizy danych sekwencyjnych, składając się z bloków enkoderów i dekoderów.
+COSINE_SIMILARITY: 0.657920
+
+--------------------------------------------------------------------------------
+
+2.5 Wst˛epne przetwarzanie danych
+SUMMARY:
+Przetwarzanie wstępne danych obejmuje wykrywanie oczu i twarzy oraz korektę danych, w tym wyrównanie twarzy, wycinanie regionów oka i normalizację pozycji głowy za pomocą wirtualnej transformacji kamery oraz skalowanie obrazów.
+COSINE_SIMILARITY: 0.725658
+
+--------------------------------------------------------------------------------
+
+2.5.1 Wykrycie oczu lub twarzy
+SUMMARY:
+Przetwarzanie wstępne wykrywa oczy lub twarz w celu zmniejszenia zapotrzebowania na moc obliczeniową i usunięcia zakłóceń, a następnie wykorzystuje wyrównanie twarzy i wycinanie prostokątów wokół oczu zdefiniowanych na podstawie ich charakterystycznych punktów.
+COSINE_SIMILARITY: 0.746466
+
+--------------------------------------------------------------------------------
+
+2.5.2 Korekta danych
+SUMMARY:
+W celu poprawy efektywności zadania regresji, stosuje się wirtualną transformację kamery, obejmującą rotację i przesunięcie punktu charakterystycznego na twarzy, a także skalowanie obrazów oraz przetwarzanie czarno-białych wersji w celu rozwiązania problemów związanych z oświetleniem i różnorodnością pozycji głowy.
+COSINE_SIMILARITY: 0.716228
+
+--------------------------------------------------------------------------------
+
+2.6 Zbiory danych
+SUMMARY:
+Przegląd zbiorów danych MPIIFaceGaze, EyeDiap i ETH-XGaze obejmuje dane z 16 uczestników, zebrane w laboratorium, wykorzystujące kamery RGBD i HD, w celu oceny zdolności modeli do generalizacji w różnych warunkach i przy różnych celach wizualnych.
+COSINE_SIMILARITY: 0.609951
+
+--------------------------------------------------------------------------------
+
+2.6.1 Eyediap
+SUMMARY:
+EyeDiap to zbiór 94 klipów wideo zebranych w laboratorium od 16 uczestników, wykorzystujących kamerę RGBD i HD, mający na celu testowanie odporności modeli estymacji kierunku spojrzenia na różnorodne pozycje głowy, zmieniających się osoby, zmienne warunki oświetlenia oraz różne rodzaje
+COSINE_SIMILARITY: 0.673501
+
+--------------------------------------------------------------------------------
+
+2.6.2 MPIIFaceGaze
+SUMMARY:
+Zbiór MPIIFaceGaze rozszerza zbiór MPII-Gaze, zawierając adnotacje punktów charakterystycznych twarzy i centrów źrenic dla 37 667 obrazów, zebranych w naturalnych warunkach z 15 uczestników w okresie ponad 3 miesiące, wykorzystując metodę próbkowania doświadczeń
+COSINE_SIMILARITY: 0.652115
+
+--------------------------------------------------------------------------------
+
+2.6.3 ETH-XGaze
+SUMMARY:
+ETH-XGaze, zbiór ponad miliona obrazów z 110 uczestników, powstał w kontrolowanych warunkach laboratoryjnych i charakteryzuje się dużą różnorodnością pozycji głowy i kierunków spojrzenia, a jego ewaluacja opiera się na ustandaryzowanym protokole podziału na zbi
+COSINE_SIMILARITY: 0.664594
+
+--------------------------------------------------------------------------------
+
+2.6.4 Porównanie zbiorów
+SUMMARY:
+Zestaw danych składa się z trzech zbiorów – EyeDiap, MPIIFaceGaze i ETH-XGaze – z różnymi warunkami laboratoryjnymi i naturalnymi, które mają na celu kompleksową ocenę modeli i ich zdolności adaptacyjnych.
+COSINE_SIMILARITY: 0.613132
+
+--------------------------------------------------------------------------------
+
+2.7 Podsumowanie
+SUMMARY:
+Wstęp teoretyczny obejmuje przegląd dostępnych modeli drobnoziarnistych sieci neuronowych, uwzględniając ich cechy sprzyjające estymacji kierunku spojrzenia, w celu wyboru modeli do implementacji i interpretacji wyników eksperymentalnych.
+COSINE_SIMILARITY: 0.676662
+
+--------------------------------------------------------------------------------
+
+3.1 Modele bazowe
+SUMMARY:
+Badania skupiły się na ocenie skuteczności drobnoziarnistych modeli estymacji kierunku spojrzenia, wykorzystując architekturę ResNet jako punkt odniesienia, aby potwierdzić ich wyższą efektywność w porównaniu z sieciami gruboziarnistymi.
+COSINE_SIMILARITY: 0.756068
+
+--------------------------------------------------------------------------------
+
+3.1.1 ResNet-50
+SUMMARY:
+Zastosowanie sieci ResNet jako punktu odniesienia pozwoliło zweryfikować skuteczność podejścia drobnoziarnistego w zadaniach wymagających dokładnej lokalizacji i hierarchicznego uczenia się cech.
+COSINE_SIMILARITY: 0.696611
+
+--------------------------------------------------------------------------------
+
+3.1.2 L2CS-Net
+SUMMARY:
+Badacze wykorzystali L2CS-Net, innowacyjną architekturę do estymacji kierunku spojrzenia, jako model referencyjny do oceny skuteczności adaptowanych sieci drobnoziarnistych, osiągając dokładność 3.92° na zbiorze MPIIGaze i 10.41° na Gaze360
+COSINE_SIMILARITY: 0.663973
+
+--------------------------------------------------------------------------------
+
+3.2 Metody CNN oparte na mechanizmach uwagi (ang. Attention-Based Methods)
+SUMMARY:
+Architektura WS-DAN wykorzystuje mechanizmy uwagi do skupienia się na kluczowych elementach obrazu, a następnie do inteligentnego modyfikowania danych treningowych w celu poprawy estymacji kierunku spojrzenia.
+COSINE_SIMILARITY: 0.680733
+
+--------------------------------------------------------------------------------
+
+3.2.1 WS-DAN
+SUMMARY:
+WS-DAN to architektura sieci, która wykorzystuje słabo nadzorowane uczenie uwagi do identyfikacji i skupiania się na kluczowych elementach obrazu, a następnie augmentuje dane kierowane uwagą, aby poprawić precyzję wykrywania.
+COSINE_SIMILARITY: 0.695511
+
+--------------------------------------------------------------------------------
+
+3.2.2 DVAN
+SUMMARY:
+DVAN to model, który wykorzystuje zdywersyfikowaną uwagę wizualną, generując mapy uwagi dla fragmentów obrazu i wykorzystując je do sekwencyjnego przetwarzania oraz ostatecznej klasyfikacji.
+COSINE_SIMILARITY: 0.705066
+
+--------------------------------------------------------------------------------
+
+3.2.3 NTS-Net
+SUMMARY:
+NTS-Net to model, który automatycznie wykrywa istotne regiony w obrazach, wykorzystując architekturę opartą na ResNet-50, nawigatorze, nauczycielu i analityku do selekcji, ewaluacji i klasyfikacji tych regionów.
+COSINE_SIMILARITY: 0.579435
+
+--------------------------------------------------------------------------------
+
+3.3 Modele uczenia reprezentacji (ang. Representation Learning Models)
+SUMMARY:
+Modele uczenia reprezentacji, takie jak B-CNN i DCL, automatycznie odkrywają złożone relacje między cechami wizualnymi w obrazach poprzez hierarchiczne uczenie i bilinear pooling, umożliwiając rozpoznawanie drobnoziarnistych szczegółów.
+COSINE_SIMILARITY: 0.623649
+
+--------------------------------------------------------------------------------
+
+3.3.1 B-CNN
+SUMMARY:
+B-CNN to architekt sieci neuronowych, która wykorzystuje dwie równolegle działające sieci CNN do rozpoznawania drobnoziarnistych cech obrazu poprzez bilinear pooling, a następnie normalizację i klasyfikację liniową.
+COSINE_SIMILARITY: 0.611536
+
+--------------------------------------------------------------------------------
+
+3.3.2 DCL
+SUMMARY:
+DCL to sieć neuronowa, która klasyfikuje obrazy poprzez uczenie się cech poprzez destrukcję i rekonstrukcję obrazów, wykorzystując mechanizmy mieszania regionów i wyrównywania regionów.
+COSINE_SIMILARITY: 0.673337
+
+--------------------------------------------------------------------------------
+
+3.4 Podejścia oparte na sieciach typu transformer
+SUMMARY:
+Modele oparte na architekturze ViT wykorzystują mechanizm self-attention do adaptacyjnego skupiania uwagi na różnych regionach twarzy, co jest kluczowe dla estymacji spojrzenia, gdzie czynniki wpływające na kierunek wzroku są rozproszone w całym obrazie.
+COSINE_SIMILARITY: 0.733907
+
+--------------------------------------------------------------------------------
+
+3.4.1 ViT
+SUMMARY:
+ViT, architektura transformera adaptująca przetwarzanie języka naturalnego do widzenia komputerowego, dzieli obraz na fragmenty, analizuje je za pomocą bloków wielogłowicowej samo-uwagi i wielowarstwowego perceptronu, a następnie wykorzystuje embeddingi pozycyjne do reprezentacji topologii obrazu.
+COSINE_SIMILARITY: 0.647026
+
+--------------------------------------------------------------------------------
+
+3.4.2 TransFG
+SUMMARY:
+TransFG to architektura oparta na ViT, która wykorzystuje nakładające się fragmenty obrazu i moduł selekcji części do identyfikacji najważniejszych regionów, co pozwala na skupienie się na subtelnych różnicach między podkategoriami oraz wykorzystanie funkcji straty kontrastowej.
+COSINE_SIMILARITY: 0.668556
+
+--------------------------------------------------------------------------------
+
+3.4.3 RAMS-Trans
+SUMMARY:
+RAMS-Trans rozszerza ViT poprzez rekurencyjną architekturę wieloskalową, która dynamicznie proponuje fragmenty obrazu na różnych poziomach powiększenia, wykorzystując wagi uwagi ze wszystkich warstw transformera i oddzielne tokeny klasyfikacyjne dla każdej skali.
+COSINE_SIMILARITY: 0.657140
+
+--------------------------------------------------------------------------------
+
+3.5 Podsumowanie
+SUMMARY:
+Na podstawie przeglądu modeli zdecydowano się na implementację ResNet-50, L2CS-Net, TransFG, B-CNN oraz WS-DAN do analizy i wyciągnięcia wniosków na temat zastosowania drobnoziarnistych sieci neuronowych w zadaniu estymacji kierunku spojrzenia.
+COSINE_SIMILARITY: 0.601365
+
+--------------------------------------------------------------------------------
+
+4.1 Pre-processing danych
+SUMMARY:
+Pre-processing danych obejmował normalizację z wykorzystaniem wirtualnej kamery 3D, dostosowaną do specyficznych parametrów dla zbiorów danych MPIIFaceGaze i EyeDiap, zgodnie z publikacjami [6], [20] i [21].
+COSINE_SIMILARITY: 0.607333
+
+--------------------------------------------------------------------------------
+
+4.2 Protokoły ewaluacji
+SUMMARY:
+Zastosowano stały protokół ewaluacji z wykorzystaniem średniego błędu kątowego (MAE) dla zbioru ETH-XGaze, który zawierał zbiory treningowe, walidacyjne i testowe z różnymi osobami, a ewaluacja przeprowadzona została na zbiorze z etykietami.
+COSINE_SIMILARITY: 0.666651
+
+--------------------------------------------------------------------------------
+
+4.2.1 ETH-XGaze
+SUMMARY:
+Badacze udostępnili zbiór danych ETH-XGaze z podziałem na zbiór treningowy, walidacyjny i testowy, wykorzystując protokół ewaluacji niezależny od osoby i oceniając zdolność generalizacji modeli poprzez średni błąd kątowy (MAE).
+COSINE_SIMILARITY: 0.652589
+
+--------------------------------------------------------------------------------
+
+4.2.2 MPIIFaceGaze
+SUMMARY:
+Model L2CS-Net, dostrojony do zbioru MPIIGaze i wykorzystujący jego protokół ewaluacji, osiągnął wynik 3.92° błędu kątowego, bazując na technice walidacji krzyżowej z wykluczeniem jednej osoby.
+COSINE_SIMILARITY: 0.600346
+
+--------------------------------------------------------------------------------
+
+4.2.3 EyeDiap
+SUMMARY:
+Autorzy zastosowali protokół pięciokrotnej walidacji krzyżowej, dzieląc dane na foldery w celu oceny modeli, z uwzględnieniem różnorodności uczestników i liczby próbek w każdym folderze.
+COSINE_SIMILARITY: 0.685412
+
+--------------------------------------------------------------------------------
+
+4.2.4 Walidacja krzyżowa mi˛edzy zbiorami
+SUMMARY:
+Zastosowano walidację krzyżową między zbiorami danych, aby ocenić zdolność modeli wytrenowanych na różnych zbiorach do generalizacji na nowe, różnorodne dane.
+COSINE_SIMILARITY: 0.685205
+
+--------------------------------------------------------------------------------
+
+4.3 Aspekty wspólne dla implementacji wszystkich modeli
+SUMMARY:
+W celu zapewnienia sprawiedliwego porównania modeli, wprowadzono ujednolicenia i kontrolowano źródła losowości, takie jak biblioteki CUBLAS, cuDNN oraz generatory Pythona i PyTorch, poprzez ustawienie zmiennych środowiskowych i ustalenie ziarna losowości.
+COSINE_SIMILARITY: 0.650684
+
+--------------------------------------------------------------------------------
+
+4.3.1 Deterministyczność
+SUMMARY:
+W pracy podjęto kroki w celu zapewnienia deterministyczności eksperymentów, w tym ustawienie zmiennych środowiskowych, inicjalizację ziarna losowości oraz zastosowanie deterministycznej kolejności tasowania i augmentacji danych.
+COSINE_SIMILARITY: 0.674178
+
+--------------------------------------------------------------------------------
+
+4.3.2 Szkielet sieci i trening wst˛epny
+SUMMARY:
+Wszystkie modele splotowe i transformerowe, z wyjątkiem TransFG, wykorzystywały szkielet ResNet-50 lub ViT-B/16, pretrenowany na zbiorze ImageNet-1K w wersji IMAGENET1K_V2 lub IMAGENET1K_V1.
+COSINE_SIMILARITY: 0.591931
+
+--------------------------------------------------------------------------------
+
+4.3.3 Optymalizatory i regulatory
+SUMMARY:
+W celu sprawiedliwego porównania modeli, zastosowano optymalizator Adam z ustalonymi parametrami, unikając różnic w optymalizacji i regulatorach, które mogłyby wpłynąć na wyniki eksperymentów.
+COSINE_SIMILARITY: 0.651752
+
+--------------------------------------------------------------------------------
+
+4.3.4 Rozmiar i transformacje obrazów wejściowych
+SUMMARY:
+Zastosowano ujednoliconą procedurę przetwarzania obrazów, polegającą na zmianie rozmiaru do 224x224 pikseli, konwersji do tensora i normalizacji, w celu zmniejszenia kosztów obliczeniowych i przyspieszenia treningu modeli.
+COSINE_SIMILARITY: 0.659068
+
+--------------------------------------------------------------------------------
+
+4.3.5 Funkcja straty
+SUMMARY:
+Wszystkie modele, z wyjątkiem L2CS-Net, wykorzystują jednolitą funkcję straty, czyli średni błąd kwadratowy, do trenowania i porównywania wyników w zadaniu regresji kątów spojrzenia.
+COSINE_SIMILARITY: 0.635381
+
+--------------------------------------------------------------------------------
+
+4.3.6 Metryka ewaluacji
+SUMMARY:
+Błąd kątowy (MAE) mierzy średni błąd kątowy między predykcjami modelu a rzeczywistym kierunkiem spojrzenia, wyrażony w stopniach.
+COSINE_SIMILARITY: 0.660564
+
+--------------------------------------------------------------------------------
+
+4.3.7 Ujednolicone hiperparametry treningu
+SUMMARY:
+Parametry treningu, takie jak batch size, liczba epok, learning rate i seed, zostały ustalone dla każdego zbioru danych na podstawie przeglądu literatury i dostępnych zasobów obliczeniowych.
+COSINE_SIMILARITY: 0.613995
+
+--------------------------------------------------------------------------------
+
+4.4 Dostosowanie architektur do zadania estymacji kierunku spojrzenia
+SUMMARY:
+Zaprojektowano i dostosowano architektury modeli do klasyfikacji, wykorzystując model L2CS-Net jako referencyjny, a następnie dodano obsługę zbiorów ETH-XGaze oraz EyeDiap z odpowiednimi modyfikacjami zakresu kątowego i liczby przedziałów.
+COSINE_SIMILARITY: 0.613689
+
+--------------------------------------------------------------------------------
+
+4.4.1 L2CS-Net
+SUMMARY:
+Wykorzystano oryginalną implementację PyTorch L2CS-Net i zmodyfikowano ją, aby obsługiwać dodatkowe zbiory danych ETH-XGaze oraz EyeDiap, dostosowując zakres kątowy i liczbę przedziałów kątowych do specyfiki każdego zbioru.
+COSINE_SIMILARITY: 0.610046
+
+--------------------------------------------------------------------------------
+
+4.4.2 ResNet-50
+SUMMARY:
+Model ResNet-50 został zmodyfikowany, aby wykonywał regresję dwóch wartości ciągłych reprezentujących kąty pitch i yaw, poprzez zastąpienie warstwy w pełni połączonej o wymiarach (2048, 1000) nową warstwą regresyjną Linear(2048, 2).
+COSINE_SIMILARITY: 0.604538
+
+--------------------------------------------------------------------------------
+
+4.4.3 Bilinear CNN (B-CNN)
+SUMMARY:
+W pracy zastosowano Bilinear CNN, zmodyfikowany na podstawie zasad i technik opisanych w sekcjach 4.3 i 4.2, z zastąpieniem warstwy klasyfikacyjnej liniową.
+COSINE_SIMILARITY: 0.603650
+
+--------------------------------------------------------------------------------
+
+4.4.4 Weakly Supervised Data Augmentation Network (WS-DAN)
+SUMMARY:
+W pracy wykorzystano dostosowany model WS-DAN z PyTorch, który przetwarza obraz wejściowy w trzech równoległych ścieżkach z wykorzystaniem map uwagi, a następnie przewiduje kąty pitch i yaw za pomocą regresora liniowego.
+COSINE_SIMILARITY: 0.676114
+
+--------------------------------------------------------------------------------
+
+4.4.5 TransFG
+SUMMARY:
+W pracy wykorzystano zmodyfikowany model TransFG dla PyTorch, który uprościł architekturę, eliminując elementy związane z klasyfikacją drobnoziarnistą, aby lepiej nadawał się do zadania regresji.
+COSINE_SIMILARITY: 0.666895
+
+--------------------------------------------------------------------------------
+
+4.5 Podsumowanie
+SUMMARY:
+Została opracowana kompletna implementacja, dostosowująca modele do regresji kątów spojrzenia, z uwzględnieniem sprawiedliwego i rozsądnego porównania, gotowa do przeprowadzania planowanych eksperymentów.
+COSINE_SIMILARITY: 0.690670
+
+--------------------------------------------------------------------------------
+
+5.1 Podstawowe porównanie
+SUMMARY:
+Porównano wyniki modeli trenowanych na zbiorach MPII-FaceGaze i Ey-eDiap, prezentując funkcje straty (Błąd Średniokwadratowy i Błąd Katowy) oraz wskazując najlepsze epoki dla WS-DAN i Trans-FG, które osiągnęły najniższe błędy katowe.
+COSINE_SIMILARITY: 0.674611
+
+--------------------------------------------------------------------------------
+
+5.1.1 MPIIFaceGaze
+SUMMARY:
+Rysunek 5.1 przedstawia porównanie wyników treningu modeli na zbiorze MPII-FaceGaze, gdzie czarna linia ilustruje funkcję straty (Błąd Średniokwadratowy lub połączenie MSE z entropii krzyżowej), a czerwona linia Błąd Katowy (MAE), a najlepsze epoki dla WS-DAN i
+COSINE_SIMILARITY: 0.631040
+
+--------------------------------------------------------------------------------
+
+5.1.2 EyeDiap
+SUMMARY:
+Modele trenowane na zbiorze EyeDiap osiągnęły błąd średniokwadratowy zbliżony do 5°, co jest wyższe niż w przypadku zbioru MPIIFaceGaze, a najlepsze wyniki uzyskał model TranFG.
+COSINE_SIMILARITY: 0.642509
+
+--------------------------------------------------------------------------------
+
+5.1.3 ETH-XGaze
+SUMMARY:
+Dla ETH-XGaze wyniki testów dla wszystkich epok treningowych zostały przedstawione, aby zilustrować, że model ResNet50 osiągnął najlepsze wyniki (4.7349° MAE), podczas gdy model TransFG zanotował znacznie gorszy wynik (5.4200° MAE) w porównaniu z innymi zbiorami
+COSINE_SIMILARITY: 0.610250
+
+--------------------------------------------------------------------------------
+
+5.2 Walidacja krzyżowa mi˛edzy zbiorami
+SUMMARY:
+ResNet50 dominował w regresji kątów między zbiorami, osiągając najlepsze wyniki dla czterech z sześciu zestawień. L2CS-Net osiągnął najlepszy wynik raz, a B-CNN wygrał raz (zbiór treningowy -ETH-XGaze, testowy -MPIIFaceGaze). Modele wytrenowane
+COSINE_SIMILARITY: 0.628858
+
+--------------------------------------------------------------------------------
+
+5.3 Porównanie działania na różnych ziarnach losowości
+SUMMARY:
+Porównanie wyników eksperymentów z różnymi modelami, wykorzystujące ziarna losowe 0 i 42, wykazało, że różnica w ziarnie nie wpływa znacząco na wyniki estymacji i charakterystykę treningu modeli.
+COSINE_SIMILARITY: 0.642436
+
+--------------------------------------------------------------------------------
+
+5.4 Wpływ rozmiaru zdj˛eć na jakość estymacji
+SUMMARY:
+Eksperymenty wykazały, że zmniejszenie rozmiaru obrazów wejściowych z 448x448 do 224x224 pikseli znacząco skróciły czas treningu i pogorszyły dokładność estymacji, szczególnie w przypadku modeli takich jak ResNet50 i EyeDiap oraz ETH-X
+COSINE_SIMILARITY: 0.681682
+
+--------------------------------------------------------------------------------
+
+5.5 Porównanie z oryginalnymi optymalizatorami i regulatorami współczynnika uczenia
+SUMMARY:
+Przeprowadzono porównanie skuteczności modeli EyeDiap, w tym oryginalnych i ujednoliconych wersji B-CNN, w celu oceny wpływu ujednolicenia optymalizatorów i regulatorów współczynnika uczenia.
+COSINE_SIMILARITY: 0.652229
+
+--------------------------------------------------------------------------------
+
+5.6 Porównanie z zastosowaniem specjalistycznego szkieletu
+SUMMARY:
+Eksperymenty z wykorzystaniem EfficientNet jako backbonu dla modeli CNN nie poprawiły wyników, a w niektórych przypadkach doprowadziły do ich pogorszenia i wydłużyły czas stabilizacji błędów.
+COSINE_SIMILARITY: 0.649853
+
+--------------------------------------------------------------------------------
+
+5.7 Porównanie parametrów modeli
+SUMMARY:
+Badacze zmierzyli zużycie pamięci GPU, czas interferencji oraz szybkość treningu modeli, aby ocenić ich użyteczność w systemach czasu rzeczywistego, a wyniki te przedstawiono w tabeli 5.2, wskazując, że ResNet50 osiągnął najlepsze wyniki, podczas gdy TransFG i WS-DAN były najbardziej wymagające
+COSINE_SIMILARITY: 0.641590
+
+--------------------------------------------------------------------------------
+
+5.8 Podsumowanie testów
+SUMMARY:
+Przeprowadzono porównanie pięciu architektur sieci neuronowych na trzech zbiorach danych, analizując wpływ różnych czynników na jakość estymacji kierunku spojrzenia oraz praktyczne aspekty implementacji.
+COSINE_SIMILARITY: 0.674000
+
+--------------------------------------------------------------------------------
+
+6.1 Wybór optymalnego modelu
+SUMMARY:
+Wybór najlepszego modelu zależy od kontekstu i priorytetów użytkownika, a ResNet-50 jest najbardziej wszechstronnym rozwiązaniem, szczególnie w zastosowaniach wymagających szerokiego zakresu kątów i niskiego czasu inferencji.
+COSINE_SIMILARITY: 0.624716
+
+--------------------------------------------------------------------------------
+
+6.2 Kierunki dalszych badań
+SUMMARY:
+Niniejsza instrukcja zawiera informacje o uruchamianiu i wykorzystywaniu pięciu modeli estymacji kierunku spojrzenia, wraz ze skryptami i wymaganiami systemowymi.
+COSINE_SIMILARITY: 0.701387
+
+--------------------------------------------------------------------------------
+
+BŁĘDY
+Brak

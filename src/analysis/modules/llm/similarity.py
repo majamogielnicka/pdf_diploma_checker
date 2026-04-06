@@ -26,9 +26,7 @@ except Exception:
     from get_summary import summarize_subtitles
 
 
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "zusz.pdf"
-
-EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "agna.pdf"
 
 EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
 

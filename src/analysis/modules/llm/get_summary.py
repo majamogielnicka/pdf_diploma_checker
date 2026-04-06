@@ -16,11 +16,18 @@ try:
 except Exception:
     from get_subtitles import extract_subtitles_from_pdf
 
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "zusz.pdf"
+PDF_PATH = PROJECT_ROOT / "data" / "doro.pdf"
 
 MODEL_NAME = "gemma3local"
 
-PROMPT_PL = "Streść podany fragment w jednym zdaniu po polsku:\n"
+PROMPT_PL = (
+    "Na podstawie wyłącznie podanego tekstu napisz jedno zdanie streszczenia po polsku. "
+    "Nie dodawaj żadnych informacji spoza tekstu. "
+    "Nie używaj ogólników. "
+    "Nie łącz wielu niezależnych definicji w jedno sztuczne zdanie. "
+    "Jeśli tekst jest urwany lub niejednoznaczny, streść tylko to, co pewne."
+    "Zwróć tylko i wylacznie zdanie wynikowe bez swojego wstepu\n"
+)
 PROMPT_EN = "Summarize the given fragment in one sentence in English:\n"
 
 MAX_FRAGMENT_CHARS = 2200
@@ -162,7 +169,7 @@ def print_summaries(summaries):
 
 
 def main():
-    selected_pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PDF_PATH
+    selected_pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else PDF_PATH
     language = sys.argv[2] if len(sys.argv) > 2 else "pl"
 
     if not selected_pdf_path.exists():

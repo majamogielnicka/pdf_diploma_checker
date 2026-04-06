@@ -13,8 +13,9 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-file_path = PROJECT_ROOT / "data" / "zusz.pdf"
+file_path = PROJECT_ROOT / "data" / "bosh.pdf"
 OUTPUT_DIR = BASE_DIR / "wyniki"
+language ="pl"
 
 try:
     from analysis.modules.llm.similarity import compute_similarity_for_summaries
@@ -140,9 +141,9 @@ def analyze_thesis(pdf_path):
     else:
         value, err = try_call(
             purpose_func,
-            ((pdf_path, "pl"), {}),
+            ((pdf_path, language), {}),
             ((pdf_path,), {}),
-            ((str(pdf_path), "pl"), {}),
+            ((str(pdf_path), language), {}),
             ((str(pdf_path),), {}),
         )
 
@@ -167,8 +168,8 @@ def analyze_thesis(pdf_path):
     else:
         value, err = try_call(
             summary_func,
-            ((pdf_path, None, "pl"), {}),
-            ((str(pdf_path), None, "pl"), {}),
+            ((pdf_path, None, language), {}),
+            ((str(pdf_path), None, "language"), {}),
             ((pdf_path,), {}),
             ((str(pdf_path),), {}),
         )
