@@ -1,5 +1,6 @@
 from .spacy_helpers import nlp_pl, nlp_en
 from src.analysis.extraction.schema import ParagraphBlock, ListBlock
+import re
 
 
 def get_proper_names(document, text_language):
@@ -23,7 +24,7 @@ def get_proper_names(document, text_language):
 
     for block in document.logical_blocks:
 
-        if isinstance(block, ParagraphBlock):
+        if block.type == "paragraph":
 
             if text_language == "pl":
                 text = nlp(block.content)
@@ -41,15 +42,11 @@ def get_proper_names(document, text_language):
                             continue
                         proper_names.append(ent.text) 
 
-            if block.type == "keywords":
-                number = 0
-                for word in block.words: 
-                    number += 1
-                    if word.text == "Słowa" and block.words[number].text.startswith("kluczowe") or word.text.startswith("Keywords"):
-                        continue
-                    else:
-                        proper_names.append(word.text)
-                        print(word.text)
+        if block.type == "keywords":
+            if re.search("^Słowa kluczowe|^Keywords|^keywords|^słowa kluczowe", block.content):
+                content = re.split(":", block.content)
+                keywords = re.split(",|;", content[1])
+                proper_names.extend(keywords)
 
         if isinstance(block, ListBlock):
             for item in block.items:
