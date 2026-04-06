@@ -120,6 +120,10 @@ def fix_latex(text):
         "´N": "Ń",
         "´o": "ó",
         "´O": "Ó",
+        "˛a": "ą",
+        "˛A": "Ą",
+        "˛e": "ę",
+        "˛E": "Ę",
     }
     for wrong, right in replace.items():
         text = text.replace(wrong, right)
