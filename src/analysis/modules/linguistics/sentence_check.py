@@ -32,9 +32,9 @@ def sentence_check(blocks, text_language):
         else:
             continue
         content = nlp(text)
-        for idx, sentence in enumerate(content.sents):
+        for sentence in content.sents:
             passive = False
-            quotes = False
+            quotes = False  
             for token in sentence:
                 if token.morph.get("Person") and token.morph.get("Person")[0] not in {'3', '0'}:
                     start_page, end_page, word_idxs = get_match_info(block, token.idx, len(token))
@@ -53,7 +53,6 @@ def sentence_check(blocks, text_language):
                         checked_matches.append(match)
                     else:
                         quotes = True
-
                 #for now if even one part of a sentence is passive, whole sentence is marked as passive for clarity of the outcome.
                 if token.dep_ == "aux:pass":
                     passive = True
@@ -67,11 +66,14 @@ def sentence_check(blocks, text_language):
                 passive_count += 1
             elif not quotes:
                 active_count += 1
-
+    if passive_count + active_count > 0:
+        passive_ratio = passive_count/(passive_count + active_count)
+    else:
+        passive_ratio = 0
     analisys = Analisys_type(
         passive_count= passive_count,
         active_count= active_count,
-        passive_ratio= f"{passive_count/(passive_count + active_count)}%",
+        passive_ratio= f"{passive_ratio}%",
         wrong_person_count= len(checked_matches),
         impersonal_count= impersonal_count
     )

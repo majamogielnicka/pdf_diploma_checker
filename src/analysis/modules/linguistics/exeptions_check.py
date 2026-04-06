@@ -5,6 +5,7 @@ from .linguistics_types import Error_type
 from .spacy_helpers import lemmatization
 from src.analysis.extraction.schema import ParagraphBlock
 from .proper_check import check_if_proper
+import string
  
 def check_exeptions(matches, blocks, text_language, proper_names):
     '''
@@ -34,16 +35,19 @@ def check_exeptions(matches, blocks, text_language, proper_names):
             for match in blocks_to_check[block_key]:
                 text = block.content
                 word = match.content
+                if word.translate(str.maketrans('', '', string.punctuation)) in proper_names:
+                    continue
                 potential_exeption = False
                 inside_quotes = check_quotes(match, text)
                 if not inside_quotes:
-                    if match.category == 'TYPOS' or match.category == 'CASING':
-                        if match.category == 'TYPOS':
-                            lemma, is_found = lemmatization(word, text_language)
-                            if check_if_proper(block, match, proper_names, lemma, text_language):
-                                continue
-                            potential_exeptions[lemma].append(match)
-                            potential_exeption = True
+                    if match.category == 'TYPOS':
+                        lemma, is_found = lemmatization(word, text_language)
+                        if check_if_proper(block, match, proper_names, lemma, text_language):
+                            continue
+                        potential_exeptions[lemma].append(match)
+                        potential_exeption = True
+                    if match.category == "CASING" and block.type == "heading" and match.offset == 0:
+                        continue
                 if not inside_quotes and not potential_exeption:
                     valid_errors.append(match)
     exeptions = []    
