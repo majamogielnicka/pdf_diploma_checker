@@ -4,7 +4,6 @@ import importlib
 from datetime import datetime
 from pathlib import Path
 
-
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -152,12 +151,6 @@ def analyze_thesis(pdf_path):
         else:
             result["purpose"] = normalize_purpose(value)
 
-            if isinstance(value, dict):
-                if value.get("warning"):
-                    result["errors"]["purpose_warning"] = value["warning"]
-                if value.get("error"):
-                    result["errors"]["purpose_details"] = value["error"]
-
     summary_func, summary_import_error = import_function(
         module_names=[
             "analysis.modules.llm.get_summary",
@@ -216,12 +209,12 @@ def save_result_txt(result, pdf_path):
     lines.append("NAZWA PRACY")
     lines.append(result.get("thesis_name") or pdf_path.stem)
     lines.append("")
-
     lines.append("CEL PRACY")
     lines.append(result["purpose"] if result["purpose"] else "Brak")
     lines.append("")
+    lines.append("PODOBIEŃSTWO DLA STRESZCZEŃ")
+    lines.append("")
 
-    lines.append("STRESZCZENIA NAGŁÓWKÓW")
     summaries = result.get("heading_summaries")
 
     if summaries:

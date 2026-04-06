@@ -30,6 +30,8 @@ DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "zusz.pdf"
 
 EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
 
+EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+
 
 def normalize_text(text):
     if not text:
