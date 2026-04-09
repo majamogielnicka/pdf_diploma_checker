@@ -1,0 +1,402 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\jago.pdf
+Wygenerowano: 2026-04-05T20:17:12.883565
+
+NAZWA PRACY
+jago
+
+CEL PRACY
+Klasyfikacja obrazów
+
+STRESZCZENIA NAGŁÓWKÓW
+1.1 Cel pracy
+SUMMARY:
+Praca inżynierska ma na celu stworzenie systemu, który analizuje wideo, wykrywa i śledzi twarze, a następnie identyfikuje emocje wyrażane przez poszczególnych osób, wykorzystując do tego celu dwa modele sztucznej sieci neuronowej.
+
+--------------------------------------------------------------------------------
+
+1.2 Układ pracy
+SUMMARY:
+Fragment pracy omawia różnicę między emocjami a nastrojem, podkreślając, że emocje są krótkotrwałe, intensywne i łatwo identyfikowalne, podczas gdy nastroje charakteryzują się długotrwałością, niską intensywnością i trudnością w określeniu przyczyny, a do analizy emocji
+
+--------------------------------------------------------------------------------
+
+2.1 Modele emocji
+SUMMARY:
+Fragment opisuje trzy główne modele emocji – opracowany przez Paula Ekmana, Roberta Plutchika oraz model oparty na uczeniu się – które różnią się sposobem definiowania i wizualizacji podstawowych emocji, od siedmiu u Ekmana po osiem u Plutchika oraz 30 emocji zdefiniowanych na podstawie skali kontrastujących uczuć.
+
+--------------------------------------------------------------------------------
+
+2.2 Podsumowanie emocji
+SUMMARY:
+Praca ta bada wykorzystanie modelu emocji Paula Ekmana i sieci neuronowych w kontekście przetwarzania obrazu, koncentrując się na teoretycznych aspektach budowy i porównaniu różnych architektur sieci neuronowych.
+
+--------------------------------------------------------------------------------
+
+3.1 Aspekty współczesnych sieci neuronowych (Jakub Góralski)
+SUMMARY:
+Fragment opisuje sieci neuronowe, w szczególności sieci wielowarstwowe (MLP) i konwolucyjne sieci neuronowe (CNN), które wykorzystują warstwy i funkcje aktywacji do rozwiązywania złożonych problemów, a uczenie się odbywa się poprzez algorytm wstecznej propagacji błędu.
+
+--------------------------------------------------------------------------------
+
+3.1.1 Perceptron wielowarstwowy
+SUMMARY:
+Perceptron wielowarstwowy (MLP) to rozszerzenie perceptronu jednowarstwowego, wykorzystujące wiele warstw połączonych neuronów do rozwiązywania złożonych, nieliniowych problemów poprzez uczenie się z wykorzystaniem algorytmu wstecznej propagacji błędu.
+
+--------------------------------------------------------------------------------
+
+3.1.2 Konwolucyjna sieć neuronowa
+SUMMARY:
+Konwolucyjne sieci neuronowe (CNN) to głębokie sieci wykorzystujące warstwy konwolucyjne i pooling do efektywnej analizy obrazów poprzez hierarchiczne wykrywanie cech, takich jak krawędzie i tekstury, a następnie przetwarzanie ich w celu wydobycia istotnych wniosków.
+
+--------------------------------------------------------------------------------
+
+3.1.3 Sieć w pełni konwolucyjna
+SUMMARY:
+Sieć w pełni konwolucyjna (FCN) to architektura przetwarzania obrazu, która wykorzystuje konwolucje i dekonwolucje, aby przetwarzać obrazy o różnej wielkości i generować predykcje dla każdego piksela, co czyni ją skuteczną w zadaniach takich jak segmentacja i detekcja.
+
+--------------------------------------------------------------------------------
+
+3.1.4 Sieć piramidy cech
+SUMMARY:
+Sieć piramidy cech (FPN) to innowacyjny ekstraktor cech, który wykorzystuje ścieżki bottom-up i top-down do efektywnego przetwarzania obrazów w różnych skalach, przygotowując mapy cech do detekcji obiektów, a nie wykonując detekcję bezpośrednio.
+
+--------------------------------------------------------------------------------
+
+3.1.5 Mechanizm uwagi
+SUMMARY:
+Mechanizm uwagi, a w szczególności uwaga wielogłowicowa, pozwala sieciom neuronowym na selektywne skupienie się na najważniejszych elementach danych wejściowych poprzez obliczanie wag, które określają, jak bardzo każdy element powinien być uwzględniony w kontekście reszty danych.
+
+--------------------------------------------------------------------------------
+
+3.1.6 Bloki residualne
+SUMMARY:
+Bloki residualne w głębokich sieciach neuronowych zapobiegają problemom z gradientem poprzez dodawanie połączeń skrótowych, pozwalając modelowi uczyć się różnicy między wejściem a wyjściem, a nie bezpośrednio przybliżać całą funkcję, co ułatwia trening bardzo głębokich modeli.
+
+--------------------------------------------------------------------------------
+
+3.1.7 Przestrzenie projektowe (Tymoteusz Prud)
+SUMMARY:
+Badacze zaproponowali nowatorską metodę projektowania sieci konwolucyjnych, która automatycznie optymalizuje topologię sieci poprzez analizę zależności między głębokością, szerokością, współczynnikiem ograniczenia i szerokością grupy, prowadząc do architektur podobnych do tych stosowanych w popularnych modelach.
+
+--------------------------------------------------------------------------------
+
+3.2 Najpopularniejsze architektury sieci przetwarzających obraz (Tymoteusz Prud)
+SUMMARY:
+Fragment opisuje architekturę VGG16, głęboką sieć konwolucyjną, która była znaczącą innowacją w przetwarzaniu obrazu, umożliwiając skuteczną klasyfikację obrazów dzięki wykorzystaniu małych filtrów konwolucyjnych i warstw w pełni połączonych, choć obecnie nie jest już jednym z najpopularniejszych modeli
+
+--------------------------------------------------------------------------------
+
+3.2.1 VGG16
+SUMMARY:
+VGG16 to głęboka sieć konwolucyjna, która wykorzystuje wiele warstw konwolucyjnych i Max Pooling do wyodrębniania cech z obrazów, a następnie klasyfikuje je za pomocą warstw w pełni połączonych i funkcji softmax, choć obecnie jest przestarzała w porównaniu do nowszych architektur.
+
+--------------------------------------------------------------------------------
+
+3.2.2 ResNet
+SUMMARY:
+Model ResNet rozwiązuje problem degradacji występujący w głębokich sieciach neuronowych poprzez wprowadzenie bloków residualnych z połączeniami skokowymi, które umożliwiają uczenie się mapowań tożsamościowych i efektywne budowanie głębszych, stabilnych modeli, choć wiąże się to z większym obciążeniem obliczeniowym.
+
+--------------------------------------------------------------------------------
+
+3.2.3 ViT
+SUMMARY:
+Vision Transformer (ViT) to architektura oparta na modelu Transformer, która przetwarza obrazy poprzez dzielenie ich na fragmenty, przekształcanie ich w reprezentacje tokenów i analizę zależności między nimi, łącząc lokalną i globalną perspektywę, co czyni ją wydajną alternatywą dla sieci konwolucyjnych.
+
+--------------------------------------------------------------------------------
+
+3.2.4 Self Regulated Network - RegNet
+SUMMARY:
+RegNet to ulepszona architektura sieci neuronowych, która wykorzystuje ConvRNN (adaptację LSTM do konwolucji) w blokach resztkowych, aby poprawić globalny kontekst obrazu i zwiększyć dokładność klasyfikacji, co w momencie publikacji (2021) stanowiło najlepszy wynik w klasyfikacji zdjęć.
+
+--------------------------------------------------------------------------------
+
+3.2.5 YOLO (You Only Look Once)
+SUMMARY:
+YOLO to szybka i precyzyjna architektura sieci neuronowej, szczególnie skuteczna w detekcji obiektów, w tym twarzy, dzięki możliwości przetwarzania obrazu w siatce i uwzględnianiu globalnego kontekstu, choć może mieć trudności z detekcją twarzy o różnych rozmiarach i małych szczegółach.
+
+--------------------------------------------------------------------------------
+
+3.3 Sposoby uczenia sieci (Jakub Góralski)
+SUMMARY:
+Fragment pracy omawia kluczowe techniki przygotowania i optymalizacji danych w procesie trenowania modeli sieci neuronowych, takie jak normalizacja, zanurzenia, augmentacja danych oraz dostrajanie wstępnie wytrenowanych modeli, mające na celu poprawę wydajności i przyspieszenie uczenia maszynowego.
+
+--------------------------------------------------------------------------------
+
+3.3.1 Aspekty związane z zanurzeniem i normalizacją
+SUMMARY:
+W przygotowaniu danych do treningu modeli uczenia maszynowego stosuje się techniki takie jak normalizacja, zanurzenie i augmentacja danych, które poprawiają efektywność treningu, redukują wymiar danych oraz uwzględniają relacje między obiektami, szczególnie w przypadku danych kategorycznych.
+
+--------------------------------------------------------------------------------
+
+3.3.2 Dostrajanie
+SUMMARY:
+Dostrajanie wstępnie wytrenowanych modeli polega na ich modyfikowaniu, np. poprzez dodawanie lub usuwanie warstw oraz zamrażanie niektórych wag, co pozwala na osiągnięcie lepszych wyników w zadaniach z ograniczonymi danymi i skrócenie czasu treningu.
+
+--------------------------------------------------------------------------------
+
+3.3.3 Adaptacja domen
+SUMMARY:
+Adaptacja domen w uczeniu maszynowym to technika mająca na celu poprawę wydajności modelu wytrenowanego na jednym zbiorze danych w nowej, potencjalnie różnej domenie, wykorzystując różne metody, w zależności od dostępności etykiet i stopnia podobieństwa między domenami źródłowymi i docelowymi.
+
+--------------------------------------------------------------------------------
+
+4.1 Facial Expression Recognition
+SUMMARY:
+Zbiór danych FER2013 zawiera 32 298 obrazów twarzy w różnych kategoriach emocji (złość, obrzydzenie, strach, radość, smutek, zaskoczenie), jednak jego rozkład klas jest nierównomierny, co może wpływać na wyniki uczenia maszynowego.
+
+--------------------------------------------------------------------------------
+
+4.2 Expression in-the-Wild
+SUMMARY:
+Zbiór danych Expression in-the-Wild (ExpW) zawiera 91 793 zdjęcia twarzy z różnych źródeł internetowych, ręcznie oznaczonych z siedmioma emocjami, aby badać ekspresję emocji w naturalnych sytuacjach.
+
+--------------------------------------------------------------------------------
+
+4.3 LFW
+SUMMARY:
+Labeled Faces in the Wild to zbiór danych zawierający ponad 13000 zdjęć twarzy z imiennymi oznaczeniami, który mimo swojej relatywnej prostoty, jest zbyt łatwy dla wielu nowoczesnych algorytmów rozpoznawania twarzy, a także zawiera błędy oznaczeń, które zostały skorygowane przez autorów.
+
+--------------------------------------------------------------------------------
+
+4.4 CelebA
+SUMMARY:
+Zbiór danych CelebA to obszerny i zróżnicowany korpus ponad 200 000 zdjęć twarzy ponad 10 000 osób, zawierający bogaty zestaw atrybutów i wielokrotne wystąpienia tych samych osób, co czyni go idealnym do badań nad rozpoznawaniem twarzy.
+
+--------------------------------------------------------------------------------
+
+4.5 CK+
+SUMMARY:
+Zestaw CK+ to obszerny zbiór krótkich filmów z ludzkimi twarzami, rejestrujących zmiany ekspresji emocjonalnych, który jest wykorzystywany w badaniach nad systemami widzenia i rozpoznawaniem emocji dzięki postępom w uczeniu maszynowym.
+
+--------------------------------------------------------------------------------
+
+5.1 Facial Expression Recognition Based on Deep Evolutional Spatial-Temporal Networks
+SUMMARY:
+Artykuł [37] opisuje nową metodę analizy wyrazów twarzy, wykorzystującą sieć PHRNN do modelowania morfologicznych zmian twarzy wideo, co prowadzi do znacznej poprawy w klasyfikacji emocji w porównaniu z istniejącymi rozwiązaniami, redukując wskaźniki błędów o 45
+
+--------------------------------------------------------------------------------
+
+5.2 A Face Emotion Recognition Method Using Convolutional Neural Network and Image Edge
+SUMMARY:
+Artykuł [38] prezentuje metodę redukcji czasu i zasobów obliczeniowych podczas treningu sieci konwolucyjnej do detekcji emocji poprzez dodanie do standardowego przetwarzania wstępnego zdjęć, w tym detekcji krawędzi, co poprawia efektywność klasyfikacji.
+
+--------------------------------------------------------------------------------
+
+5.3 Deeper cascaded peak-piloted network for weak expression recognition
+SUMMARY:
+Artykuł przedstawia nową metodę detekcji słabo ekspresyjnych emocji, wykorzystującą dynamiczne sekwencje twarzy i "ekspresje szczytowe" do poprawy rozpoznawania trudniejszych przypadków, co skutkowało znacznym wzrostem dokładności na popularnych zbiorach danych.
+
+--------------------------------------------------------------------------------
+
+6.1 Śledzenie twarzy (Jakub Góralski)
+SUMMARY:
+Fragment opisuje metody śledzenia twarzy, w tym wykorzystanie filtru Kalmana do predykcji i aktualizacji lokalizacji, oraz bardziej zaawansowane podejście oparte na uczeniu głębokim, w tym algorytm CAMShift i nieskalowany filtr Kalmana, z uwzględnieniem problemów związanych z zmiennym oświetleniem.
+
+--------------------------------------------------------------------------------
+
+6.1.1 Filtr Kalmana
+SUMMARY:
+Filtr Kalmana jest wykorzystywany do efektywnego śledzenia obiektów wideo poprzez predykcję ich położenia i aktualizację na podstawie pomiarów, minimalizując koszty obliczeniowe i zapewniając płynne śledzenie.
+
+--------------------------------------------------------------------------------
+
+6.1.2 CAMShift z filtrem Kalmana
+SUMMARY:
+Autorzy opracowali ulepszoną metodę śledzenia twarzy, łącząc algorytm CAMShift z nieskalowanym filtrem Kalmana (UKF), co znacząco poprawiło jego skuteczność w trudnych warunkach oświetleniowych i przy zmiennym tle.
+
+--------------------------------------------------------------------------------
+
+6.1.3 DeepSORT
+SUMMARY:
+Praca opisuje system do śledzenia i rozpoznawania twarzy z wielu kamer, wykorzystujący detekcję twarzy, śledzenie DeepSORT, rozpoznawanie ArcFace oraz integrację danych za pomocą Apache Kafka i Socket.IO, co w efekcie skraca czas działania systemu dzięki optymalizacji algorytmu DeepSORT.
+
+--------------------------------------------------------------------------------
+
+6.2 Rozpoznawanie twarzy (Tymoteusz Prud)
+SUMMARY:
+Rozpoznawanie twarzy to technologia wykorzystująca sieci neuronowe, takie jak DeepID, do identyfikacji osób poprzez analizę ich cech fizjonomicznych, a w szczególności poprzez uczenie się rozróżniania twarzy przy użyciu architektur, takich jak sieci syjamskie i warstwy Inception, w celu stworzenia narzędzia do reprezentowania tw
+
+--------------------------------------------------------------------------------
+
+6.2.1 Deepid3: Face recognition with very deep neural networks
+SUMMARY:
+Artykuł [59] opisuje model DeepID, zaawansowany system rozpoznawania twarzy oparty na sieciach VGG i GoogLeNet w architekturze zespołu ekspertów, który osiągnął wysoką dokładność (99,5%) na zbiorze danych LFW, choć autorzy sugerują, że wynik może być ograniczony przez nied
+
+--------------------------------------------------------------------------------
+
+6.2.2 ArcFace: Additive Angular Margin Loss for Deep Face Recognition
+SUMMARY:
+Artykuł przedstawia nową metodę rozpoznawania twarzy wykorzystującą funkcję straty ArcFace, która poprzez margines kątowy i generowanie podklas, zwiększa dokładność i stabilność treningu, osiągając wysoką skuteczność na zbiorach danych LFW i CelebA.
+
+--------------------------------------------------------------------------------
+
+6.2.3 AdaFace: Quality Adaptive Margin for Face Recognition
+SUMMARY:
+Artykuł przedstawia nową funkcję straty, AdaFace, która poprawia dokładność rozpoznawania twarzy na obrazach o niskiej jakości, takich jak te z kamer monitoringu, poprzez uwzględnienie jakości danych i minimalizację wpływu artefaktów.
+
+--------------------------------------------------------------------------------
+
+6.2.4 Podsumowanie
+SUMMARY:
+Artykuł omawia postępy w dziedzinie rozpoznawania twarzy, koncentrując się na innowacyjnych technikach i architekturach, które umożliwiają dokładne i efektywne wykrywanie, identyfikację i analizę emocji na obrazach wideo, a następnie przedstawia opracowane przez autorów rozwiązanie w czterech etapach.
+
+--------------------------------------------------------------------------------
+
+7.1 Wstępne przetwarzanie wideo (Tymoteusz Prud)
+SUMMARY:
+Autorzy, ze względu na złożoność przetwarzania obrazu wideo z uwzględnieniem zależności międzyklatkowych, zdecydowali się na podzielenie filmu na statyczne klatki, które następnie są przygotowywane do analizy przez modele sztucznej inteligencji, wykorzystując format bitmapy w skali szarości.
+
+--------------------------------------------------------------------------------
+
+7.1.1 Zamiana trybu kolorów
+SUMMARY:
+Klatka wideo musi zostać przetworzona do formatu tablicy 8-bitowych wartości, aby spełnić wymagania modeli sztucznej inteligencji, w tym detektorów twarzy, które pracują z bitmapami w skali szarości.
+
+--------------------------------------------------------------------------------
+
+7.2 Detekcja twarzy
+SUMMARY:
+Fragment opisuje zastosowanie kaskady Haara do detekcji twarzy na obrazach, z naciskiem na osiągnięcie wysokiej dokładności przy jednoczesnej optymalizacji zużycia mocy obliczeniowej, co jest kluczowe dla adaptacji rozwiązania do urządzeń mobilnych.
+
+--------------------------------------------------------------------------------
+
+7.2.1 Wybory projektowe
+SUMMARY:
+Fragment opisuje kluczowy etap detekcji twarzy na obrazie, wykorzystujący kaskadę Haara w połączeniu z filtrem Kalmana, z naciskiem na wysoką dokładność i optymalizację zużycia mocy obliczeniowej, aby zapewnić efektywne działanie algorytmu, szczególnie w kontekście potencjalnej adaptacji do urządzeń mobil
+
+--------------------------------------------------------------------------------
+
+7.2.2 Implementacja
+SUMMARY:
+Algorytm detekcji twarzy, wykorzystujący kaskadę Haara i filtr Kalmana, lokalizuje twarze na obrazach, rozszerzając obszar detekcji o 20% i trenując modele rozpoznawania twarzy na rozszerzonych danych, aby zapewnić dokładne i niezawodne wyniki.
+
+--------------------------------------------------------------------------------
+
+7.3 Rozpoznawanie twarzy (Tymoteusz Prud)
+SUMMARY:
+Praca skupia się na opracowaniu efektywnego algorytmu rozpoznawania twarzy, wykorzystującego model opartej na architekturze syjamskiej, który, po wstępnej detekcji twarzy i przeskalowaniu obrazów, jest trenowany na zbiorze danych CelebA w celu poprawnej identyfikacji i lokalizacji twarzy, minimalizując zuży
+
+--------------------------------------------------------------------------------
+
+7.3.1 Wybór architektury modelu
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+
+--------------------------------------------------------------------------------
+
+7.3.2 Zbiór danych
+SUMMARY:
+Praca wykorzystuje zbiór danych CelebA do trenowania modelu o architekturze syjamskiej, poprzez tworzenie par zdjęć różnych osób (oznaczonych cyfrą 0) i tych samych osób (oznaczonych cyfrą 1), po wstępnej detekcji twarzy i standardowym podziale danych na zbiór treningowy
+
+--------------------------------------------------------------------------------
+
+7.3.3 Architektura modelu
+SUMMARY:
+Model syjamski to architektura sieci konwolucyjnej, która wykorzystuje dwie identyczne gałęzie przetwarzające niezależne próbki danych, dzielącą się wspólną architekturą i wagami, aby efektywnie uczyć się reprezentacji cech i rozróżniać między nimi poprzez porównywanie wektoryzacji.
+
+--------------------------------------------------------------------------------
+
+7.3.4 Trening
+SUMMARY:
+W trakcie treningu modelu wykorzystano algorytm Adam z malejącym współczynnikiem uczenia i funkcją straty binarnej entropii krzyżowej, aby uniknąć przeuczania, przy czym początkowy współczynnik uczenia był stopniowo zmniejszany, a następnie utrzymywany na stałym poziomie do końca procesu.
+
+--------------------------------------------------------------------------------
+
+7.4 Korekcja szacunkowej pozycji filtrem Kalmana (Jakub Góralski)
+SUMMARY:
+W pracy wykorzystano filtr Kalmana, zaimplementowany jako klasa, do stabilnego i dokładnego śledzenia współrzędnych wykrytych twarzy w obrazie, uwzględniając szum i dynamikę systemu, a w przypadku niepewności – dodatkowo wykorzystując sieć Syjamę do weryfikacji identyfikacji obiektu.
+
+--------------------------------------------------------------------------------
+
+7.5 Detekcja emocji (Jakub Góralski)
+SUMMARY:
+Badanie wykorzystuje zbiór danych FER2013 do rozpoznawania emocji, stosując kodowanie one-hot i optymalizator ADAM z funkcją straty categorical_crossentropy, aby wytrenować zaawansowaną sieć neuronową z 2,395,591 parametrami, podzieloną na zbiory treningowe, walidacyjne
+
+--------------------------------------------------------------------------------
+
+7.5.1 Zbiór danych
+SUMMARY:
+Badanie wykorzystało zbiór danych FER2013, szeroko stosowany w rozpoznawaniu emocji i zgodny z modelem emocji Paula Ekmana, a do reprezentacji danych zastosowano technikę kodowania one-hot, aby ułatwić analizę przez modele uczenia maszynowego.
+
+--------------------------------------------------------------------------------
+
+7.5.2 Model
+SUMMARY:
+Praca opisuje proces kompilacji i trenowania sieci neuronowej do detekcji emocji, wykorzystując funkcję straty categorical_crossentropy, optymalizator ADAM, strategię wczesnego zatrzymywania oraz techniki augmentacji i over-samplingu danych, aby zapewnić efektywne uczenie modelu z odpowiednio podzielonych zbiorów treningowych, walidacyjnych
+
+--------------------------------------------------------------------------------
+
+7.6 Zapis w bazie
+SUMMARY:
+Program zapisuje do bazy danych kluczowe informacje o zidentyfikowanych twarzach, w tym cechy twarzy, wartości filtru Kalmana i wykryte emocje, aby umożliwić kontynuację śledzenia i identyfikacji osoby po ponownym pojawieniu się lub ponownym uruchomieniu programu.
+
+--------------------------------------------------------------------------------
+
+8.1 Wyniki detekcji twarzy (Tymoteusz Prud)
+SUMMARY:
+Praca bada skuteczność detektora twarzy opartych na kaskadach Haar’a, dostosowując jego parametry (czułość i skalowanie) w celu maksymalizacji poprawnych detekcji twarzy, przy jednoczesnym uwzględnieniu ograniczeń obliczeniowych tej metody, co zostało zweryfikowane na zestawie testowym z wykorzyst
+
+--------------------------------------------------------------------------------
+
+8.1.1 Zestaw testowy
+SUMMARY:
+Badanie jakości detekcji twarzy detektorem Haara przeprowadzono na zestawie testowym, porównując detekcje z oznaczeniami, a kryterium sukcesu detekcji określono za pomocą indeksu Jaccarda wynoszącego 0.3, co uwzględniało ograniczenia metody kaskady Haara.
+
+--------------------------------------------------------------------------------
+
+8.1.2 Hiperparametry
+SUMMARY:
+Badania wykazały, że dla optymalnej detekcji twarzy za pomocą kaskady Haara, najważniejszym parametrem jest czułość, przy czym najlepsze wyniki uzyskuje się przy współczynniku skalowania 1.3 i minimalnej liczbie sąsiadów (1), choć zwiększenie liczby sąsiadów poprawia precyzję,
+
+--------------------------------------------------------------------------------
+
+8.1.3 Parametry detektora w rozwiązaniu
+SUMMARY:
+Wybór parametrów o współczynniku skalowania 1.3 i 3 sąsiadów zapewnił optymalne wyniki w zakresie czułości, dokładności i precyzji przy jednoczesnym zmniejszeniu kosztów obliczeniowych.
+
+--------------------------------------------------------------------------------
+
+8.2 Wyniki rozpoznawania twarzy (Tymoteusz Prud)
+SUMMARY:
+Model uczył się stopniowo, początkowo z wahaniami i trudnościami w ustaleniu optymalnego kierunku treningu, a następnie osiągnął stabilną dokładność około 70%, po której dalsze uczenie prowadziło do przetrenowania i pogorszenia wyników na zbiorze testowym.
+
+--------------------------------------------------------------------------------
+
+8.2.1 Proces uczenia
+SUMMARY:
+Model uczył się rozpoznawania osób na zdjęciach, przechodząc przez fazy oscylacji w dokładności i stracie, aż w końcu osiągnął stabilną dokładność około 70%, sugerując, że dalszy trening prowadziłby do przetrenowania.
+
+--------------------------------------------------------------------------------
+
+8.2.2 Wyniki testów
+SUMMARY:
+Model osiąga wysoką dokładność w testach na zróżnicowanych zdjęciach twarzy, ale jego skuteczność w rzeczywistych zastosowaniach, z wykorzystaniem prostszych ujęć, jest znacznie wyższa i ogranicza się głównie do błędów związanych z przygotowaniem obrazu.
+
+--------------------------------------------------------------------------------
+
+8.3 Wyniki filtru Kalmana (Jakub Góralski)
+SUMMARY:
+Przeprowadzono testy filtru Kalmana na 10 próbach, mierząc błędy i porównując je z rzeczywistymi pomiarami, co wykazało jego skuteczność w wygładzaniu trajektorii ruchu i dostarczaniu stabilnych, precyzyjnych wyników pomimo obecności szumów.
+
+--------------------------------------------------------------------------------
+
+8.4 Wyniki modelu do detekcji emocji (Jakub Góralski)
+SUMMARY:
+Praca opisuje proces uczenia modelu detekcji emocji, który początkowo charakteryzował się niską dokładnością, a następnie stopniowo się poprawiał, osiągając stabilny poziom około 70-71%, przy czym analiza macierzy pomyłek pozwala zidentyfikować obszary, w których model popełnia błędy i wprowadzić
+
+--------------------------------------------------------------------------------
+
+8.4.1 Proces uczenia
+SUMMARY:
+Model uczy się stopniowo, zaczynając od niskiej dokładności i funkcji straty, a następnie osiągając stabilizację i maksymalny potencjał dokładności dzięki procesowi optymalizacji wag w trakcie treningu.
+
+--------------------------------------------------------------------------------
+
+8.4.2 Wyniki walidacji
+SUMMARY:
+Macierz pomyłek jest kluczowym narzędziem do analizy skuteczności modelu detekcji emocji, pozwalającym zidentyfikować obszary, w których model popełnia błędy, takie jak fałszywie pozytywne i fałszywie negatywne predykcje, oraz dostosować parametry i dane treningowe w celu popraw
+
+--------------------------------------------------------------------------------
+
+BŁĘDY
+Brak

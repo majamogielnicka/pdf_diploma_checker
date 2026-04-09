@@ -113,98 +113,147 @@ F1 ≥ 0.75 oraz Precision ≥ 0.80.
 
 ---
 
-## 4.5 Analiza merytoryczna 
-Komentarze odnośnie merytoryki (np. brak SOTA, końcowa ocena merytoryki wyrażona w %) oznaczone na pierwszej stronie pracy w celu zachowania spójności z ustaloną metryką. 
+## 4.5 Analiza merytoryczna
 
-Ocena merytoryczna z użyciem lokalnego LLM obejmuje wyznaczenie celu pracy, analizę tematyki rozdziałów oraz weryfikację wystąpienia i spójności sekcji SOTA z celem pracy. Ocena dotyczy kompletności i zgodności z celem pracy.
+Komentarze dotyczące merytoryki (np. brak SOTA, niska zgodność z celem, końcowa ocena merytoryczna wyrażona w %) umieszczane są na pierwszej stronie pracy w celu zachowania spójności raportu.
 
-- Ekstrakcja celu pracy.
-- Generowanie tematyki dla poszczególnego nagłówka.
-- Generowanie słów kluczowych oraz sprawdzenie liczby ich wystąpień.
-- Detekcja często powtarzających się słów oraz ocena podobieństwa do celu pracy.
-- Reguła 1: wykrywanie fragmentów odnośnie SOTA na podstawie nagłówków oraz fraz typu „przegląd literatury/stan wiedzy/related work”.
-- Reguła 2: weryfikacja wystąpienia SOTA poprzez zliczenie cytowań w sekcji oraz wykrycie słów kluczowych wskazujących na przegląd literatury.
-- Reguła 3: weryfikacja struktury SOTA poprzez obecność podrozdziałów opisujących metody/rozwiązania w obrębie sekcji SOTA. SOTA wygląda poprawnie, jeśli są co najmniej 2 podrozdziały-metody w spisie treści oraz pracy.
+Ocena merytoryczna z użyciem lokalnego LLM obejmuje:
+- ekstrakcję celu pracy z początku dokumentu,
+- generowanie streszczeń dla podrozdziałów,
+- ocenę zgodności treści rozdziałów z celem pracy,
+- bezpośrednią ocenę realizacji celu pracy,
+- weryfikację jakości sekcji SOTA.
 
-### Metryka punktowa dla modułu merytoryki 
+### Założenia modułu oceny merytorycznej
 
-Ocena modułu merytorycznego wyrażana jest w procentach jako ważona suma trzech składowych:
-- zgodność streszczeń z celem pracy – 60%,
-- wystąpienie SOTA – 20%,
-- słowa kluczowe / powtarzalność słów (na temat / nie na temat) – 20%.
+#### 1. Cel modułu
 
-Wynik końcowy:
+Moduł ocenia, czy praca realizuje swój cel oraz czy zawiera poprawnie opracowaną sekcję SOTA.
+
+Ocena końcowa opiera się na trzech składowych:
+- zgodności treści rozdziałów z celem pracy,
+- bezpośredniej ocenie realizacji celu pracy,
+- jakości sekcji SOTA.
+
+---
+
+#### 2. Zgodność treści z celem pracy
+
+Dla każdego streszczenia podrozdziału wyznaczane jest podobieństwo semantyczne między **celem pracy** a **treścią podrozdziału** z użyciem embeddingów i podobieństwa cosinusowego.
+
+Dla $i$-tego podrozdziału:
 
 $$
-Score = 100 \cdot \big(0.60\cdot S_{\text{goal}} + 0.20\cdot S_{\text{sota}} + 0.20\cdot S_{\text{kw}}\big)
+s_i = \cos(\mathrm{emb}(G), \mathrm{emb}(T_i))
 $$
 
-W definicjach poniżej używane jest:
+gdzie:
+- $G$ — cel pracy,
+- $T_i$ — streszczenie podrozdziału,
+- $s_i$ — podobieństwo podrozdziału do celu.
+
+Następnie sprawdzane jest, które podrozdziały **nie przekraczają ustalonego progu** $\tau$.
+
+Jeżeli:
+- $N$ — liczba wszystkich podrozdziałów,
+- $K$ — liczba podrozdziałów, dla których $s_i < \tau$,
+
+to udział podrozdziałów słabo związanych z celem wynosi:
 
 $$
-I(\text{warunek})=
+P_{\mathrm{off}} = \frac{K}{N} \cdot 100
+$$
+
+Na tej podstawie wynik zgodności treści liczony jest jako:
+
+$$
+S_{\mathrm{emb}} = 100 - P_{\mathrm{off}}
+$$
+
+gdzie:
+- $S_{\mathrm{emb}}$ — wynik zgodności treści z celem pracy w skali `0–100`,
+- $\tau$ — próg podobieństwa, np. `0.45`.
+
+Interpretacja:
+- im więcej podrozdziałów poniżej progu, tym niższy wynik,
+- jeśli wszystkie podrozdziały przekraczają próg, to $S_{\mathrm{emb}} = 100$.
+
+---
+
+#### 3. Ocena realizacji celu pracy
+
+Dodatkowo model otrzymuje **cel pracy wyekstraktowany z początku dokumentu** i ocenia bezpośrednio, czy został on zrealizowany w treści całej pracy.
+
+Wynik tej oceny oznaczany jest jako:
+
+$$
+S_{\mathrm{pr}} \in \{0, 50, 100\}
+$$
+
+gdzie:
+- `100` — cel został zrealizowany,
+- `50` — cel został zrealizowany częściowo,
+- `0` — cel nie został zrealizowany.
+
+Składowa ta ma charakter ekspercki i stanowi dodatkową ocenę całości pracy, niezależną od analizy podobieństw embeddingowych.
+
+---
+
+#### 4. Ocena sekcji SOTA
+
+Sekcja SOTA oceniana jest na podstawie trzech reguł:
+- $r_1$ — zawiera ocenę istniejących rozwiązań,
+- $r_2$ — wskazuje lukę badawczą lub problem,
+- $r_3$ — zawiera syntezę lub porównanie metod i podejść.
+
+Każda reguła przyjmuje wartość:
+- `1` — spełniona,
+- `0` — niespełniona.
+
+Wynik SOTA:
+
+$$
+S_{\mathrm{sota}} =
 \begin{cases}
-1, & \text{gdy warunek jest spełniony} \\
-0, & \text{w przeciwnym razie}
+100 & \text{gdy } r_1+r_2+r_3 \ge 2 \\
+50 & \text{gdy } r_1+r_2+r_3 = 1 \\
+0 & \text{gdy } r_1+r_2+r_3 = 0
 \end{cases}
 $$
 
-## 1) Składowa SOTA (20%)
+Interpretacja:
+- `2 z 3` lub `3 z 3` reguł — pełna realizacja SOTA,
+- `1 z 3` — częściowa realizacja,
+- `0 z 3` — brak poprawnej sekcji SOTA.
 
-O obecności SOTA świadczą reguły z opisu modułu merytoryki:
-- Reguła 1: wykrycie SOTA na podstawie nagłówków i fraz.
-- Reguła 2: potwierdzenie SOTA na podstawie cytowań i słów kluczowych.
-- Reguła 3: struktura SOTA (co najmniej 2 podrozdziały-metody w spisie treści oraz pracy).
+---
 
-Wyniki reguł:
+#### 5. Wynik końcowy modułu merytorycznego
 
-$$
-r_1 = I(\text{Reguła 1 spełniona})
-$$
+Końcowa ocena liczona jest jako:
 
 $$
-r_2 = I(\text{Reguła 2 spełniona})
+\mathrm{Score} = 0.60 \cdot S_{\mathrm{emb}} + 0.20 \cdot S_{\mathrm{pr}} + 0.20 \cdot S_{\mathrm{sota}}
 $$
 
-$$
-r_3 = I(\text{Reguła 3 spełniona})
-$$
+gdzie:
+- $S_{\mathrm{emb}}$ — zgodność treści rozdziałów z celem pracy,
+- $S_{\mathrm{pr}}$ — bezpośrednia ocena realizacji celu pracy,
+- $S_{\mathrm{sota}}$ — jakość sekcji SOTA.
 
-Poziom pewności wystąpienia SOTA:
+Wynik końcowy mieści się w przedziale `0–100`.
 
-$$
-P_{\text{sota}} = \frac{r_1 + r_2 + r_3}{3}
-$$
+---
 
-Składowa używana w metryce:
+#### 6. Uwagi
 
-$$
-S_{\text{sota}} = P_{\text{sota}}
-$$
+1. Główną składową oceny jest $S_{\mathrm{emb}}$.
+2. $S_{\mathrm{emb}}$ zależy od odsetka podrozdziałów, które nie przekraczają progu podobieństwa.
+3. $S_{\mathrm{pr}}$ jest niezależną oceną tego, czy cel pracy został rzeczywiście zrealizowany.
+4. Wartość progu $\tau$ dobierana jest empirycznie dla użytego modelu embeddingów.
 
-SOTA jest uwzględniane w wyniku zawsze jako wartość ciągła w przedziale 0..1, a nie jako warunek zaliczenia.
-
-## 2) Zgodność streszczeń z celem pracy (60%)
-
-LLM generuje streszczenia rozdziałów, a następnie porównuje je do wyekstraktowanego celu pracy korzystając z cosine similarity $G_{\text{llm}}$.  
-Podobieństwo refernecyjne celu do treści $G$ wyznacza człowiek. Zgodność obydwu celi liczona jest jako cosine similarity w relacji: cel pracy wyznaczony przez LLM oraz przez człowieka.
-
-$$
-S_{\text{goal}} = sim(G, G_{\text{llm}})
-$$
-
-## 3) Słowa kluczowe i powtarzalność (20%)
-
-Na podstawie słów kluczowych oraz często powtarzających się słów wyznaczana jest zgodność treści z celem pracy (na temat / nie na temat).  
-Ocena referencyjna człowieka ma postać binarną: 1 = na temat, 0 = nie na temat.  
-Wynik systemu również ma postać binarną.
-
-$$
-S_{\text{kw}} = I(Topic\_hat = Topic)
-$$
-
-Progi decyzyjne dla LLM są dobierane empirycznie na zbiorze testowym i zależą od zastosowanego modelu embeddingów.  
-Wymagana skuteczność: Score\_avg >= 70% na zbiorze testowym (N prac).
+**Kryteria skuteczności:**  
+Średni wynik oceny merytorycznej na zbiorze testowym powinien osiągać poziom co najmniej **70%**.
 
 ---
 
@@ -218,4 +267,5 @@ F1 ≥ 0.80 oraz Precision ≥ 0.85.
 ---
 
 ## 4.7 Moduł plagiatu (zgodny z harmonogramem)
+
 Sprawdzanie plagiatu realizowane jest wyłącznie poprzez otwarcie w przeglądarce wyników wyszukiwania internetowego dla fragmentu wskazanego przez użytkownika (maksymalnie 300 znaków).

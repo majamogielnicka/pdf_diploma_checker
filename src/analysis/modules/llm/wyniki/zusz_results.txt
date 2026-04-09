@@ -1,0 +1,338 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\zusz.pdf
+Wygenerowano: 2026-04-06T12:00:07.571856
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+Brak
+
+NAZWA PRACY
+zusz
+
+CEL PRACY
+Drukowanie 3D przewodzących filamentów
+
+STRESZCZENIA NAGŁÓWKÓW
+2.1 Technologie druku 3D
+SUMMARY:
+Fragment opisuje trzy metody wytwarzania przyrostowego – SLA, PolyJet i SLS – wykorzystujące różne technologie, takie jak utwardzanie żywicy UV (SLA i PolyJet) oraz drukowanie proszkowe (SLS), do tworzenia obiektów z różnorodnych materiałów o zróżnicowanych właściwościach.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.1.1 Stereolitografia
+SUMMARY:
+SLA to najstarsza metoda druku 3D, oparta na addytywnej fotopolimeryzacji warstw żywicy za pomocą lasera UV, gdzie platforma stopniowo obniża się, aby tworzyć trójwymiarowe obiekty.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.1.2 Metoda JS
+SUMMARY:
+Metoda JS (PolyJet) wykorzystuje warstwowe nakładanie i utwardzanie promieniowaniem UV ciekłej żywicy, przypominającej tworzywa termoplastyczne, do tworzenia elementów wielomateriałowych o zróżnicowanych właściwościach.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.1.3 Metoda SLS
+SUMMARY:
+Technologia SLS, oparta na warstwowym spiekaniu proszków laserem, jest obecnie popularną metodą druku 3D wykorzystywaną w wielu branżach do produkcji złożonych przedmiotów, takich jak prototypy, implanty i komponenty medyczne.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.1.4 Metoda 3DP
+SUMMARY:
+Metoda 3DP, opracowana na MIT, wykorzystuje druk krok po kroku sproszkowanych materiałów (gips, ceramika, metal) z dodatkiem spoiwa, aby tworzyć obiekty, które następnie są wzmacniane i charakteryzują się niskim kosztem, szybkim czasem realizacji i możliwością ponownego wykorzystania materia
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.1.5 Metoda LOM
+SUMMARY:
+Laminowanie arkuszy to technika druku 3D, która polega na łączeniu warstw materiałów, takich jak folie PVC lub papier, połączonych ze sobą spoiwem, w celu stworzenia obiektu.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.1.6 Metoda FDM
+SUMMARY:
+FDM (Fused Filament Fabrication) to popularna metoda wytwarzania przyrostowego, która wykorzystuje filament do tworzenia trójwymiarowych obiektów poprzez nakładanie warstw, umożliwiając precyzyjną kontrolę parametrów i dostosowanie struktury wypełnienia, a także stosowanie podpór, co zapewnia wysoką dokładność i stosunkowo niskie kos
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.2 Materiały wykorzystywane w metodzie FDM
+SUMMARY:
+Technologia FDM umożliwia tworzenie różnorodnych, funkcjonalnych części z szerokiej gamy materiałów, w tym biodegradowalnego PLA, produkowanego z odnawialnych surowców, co czyni go atrakcyjnym dla zastosowań ekologicznych i kontaktu z żywnością.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.2.1 PLA (polilaktyd)
+SUMMARY:
+PLA (kwas polimlekowy) to biodegradowalny i odnawialny materiał do druku 3D, wytwarzany z roślinnych surowców, który dzięki swoim właściwościom i bezpieczeństwu użytkowania, znajduje zastosowanie w medycynie i opakowaniach.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.2.2 ABS
+SUMMARY:
+W technologii FDM, oprócz PLA, stosuje się inne polimery, takie jak ABS, które charakteryzują się lepszą wytrzymałością, odpornością na warunki środowiskowe i są wykorzystywane do prototypowania i produkcji elementów mechanicznych, choć mają ograniczenia w odporności na kwasy i promieniowanie UV.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.2.3 PET-G
+SUMMARY:
+PET-G to łatwy w druku, wytrzymały i hydrofobowy filament, łączący zalety PLA i ABS, który dzięki swoim właściwościom, takim jak odporność na uderzenia i skurcz, jest idealny do zastosowań w przemyśle spożywczym i innych, choć wymaga uwagi przy druku ze względu na skłonność do nit
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.2.4 TPU
+SUMMARY:
+Termoplastyczne poliuretany (TPU) to wszechstronne polimery o wyjątkowych właściwościach, takich jak wytrzymałość, elastyczność i odporność chemiczna, szeroko stosowane w przemyśle, w tym w produkcji opon, wymagające specjalistycznej wiedzy i sprzętu do druku.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.2.5 Nylon
+SUMMARY:
+Nylon to wytrzymały i elastyczny materiał na bazie poliamidu, szeroko stosowany w przemyśle, wymagający odpowiedniego przechowywania i osuszania przed drukiem ze względu na jego podatność na wchłanianie wilgoci.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.2.6 Materiały kompozytowe
+SUMMARY:
+Materiały kompozytowe, łącząc różne materiały, oferują znacząco ulepszone właściwości, takie jak wytrzymałość, odporność na korozję i przewodność, co czyni je idealnymi dla branż wymagających wysokiej wydajności.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.3 Proces tworzenia modeli 3D
+SUMMARY:
+Tworzenie trójwymiarowych obiektów za pomocą druku 3D polega na stworzeniu wirtualnego modelu w programie CAD, jego zapisaniu w formacie STL/3MF, przetworzeniu go przez slicer do wygenerowania kodu G, a następnie druku na drukarce 3D, z uwzględnieniem podpór, które są usuwane
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4 Filamenty przewodzące w druku 3D
+SUMMARY:
+Filamenty przewodzące to kompozyty polimerowe, w których dodatek nano- i mikrometrycznych wypełniaczy przewodzących, takich jak nanorurki węglowe czy grafen, pozwala na uzyskanie właściwości elektrycznych, a kluczowe jest ich jednorodne rozmieszczenie w matrycy, aby zapewnić efektywny transfer elektronów i przewodzenie
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.1 Zjawisko perkolacji
+SUMMARY:
+Przewodzenie prądu w kompozytach z wypełniaczem przewodzącym jest możliwe dzięki zjawisku perkolacji, które wymaga minimalnej, zależnej od właściwości materiału, ilości wypełniacza, aby utworzyć efektywne ścieżki przewodzenia pomiędzy cząstkami.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.2 Rezystywność elektryczna
+SUMMARY:
+Fragment opisuje, że rezystywność, czyli opór materiału przed przepływem prądu elektrycznego, jest kluczową cechą filamentów, a jej wartość można obliczyć na podstawie rezystancji, pola przekroju i grubości materiału.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.3 Elektronika drukowana
+SUMMARY:
+Elektronika drukowana, szczególnie dzięki drukowi 3D, oferuje rewolucyjne możliwości w produkcji szerokiej gamy urządzeń elektronicznych, charakteryzując się elastycznością, obniżonymi kosztami i możliwością produkcji na żądanie.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.4 Grafen
+SUMMARY:
+Grafen, wyjątkowy materiał o strukturze 2D, charakteryzuje się niezwykłymi właściwościami, takimi jak sztywność, wysoka przewodność i przezroczystość, co czyni go obiecującym składnikiem kompozytów wykorzystywanych w różnych dziedzinach, od magazynowania energii po elektronikę i
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.5 GNP – nanopłatki grafenowe/Graphene nanoplatelets
+SUMMARY:
+Grafen, dzięki swoim unikalnym właściwościom, znajduje szerokie zastosowanie w różnych urządzeniach elektronicznych i optoelektronicznych, a jego osadzanie w matrycach polimerowych dodatkowo poprawia jego wydajność i stabilność.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.6 CNT – nanorurki węglowe/carbon nanotubes
+SUMMARY:
+Nanorurki węglowe (CNT) to niezwykle wytrzymałe i przewodzące materiały o unikalnych właściwościach, które znajdują szerokie zastosowanie w różnych dziedzinach nanotechnologii, jednak ich efektywne wykorzystanie wymaga rozwiązania problemu dyspersji w matrycach.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.7 CB – sadza/carbon black
+SUMMARY:
+Sadza, pozyskiwana z ropy naftowej, jest wykorzystywana do tworzenia przewodzących filamentów FDM, które znajdują zastosowanie w różnych dziedzinach, takich jak inżynieria tkankowa i elektronika, ze względu na ich właściwości elektryczne, mechaniczne i termiczne.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.4.8 Grafit
+SUMMARY:
+Grafit, dzięki swojej unikalnej warstwowej strukturze i właściwościom przewodzącym, jest cennym, ale trudnym w obróbce materiałem wykorzystywanym w kompozytach przewodzących, charakteryzującym się wysoką przewodnością wzdłuż warstw i ograniczoną wytrzymałością mechaniczną.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+2.5 Podsumowanie
+SUMMARY:
+Drukowanie 3D filamentami przewodzącymi, w tym filament Black Magic 3D na bazie PLA i grafenu, umożliwia tworzenie elementów z ulepszonymi właściwościami elektrochemicznymi, takich jak ścieżki przewodzące, przy temperaturach pokojowych i ograniczonych napięciem oraz prądem.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+3.1 Zasoby techniczne
+SUMMARY:
+Fragment dotyczy wykorzystania określonych zasobów technicznych w eksperymencie.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+3.2 Parametry eksperymentalne
+SUMMARY:
+Proszę podać fragment tekstu, który mam streścić. Bez niego nie mogę wykonać zadania.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+3.3 Specyfikacja techniczna drukarki 3D
+SUMMARY:
+W projekcie wykorzystano drukarkę Bambu Lab X1 Carbon, wysokiej klasy drukarkę FDM, która oferuje szeroką gamę materiałów, dużą objętość roboczą i osiągi techniczne, takie jak maksymalna temperatura dyszy i głowicy oraz wymagania elektryczne.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+3.4 Pomiar rezystancji metodą czteroelektrodową
+SUMMARY:
+Aby uzyskać dokładniejsze pomiary rezystancji, zastosowano metodę czteropunktową, która oddziela elektrody prądowe od napięciowych, minimalizując wpływ rezystancji styku i umożliwiając lepsze zrozumienie rozkładu potencjału w próbce, choć układ z elektrodami przyłożonymi do górnej powierzchni może generować lokal
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+3.4.1 Rozmieszczenie elektrod prądowych
+SUMMARY:
+Rozmieszczenie elektrod prądowych na górnej powierzchni próbki, przy zastosowaniu dwóch elektrod napięciowych i dwóch elektrod prądowych, pozwala na precyzyjne i powtarzalne pomiary, choć generuje lokalny gradient potencjału i efekty brzegowe związane z promieniowaniem prądu od punktu styku.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+3.5 Procedura pomiarów elektrycznych
+SUMMARY:
+Układ został podłączony do miernika Keithley 2400 SourceMeter, aby bezpośrednio i precyzyjnie mierzyć rezystancję materiału przy użyciu prądu 1 mA, minimalizując wpływ szumów, nagrzewania i odkształceń próbki.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+3.6 Zasady przeprowadzania obliczeń statystycznych i wymiary próbek
+SUMMARY:
+Badacze zmierzyli rezystwność i przewodność filamentu przewodzącego, wykonując wielokrotne wydruki próbek o różnych konfiguracjach (podstawowa, warstwa, włókno, filament przed wydrukiem) i dokładnie mierząc ich wymiary, aby zapewnić precyzyjne i powtarzalne wyniki pomiarowe.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+4.1 Projektowanie układu pomiarowego
+SUMMARY:
+W celu zapewnienia precyzji i powtarzalności pomiarów, zaprojektowano układ pomiarowy w Fusion 360, wykorzystujący specjalną podstawkę z dopasowanym wgłębieniem, prowadnice do stabilnego umiejscowienia elektrod oraz uchwyt dociskowy ze sprężyną, aby zapewnić bezpieczny i dokładny kontakt elektry
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+4.2 Analiza początkowych koncepcji układu pomiarowego
+SUMMARY:
+W celu uzyskania precyzyjnych wyników pomiarów elektrycznych, zespół inżynierów musiał rozwiązać szereg problemów związanych z stabilnością, umiejscowieniem i siłą docisku próbki, ostatecznie doprowadzając do zaprojektowania i wdrożenia mechanizmu dociskowego ze sprężyną oraz modyfikacji konstrukcyjnych pod
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+4.3 Próbne wydruki i weryfikacja parametrów
+SUMMARY:
+W celu optymalizacji wydruków przewodzącego filamentu, przeprowadzono serię testów parametrów takich jak rozmiar, gęstość wypełnienia, temperatura dyszy i wysokość warstwy, w końcu ustalono ustawienia 100% wypełnienia, 30x8x3 mm, temperaturę 220°C oraz wysokość war
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+4.4 Przygotowanie próbek do badań
+SUMMARY:
+W celu optymalizacji druku 3D próbek z grafenem, wykorzystano oprogramowanie Fusion 360 do modelowania i Bambu Studio do przygotowania warstw, a następnie zmierzono rezystancję elektryczną próbek w różnych parametrach drukowania, w tym pojedynczych warstw i włókien, przy użyciu urządzenia pomiarowego Keithley
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.1 Metodyka pomiarowa
+SUMMARY:
+Przeprowadzono wielokrotne pomiary elektryczne, mierząc wiele próbek (zrezystancją styku w niektórych przypadkach) po 10 razy każda, w celu uzyskania dokładnych wyników.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.2 Charakterystyka prądowo-napięciowa (I-V) przewodzącego filamentu PLA z grafenem
+SUMMARY:
+Charakterystyka prądowo-napięciowa filamentu PLA z grafenem wykazała liniowe przewodzenie prądu w zakresie 0,1-10 mA, po czym nastąpiło nasycenie materiału przy około 40 mA, gdzie napięcie stabilizowało się na poziomie 209 mV.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.3 Badanie przewodności elektrycznej filamentu przed wydrukiem dla różnych odległości elektrod napięciowych
+SUMMARY:
+Badanie rezystancji elektrycznej filamentu Black Magic 3D PLA z grafenem wykazało liniową zależność rezystancji od odległości elektrod, co sugeruje równomierny rozkład grafenu i wskazuje na jego potencjalne zastosowanie w elementach przewodzących o stabilnych właściwościach.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.4 Wpływ kierunku wypełnienia na przewodność elektryczną
+SUMMARY:
+Badanie wpływu kierunku wypełnienia (0° i 90°) na przewodność elektryczną próbek wykazało znaczącą różnicę w rezystancji, gdzie kierunek 90° charakteryzował się znacznie wyższą rezystancją niż kierunek 0°, sugerując wpływ orientacji warstw na przepływ prądu i struktur
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.5 Badanie przewodności elektrycznej jednej warstwy
+SUMMARY:
+Kierunek wypełnienia w warstwie materiału wpływa na jej przewodność elektryczną, gdzie wypełnienie prostopadłe do przepływu prądu (90°) powoduje wyższą rezystancję niż wypełnienie równoległe (0°), co wynika z różnic w rozkładzie cząsteczek przewodzących i efektywności przewodzenia
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.6 Badanie przewodności elektrycznej pojedynczego włókna
+SUMMARY:
+Pomiar rezystancji pojedynczego włókna o małych wymiarach był trudny ze względu na jego odkształcenia i problemy z precyzyjnym umieszczeniem, co skutkowało dużym błędem pomiarowym i wymaga ostrożnej interpretacji uzyskanych wyników, a przyszłe badania powinny skupić się na ulepszeniu
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.7 Wpływ temperatury dyszy na przewodność elektryczną
+SUMMARY:
+Badanie wpływu temperatury dyszy na rezystancję próbek filamentu wykazało, że wzrost temperatury prowadzi do spadku rezystancji, prawdopodobnie dzięki poprawie łączenia warstw i redukcji mikropustek, choć istotne są również czynniki wpływające na adhezję próbki do stołu roboczego, które mogą wpływać
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.8 Wpływ zmian właściwości filamentu na rezystancję elektryczną
+SUMMARY:
+Problemy z przewodzącym filamentem, takie jak łamanie, kruchość i wzrost rezystancji elektrycznej, wynikają prawdopodobnie z niewłaściwego przechowywania, wad produkcyjnych lub absorpcji wilgoci, co uniemożliwia uzyskanie pełnych i prawidłowych wydruków.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.9 Wpływ odkształceń mechanicznych na przewodność elektryczną
+SUMMARY:
+Badanie wykazało, że odkształcenia mechaniczne zwiększają opór elektryczny warstw wydrukowanych z przewodnością różną w zależności od orientacji (0° vs. 90°), a wzrost oporu jest bardziej wyraźny w przypadku warstw wydrukowanych w kierunku 90°, co sugeruje zmiany strukturalne materiału pod
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+5.10 Analiza wpływu długoterminowego pomiaru przewodności elektrycznej na zmiany rezystancji w czasie
+SUMMARY:
+Badanie wpływu temperatury na rezystancję elektryczną próbki drukowanej z PLA i grafenem wykazało, że po ustabilizowaniu się układu pomiarowego (około 20 minut) rezystancja zmniejszyła się, a optymalny kierunek wypełnienia 0° zapewnił lepszą przewodność niż 90°.
+COSINE_SIMILARITY: Brak
+
+--------------------------------------------------------------------------------
+
+BŁĘDY
+similarity: nomic-ai/nomic-bert-2048 You can inspect the repository content at https://hf.co/nomic-ai/nomic-embed-text-v1.5.
+Please pass the argument `trust_remote_code=True` to allow custom code to be run.
