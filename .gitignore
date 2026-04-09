@@ -8,3 +8,4 @@ env/
 /images
 .vscode
 src/llm/wyniki/
+Modelfile-gemma3-local
