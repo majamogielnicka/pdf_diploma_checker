@@ -3,7 +3,7 @@ from src.analysis.extraction.schema import ListBlock
 from .check_item_in_list import check_item, has_verb, is_upper_and_dot
 import re
 
-def add_match(items_by_id, num, block_id):
+def add_match(items_by_id, num, block_id, category):
 
     """
     Creates an error object for a specific list item.
@@ -15,12 +15,15 @@ def add_match(items_by_id, num, block_id):
     Returns:
         Error_type: Error type object.
     """
-
+    Category_and_message = {
+        "LIST_MARKER": "Zastosowano niepoprawny marker wyliczenia.",
+        "LIST_COHERENCE": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
+    }
     item = items_by_id[num]
     return Error_type(
                 content = item.text,
-                category = "LIST_COHERENCE",
-                message = "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
+                category = category,
+                message = Category_and_message[category],
                 offset = 0,
                 error_length = len(item.text),
                 block_id = block_id,
@@ -29,7 +32,7 @@ def add_match(items_by_id, num, block_id):
                 word_idxs = [word.word_index for word in item.words]
             )
 
-def is_short_definition(text, text_language):
+def is_short_definition(text, text_language, proper_names, list_abbreviations):
 
     """
     Checks if the text is a short definition.
@@ -37,18 +40,20 @@ def is_short_definition(text, text_language):
     Args:
         text (str): Text to check.
         text_language (str): pl for Polish or en for English.
-    
+        proper_names (list[str]): List of proper names.
+        list_abbreviations (tuple[str]): Tuple of list abbreviations.
     Returns:
         bool: True if the text is a short definition, False otherwise.
     """
-
+    if re.match(r'^[A-Z]{2,}\s+[–—\-−:]\s', text):
+        return True
     match = re.match(r'^((\S+\s){1,4})[–—\-−:]\s', text)
     if match:
         prefix = match.group(1)
         return not has_verb(prefix, text_language)
     return False
 
-def check_coherence_in_list(document, text_language):
+def check_coherence_in_list(document, text_language, proper_names, list_abbreviations):
     """
     Checks for lack of coherence in a list of items.
     
@@ -67,19 +72,38 @@ def check_coherence_in_list(document, text_language):
         if isinstance(block, ListBlock):            
             matches_numbers = []
             items_by_id = {}
+
             for item in block.items:
                 items_by_id[item.item_id] = item
+                if (item.marker_type == "number_with_bracket" or item.marker_type == "letter_with_dot") and text_language == "pl":
+                    matches.append(add_match(items_by_id, item.item_id, block.block_id, "LIST_MARKER"))
             upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
             for item in block.items:
                 item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
                 if item_text[0] in quote_marks:
                     quote_id.append(item.item_id)
                     continue
-                if (re.match(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s', item_text) or is_short_definition(item_text, text_language)):
+                if (re.match(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s', item_text) or is_short_definition(item_text, text_language, proper_names, list_abbreviations)):
                     definition_id.append(item.item_id)
                     continue
                 if item_text[0].isupper():
-                    upper_id.append(item.item_id)
+                    is_known = False
+                    for proper in proper_names:
+                        proper_text = proper[0] if isinstance(proper, tuple) else proper
+                        first_word = proper_text.split()[0]
+                        if re.match(re.escape(first_word) + r'\s', item_text):
+                            neutral_id.append(item.item_id)
+                            is_known = True
+                            break
+                    if not is_known:
+                        for abbreviation in list_abbreviations:
+                            abbr_text = abbreviation[0] if isinstance(abbreviation, tuple) else abbreviation
+                            if re.match(re.escape(abbr_text) + r'\s', item_text):
+                                neutral_id.append(item.item_id)
+                                is_known = True
+                                break
+                    if not is_known:
+                        upper_id.append(item.item_id)
                 elif item_text[0].islower():
                     lower_id.append(item.item_id)
                 else:
@@ -87,6 +111,8 @@ def check_coherence_in_list(document, text_language):
                 endings.append(item_text[-1])
             if endings:
                 dominant_ending = max(sorted(set(endings)), key=endings.count)
+                if any(',' in item.text[:-2] for item in block.items) and dominant_ending == ',':
+                    dominant_ending = ';'
 
             all_definition_like = True
             for item in block.items:
@@ -150,7 +176,7 @@ def check_coherence_in_list(document, text_language):
                     elif item.item_id in neutral_id:
                         match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
                         if match:
-                            if not check_item(full_text[match.start():], last_item, second_to_last, text_language, sentence_style, dominant_ending):
+                            if not check_item(full_text[match.start():], last_item, second_to_last, text_language, sentence_style, dominant_ending, item.marker_type):
                                 matches_numbers.append(item.item_id)
                         continue
                     else:
@@ -159,15 +185,15 @@ def check_coherence_in_list(document, text_language):
                     if item.item_id in neutral_id:
                         match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
                         if match:
-                            if not check_item(full_text[match.start():], last_item, second_to_last, text_language, sentence_style, dominant_ending):
+                            if not check_item(full_text[match.start():], last_item, second_to_last, text_language, sentence_style, dominant_ending, item.marker_type):
                                 matches_numbers.append(item.item_id)
                         continue
-                    if not check_item(full_text, last_item, second_to_last, text_language, sentence_style, dominant_ending):
+                    if not check_item(full_text, last_item, second_to_last, text_language, sentence_style, dominant_ending, item.marker_type):
                         matches_numbers.append(item.item_id)
                 
             if len(matches_numbers) != 0:
                 for num in matches_numbers:
-                    match = add_match(items_by_id, num, block.block_id)
+                    match = add_match(items_by_id, num, block.block_id, "LIST_COHERENCE")
                     matches.append(match)
 
     return matches
