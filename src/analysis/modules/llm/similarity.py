@@ -28,7 +28,7 @@ except Exception:
 
 DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "agna.pdf"
 
-EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+EMBEDDING_MODEL = "multilingual_e5_large"
 
 
 def normalize_text(text):
@@ -157,7 +157,7 @@ def main():
 
     purpose = get_purpose(pdf_path, language)
     summaries = summarize_subtitles(pdf_path, language=language)
-    result = compute_similarity_for_summaries(purpose, summaries)
+    result = compute_similarity_for_summaries(purpose, summaries, EMBEDDING_MODEL)
     output_path = save_similarity_txt(pdf_path, result)
 
     print(f"Wynik zapisano do: {output_path}")
