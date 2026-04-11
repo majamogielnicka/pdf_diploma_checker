@@ -1,0 +1,139 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\doro.pdf
+Wygenerowano: 2026-04-11T14:00:35.248277
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.829739
+
+CEL PRACY
+Codzienna pracy w gastronomii naraża na wiele czynników kontuzjogennych takie jak śliska nawierzchnia i obowiązki wykonywane w przodopochyleniu sylwetki na poziomie odcinka piersiowego
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Definicja bólu
+SUMMARY:
+Ból jest nieprzyjemnym doświadczeniem sensorycznym i emocjonalnym, związanym z rzeczywistym lub potencjalnym uszkodzeniem tkanek oraz subiektywnym odczuciem, które może występować nawet bez fizycznego uszkodzenia.
+COSINE_SIMILARITY: 0.789293
+
+--------------------------------------------------------------------------------
+
+1.2 Mechanizmy powstawania bólu
+SUMMARY:
+Ból powstaje w wyniku stymulacji nocyceptorów, które przewodzą impulsy elektryczne do rdzenia kręgowego i mózgu, gdzie przetwarzane są i prowadzą do percepcji bólu oraz reakcji emocjonalnych.
+COSINE_SIMILARITY: 0.786569
+
+--------------------------------------------------------------------------------
+
+1.3 Rodzaje bólu
+SUMMARY:
+Ból można opisać w zależności od jego mechanizmu, przyczyny i charakterystyki.
+COSINE_SIMILARITY: 0.808150
+
+--------------------------------------------------------------------------------
+
+1.4 Ból ostry
+SUMMARY:
+Ból ostry jest krótkotrwały i wywołany bezpośrednim uszkodzeniem tkanek, podczas gdy ból przewlekły, utrzymujący się dłużej niż 3 miesiące, wpływa negatywnie na jakość życia pacjenta i charakteryzuje się różnicami neurofizjologicznymi w przepływie krwi.
+COSINE_SIMILARITY: 0.788577
+
+--------------------------------------------------------------------------------
+
+1.4.1 Ból przewlekły
+SUMMARY:
+Ból przewlekły, utrzymujący się dłużej niż 3 miesiące, może prowadzić do obniżenia jakości życia i charakteryzuje się różnicami neurofizjologicznymi, w tym zmniejszonym przepływem krwi w obszarach wzgórza w porównaniu z bólem ostrym.
+COSINE_SIMILARITY: 0.806956
+
+--------------------------------------------------------------------------------
+
+1.4.2 Ból neuropatyczny
+SUMMARY:
+Ból neuropatyczny to przewlekły stan, w którym uszkodzony układ nerwowy powoduje nieprawidłowe przetwarzanie sygnałów bólowych, prowadząc do odczuwania bólu bez obecności bodźca oraz zwiększonej wrażliwości na bodźce bólowe.
+COSINE_SIMILARITY: 0.770407
+
+--------------------------------------------------------------------------------
+
+1.4.3 Ból somatyczny
+SUMMARY:
+Ból somatyczny, będący bólem tępy lub ostry w tkankach ciała, jest dobrze zlokalizowany i zwykle leczony farmakologicznie oraz poprzez terapię fizjoterapeutyczną.
+COSINE_SIMILARITY: 0.788522
+
+--------------------------------------------------------------------------------
+
+1.4.4 Ból psychogenny
+SUMMARY:
+Ból emocjonalny, wynikający z odrzucenia, żałoby czy stresu, może prowadzić do przewlekłego bólu, pogorszenia koncentracji i motywacji, szczególnie u pracowników gastronomii, wymagając wsparcia psychologicznego i dostosowania harmonogramu pracy.
+COSINE_SIMILARITY: 0.846013
+
+--------------------------------------------------------------------------------
+
+2.1 Skala i intensywność bólu
+SUMMARY:
+Różne narzędzia do oceny bólu, takie jak skala numeryczna, wizualno-analogowa i skala McGill, pozwalają na subiektywne i obiektywne określenie intensywności i charakterystyki bólu pacjenta.
+COSINE_SIMILARITY: 0.796859
+
+--------------------------------------------------------------------------------
+
+2.2 Skale bólu
+SUMMARY:
+Różne skale oceny bólu, takie jak NRS, VAS, VRS, FACES i FLACC, są dostosowane do różnych grup wiekowych i możliwości komunikacyjnych pacjentów.
+COSINE_SIMILARITY: 0.793364
+
+--------------------------------------------------------------------------------
+
+3.1 Biomechanika
+SUMMARY:
+Praca kucharza i kelnera wymaga od ciała wykonywania powtarzalnych ruchów, co prowadzi do obciążenia układu mięśniowo-szkieletowego, szczególnie kręgosłupa, kończyn dolnych i górnych, oraz może powodować problemy z mięśniami pleców, pośladkowych i przedramienia.
+COSINE_SIMILARITY: 0.888835
+
+--------------------------------------------------------------------------------
+
+3.2 Najczęstsze kontuzje
+SUMMARY:
+Pracownicy gastronomii są narażeni na liczne kontuzje, takie jak oparzenia, poślizgnięcia, skaleczenia i zacięcia, wynikające z presji, niebezpiecznego sprzętu i braku środków ostrożności, co wymaga przestrzegania przepisów BHP.
+COSINE_SIMILARITY: 0.910202
+
+--------------------------------------------------------------------------------
+
+3.3 Sprzęt specjalistyczny
+SUMMARY:
+Lokal gastronomiczny musi zapewnić pracownikom specjalistyczny sprzęt, taki jak antypoślizgowe obuwie, odzież ochronną, blaty ze stali nierdzewnej oraz wózki, aby zapewnić ergonomiczne i bezpieczne warunki pracy oraz zmniejszyć ryzyko kontuzji.
+COSINE_SIMILARITY: 0.876958
+
+--------------------------------------------------------------------------------
+
+5.1 Metody badawcze
+SUMMARY:
+Badanie przeprowadzono na podstawie ankiety wypełnionej przez osoby pracujące w gastronomii, które regularnie odczuwają ból, aby zbadać zależności bólowe związane z różnymi czynnikami, takimi jak stanowisko, staż i BMI.
+COSINE_SIMILARITY: 0.869391
+
+--------------------------------------------------------------------------------
+
+5.2 Materiał badawczy
+SUMMARY:
+Badanie obejmowało 75 pracowników sektora gastronomicznego, głównie kobiet (76%) w wieku 18-40 lat, którzy pracowali jako kelnerzy, kucharze lub personel pomocniczy, a ich średnie BMI było zgodne z wytycznymi WHO, co miało istotny wpływ na odczuwanie bólu i narażenie na kont
+COSINE_SIMILARITY: 0.856550
+
+--------------------------------------------------------------------------------
+
+6.1 Wiek i jego wpływ na odczuwanie bólu u pracowników
+SUMMARY:
+Analiza wskazuje, że osoby starsze, szczególnie z dłuższym stażem w branży gastronomicznej, częściej odczuwają ból.
+COSINE_SIMILARITY: 0.856786
+
+--------------------------------------------------------------------------------
+
+6.2 Ocena wyników badania BMI respondentów
+SUMMARY:
+Badanie wykazało, że osoby z niedowagą odczuwają większy ból, a pracownicy z otyłością są najbardziej narażeni na ból stawów i przeciążenia mięśni szkieletowych.
+COSINE_SIMILARITY: 0.838358
+
+--------------------------------------------------------------------------------
+
+6.3 Ocena wyników badania poziomu bólu na danych stanowiskach
+SUMMARY:
+Badania wykazały, że pracownicy pomocy kuchennej doświadczają wzrostu intensywności bólu z powodu częstego noszenia ciężkich przedmiotów, schylania się i pozycji statycznej podczas pracy, a także braku korzystania ze sprzętu specjalistycznego i fizjoterapii.
+COSINE_SIMILARITY: 0.863519
+
+--------------------------------------------------------------------------------
