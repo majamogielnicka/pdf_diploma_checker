@@ -15,7 +15,8 @@ for p in (PROJECT_ROOT, SRC_DIR):
 
 file_path = PROJECT_ROOT / "data" / "bosh.pdf"
 OUTPUT_DIR = BASE_DIR / "wyniki"
-language ="pl"
+language = "pl"
+EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
 
 try:
     from analysis.modules.llm.similarity import compute_similarity_for_summaries
@@ -120,6 +121,7 @@ def analyze_thesis(pdf_path):
         "input_file": str(pdf_path.resolve()),
         "generated_at": datetime.now().isoformat(),
         "thesis_name": pdf_path.stem,
+        "embedding_model": EMBEDDING_MODEL,
         "purpose": None,
         "heading_summaries": None,
         "average_similarity": None,
@@ -160,6 +162,7 @@ def analyze_thesis(pdf_path):
         function_names=[
             "summarize_subtitles",
             "generate_summaries",
+            "get_summaries",
         ],
     )
 
@@ -169,7 +172,9 @@ def analyze_thesis(pdf_path):
         value, err = try_call(
             summary_func,
             ((pdf_path, None, language), {}),
-            ((str(pdf_path), None, "language"), {}),
+            ((str(pdf_path), None, language), {}),
+            ((pdf_path, language), {}),
+            ((str(pdf_path), language), {}),
             ((pdf_path,), {}),
             ((str(pdf_path),), {}),
         )
@@ -183,7 +188,8 @@ def analyze_thesis(pdf_path):
         try:
             similarity_result = compute_similarity_for_summaries(
                 result["purpose"],
-                result["heading_summaries"]
+                result["heading_summaries"],
+                EMBEDDING_MODEL
             )
             result["heading_summaries"] = similarity_result["items"]
             result["average_similarity"] = similarity_result["average_similarity"]
@@ -200,6 +206,9 @@ def save_result_txt(result, pdf_path):
     lines = []
     lines.append(f"Plik: {result['input_file']}")
     lines.append(f"Wygenerowano: {result['generated_at']}")
+    lines.append("")
+    lines.append("MODEL EMBEDDINGÓW")
+    lines.append(result.get("embedding_model") or "Brak")
     lines.append("")
     lines.append("ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO")
     if result.get("average_similarity") is not None:

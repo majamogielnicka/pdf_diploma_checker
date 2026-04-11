@@ -25,9 +25,7 @@ try:
 except Exception:
     from get_summary import summarize_subtitles
 
-
 DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "agna.pdf"
-
 EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
 
 
@@ -47,7 +45,7 @@ def get_summary_text_for_embedding(text):
     return f"search_document: {text}"
 
 
-def compute_similarity_for_summaries(purpose, summaries):
+def compute_similarity_for_summaries(purpose, summaries, embedding_model_name):
     purpose = normalize_text(purpose)
     items = []
 
@@ -84,7 +82,7 @@ def compute_similarity_for_summaries(purpose, summaries):
         }
 
     model = SentenceTransformer(
-        EMBEDDING_MODEL,
+        embedding_model_name,
         trust_remote_code=True
     )
 
@@ -125,6 +123,9 @@ def save_similarity_txt(pdf_path, result):
     lines.append(f"Plik: {Path(pdf_path).resolve()}")
     lines.append(f"Wygenerowano: {datetime.now().isoformat()}")
     lines.append("")
+    lines.append("MODEL EMBEDDINGÓW")
+    lines.append(result.get("embedding_model") or "Brak")
+    lines.append("")
     lines.append("ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO")
     lines.append(f"{result.get('average_similarity', 0.0):.6f}")
     lines.append("")
@@ -150,6 +151,7 @@ def save_similarity_txt(pdf_path, result):
 def main():
     pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PDF_PATH
     language = sys.argv[2] if len(sys.argv) > 2 else "pl"
+    embedding_model_name = sys.argv[3] if len(sys.argv) > 3 else EMBEDDING_MODEL
 
     if not pdf_path.exists():
         print(f"Błąd: plik nie istnieje: {pdf_path}")
@@ -157,7 +159,8 @@ def main():
 
     purpose = get_purpose(pdf_path, language)
     summaries = summarize_subtitles(pdf_path, language=language)
-    result = compute_similarity_for_summaries(purpose, summaries)
+    result = compute_similarity_for_summaries(purpose, summaries, embedding_model_name)
+    result["embedding_model"] = embedding_model_name
     output_path = save_similarity_txt(pdf_path, result)
 
     print(f"Wynik zapisano do: {output_path}")
