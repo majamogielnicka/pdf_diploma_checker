@@ -105,3 +105,55 @@ RIGHT_PANEL_STYLE = "background-color: #F8F9FA; border-left: 1px solid #E0E0E0;"
 VERIFY_TITLE_STYLE = "font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; border: none;"
 
 PDF_VIEW_STYLE = "QPdfView { background-color: #F0F0F0; border: none; }"
+
+DIALOG_STYLE = "background-color: white; border-radius: 12px;"
+
+JSON_FRAME_STYLE = """
+    QFrame {
+        border: 1.5px dashed #478CD1;
+        border-radius: 10px;
+        background-color: #F2F7FD;
+    }
+"""
+
+MODE_BTN_STYLE = """
+    QPushButton {
+        border: 1.5px solid #C4C4C4;
+        border-radius: 8px;
+        padding: 25px;
+        background-color: white;
+        font-size: 14px;
+        color: #333;
+    }
+    QPushButton:hover { background-color: #f9f9f9; }
+    QPushButton:checked { 
+        border: 2px solid #2196F3; 
+        background-color: #F2F7FD; 
+    }
+"""
+
+ANALIZA_BTN_STYLE = """
+    QPushButton {
+        background-color: #2196F3;
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    QPushButton:hover { background-color: #1976D2; }
+"""
+
+PROGRESS_BAR_STYLE = """
+    QProgressBar {
+        border: 1,5px solid #C4C4C4;
+        border-radius: 5px;
+        text-align: center;
+        background-color: #f0f0f0;
+        height: 25px;
+    }
+    QProgressBar::chunk {
+        background-color: #2196F3;
+        width: 10px;
+    }
+"""
