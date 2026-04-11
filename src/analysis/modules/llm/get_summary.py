@@ -19,8 +19,8 @@ except Exception:
 
 PDF_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
 #zmien sciezke odpowiednio do miejsca modelu
-#MODEL_PATH = Path(r"C:\Users\Wiktor\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf")
-MODEL_PATH = Path.home() / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
+MODEL_PATH = Path(r"C:\Users\Wiktor\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf")
+#MODEL_PATH = Path.home() / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
 N_CTX = 2048
 
 PROMPT_PL = (
