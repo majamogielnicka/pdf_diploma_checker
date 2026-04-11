@@ -28,7 +28,7 @@ except Exception:
 
 DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "agna.pdf"
 
-EMBEDDING_MODEL = "multilingual_e5_large"
+EMBEDDING_MODEL = "intfloat/multilingual_e5_large"
 
 
 def normalize_text(text):
