@@ -32,7 +32,7 @@ def add_match(items_by_id, num, block_id, category):
                 word_idxs = [word.word_index for word in item.words]
             )
 
-def is_short_definition(text, text_language, proper_names, list_abbreviations):
+def is_short_definition(text, text_language, proper_names, acronyms):
 
     """
     Checks if the text is a short definition.
@@ -41,7 +41,7 @@ def is_short_definition(text, text_language, proper_names, list_abbreviations):
         text (str): Text to check.
         text_language (str): pl for Polish or en for English.
         proper_names (list[str]): List of proper names.
-        list_abbreviations (tuple[str]): Tuple of list abbreviations.
+        acronyms (tuple[str]): Tuple of list abbreviations.
     Returns:
         bool: True if the text is a short definition, False otherwise.
     """
@@ -53,7 +53,7 @@ def is_short_definition(text, text_language, proper_names, list_abbreviations):
         return not has_verb(prefix, text_language)
     return False
 
-def check_coherence_in_list(document, text_language, proper_names, list_abbreviations):
+def check_coherence_in_list(document, text_language, proper_names, acronyms):
     """
     Checks for lack of coherence in a list of items.
     
@@ -83,7 +83,7 @@ def check_coherence_in_list(document, text_language, proper_names, list_abbrevia
                 if item_text[0] in quote_marks:
                     quote_id.append(item.item_id)
                     continue
-                if (re.match(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s', item_text) or is_short_definition(item_text, text_language, proper_names, list_abbreviations)):
+                if (re.match(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s', item_text) or is_short_definition(item_text, text_language, proper_names, acronyms)):
                     definition_id.append(item.item_id)
                     continue
                 if item_text[0].isupper():
@@ -96,7 +96,7 @@ def check_coherence_in_list(document, text_language, proper_names, list_abbrevia
                             is_known = True
                             break
                     if not is_known:
-                        for abbreviation in list_abbreviations:
+                        for abbreviation in acronyms:
                             abbr_text = abbreviation[0] if isinstance(abbreviation, tuple) else abbreviation
                             if re.match(re.escape(abbr_text) + r'\s', item_text):
                                 neutral_id.append(item.item_id)
