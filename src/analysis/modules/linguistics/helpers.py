@@ -1,6 +1,9 @@
 import os
 import dataclasses
 import json
+import morfeusz2
+
+morf = morfeusz2.Morfeusz()
 
 def get_match_info(block, offset, length):
     '''

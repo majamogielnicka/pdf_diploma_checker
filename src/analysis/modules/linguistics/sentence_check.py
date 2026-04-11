@@ -1,9 +1,8 @@
 from .spacy_helpers import nlp_pl, nlp_en
 from spacy.symbols import VERB
-import spacy
 from src.analysis.extraction.schema import *
 from .exeptions_check import check_quotes
-from .helpers import get_match_info
+from .helpers import get_match_info, morf
 from .linguistics_types import Error_type, Analisys_type
 
 def sentence_check(blocks, text_language):
@@ -37,22 +36,26 @@ def sentence_check(blocks, text_language):
             quotes = False  
             for token in sentence:
                 if token.morph.get("Person") and token.morph.get("Person")[0] not in {'3', '0'}:
-                    start_page, end_page, word_idxs = get_match_info(block, token.idx, len(token))
-                    match = Error_type(
-                    content= token.text,
-                    category= "PERSONAL_FORM",
-                    message= f"Użycie {token.morph.get("Person")[0]} formy osobowej.",
-                    offset= token.idx,
-                    error_length= len(token),
-                    block_id = block.block_id,
-                    page_start = start_page,
-                    page_end = end_page,
-                    word_idxs = word_idxs,
-                )
-                    if not check_quotes(match, text):
-                        checked_matches.append(match)
-                    else:
-                        quotes = True
+                    to_add = True
+                    if text_language == 'pl':
+                        to_add = morfeusz_check(token.text)
+                    if to_add:
+                        start_page, end_page, word_idxs = get_match_info(block, token.idx, len(token))
+                        match = Error_type(
+                        content= token.text,
+                        category= "PERSONAL_FORM",
+                        message= f"Użycie {token.morph.get("Person")[0]} formy osobowej.",
+                        offset= token.idx,
+                        error_length= len(token),
+                        block_id = block.block_id,
+                        page_start = start_page,
+                        page_end = end_page,
+                        word_idxs = word_idxs,
+                        )   
+                        if not check_quotes(match, text):
+                            checked_matches.append(match)
+                        else:
+                            quotes = True
                 #for now if even one part of a sentence is passive, whole sentence is marked as passive for clarity of the outcome.
                 if token.dep_ == "aux:pass":
                     passive = True
@@ -78,3 +81,12 @@ def sentence_check(blocks, text_language):
         impersonal_count= impersonal_count
     )
     return checked_matches, analisys
+
+def morfeusz_check(text):
+    personal_tags = {"pri", "sec", "ppron12"}
+    analysis = morf.analyse(text)
+    for interpretation in analysis:
+        tags = set(interpretation[2][2].split(":"))
+        if len(set(personal_tags).intersection(tags)) > 0:
+            return True
+    return False
