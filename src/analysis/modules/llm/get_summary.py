@@ -17,8 +17,10 @@ try:
 except Exception:
     from get_subtitles import extract_subtitles_from_pdf
 
-PDF_PATH = PROJECT_ROOT / "data" / "doro.pdf"
-MODEL_PATH = BASE_DIR / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
+PDF_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
+#zmien sciezke odpowiednio do miejsca modelu
+MODEL_PATH = Path(r"C:\Users\Wiktor\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf")
+N_CTX = 2048
 
 PROMPT_PL = (
     "Na podstawie wyłącznie podanego tekstu napisz jedno zdanie streszczenia po polsku. "
