@@ -2,6 +2,20 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
+"""
+Skrypt stworzony w celu testowania modeli do generowania embeddingow i liczenia cosine similarity
+DLA WSZYSTKICH PRAC Z FOLDERU "DATA" JEDNYM URUCHOMIENIEM
+Szukamy modelu ktory da najwieksza rozbieznosc wynikow i bedzie przykuwal wieksa wage do slow kluczowych
+niz do slow pokroju analiza, badanie itp...
+Szukamy modelu dla ktorego wyznaczymy threshold odbiegania od pracy, by wykluczac sekcje,
+ktore nie sa zgodne z celem pracy
+Skrypt tworzy nowy folder z wynikami z nazwa modelu, ktory byl testowany
+WYNIKI: 
+-nomic-ai - bardzo mała rozbieznosc, wyniki zazwyczaj 0.6 - ciezko znalezc threshold
+-intfloat/multilingual-e5-large - wyniki zazwyczaj 0,8. nie testowany na mock data, 
+niewyznaczony threshold
+"""
+
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -25,7 +39,7 @@ def model_tag(model_name):
     return tag
 
 
-OUTPUT_DIR = BASE_DIR / "analysis" / "modules" /"llm" / "wyniki" / model_tag(EMBEDDING_MODEL)
+OUTPUT_DIR = BASE_DIR /"wyniki"/ model_tag(EMBEDDING_MODEL)
 
 try:
     from analysis.modules.llm.get_purpose import get_purpose

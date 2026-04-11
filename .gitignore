@@ -8,3 +8,4 @@ env/
 /images
 .vscode
 src/llm/wyniki/
+src/analysis/modules/llm/models/gemma3
