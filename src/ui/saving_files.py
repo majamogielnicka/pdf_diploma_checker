@@ -2,7 +2,7 @@ import json
 import os
 
 class saving_files:
-    def __init__(self, index_path="storage/index.json"):
+    def __init__(self, index_path="config/index.json"):
         self.index_path = index_path
         self.data = self._load_index()
 
