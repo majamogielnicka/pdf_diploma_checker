@@ -29,10 +29,10 @@ class HeadingInfo: # Informacje o nagłówkach (TODO)
 @dataclass
 class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być paragrafami, nagłówkami lub listami
     block_id: Union[int, str]
-    type: str = "paragraph"
     content: str = ""
-    words: List[WordInfo] = field(default_factory=list)
     headings: List[HeadingInfo] = field(default_factory=list)
+    type: str = "paragraph"
+    words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
 class ListItem:
@@ -46,10 +46,10 @@ class ListItem:
 class ListBlock:
     block_id: Union[int, str]
     content: str
-    words: List[WordInfo]
-    items: List[ListItem]
     bbox: List[float]
     type: str = "list"
+    items: List[ListItem] = field(default_factory=list)
+    words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
 class PageArtifact: # Informacje o elementach pływających, takich jak numery stron, nagłówki/stopki, itp.
