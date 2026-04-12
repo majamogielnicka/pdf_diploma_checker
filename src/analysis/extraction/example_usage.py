@@ -18,8 +18,8 @@ output_path = PROJECT_ROOT / "src" / "output.json"
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
 # Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
 debug_mode = 1
-debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
-debug_path = str(PROJECT_ROOT / "src" / "redaction" / "redaction_debug" / "{debug_type}_example.pdf")
+debug_type = "blankpages" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
+debug_path = str(PROJECT_ROOT / "src" / "analysis" / "extraction" / "redaction_debug" / "{debug_type}_example.pdf")
 
 
 #test:
