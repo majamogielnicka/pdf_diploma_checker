@@ -144,10 +144,10 @@ class FinalDocument: # Ostateczna struktura dokumentu
 
 # Słownik wzorców dla list
 LIST_PATTERNS = {
-    "number_with_dot": r"^\d+(\.\d+)*\.",
-    "number_with_bracket": r"^\d+\)",
-    "letter_with_dot": r"^[a-z]\.",
-    "letter_with_bracket": r"^[a-z]\)",
+    "number_with_dot": r"^\d+(\.\d+)*\.\s",
+    "number_with_bracket": r"^\d+\)\s?",
+    "letter_with_dot": r"^[a-z]\.\s",
+    "letter_with_bracket": r"^[a-z]\)\s?",
     "bullet": r"^[••●○■]",
     "dash": r"^[-\u2013\u2014]"
 }
