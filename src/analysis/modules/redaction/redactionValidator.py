@@ -6,10 +6,34 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 '''
 
 from bare_struct import DocumentData
+from errorStruct import RedactionError, Module
 
 class RedactionValidator:
     def __init__(self, document_data: DocumentData):
         self.document_data = document_data
+        self.id_counter = 0
+
+    def _get_next_id(self):
+        id = f"ERR_RED_{self.id_counter}"
+        self.id_counter += 1
+        self.module = Module.REDACTION
+        return id
+
+    def validate(self):
+        errors = []
+        orphans = self.check_orphans()
+        for orphan in orphans:
+            error = RedactionError(
+                id=self._get_next_id(),
+                module=self.module,
+                category="orphan",
+                page_nr=orphan.page_nr,
+                bounding_box=orphan.bounding_box,
+                text=orphan.text,
+                comments="Orphan character detected. Consider checking the redaction quality."
+            )
+            errors.append(error)
+        return errors
 
     def check_orphans(self):
         orphans = []
