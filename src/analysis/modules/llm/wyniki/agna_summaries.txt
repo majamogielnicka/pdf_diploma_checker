@@ -1,0 +1,61 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\agna.pdf
+Wygenerowano: 2026-04-05T20:02:00.088965
+
+NAZWA PRACY
+agna
+
+STRESZCZENIA NAGŁÓWKÓW
+
+1.1 Teoria grup
+SUMMARY:
+Fragment pracy definiuje i bada działania grup na zbiorach, w tym operacje sprzężoności, orbit, stabilizatorów i centralizatorów, a także bada relacje między ich wielkościami w grupach skończonych, przygotowując grunt pod analizę klas sprzężoności w grupie GL(3, 2).
+
+--------------------------------------------------------------------------------
+
+1.2 Teoria reprezentacji
+SUMMARY:
+Fragment pracy definiuje reprezentacje grup liniowych w przestrzeniach liniowych, podkreślając ich izomorfizm z grupami liniowymi macierzy, a także wprowadza pojęcia niezmienniczości podprzestrzeni, równoważności reprezentacji i reprezentacji unitarnych, wskazując, że każda skończona reprezentacja grupy jest równoważna z reprezentacją
+
+--------------------------------------------------------------------------------
+
+1.3 Charaktery
+SUMMARY:
+Fragment pracy definiuje i bada charakter reprezentacji grupy, w tym nieprzywiedlnych charakterów, ich iloczyn skalarny, funkcje centralne oraz pokazuje, że zbiór nieprzywiedlnych charakterów tworzy bazę ortonormalną przestrzeni funkcji centralnych grupy.
+
+--------------------------------------------------------------------------------
+
+1.4 Reprezentacja indukowana
+SUMMARY:
+Fragment pracy definiuje reprezentację indukowaną grupy Γ podgrupy G, opisuje przestrzeń liniową Vσ generowaną przez funkcje spełniające określone warunki, oraz wprowadza pojęcie algebry grupowej L(G) zdefiniowanej jako zbiór funkcji z operacjami dodawania, mnożenia przez skalar i iloczynu skal
+
+--------------------------------------------------------------------------------
+
+3.1 Grupy abelowe
+SUMMARY:
+Fragment pracy bada transformatę Fouriera na skończonych grupach abelowych, definiując ją i udowadniając jej właściwości, takie jak inwersja oraz pokazując, że odwzorowanie transformaty Fouriera jest liniowym izomorfizmem pierścieni, co prowadzi do izomorfizmu między pierścieniami funkcji na grupie i na
+
+--------------------------------------------------------------------------------
+
+3.2 Grupy nieabelowe
+SUMMARY:
+Fragment pracy opisuje transformatę Fouriera funkcji f w reprezentacji grupy G, definiując macierz b f (ρ) jako blokowo-diagonalną sumę macierzy transformacji Fouriera dla nieprzywiedlnych podreprezentacji grupy, a także przedstawia odwzorowanie T, które jest bijekcją między przestrzenią funkcji i przestrzen
+
+--------------------------------------------------------------------------------
+
+4.1 Izospektralność grafów
+SUMMARY:
+Fragment pracy definiuje graf skierowany, macierz sąsiedztwa, przestrzeń liniową funkcji odwzorowujących wierzchołki grafu w ciało, oraz warunki izomorfizmu grafów, a także wprowadza pojęcie spektrum macierzy.
+
+--------------------------------------------------------------------------------
+
+4.2 Grafy Schreiera
+SUMMARY:
+Fragment pracy opisuje graf Schreiera, który jest narzędziem do badania struktur grup skończonych, definiując go jako graf wierzchołków reprezentujących warstwy prawostronne podgrup, oraz krawędzi łączących te warstwy z generatorami grupy, a także operacji elementów grupy.  Praca zawiera również przykład grupy GL(3,2)
+
+--------------------------------------------------------------------------------
+
+4.3 Podgrupy prawie sprzężone
+SUMMARY:
+Fragment pracy dotyczy konstrukcji i właściwości transformaty Fouriera dla reprezentacji grupy G przez podgrupę Γ, wykorzystując zbiór transwersalny Y do obliczenia wartości transformaty, co prowadzi do równania reprezentującego sumę krotek nieprzywiedłych reprezentacji, a także do twierdzenia o izospektralności grafów Schre
+
+--------------------------------------------------------------------------------

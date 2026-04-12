@@ -1,0 +1,217 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\kana.pdf
+Wygenerowano: 2026-04-05T16:02:04.127125
+
+NAZWA PRACY
+kana
+
+STRESZCZENIA NAGŁÓWKÓW
+
+1.1 Context of the study
+SUMMARY:
+Progressive Web Applications (PWAs) have rapidly gained popularity and demonstrated significant benefits – including increased user engagement, conversions, and reduced data usage – for both large corporations and startups seeking efficient and cost-effective web development.
+
+--------------------------------------------------------------------------------
+
+1.2 Goals of the Study
+SUMMARY:
+This study evaluates the effectiveness of Blazor for building progressive web applications by comparing its capabilities and advantages against a JavaScript-based alternative like Vue.js, specifically addressing whether Blazor can meet PWA requirements.
+
+--------------------------------------------------------------------------------
+
+1.3 Outline of the thesis
+SUMMARY:
+This thesis compares Blazor to popular JavaScript frameworks like Angular and Vue.js, finding it moderately challenging to learn, larger in size, and generally performing worse than Angular across various benchmarks, though acknowledging potential future improvements.
+
+--------------------------------------------------------------------------------
+
+3.1 Core technologies
+SUMMARY:
+A true progressive web application relies on three core technologies – service workers, manifest files, and HTTPS – to deliver a seamless and engaging user experience.
+
+--------------------------------------------------------------------------------
+
+3.2 Web Application Manifest
+SUMMARY:
+A Web Application Manifest is a JSON file that provides essential metadata to web browsers, enabling users to install web applications on their devices by defining their appearance and behavior.
+
+--------------------------------------------------------------------------------
+
+3.3 Service Workers
+SUMMARY:
+Service workers are JavaScript-based, event-driven background tasks that enable Progressive Web Apps (PWAs) to provide offline functionality and enhanced user experiences by intercepting and managing network requests and caching resources.
+
+--------------------------------------------------------------------------------
+
+3.3.1 Lifecycle of service workers
+SUMMARY:
+Successfully implementing service workers in PWAs requires understanding their lifecycle – from registration and silent installation to activation and subsequent operation – to ensure efficient and reliable offline functionality.
+
+--------------------------------------------------------------------------------
+
+3.3.2 Caching and offline functionality
+SUMMARY:
+Progressive Web App (PWA) development utilizes service workers to strategically cache essential assets – including HTML, CSS, images, and offline pages – to ensure fast loading times, reliable performance, and a functional experience, even without an internet connection.
+
+--------------------------------------------------------------------------------
+
+3.3.3 Push notifications
+SUMMARY:
+Service workers in PWAs utilize the Push API and Notifications API to deliver asynchronous, persistent notifications to users, enhancing engagement and content delivery regardless of the application’s state.
+
+--------------------------------------------------------------------------------
+
+3.3.4 Background sync
+SUMMARY:
+Background Sync, a key feature of Progressive Web Apps (PWAs), allows for seamless offline functionality by automatically resuming tasks like sending messages after network connectivity is restored, ensuring a consistent user experience even in unstable internet conditions.
+
+--------------------------------------------------------------------------------
+
+4.1 WebAssembly
+SUMMARY:
+WebAssembly offers a significant performance advantage over JavaScript for web applications by acting as a compilation target for other languages, resulting in faster loading, execution, and broader compatibility across various devices and platforms while maintaining a secure environment.
+
+--------------------------------------------------------------------------------
+
+4.2 Blazor WebAssembly
+SUMMARY:
+The Blazor WebAssembly application’s execution in a browser begins with a server-initiated page load and culminates in the initialization of a .NET runtime within WebAssembly, facilitated by the `blazor.webassembly.js` script which handles resource loading, DOM updates, and JavaScript interoperability due to WebAssembly’s limitations.
+
+--------------------------------------------------------------------------------
+
+4.2.1 Project Startup
+SUMMARY:
+The Blazor WebAssembly application startup involves the browser initially loading a static HTML page, followed by the execution of a JavaScript file that downloads and initializes a WebAssembly .NET runtime containing the necessary .NET assemblies and the dotnet.wasm binary, ultimately enabling the application to run entirely within the browser.
+
+--------------------------------------------------------------------------------
+
+4.2.2 User interface updates
+SUMMARY:
+Blazor’s `blazor.webassembly.js` script is essential for handling UI updates and JavaScript interoperability due to WebAssembly’s limitations, utilizing an incremental DOM approach to efficiently update the user interface.
+
+--------------------------------------------------------------------------------
+
+5.1 Overview
+SUMMARY:
+This text examines how Blazor differs from Vue.js, a popular JavaScript framework, by analyzing their development approaches, performance, and capabilities within the context of Progressive Web Applications, highlighting Vue.js’s component structure, reactivity system, and support for TypeScript.
+
+--------------------------------------------------------------------------------
+
+5.2 Rendering mechanism
+SUMMARY:
+Vue.js optimizes UI updates by employing a virtual DOM to efficiently identify and apply only the necessary changes to the real DOM, minimizing direct manipulation and maximizing performance.
+
+--------------------------------------------------------------------------------
+
+5.3 Build tools
+SUMMARY:
+Vue.js utilizes Vite as its build tool to provide a significantly faster and more efficient development experience through optimized module handling, enhanced hot module replacement, and strategic production bundling techniques.
+
+--------------------------------------------------------------------------------
+
+6.1 PWA Features
+SUMMARY:
+The DartPointTracker PWA was developed to demonstrate and evaluate the effectiveness of a specific PWA development process.
+
+--------------------------------------------------------------------------------
+
+6.2 Responsive design
+SUMMARY:
+The application utilizes a responsive Blazor PWA template to dynamically adjust its layout – transitioning between a two-column design with a fixed sidebar and navigation bar on larger screens and a single-column design with a collapsible sidebar on smaller screens – to ensure optimal viewing across various devices.
+
+--------------------------------------------------------------------------------
+
+6.3 Project Setup
+SUMMARY:
+Creating a Blazor WebAssembly project with PWA support is streamlined through the .NET CLI or Visual Studio, automatically scaffolding essential PWA components, while Vue projects require more manual configuration using Node.js and npm.
+
+--------------------------------------------------------------------------------
+
+6.4 Manifest
+SUMMARY:
+Both the Vue+Vite and Blazor applications utilize a standard .webmanifest file containing essential metadata like name, display settings, icons, and screenshots to enable browser-based app installation, with the Vue+Vite application automating manifest generation through its configuration file.
+
+--------------------------------------------------------------------------------
+
+6.5 Service Worker
+SUMMARY:
+The text argues that Vue.js benefits from a streamlined approach to implementing service workers and offline capabilities through the DartPointTracker’s pre-configured Workbox plugin, while Blazor requires more manual setup due to its reliance on C# and .NET, opting for a CDN solution to achieve similar functionality.
+
+--------------------------------------------------------------------------------
+
+6.5.1 Workbox integration
+SUMMARY:
+The text argues that Vue.js benefits from a streamlined approach to implementing service workers and offline capabilities through the Workbox PWA plugin, while Blazor requires more manual setup due to its reliance on C# and .NET, ultimately leading to the use of a CDN for Blazor’s offline functionality.
+
+--------------------------------------------------------------------------------
+
+6.5.2 Service worker implementation
+SUMMARY:
+Despite using similar service worker functionalities, the Blazor and Vue applications differ in their implementation due to Blazor’s reliance on a CDN and explicit module paths versus Vue’s bundled imports, both employing core features like immediate updates, asset precaching, background synchronization, and runtime API caching.
+
+--------------------------------------------------------------------------------
+
+6.6 Hosting
+SUMMARY:
+This study compares the performance, user experience, and development process of Blazor and Vue.js for Progressive Web Application development by deploying and analyzing two versions of the DartPointTracker application on Firebase, focusing on key aspects like performance, code complexity, and ease of implementation.
+
+--------------------------------------------------------------------------------
+
+7.1 Lighthouse performance test
+SUMMARY:
+This study utilized Google Lighthouse to assess the initial loading performance of two Progressive Web Applications (Blazor WebAssembly and Vue.js) and revealed notable disparities in key metrics like First Contentful Paint, Largest Contentful Paint, Total Blocking Time, and Speed Index across different testing scenarios.
+
+--------------------------------------------------------------------------------
+
+7.2 Application Size
+SUMMARY:
+This study compares the caching efficiency of Blazor WebAssembly and Vue.js PWAs, revealing that Blazor’s larger size and reliance on the .NET runtime result in a significantly larger cached asset footprint compared to Vue.js’s leaner design and optimized codebase.
+
+--------------------------------------------------------------------------------
+
+7.3 Rendering performance
+SUMMARY:
+This study compared the rendering performance of Blazor and Vue for a ranking page, finding that Vue consistently outperformed Blazor, particularly in API request handling and UI diffing, with performance decreasing for Blazor as the number of players increased due to overhead from its WebAssembly implementation.
+
+--------------------------------------------------------------------------------
+
+7.4 Volume of code
+SUMMARY:
+This research compared Blazor and Vue frameworks for PWA development by analyzing lines of code across application layers, revealing that Vue’s infrastructure code tended to be more verbose due to its reliance on dependency injection for API requests, while HTML sections showed comparable conciseness.
+
+--------------------------------------------------------------------------------
+
+7.4.1 Presentation Layer
+SUMMARY:
+This research compared the code conciseness of Blazor and Vue frameworks for PWA implementation by analyzing Lines of Code across various components, revealing minor differences primarily in HTML syntax due to variations in templating approaches.
+
+--------------------------------------------------------------------------------
+
+7.4.2 Infrastructure Layer
+SUMMARY:
+Blazor’s infrastructure code for the PlayerService is more concise and efficient than Vue’s due to its use of dependency injection and automated handling of API requests, particularly in the GetPlayers method, which requires significantly less manual configuration and error handling.
+
+--------------------------------------------------------------------------------
+
+7.4.3 Domain Layer
+SUMMARY:
+A detailed analysis of the core domain classes (Player, Game, and GameService) in both Blazor and Vue implementations revealed that the Blazor version required less code and had a comparable character density, suggesting a significantly higher overall code volume in the TypeScript implementation.
+
+--------------------------------------------------------------------------------
+
+7.4.4 Application Startup
+SUMMARY:
+A comparative analysis of Blazor and Vue application startup code reveals that Blazor’s `Program.cs` file contains significantly more lines of code due to its broader initialization responsibilities, including host configuration and dependency injection, compared to Vue’s `main.ts` file, which primarily focuses on bootstrapping the Vue application instance.
+
+--------------------------------------------------------------------------------
+
+7.4.5 Overall Code Volume Analysis
+SUMMARY:
+Overall, Blazor consistently requires less code than Vue across various application layers when developing a PWA, primarily due to the advantages of using C# and its streamlined dependency injection, although Vue has a slight edge in application startup.
+
+--------------------------------------------------------------------------------
+
+7.5 Development server startup time
+SUMMARY:
+This study compared the startup times of Blazor and Vue development servers using a custom Bash script, revealing that Vue consistently starts significantly faster – averaging 2.08 seconds – due to its Vite build tool’s efficient, on-demand compilation approach, contrasting with Blazor’s more complex .NET runtime initialization.
+
+--------------------------------------------------------------------------------

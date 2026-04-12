@@ -1,7 +1,7 @@
 import re
-from src.linguistics.linguistics_types import Error_type
-from src.redaction.schema import ParagraphBlock, ListBlock
-from src.linguistics.helpers import get_match_info
+from .linguistics_types import Error_type
+from src.analysis.extraction.schema import ParagraphBlock, ListBlock
+from .helpers import get_match_info
 
 def dash_check(text_language, blocks):
     """

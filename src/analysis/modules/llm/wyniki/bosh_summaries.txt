@@ -1,0 +1,183 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\bosh.pdf
+Wygenerowano: 2026-04-05T10:41:32.511843
+
+STRESZCZENIA NAGŁÓWKÓW
+
+1.1 Inżynieria tkankowa i medycyna regeneracyjna
+SUMMARY:
+Inżynieria tkankowa łącząc fizykę, chemię, nauki biologiczne i kliniczne oraz inżynierię ukierunkowaną na terapeutyczne problemy takie jak utrata tkanek czy niewydolność narządów opiera się na trzech elementach: komórkach, rusztowaniach materiałowych i sygnałach kierujących tworzących mikrośrodowisko regeneracji zasada ta jest podstawą inżynierii tkankowej a jej grup biomateriałów obejmują hydrożyle platformy organ on chip konstrukcje 3D drukowane i bioprintowane wymagają biozgodności bezpieczeństwa immunologicznego kontrolowanej biodegradacji właściwości mechaniczne porowatość dostosowane do tkanki docelowej a sygna
+
+--------------------------------------------------------------------------------
+
+1.2 Biomateriały definicja i zastosowania
+SUMMARY:
+Jakość codziennego funkcjonowania pacjentów ulega stałej poprawie dzięki wprowadzaniu nowoczesnych materiałów otwierających nowe perspektywy w diagnostyce i terapii związanym z biomateriałami.
+
+--------------------------------------------------------------------------------
+
+1.3 . Biomateriały ceramiczne
+SUMMARY:
+Bioceramika, wywodząc się z tradycyjnych ceramicznych materiałów, teraz主要用于医疗应用，特别是用于替代或辅助受损骨骼结构的再生。它包括磷酸三钙、羟基磷灰石和生物活性玻璃等材料，这些材料因其高硬度、抗磨损性及良好的生物相容性而被广泛使用；然而它们的脆性和低拉伸强度是主要限制因素。根据化学性质和与活体组织相互作用的方式，生物陶瓷可分为生物惰性、生物活性和可吸收三类。生物惰性陶瓷如氧化铝和氧化锆具有高硬度和抗磨损性，适用于假体表面抛光；而生物活性陶瓷如羟基磷灰石在接触生理液体时会形成类似骨结构的磷酸钙层，促进细胞附着、骨传导和新骨生成；可吸收陶瓷如β-三磷酸钙则通过可控降解逐渐被患者自身
+
+--------------------------------------------------------------------------------
+
+1.3.1 Właściwości i klasyfikacja biomateriałów ceramicznych
+SUMMARY:
+Bioceramika klasyfikuje się według właściwości chemicznych i reakcji z żywą tkanką podzielona na trzy grupy: bioinertną charakteryzną przez chemiczną stabilność i wysoką twardość, bioaktywną tworzącą fosforanową warstwę pod wpływem jonowej wymiany prowadzącą do adhezji komórek i osteokondukcji oraz resorbowalną ulegającą kontrolowanej degradacji in vivo poprzez rozpuszczanie i mechanizmy komórkowe umożliwiającą zastępowanie przez regenerującą się tkankę pacjenta.
+
+--------------------------------------------------------------------------------
+
+1.3.2 Hydroksyapatyt
+SUMMARY:
+Hydroksyapatyt syntetyczny to biały materiał o gęstości 3,08-3 i twardości około 5 w skali Mohsa, który może przyjmować różne barwy ze względu na domieszki jonowe i ma wysoką bioaktywność, umożliwiającą regulację rozpuszczalności poprzez zastępowanie jonów hydroksylowych fluorkami, chlorkami lub węglanowymi.
+
+--------------------------------------------------------------------------------
+
+1.3.3 Bioaktywne szkła
+SUMMARY:
+Szkła bioaktywne, opracowane w 1969 roku, stanowią klasę reaktywnych materiałów zdolnych do trwałego wiązania z uwapnioną tkanką kostną, szeroko stosowane w biomedycynie, intensywnie badane w kontekście inżynierii tkankowej i medycyny regeneracyjnej, umożliwiające projektowanie kompozycji o zróżnicowanych właściwościach użytkowych poprzez zmianę proporcji tlenków krzemu 2 i modyfikatorów sieci, oferująca znacznie szersze spektrum działania biologicznego w porównaniu do syntetycznego hydroksyapatetu, stymulująca osteogenezę, angiogenezę oraz procesy naprawcze dzięki precyzyj
+
+--------------------------------------------------------------------------------
+
+1.4 Mechanizm bioaktywności bioszkieł
+SUMMARY:
+Po kontakcie bioszkła z płynem ustrojowym lub roztworem SBF na jego powierzchni zachodzi szereg reakcji fizykochemicznych prowadzących do powstania warstwy apatytowej, obejmujących wymianę jonową, hydrolizę sieci krzemianowej i kondensację silanoli, a koncowo krystalizację hydroksyapatytu, sprzyjającą integracji z tkanką kostną.
+
+--------------------------------------------------------------------------------
+
+1.5 Struktura szkieł boranowo-krzemianowych
+SUMMARY:
+Proces rozpuszczania bioszkieł zależny jest od ich struktury krzemianowej i stopnia usieciowania matrycy, nawet niewielkie zmiany składu i konfiguracji sieci tlenkowej mogą znacząco modyfikować kinetykę degradacji i bioaktywność materiału. Tlenki budujące sieć tworzą podstawową trójwymiarową więźbę szkła, a tlenki modyfikujące jej strukturę usztywniają lub poluźniają ją w zależności od stężenia. Tlenek boru 2 O 3 jest silnym tlenkiem szkłotwórczym, łatwy do zeszklenia przy powolnym chłodzeniu, a jego krystalizacja wymaga ciśnienia. Str
+
+--------------------------------------------------------------------------------
+
+1.6 Tantal jako modyfikator biomateriałów
+SUMMARY:
+Tantal to metal przejściowy z grupy geochemicznej Z = 73 blisko spokrewniony z niobem charakteryzujący się wysoką gęstością, plastycznością i temperaturą topnienia oraz wyjątkową odpornością korozyjną wynikającą z pasywacji powierzchni poprzez tworzenie warstwy 2 O 5 sprawiającej biokompatybilność i bioobojętność w biomateriałach a także jako modyfikator w bioszkle wpływający na jego degradację i widoczność kliniczną.
+
+--------------------------------------------------------------------------------
+
+1.7 Nanokompozyty szklane
+SUMMARY:
+Nanokompozyty szklane to szkło-ceramik z drobno rozproszoną fazą drugiego materiału nanometrycznego, w których kontrola krystalizacji realizowana jest za pomocą agencji krystalizacyjnych. Sterowanie parametrami obróbki cieplnej pozwala na regulację struktury i właściwości tych materiałów. Nanofaza może być amorficzna lub krystaliczna, ale w obu przypadkach obszar granicy faz jest znacznie większy niż w kompozytach klasycznych, co wpływa na ich właściwości. Nanokompozyty szklane modyfikowane tantalem przeznaczone są do regeneracji tkanek miękkich, synteza i charakterystyka tych materiałów obejmują badania
+
+--------------------------------------------------------------------------------
+
+3.1 Materiały
+SUMMARY:
+Skład chemiczny materiału opierał się na szkle boranowo-krzemianowym z domieszką tlenku tantalu(V) w proporcjach 0,1; 0,4; 0,7 i 1% mol, przygotowane cztery próbki do porównania właściwości, obliczenia stechiometryczne oparte na docelowej masie 20 g, odczynniki w postaci proszków z zestawionymi informacjami o czystości i producencie, a reakcje przemian termicznych prekursorów uwzględnione w składzie próbek.
+
+--------------------------------------------------------------------------------
+
+3.2 Synteza nanokompozytów metodą topienia i szybkiego chłodzenia
+SUMMARY:
+Syntezę przeprowadzono w identyczny sposób dla czterech próbek odczynniki odwanionych na wadze laboratoryjnej umieszczonych w moździerzu i mieszanych tłuczkiem przez 20–25 min aż do uzyskania jednorodnego proszek przesypanego do tygla ceramicznego wykonanego z 99,9% 2 O 3 po czym osuszono próbki rozdrobnione do postaci proszków i poddane serii badań.
+
+--------------------------------------------------------------------------------
+
+3.3 Charakterystyka fizykochemiczna
+SUMMARY:
+Charakterystyka fizykochemiczna stanowi podstawowy etap badań materiałów, obejmując identyfikację faz i mikrostruktury, analizę właściwości powierzchniowych, parametrów termicznych i przetwórczych, cech mechanicznych, transportowych oraz odporności chemicznej. Badania te pozwalają na określenie potencjalnych zastosowań materiału oraz porównanie jego wariantów, łącząc informacje o składzie i strukturze z wynikami pomiarów właściwości. Analiza otrzymanego materiału umożliwia kształtowanie jego cech poprzez dobór domieszek i modyfikację procesu wytwarzania oraz weryfikację założeń projektowych, obejmując stan wyjściowy materiału i jego zachowanie w otoczen
+
+--------------------------------------------------------------------------------
+
+3.3.1 Dyfraktometria rentgenowska
+SUMMARY:
+Dyfrakcja rentgenowska (XRD) to metoda badania struktury faz krystalicznych opiera się na zdolności kryształów do uginania promieniowania X w charakterystyczny sposób, pozwala wyznaczyć parametry sieciowe, grupę przestrzenną, skład chemiczny, mikronaprężenia oraz realizować analizę fazową i jakościową na podstawie położenia refleksów dyfrakcyjnych oraz intensywności refleksów. Zjawisko wynika z elastycznego rozpraszania promieniowania X na periodycznie ułożonych płaszczyznach atomowych w krysztale, warunek wystąpienia maksimum opisany jest przez równanie Bragga, które mówi o całkowitej wielokrotności
+
+--------------------------------------------------------------------------------
+
+3.3.2 Skaningowa Mikroskopia Elektronowa
+SUMMARY:
+Technika skaningowej mikroskopii elektronowej (SEM) polega na obrazowaniu powierzchni próbki za pomocą wąskiej, wysokoenergetycznej wiązki elektronów skanującej jej powierzchnię w próżni, prowadzącym do emisji sygnałów takich jak elektrony wtórne i wstecznie rozproszone, zbierane przez detektory i przekształcone w obraz o dużej głębi ostrości i nanometrycznej rozdzielczości pozwalający na analizę morfologii, topografii oraz składu pierwiastkowego badanych materiałów.
+
+--------------------------------------------------------------------------------
+
+3.3.3 Spektroskopia w podczerwieni
+SUMMARY:
+Przedstawiono przekształcenie sygnału w_FTIR pozwalającego na identyfikację grup funkcyjnych, ocenę zmian strukturalnych, reakcji chemicznych i stopnia degradacji materiału oraz opisano procedurę pomiaru z wykorzystaniem tabletki z czystego bromku potasu jako tła, miksowania próbki z KBr w proporcji 1:100 wagowo, sparsowania do pastylek i analizy na spektrometrze FTIR firmy PerkinElmer z normalizacją widma względem najbardziej intensywnego pasa absorpcyjnego.
+
+--------------------------------------------------------------------------------
+
+3.3.4 In vitro rozpuszczalność w PBS
+SUMMARY:
+Badanie rozpuszczalności in vitro przeprowadzone w buforze fosforanowym PBS przygotowanym poprzez rozpuszczenie jednej tabletki PBS (Fisher Bioreagents) w 200 ml wody demineralizowanej obejmowało odważenie około 100 mg sproszkowanego szkła, zalewanie go 20 ml roztworu PBS i inkubację w Labnet 311DS na 36,6 °C z wytrząsaniem co 24 godziny. Pomiary pH wykonano trzykrotnie, a po 5 i 10 dniach inkubacji próby płukano wodą dejonizowaną i suszone przez dwa dni w temperaturze 36,6 °C. Otrzymane próbki oznac
+
+--------------------------------------------------------------------------------
+
+4.1 Charakterystyka próbek po wytopie
+SUMMARY:
+Podsumowując wyniki badań:
+
+1. **Struktura Amorficzna:**
+   - Wszystkie próby zawierają dominującą fazę amorficzną, co jest widoczne z szerokich, rozmytych maksimum tła na dyfraktogramach.
+   - Znane są jednak wyraźne refleksy dyfrakcyjne, wskazujące na obecność fazy krystalicznej.
+
+2. **Krystalizacja:**
+   - Najsilniejsze refleksy zauważono w próbie 01Ta.
+   - Zwiększanie zawartości 2 O₅ ma pewien wpływ na stopień krystalizacji, ale jest to niewielkie zmiany.
+
+3. **Spektroskopia FTIR:**
+   - Widma FTIR pokazują szerokie pasma w zakresie
+
+--------------------------------------------------------------------------------
+
+4.2 Badania rozpuszczalności in vitro
+SUMMARY:
+Zmiany pH roztworu PBS w czasie zanurzenia nanokompozytów przedstawione na rysunku 4.2.1 pokazują początkowy wzrost pH do wartości 8,2 dla próbki 1Ta, następnie stabilizację w zakresie 8,6–8,9 zależnie od składu, z obniżeniem po piątej dobie i stopniowym powtórznym wzrostem. Mechanizm zmian pH związany jest z wymianą jonową i hydrolizą wiązań w sieci krzemianowej prowadzącą do formowania hydroksyapatytu, przy czym tlenek boru ulega szybszej rozpuszczalności niż tlenek glinu.
+
+--------------------------------------------------------------------------------
+
+4.2.1 Zmiana pH
+SUMMARY:
+Zmiany pH roztworu PBS w czasie zanurzenia nanokompozytów przedstawione na rysunku 4.2.1 pokazują początkowy wzrost pH do wartości 8,2 dla próbki 1Ta, następnie stabilizację w zakresie 8,6–8,9 zależnie od składu, z obniżeniem po piątej dobie i stopniowym powtórznym wzrostem. Mechanizm zmian pH związany jest z wymianą jonową i hydrolizą wiązań w sieci krzemianowej prowadzącą do formowania się hydroksyapatytu, przy czym tlenek boru ulega szybszej rozpuszczalności niż tlenek glinu.
+
+--------------------------------------------------------------------------------
+
+4.3 Badania po rozpuszczalności in vitro
+SUMMARY:
+The provided text appears to be a reference list or bibliography for a scientific paper on the properties and applications of bioactive glasses, particularly those containing tantalum and aluminum. Here's a summary of key points based on the references:
+
+### Key References:
+1. **Tantalum-Doped Bioactive Glasses:**
+   - **Reference 53:** Studies the effect of tantalum doping on the structural and mechanical properties of aluminate glasses.
+   - **Reference 52:** Investigates the compositional dependence of bioactivity in glasses from the system \(2O-K_2O-MgO-CaO-B_2O_3-P_2O_5-SiO_2\).
+
+2. **Aluminum Effects:**
+   - **Reference 54:** Examines the effect of aluminum on the chemical durability of alumino-borosilicate glasses.
+   - **Reference 57:** Analyzes how alumina incorporation affects the surface mineralization and degradation of
+
+--------------------------------------------------------------------------------
+
+4.3.1 SEM
+SUMMARY:
+Mikrografie przedstawiające powierzchnie próbki po 5 i 10 dniach zanurzenia w roztworze PBS wykazują formowanie się nowej iglastej warstwy charakterystycznej dla krystalitów hydroksyapatytu, choć spękania efektem suszenia są widoczne niezależnie od składu materiału.
+
+--------------------------------------------------------------------------------
+
+4.3.2 XRD
+SUMMARY:
+W celu uzupełnienia analizy morfologii powierzchni próbki po badaniach rozpuszczalności in vitro poddano je ponownie pomiarom dyfrakcji rentgenowskiej a wyniki przedstawiono na rysunku 4.3.2. Aby ułatwić analizę zmian zaszłych w próbkach one zostały odpowiednio określone jako 0D i odróżnione od tych po testach in vitro w roztworze PBS równych 0, 5 i 10 dni. Poszczególne wykresy odpowiadają kompozycjom 01Ta, 04Ta, 07Ta i 1Ta refleksy oznaczone czarnym kółkiem przypisano fazie sodowo-wapniowego ortof
+
+--------------------------------------------------------------------------------
+
+4.3.3 FTIR
+SUMMARY:
+Widma FTIR próbek 01Ta, 04Ta, 07Ta i 1Ta po kontakcie z PBS równych 0, 5 i 10 dni ukazują zmiany relatywnej związane z rozpuszczalnością, w tym przesunięcie dominującego pasa w okolicy 1027 -1 w kierunku wyższych częstotliwości oraz zmniejszenie intensywności pasm boranowych, podczas gdy pojawia się słabe pasmo charakterystyczne dla jonów 3 2-. Zmiany te dotyczą również pasm związanych z wodą i grupami hydroksylowymi, co sugeruje powstawanie uwodnionej warstwy reakcyjnej. Zawartość tlenku tantalu oraz tlenku glinu nie wpływa na
+
+--------------------------------------------------------------------------------
+
+4.3.4 EDX
+SUMMARY:
+The provided text appears to be a reference list or bibliography for a scientific paper on the properties and applications of bioactive glasses, particularly those containing tantalum and aluminum. Here's a summary of key points based on the references:
+
+### Key References:
+1. **Tantalum-Doped Bioactive Glasses:**
+   - **Reference 53:** Studies the effect of tantalum doping on the structural and mechanical properties of aluminate glasses.
+   - **Reference 52:** Investigates the compositional dependence of bioactivity in glasses from the system \(2O-K_2O-MgO-CaO-B_2O_3-P_2O_5-SiO_2\).
+
+2. **Aluminum Effects:**
+   - **Reference 54:** Examines the effect of aluminum on the chemical durability of alumino-borosilicate glasses.
+   - **Reference 57:** Analyzes how alumina incorporation affects the surface mineralization and degradation of
+
+--------------------------------------------------------------------------------

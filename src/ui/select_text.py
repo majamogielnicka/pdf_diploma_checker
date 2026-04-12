@@ -1,30 +1,137 @@
 import webbrowser
 from urllib.parse import quote_plus
-from PySide6.QtWidgets import QMenu, QApplication, QRubberBand 
+from PySide6.QtWidgets import QMenu, QApplication, QRubberBand, QPushButton, QToolTip, QInputDialog
 from PySide6.QtCore import Qt, QPoint, QRect, QRectF, Signal, QPointF, QSize
 from PySide6.QtGui import QAction
 from PySide6.QtPdfWidgets import QPdfView
 import styles
+
+class ErrorMarker(QPushButton):
+    def __init__(self, error_data, parent=None):
+        super().__init__(parent)
+        self.data = error_data
+        self.setFixedSize(20, 20)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 0, 0, 180);
+                border: 2px solid white;
+                border-radius: 10px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: red; }
+        """)
+        self.setText("!")
+        # Wyświetlanie informacji po kliknięciu
+        self.clicked.connect(self.show_details)
+
+    def show_details(self):
+        info = (f"<b>Błąd:</b> {self.data.get('kategoria', 'Nieznany')}<br>"
+                f"<b>Tekst:</b> {self.data.get('znaleziony_tekst', '')}")
+        QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
+
+class CommentMarker(QPushButton):
+    def __init__(self, comment_data, parent=None):
+        super().__init__(parent)
+        self.data = comment_data
+        self.setFixedSize(20, 20)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(0, 120, 255, 180);
+                border: 2px solid white;
+                border-radius: 10px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: blue; }
+        """)
+        self.setText("C") # "C" jak Comment
+        self.clicked.connect(self.show_details)
+
+    def show_details(self):
+        # Pokazujemy treść Twojego komentarza i fragment tekstu
+        info = (f"<b>Twój komentarz:</b> {self.data.get('tekst_komentarza', '')}<br>"
+                f"<b>Fragment:</b> {self.data.get('znaleziony_tekst', '')}")
+        QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
+
 
 class SelectablePdfView(QPdfView):
     textCopied = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
+        self.markers = []
+        self.comment_markers = [] # Osobna lista na Twoje własne komentarze
         self.selection_box = QRubberBand(QRubberBand.Rectangle, self)
         self.origin = QPoint()
         self.selection_pdf_rect = None 
         self.selection_page_idx = -1
         self.selected_text = ""
-        #naprawienie pozycji po scrollu
+        
+        # naprawienie pozycji po scrollu
         self.verticalScrollBar().valueChanged.connect(self.update_selection_box_pos)
         self.horizontalScrollBar().valueChanged.connect(self.update_selection_box_pos)
+        self.verticalScrollBar().valueChanged.connect(self.update_markers_pos)
+        self.horizontalScrollBar().valueChanged.connect(self.update_markers_pos)
 
-    #naprawa pozycji po resize okienka
+    def clear_markers(self):
+        for m in self.markers:
+            m.deleteLater()
+        self.markers = []
+
+    def clear_comments(self):
+        for m in self.comment_markers:
+            m.deleteLater()
+        self.comment_markers = []
+
+    def add_errors(self, errors_list):
+        self.clear_markers()
+        for err in errors_list:
+            marker = ErrorMarker(err, self.viewport())
+            self.markers.append(marker)
+        self.update_markers_pos()
+
+    def update_markers_pos(self):
+        doc = self.document()
+        if not doc or doc.pageCount() == 0: return
+
+        dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
+        zoom = self.zoomFactor()
+        
+        all_markers = self.markers + self.comment_markers
+
+        for marker in all_markers:
+            data = marker.data
+            page_idx = data.get("strona", 1) - 1
+            coords = data.get("wspolrzedne", {"x": 0, "y": 0})
+            
+            #pozycja Y strony
+            target_page_y_px = self.documentMargins().top()
+            for i in range(page_idx):
+                size_pt = doc.pagePointSize(i)
+                target_page_y_px += (size_pt.height() * zoom * (dpi_y / 72.0)) + self.pageSpacing()
+
+            #pozycja X
+            size_pt = doc.pagePointSize(page_idx)
+            page_w_px = size_pt.width() * zoom * (dpi_x / 72.0)
+            viewport_w = self.viewport().width()
+            x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
+
+            #przeliczamy współrzędne markera (x, y) na piksele
+            px_x = x_start_px + (coords["x"] * zoom * (dpi_x / 72.0)) - self.horizontalScrollBar().value()
+            px_y = target_page_y_px + (coords["y"] * zoom * (dpi_y / 72.0)) - self.verticalScrollBar().value()
+
+            #pozycjonowanie markeru
+            marker.move(int(px_x - 10), int(px_y - 10))
+            marker.show()
+
+    # naprawione resizeowanie
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.update_selection_box_pos()
+        self.update_markers_pos()
 
     def update_selection_box_pos(self):
         #jesli rysujemy badz nie ma prostokata to nie przeliczamy
@@ -101,10 +208,10 @@ class SelectablePdfView(QPdfView):
         super().mouseReleaseEvent(event)
 
     def extract_text(self, rect):
-        
         doc = self.document()
         if not doc or doc.pageCount() == 0: return
-        #pobranie danych o aktualnym wyswietlaniu
+        
+        # pobranie danych o aktualnym wyswietlaniu
         v_val = self.verticalScrollBar().value()
         h_val = self.horizontalScrollBar().value()
         dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
@@ -138,7 +245,7 @@ class SelectablePdfView(QPdfView):
                 self.selection_page_idx = i
                 self.selection_pdf_rect = QRectF(start_x, start_y, end_x - start_x, end_y - start_y)
                 
-                #wyodrebnianie tekstu
+                # wyodrebnianie tekstu
                 collected_lines = []
                 current_scan_y = start_y
                 while current_scan_y <= end_y:
@@ -157,7 +264,7 @@ class SelectablePdfView(QPdfView):
                 break
             current_y_px += page_h_px + self.pageSpacing()
 
-    #menu na prawy przycisk myszy
+    # menu na prawy przycisk myszy
     def show_context_menu(self, global_pos):
         menu = QMenu(self)
         copy_action = QAction("Skopiuj tekst", self)
@@ -166,16 +273,43 @@ class SelectablePdfView(QPdfView):
         plagiat_action = QAction("Sprawdź plagiat", self)
         plagiat_action.triggered.connect(self.check_plagiarism) 
         
+        comment_action = QAction("Dodaj komentarz", self)
+        comment_action.triggered.connect(self.add_custom_comment)
+        comment_action.setEnabled(bool(self.selected_text)) 
+
         menu.addAction(copy_action)
         menu.addAction(plagiat_action)
+        menu.addAction(comment_action)
         menu.exec(global_pos)
+
+    def add_custom_comment(self):
+        #sprawdzamy, czy mamy poprawne zaznaczenie
+        if not self.selection_pdf_rect or self.selection_page_idx == -1:
+            return
+            
+        #otwieramy okno dialogowe do wpisania komentarza
+        text, ok = QInputDialog.getText(self, "Dodaj komentarz", "Wpisz treść komentarza:")
+        if ok and text:
+            comment_data = {
+                "strona": self.selection_page_idx + 1, 
+                "wspolrzedne": {
+                    "x": self.selection_pdf_rect.x(), 
+                    "y": self.selection_pdf_rect.y()
+                },
+                "tekst_komentarza": text,
+                "znaleziony_tekst": self.selected_text
+            }
+            #tworzymy nowy marker komentarza i dodajemy go do listy
+            marker = CommentMarker(comment_data, self.viewport())
+            self.comment_markers.append(marker)
+            self.update_markers_pos()
+            self.selection_box.hide()
 
     def copy_to_clipboard(self):
         QApplication.clipboard().setText(self.selected_text)
 
     def check_plagiarism(self):
         if not self.selected_text:
-            # Możesz wysłać sygnał do statusbaru w main_window
             return
             
         # Usunięcie zbędnych białych znaków
