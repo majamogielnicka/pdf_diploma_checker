@@ -33,6 +33,18 @@ class RedactionValidator:
                 comments="Orphan character detected. Consider checking the redaction quality."
             )
             errors.append(error)
+        blank_pages = self.check_blank_page()
+        for blank_page in blank_pages:
+            error = RedactionError(
+                id = self._get_next_id(),
+                module = self.module,
+                category = "blank_page",
+                page_nr = blank_page.number,
+                bounding_box = None,
+                text = None,
+                comments = "Blank page detected. Consider checking content of this page."
+            )
+            errors.append(error)
         return errors
 
     def check_orphans(self):
@@ -55,5 +67,12 @@ class RedactionValidator:
                         if last_span.text in ".,;:!?\"')]}":
                             continue
                         orphans.append(last_span)
-        
         return orphans
+    
+    def check_blank_page(self):
+        blank_pages = []
+        for page in self.document_data.pages:
+            if page.is_blank == True:
+                blank_pages.append(page)
+
+        return blank_pages
