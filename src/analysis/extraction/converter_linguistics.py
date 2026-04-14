@@ -5,16 +5,19 @@ przyjazny dla dalszej analizy lingwistycznej i NLP.
 '''
 import re
 import statistics
+import fitz  # PyMuPDF
+from typing import Dict
 
-from .schema import (
+
+
+from schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
-from .extraction_json import DocumentData, extractPDF, calculate_margins
-from .schema import PageArtifact 
-
-#### wersja temporary, jutro sprawdz 
+from extraction_json import DocumentData, extractPDF, calculate_margins
+from schema import PageArtifact 
+# Klasa mapowania danych do formatu odpowiedniego dla lingwistyki
 class PDFMapper:
     
     # Sprawdznie, czyy kolejny blok należy do danego podpunktu listy
@@ -34,12 +37,76 @@ class PDFMapper:
         avg_size = sum(w.size for w in words) / len(words)
         
         return (is_bold and len(words) < 15) or (is_italic and len(words) < 15) or avg_size > 12.5
+    @staticmethod
+    def is_keywords(words: list[WordInfo]) -> bool:
+        if not words: return False
+
+        full_text = " ".join(w.text for w in words).strip()
+
+        if full_text.lower().startswith(("słowa kluczowe", "keywords", "key words", "keywords:", "skróty")):
+            return True
+        return False
+
+    def is_acronym(text: str) -> bool:
+        pattern = r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)'        
+        return bool(re.match(pattern, text.strip()))
+    
+    # Sprawdzenie, czy dany blok nalezy do tabeli, w celu uniknięcia dubloiwania elementów
+    @staticmethod
+    def is_inside_table(block_bbox: list, table_bboxes: list) -> bool:
+        bx0, by0, bx1, by1 = block_bbox
+        block_area = (bx1 - bx0) * (by1 - by0)
+        
+        if block_area <= 0: 
+            return False
+
+        for tx0, ty0, tx1, ty1 in table_bboxes:
+            ix0 = max(bx0, tx0 - 5)
+            iy0 = max(by0, ty0 - 5)
+            ix1 = min(bx1, tx1 + 5)
+            iy1 = min(by1, ty1 + 5)
+
+            if ix0 < ix1 and iy0 < iy1:
+                intersect_area = (ix1 - ix0) * (iy1 - iy0)
+                if intersect_area / block_area > 0.5: 
+                    return True
+        return False
+
     
     # Mergowanie linijek w spójne akapity
     @staticmethod
     def empty_paragraph_buffer(logical_blocks, paragraph_buffer):
         if not paragraph_buffer:
             return
+
+        import re
+        
+        # Detekcja akronimów:
+        is_acronym_block = False
+        total_lines = len(paragraph_buffer)
+
+        # Wykrywanie blokow z akronimami, jeśli zlepione w jedną linijkę
+        if total_lines == 1:
+            content = paragraph_buffer[0]['content'].strip()
+
+            # Regex dla wykrywania bloków z akronimami            
+            starts_with_sep = bool(re.match(r'^\S{1,15}\s*[-–—−‐:=]\s+', content))
+            starts_with_upper = bool(re.match(r'^[A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b\s+', content))
+            sep_matches = re.findall(r'\s+\S{1,15}\s*[-–—−‐:=]\s+', " " + content)
+            if (starts_with_sep or starts_with_upper) and len(sep_matches) >= 3:
+                is_acronym_block = True
+        
+        # Wykrywanie blokow z akronimami, jeśli blok ma więcej niż jedną linijkę
+        elif total_lines > 1:
+            acronym_lines = 0
+            for data in paragraph_buffer:
+                text = data['content'].strip()
+                if PDFMapper.is_acronym(text) == 1:
+                    acronym_lines += 1
+                    
+            # Sprawdzenie, czy ilość linijek zaczynających się jak skróty jest większa niż threshhold 60%:
+            if (acronym_lines / total_lines) >= 0.6: 
+                is_acronym_block = True
 
         combined_content = ""
         combined_words = []
@@ -48,16 +115,16 @@ class PDFMapper:
         for i, data in enumerate(paragraph_buffer):
             content = data['content']
 
-            # Oblicz separator (spacja lub brak, jeśli łącznik)
             separator = ""
-            if i > 0:
-                if not combined_content.rstrip().endswith('-'):
-                    separator = " "
+            if is_acronym_block and i > 0:
+                separator = "\n"
+            elif i > 0 and not combined_content.rstrip().endswith('-'):
+                separator = " "
 
             for word in data['words']:
                 shift = current_offset + len(separator)
                 combined_words.append(WordInfo(
-                    word_index=len(combined_words),  # globalny, unikalny indeks
+                    word_index=len(combined_words),
                     text=word.text,
                     start_char=word.start_char + shift,
                     end_char=word.end_char + shift,
@@ -72,13 +139,15 @@ class PDFMapper:
             combined_content += separator + content
             current_offset = len(combined_content)
 
+        block_type = "acronyms" if is_acronym_block else "paragraph"
+
         logical_blocks.append(ParagraphBlock(
             block_id=paragraph_buffer[0]['block_id'],
             content=combined_content,
-            words=combined_words
+            words=combined_words,
+            type=block_type 
         ))
         paragraph_buffer.clear()
-
     @staticmethod
     # Opróznianie bufora listy:
     # Zapis całości jako lista jeśli więcej niż jeden element,
@@ -152,6 +221,8 @@ class PDFMapper:
             page_table_descs = {t.description for t in page.tables if t.description}
             page_img_descs = {img.description for img in page.images if img.description}
 
+            table_bboxes = [t.bbox for t in page.tables]
+
             margins = calculate_margins(
                 [{"bbox": b.bbox} for b in page.text_blocks], 
                 page.width, 
@@ -161,6 +232,8 @@ class PDFMapper:
             margin_indent_thresh = 7.5
 
             for block in page.text_blocks:
+                if PDFMapper.is_inside_table(block.bbox, table_bboxes):
+                    continue
                 full_text = ""
                 words_info = []
                 word_counter = 0
@@ -294,6 +367,17 @@ class PDFMapper:
                         content=full_text,
                         words=words_info,
                         type="heading" 
+                    ))
+                    continue
+                if PDFMapper.is_keywords(words_info):
+                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+                    
+                    new_doc.logical_blocks.append(ParagraphBlock(
+                        block_id=block.block_id,
+                        content=full_text,
+                        words=words_info,
+                        type="keywords" 
                     ))
                     continue
 
