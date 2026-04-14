@@ -1,8 +1,9 @@
 import json
 import os
+import datetime
 
 class saving_files:
-    def __init__(self, index_path="config/index.json"):
+    def __init__(self, index_path="storage/index.json"):
         self.index_path = index_path
         self.data = self._load_index()
 
@@ -21,7 +22,6 @@ class saving_files:
                 print("Błąd: Niepoprawny format index.json. Przywracanie struktury.")
                 return self._create_initial_index()
                 
-            # Filtrowanie nieistniejących plików
             if "prace" in data:
                 data["prace"] = [p for p in data["prace"] if os.path.exists(p['sciezka_lokalna'])]
                 
@@ -41,7 +41,6 @@ class saving_files:
         return initial_data
 
     def _save_to_disk(self, data):
-        #Zapisuje aktualny stan do pliku JSON.
         with open(self.index_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
@@ -53,8 +52,32 @@ class saving_files:
             "nazwa_pliku": nazwa,
             "sciezka_lokalna": sciezka,
             "typ": typ,
-            "data_dodania": "2026-03-16"
+            "data_dodania": datetime.date.today().strftime("%Y-%m-%d")
         }
         self.data["prace"].append(nowy_wpis)
         self._save_to_disk(self.data)
         print(f"Dodano do indeksu: {nazwa}")
+
+    def usun_prace(self, sciezka):
+        poczatkowa_ilosc = len(self.data["prace"])
+        self.data["prace"] = [p for p in self.data["prace"] if p['sciezka_lokalna'] != sciezka]
+        
+        if len(self.data["prace"]) < poczatkowa_ilosc:
+            self._save_to_disk(self.data)
+            print(f"Usunięto plik z indeksu: {sciezka}")
+
+    def zapisz_komentarz(self, sciezka, comment_data):
+        for p in self.data["prace"]:
+            if p['sciezka_lokalna'] == sciezka:
+                if "komentarze" not in p:
+                    p["komentarze"] = []
+                p["komentarze"].append(comment_data)
+                self._save_to_disk(self.data)
+                print("Zapisano komentarz do bazy.")
+                return
+
+    def pobierz_komentarze(self, sciezka):
+        for p in self.data["prace"]:
+            if p['sciezka_lokalna'] == sciezka:
+                return p.get("komentarze", [])
+        return []

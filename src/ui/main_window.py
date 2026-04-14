@@ -30,7 +30,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtPdf import QPdfDocument
 from PySide6.QtPdfWidgets import QPdfView
 
-from select_text import SelectablePdfView, CommentMarker
+from select_text import SelectablePdfView, CommentMarker, HighlightBox
 from start_page import StartPage
 from saving_files import saving_files
 import styles
@@ -53,17 +53,33 @@ class PDFReader(QMainWindow):
         self.setCentralWidget(self.stack)
 
         self.start_page = StartPage()
-        #strona internetowa
+        
         self.start_page.add_btn.clicked.connect(self.open_file_dialog)
         self.start_page.fileDropped.connect(self.load_and_switch)
-        self.start_page.openRequested.connect(self.load_and_switch)
+        
+        self.start_page.openRequested.connect(self.open_existing_file)
+        
+        self.start_page.deleteRequested.connect(self.delete_document)
         self.stack.addWidget(self.start_page)
-
+        
         self.reader_container = QWidget()
         self.setup_reader_ui()
         self.stack.addWidget(self.reader_container)
 
         self.refresh_file_list()
+        self.overlay = QFrame(self)
+        self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 160);") # 160 to stopień przyciemnienia (0 = przezroczyste, 255 = czarne)
+        self.overlay.hide()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, 'overlay'):
+            self.overlay.resize(event.size())
+
+    def open_existing_file(self, path):
+        self.load_pdf(path)
+        if self.document.status() == QPdfDocument.Status.Ready:
+            self.stack.setCurrentIndex(1)
 
     def setup_reader_ui(self):
         layout = QVBoxLayout(self.reader_container)
@@ -92,6 +108,8 @@ class PDFReader(QMainWindow):
         self.pdf_view.pageNavigator().currentPageChanged.connect(self.update_page_input)
         self.pdf_view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.pdf_view.customContextMenuRequested.connect(self.add_comment)
+
+        self.pdf_view.commentAdded.connect(self.save_custom_comment)
 
         #panel boczny
         self.right_panel = QWidget()
@@ -163,14 +181,21 @@ class PDFReader(QMainWindow):
             self.load_and_switch(path)
 
     def load_and_switch(self, path):
+        self.overlay.resize(self.size())
+        self.overlay.raise_()
+        self.overlay.show()
+
         dialog = AnalysisDialog(path, self)
-        if dialog.exec() == QDialog.Accepted:
+        result = dialog.exec()
+
+        self.overlay.hide()
+
+        if result == QDialog.Accepted:
             nazwa = os.path.basename(path)
             self.manager.dodaj_prace(nazwa, path, "inzynierska")
             
             self.load_pdf(path)
             
-            #przełączamy na czytnik tylko jeśli dokument jest gotowy
             if self.document.status() == QPdfDocument.Status.Ready:
                 self.stack.setCurrentIndex(1)
             
@@ -179,6 +204,17 @@ class PDFReader(QMainWindow):
     def refresh_file_list(self):
         pliki = self.manager.data.get("prace", [])
         self.start_page.render_doc_list(pliki)
+
+    def delete_document(self, path):
+        reply = QMessageBox.question(
+            self, 'Potwierdzenie', 
+            "Czy na pewno chcesz usunąć ten dokument z listy?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            self.manager.usun_prace(path)
+            self.refresh_file_list()
 
     def load_pdf(self, path):
         if not os.path.exists(path):
@@ -205,6 +241,7 @@ class PDFReader(QMainWindow):
             
             #Wczytywanie błędów z template.json
             self.load_template_errors()
+            self.load_custom_comments()
 
     def load_template_errors(self):
         json_path = "errors_output3.json"
@@ -275,6 +312,7 @@ class PDFReader(QMainWindow):
             marker = CommentMarker(comment_data, self.pdf_view.viewport())
             self.pdf_view.comment_markers.append(marker)
             self.pdf_view.update_markers_pos()
+            self.save_custom_comment(comment_data)
             
     def zoom_in(self):
         self.pdf_view.setZoomFactor(self.pdf_view.zoomFactor() * 1.1)
@@ -333,7 +371,6 @@ class PDFReader(QMainWindow):
                                 txt = str(err.get('znaleziony_tekst', ''))
                                 opis = f"{kat}\n\nDotyczy tekstu:\n\"{txt}\""
                                 
-                                #żółta karteczka
                                 annot = page.add_text_annot(point, opis, icon="Comment")
                                 annot.set_info(title="Weryfikacja")
                                 annot.set_colors(stroke=(1, 0.8, 0))
@@ -355,15 +392,22 @@ class PDFReader(QMainWindow):
                             page = doc[page_idx]
                             x = notatka["wspolrzedne"]["x"]
                             y = notatka["wspolrzedne"]["y"]
+                            w = notatka["wspolrzedne"].get("w", 0)
+                            h = notatka["wspolrzedne"].get("h", 0)
                             
                             rect_page = page.rect
                             if x > rect_page.width - 20: 
                                 x = rect_page.width - 30
                             
-                            point = fitz.Point(x, y)
+                            if w > 0 and h > 0:
+                                rect = fitz.Rect(x, y, x + w, y + h)
+                                highlight = page.add_highlight_annot(rect)
+                                highlight.set_colors(stroke=(0.3, 0.7, 1.0)) # Jasnoniebieski kolor
+                                highlight.update()
+
+                            point = fitz.Point(max(0, x - 15), max(0, y - 5))
                             opis = f"Twoja uwaga:\n{notatka['tekst_komentarza']}"
                             
-                            #niebieska karteczka
                             annot = page.add_text_annot(point, opis, icon="Note")
                             annot.set_info(title="Mój komentarz")
                             annot.set_colors(stroke=(0, 0.4, 1))
@@ -378,3 +422,28 @@ class PDFReader(QMainWindow):
                         
         except Exception as e:
             QMessageBox.critical(self, "Błąd eksportu:\n{str(e)}")
+
+    def save_custom_comment(self, comment_data):
+        if hasattr(self, 'current_pdf_path') and self.current_pdf_path:
+            self.manager.zapisz_komentarz(self.current_pdf_path, comment_data)
+
+    def load_custom_comments(self):
+        self.pdf_view.clear_comments()
+        
+        if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
+            return
+
+        saved_comments = self.manager.pobierz_komentarze(self.current_pdf_path)
+
+        for c_data in saved_comments:
+            w = c_data.get("wspolrzedne", {}).get("w", 0)
+            h = c_data.get("wspolrzedne", {}).get("h", 0)
+
+            if w > 0 and h > 0:
+                box = HighlightBox(c_data, self.pdf_view.viewport())
+                self.pdf_view.highlight_boxes.append(box)
+
+            marker = CommentMarker(c_data, self.pdf_view.viewport())
+            self.pdf_view.comment_markers.append(marker)
+
+        self.pdf_view.update_markers_pos()
