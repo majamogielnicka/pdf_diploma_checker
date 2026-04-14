@@ -2,8 +2,29 @@ import os
 import dataclasses
 import json
 import morfeusz2
+from lingua import Language, LanguageDetectorBuilder
+from src.analysis.extraction.schema import *
+from .linguistics_types import Block_context
 
 morf = morfeusz2.Morfeusz()
+languages = [Language.ENGLISH, Language.POLISH]
+language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
+
+def language(text):
+    '''
+    Detects language of a block for further text analysis.
+    Args:
+        text (str): string of text to be analysed.
+        
+    Returns:
+        str: 'pl' for Polish and 'en' for English
+
+    '''
+    detected = language_detector.detect_language_of(text)
+    if detected == Language.POLISH:
+        return 'pl'
+    else:
+        return 'en'
 
 def get_match_info(block, offset, length):
     '''
@@ -32,7 +53,7 @@ def get_match_info(block, offset, length):
             end_page = word.page_number
     return start_page, end_page, word_idxs
 
-def extract_errors_to_json(matches):
+def extract_errors_to_json(matches, name):
 
     """
     Extracts errors from the list of matches and writes them to a JSON file.
@@ -43,11 +64,41 @@ def extract_errors_to_json(matches):
     Returns:
         None    
     """
-    all_matches = []
-    for match in matches:
-        all_matches.append(dataclasses.asdict(match))
-
-    output_path = os.path.join(os.path.dirname(__file__), "errors.json")
+    if type(matches) is list:
+        all_matches = []
+        for match in matches:
+            all_matches.append(dataclasses.asdict(match))
+    else:
+        all_matches = dataclasses.asdict(matches)
+    output_path = os.path.join(os.path.dirname(__file__), name)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(all_matches, f, ensure_ascii=False, indent=4)
+
+
+def get_context(blocks):
+    """
+    Extracts block.content for analysis and its language.
+    
+    Args:
+        block (logical_block): contains string and metadata of each word.
+
+    Returns:
+        blocks (list(Block_context)): List contaning Block_context objects.
+    """
+    blocks_info = []
+    for block in blocks.logical_blocks:
+        if isinstance(block, ParagraphBlock):
+            contents = block.content
+        elif isinstance(block, ListBlock):
+            contents = " ".join(item.text for item in block.items if item.text)
+        else:
+            continue
+        block_info = Block_context(
+            block = block,
+            contents = contents,
+            language = language(contents),
+        )
+        blocks_info.append(block_info)
+        
+    return blocks_info

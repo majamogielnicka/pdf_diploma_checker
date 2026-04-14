@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from src.analysis.extraction.schema import ParagraphBlock, ListBlock
+from typing import Union
 @dataclass
 class Error_type:
     content: str
@@ -18,3 +20,9 @@ class Analisys_type:
     impersonal_count: int
     wrong_person_count: int
     passive_ratio: str
+
+@dataclass
+class Block_context:
+    block: Union[ParagraphBlock, ListBlock]
+    contents: str
+    language: str

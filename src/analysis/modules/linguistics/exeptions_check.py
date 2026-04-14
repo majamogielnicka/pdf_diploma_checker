@@ -7,14 +7,13 @@ from src.analysis.extraction.schema import ParagraphBlock
 from .proper_check import check_if_proper
 import string
  
-def check_exeptions(matches, blocks, text_language, proper_names):
+def check_exeptions(matches, blocks, proper_names):
     '''
     Checks potentially false positive python language tool error with different criteria.
     
     Args:
         matches (list): A list of Error_type, containing python_language_tool errors of type TYPOS
-        text_language (str): pl for Polish or en for English.
-        blocks (FinalDocument): contains string and metadata of each word
+        blocks (list(Block_context)): List contaning Block_context objects.
         proper_names (set): A collection of known proper names in the document.
     
     Returns:
@@ -27,13 +26,11 @@ def check_exeptions(matches, blocks, text_language, proper_names):
     for match in matches:
         blocks_to_check[f'{match.block_id}_{match.page_start}'].append(match)
 
-    for block in blocks.logical_blocks:
-        if not isinstance(block, ParagraphBlock) or not block.words:
-            continue
-        block_key = f'{block.block_id}_{block.words[0].page_number}'
+    for block in blocks:
+        block_key = f'{block.block.block_id}_{block.block.words[0].page_number}'
         if block_key in blocks_to_check:
             for match in blocks_to_check[block_key]:
-                text = block.content
+                text = block.contents
                 word = match.content
                 if word.translate(str.maketrans('', '', string.punctuation)) in proper_names:
                     continue
@@ -41,12 +38,13 @@ def check_exeptions(matches, blocks, text_language, proper_names):
                 inside_quotes = check_quotes(match, text)
                 if not inside_quotes:
                     if match.category == 'TYPOS':
-                        lemma, is_found = lemmatization(word, text_language)
-                        if check_if_proper(block, match, proper_names, lemma, text_language):
+                        lemma, is_found = lemmatization(word, block.language)
+                        if check_if_proper(block.block, match, proper_names, lemma, block.language):
                             continue
                         potential_exeptions[lemma].append(match)
                         potential_exeption = True
-                    if match.category == "CASING" and block.type == "heading" and match.offset == 0:
+                    if match.category == "CASING" and match.offset == 0:
+                    # if match.category == "CASING" and block.type == "heading" and match.offset == 0:
                         continue
                 if not inside_quotes and not potential_exeption:
                     valid_errors.append(match)
