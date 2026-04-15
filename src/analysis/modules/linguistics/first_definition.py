@@ -1,9 +1,18 @@
 import re
 
 def check_position_if_new(new_acronym, definition, words, block_id, acronyms_with_definitions, proper_names):
+
+    TITLE_PAGE_PHRASES = {
+    "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
+    "STRESZCZENIE", "ABSTRACT", "SŁOWA", "KLUCZOWE",
+    "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS",
+    "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA",
+    }
     if any(word in new_acronym or word in definition for word in proper_names):
         if new_acronym.strip() not in acronyms_with_definitions:
-            if new_acronym in words:
+            if new_acronym in TITLE_PAGE_PHRASES:
+                return acronyms_with_definitions
+            if new_acronym in words and words[new_acronym].page_number > 1:
                 word_page = words[new_acronym].page_number
                 word_bbox = words[new_acronym].bbox
                 acronyms_with_definitions[new_acronym] = (definition, block_id, word_page, word_bbox)
@@ -19,6 +28,7 @@ def check_first_definition(document, proper_names):
     Returns:
         list: A list of tuples containing acronyms and their definitions.
     """
+
     acronyms_with_definitions = {}
     list_acronyms = re.compile(r'^[A-Z]{2,}\s+[–—\-−:]\s|^((\S+\s){1,4})[–—\-−:]\s')
     paragraph_def_first = re.compile(r'([A-ZÀ-Ž][a-ząćęłńóśźż\w\s]+)\s*\(([A-Z]{2,})\)')

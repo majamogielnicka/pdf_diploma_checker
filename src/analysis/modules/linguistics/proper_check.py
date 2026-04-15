@@ -20,41 +20,26 @@ def check_if_proper(block, match, proper_names, lemma, text_language):
     """
     
     regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
-    block_words = block.words
-    words = []
-    if any(char.isdigit() for char in lemma):
+    is_digit = re.compile(r'\d')
+    if is_digit.search(lemma):
         return True
     elif regex.search(lemma) != None:
         return True
     elif lemma.isupper():
         return True
-    elif lemma.isascii() == True:
+    elif lemma.isascii() == True:  
         return True
     else:
-        for word in block_words:    
-            for word_id in match.word_idxs:
-                if word.word_index == word_id:
-                    words.append(word)
-        for word in words:
-            for proper in proper_names:
-                proper_lemma, is_found = lemmatization(proper, text_language)
-                if word.text == proper:
-                    return True
-                if lemma == proper_lemma:
-                    return True
-            if word.italic:
+        target_words_ids = set(match.word_idxs)
+        matched_words = [word for word in block.words if word.word_index in target_words_ids]
+        proper = [p[0] for p in proper_names]
+        proper_lemmas = [p[1] for p in proper_names]
+    for word in matched_words:
+            if word.text in proper:
                 return True
-            elif word.bold:
+            if lemma in proper_lemmas:
+                return True
+            if word.italic or word.bold:
                 return True
 
     return False
-    
-
-
-
-
-
-
-
-
-

@@ -7,7 +7,7 @@ from src.analysis.extraction.schema import ParagraphBlock
 from .proper_check import check_if_proper
 import string
  
-def check_exeptions(matches, blocks, proper_names, acronyms_with_definitions):
+def check_exeptions(matches, blocks, proper_names):
     '''
     Checks potentially false positive python language tool error with different criteria.
     
@@ -15,7 +15,6 @@ def check_exeptions(matches, blocks, proper_names, acronyms_with_definitions):
         matches (list): A list of Error_type, containing python_language_tool errors of type TYPOS
         blocks (list(Block_context)): List contaning Block_context objects.
         proper_names (set): A collection of known proper names in the document.
-        acronyms_with_definitions (dict): A dictionary of acronyms and their definitions.
     Returns:
         valid_errors (list): List of Error_type, containing errors that did not meet the criteria
     '''
@@ -39,7 +38,7 @@ def check_exeptions(matches, blocks, proper_names, acronyms_with_definitions):
                 if not inside_quotes:
                     if match.category == 'TYPOS':
                         lemma, is_found = lemmatization(word, block.language)
-                        if check_if_proper(block.block, match, proper_names, lemma, block.language, acronyms_with_definitions):
+                        if check_if_proper(block.block, match, proper_names, lemma, block.language):
                             continue
                         potential_exeptions[lemma].append(match)
                         potential_exeption = True
