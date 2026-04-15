@@ -81,6 +81,8 @@ class PDFMapper:
         is_acronym_block = False
         total_lines = len(paragraph_buffer)
 
+        is_widow = False
+
         # Wykrywanie blokow z akronimami, jeśli zlepione w jedną linijkę
         if total_lines == 1:
             content = paragraph_buffer[0]['content'].strip()
@@ -135,6 +137,13 @@ class PDFMapper:
             combined_content += separator + content
             current_offset = len(combined_content)
 
+            # Detekcja wdów (maksymalnie 2 samotne słowa na końcu akapitu)
+            last_word = data['words'][-1]
+            if len(data['words']) >= 2:
+                second_to_last_word = data['words'][-2]
+                if last_word.word_index == 0 or second_to_last_word.word_index == 0:
+                    is_widow = True
+
         block_type = "acronyms" if is_acronym_block else "paragraph"
 
         if block_type == "paragraph":
@@ -143,11 +152,17 @@ class PDFMapper:
             elif PDFMapper.is_keywords(combined_words):
                 block_type = "keywords"
 
+        if block_type == "paragraph" and is_widow == True:
+            is_widow = True
+        else:
+            is_widow = False
+
         logical_blocks.append(ParagraphBlock(
             block_id=paragraph_buffer[0]['block_id'],
             content=combined_content,
             words=combined_words,
-            type=block_type 
+            type=block_type,
+            is_widow=is_widow
         ))
         paragraph_buffer.clear()
     @staticmethod
@@ -360,6 +375,17 @@ class PDFMapper:
                     ))
                     continue
                 
+                if PDFMapper.is_header(words_info):
+                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+                    
+                    new_doc.logical_blocks.append(ParagraphBlock(
+                        block_id=block.block_id,
+                        content=full_text,
+                        words=words_info,
+                        type="heading" 
+                    ))
+                    continue
 
                 block_type, marker_type = classify_block_content(full_text)
 
