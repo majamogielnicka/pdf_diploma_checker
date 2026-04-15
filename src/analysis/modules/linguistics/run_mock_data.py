@@ -14,12 +14,8 @@ from src.analysis.extraction.converter_linguistics import PDFMapper
 from pathlib import Path, PurePath
 import os
 
-
-if __name__ == "__main__":
-    pdf_file = "data/zusz.pdf"
+def run_linguistics(raw_blocks):
     text_language = 'pl'
-    document = extractPDF(str(pdf_file))
-    raw_blocks = PDFMapper.map_to_schema(document)
     blocks = get_context(raw_blocks)
     extract_errors_to_json(blocks, "final_document.json")
     proper_names = get_proper_names(raw_blocks, text_language)
@@ -31,6 +27,14 @@ if __name__ == "__main__":
     list_matches = check_coherence_in_list(raw_blocks, text_language, proper_names, acronyms_with_definitions)
     checked_exeptions = check_exeptions(language_matches, blocks, proper_names, acronyms_with_definitions)
     language_style_matches, sentence_analisys = sentence_check(blocks)
-    matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches
-    print(f"Znaleziono błędów: {len(matches)}")
+    matches = checked_exeptions + decimal_matches + list_matches + language_style_matches + dash_matches
+    return matches
+
+
+if __name__ == "__main__":
+    pdf_file = Path(__file__).parent / "doro.pdf"
+    document = extractPDF(str(pdf_file))
+    raw_blocks = PDFMapper.map_to_schema(document)
+    matches = run_linguistics(raw_blocks)
+    # print(f"Znaleziono błędów: {len(matches)}")
     extract_errors_to_json(matches, "errors.json")

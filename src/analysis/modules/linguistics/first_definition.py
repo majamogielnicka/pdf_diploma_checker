@@ -51,5 +51,5 @@ def check_first_definition(document, proper_names):
                 for new_acronym in new_acronyms:
                     acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions, proper)
 
-    print("\nDetected acronyms and their definitions: \n", "\n ".join([f"\t{acronym} - {definition}, {block_id, page, bbox}" for acronym, (definition, block_id, page, bbox) in acronyms_with_definitions.items()]))
+    #print("\nDetected acronyms and their definitions: \n", "\n ".join([f"\t{acronym} - {definition}, {block_id, page, bbox}" for acronym, (definition, block_id, page, bbox) in acronyms_with_definitions.items()]))
     return acronyms_with_definitions

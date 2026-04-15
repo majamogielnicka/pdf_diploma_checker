@@ -30,29 +30,33 @@ def sentence_check(blocks):
         for sentence in content.sents:
             sentence_count += 1
             passive = False
-            quotes = False  
+            quotes = False
+            is_subject = False
             for token in sentence:
-                if token.morph.get("Person") and token.morph.get("Person")[0] not in {'3', '0'}:
-                    to_add = True
-                    if block.language == 'pl':
-                        to_add = morfeusz_check(token.text)
-                    if to_add:
-                        start_page, end_page, word_idxs = get_match_info(block.block, token.idx, len(token))
-                        match = Error_type(
-                        content= token.text,
-                        category= "PERSONAL_FORM",
-                        message= f"Użycie {token.morph.get("Person")[0]} formy osobowej.",
-                        offset= token.idx,
-                        error_length= len(token),
-                        block_id = block.block.block_id,
-                        page_start = start_page,
-                        page_end = end_page,
-                        word_idxs = word_idxs,
-                        )   
-                        if not check_quotes(match, text):
-                            checked_matches.append(match)
-                        else:
-                            quotes = True
+                if token.morph.get("Person"):
+                    if token.morph.get("Person")[0] != '0':
+                        is_subject = True
+                        if token.morph.get("Person")[0] == '1':
+                            to_add = True
+                            if block.language == 'pl':
+                                to_add = morfeusz_check(token.text)
+                            if to_add:
+                                start_page, end_page, word_idxs = get_match_info(block.block, token.idx, len(token))
+                                match = Error_type(
+                                content= token.text,
+                                category= "PERSONAL_FORM",
+                                message= f"Użycie {token.morph.get("Person")[0]} formy osobowej.",
+                                offset= token.idx,
+                                error_length= len(token),
+                                block_id = block.block.block_id,
+                                page_start = start_page,
+                                page_end = end_page,
+                                word_idxs = word_idxs,
+                                )   
+                                if not check_quotes(match, text):
+                                    checked_matches.append(match)
+                                else:
+                                    quotes = True
                 #for now if even one part of a sentence is passive, whole sentence is marked as passive for clarity of the outcome.
                 if token.dep_ == "aux:pass":
                     passive = True
@@ -62,6 +66,26 @@ def sentence_check(blocks):
                     if token.head.morph.get("Person") and token.head.morph.get("Person")[0] == "3":
                         if not any(child.dep_ == "nsubj" for child in token.head.children):
                             impersonal_count +=1
+            #TODO: dodać sprawdzanie czy lista, czy tabela itd.
+            if not is_subject:
+                start_page, end_page, word_idxs = get_match_info(block.block, sentence[0].idx, len(sentence))
+                match = Error_type(
+                content= text[sentence[0].idx:(sentence[0].idx+len(sentence.text))],
+                category= "NO_SUBJECT",
+                message= f"Brak podmiotu w zdaniu.",
+                offset= sentence[0].idx,
+                error_length= len(sentence.text),
+                block_id = block.block.block_id,
+                page_start = start_page,
+                page_end = end_page,
+                word_idxs = word_idxs,
+                )
+                if check_quotes(match, text):
+                    quotes = True
+                elif block.block.type == 'heading' or block.block.type == 'table_description':
+                    pass
+                else:
+                    checked_matches.append(match)
             if passive:
                 passive_count += 1
             elif not quotes:

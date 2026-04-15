@@ -23,6 +23,7 @@ class Analisys_type:
 
 @dataclass
 class Block_context:
-    block: Union[ParagraphBlock, ListBlock]
     contents: str
     language: str
+    block: Union[ParagraphBlock, ListBlock]
+
