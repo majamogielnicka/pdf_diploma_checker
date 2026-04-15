@@ -16,7 +16,7 @@ from schema import (
     classify_block_content, strip_list_marker
 )
 from extraction_json import DocumentData, extractPDF, calculate_margins
-from schema import PageArtifact 
+from schema import PageArtifact, is_acronym 
 # Klasa mapowania danych do formatu odpowiedniego dla lingwistyki
 class PDFMapper:
     
@@ -46,10 +46,6 @@ class PDFMapper:
         if full_text.lower().startswith(("słowa kluczowe", "keywords", "key words", "keywords:", "skróty")):
             return True
         return False
-
-    def is_acronym(text: str) -> bool:
-        pattern = r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)'        
-        return bool(re.match(pattern, text.strip()))
     
     # Sprawdzenie, czy dany blok nalezy do tabeli, w celu uniknięcia dubloiwania elementów
     @staticmethod
@@ -96,12 +92,12 @@ class PDFMapper:
             if (starts_with_sep or starts_with_upper) and len(sep_matches) >= 3:
                 is_acronym_block = True
         
-        # Wykrywanie blokow z akronimami, jeśli blok ma więcej niż jedną linijkę
-        elif total_lines > 1:
+        # Wykrywanie blokow z akronimami, jeśli blok ma więcej niż trzy linijki
+        elif total_lines > 3:
             acronym_lines = 0
             for data in paragraph_buffer:
                 text = data['content'].strip()
-                if PDFMapper.is_acronym(text) == 1:
+                if is_acronym(text) == 1:
                     acronym_lines += 1
                     
             # Sprawdzenie, czy ilość linijek zaczynających się jak skróty jest większa niż threshhold 60%:
@@ -140,6 +136,12 @@ class PDFMapper:
             current_offset = len(combined_content)
 
         block_type = "acronyms" if is_acronym_block else "paragraph"
+
+        if block_type == "paragraph":
+            if PDFMapper.is_header(combined_words):
+                block_type = "heading"
+            elif PDFMapper.is_keywords(combined_words):
+                block_type = "keywords"
 
         logical_blocks.append(ParagraphBlock(
             block_id=paragraph_buffer[0]['block_id'],
@@ -358,28 +360,6 @@ class PDFMapper:
                     ))
                     continue
                 
-                if PDFMapper.is_header(words_info):
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
-                    PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
-                    
-                    new_doc.logical_blocks.append(ParagraphBlock(
-                        block_id=block.block_id,
-                        content=full_text,
-                        words=words_info,
-                        type="heading" 
-                    ))
-                    continue
-                if PDFMapper.is_keywords(words_info):
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
-                    PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
-                    
-                    new_doc.logical_blocks.append(ParagraphBlock(
-                        block_id=block.block_id,
-                        content=full_text,
-                        words=words_info,
-                        type="keywords" 
-                    ))
-                    continue
 
                 block_type, marker_type = classify_block_content(full_text)
 
