@@ -32,6 +32,7 @@ class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być parag
     content: str = ""
     headings: List[HeadingInfo] = field(default_factory=list)
     type: str = "paragraph"
+    is_widow: bool = False
     words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
