@@ -71,7 +71,7 @@ class PDFMapper:
     
     # Mergowanie linijek w spójne akapity
     @staticmethod
-    def empty_paragraph_buffer(logical_blocks, paragraph_buffer):
+    def empty_paragraph_buffer(logical_blocks, paragraph_buffer, debug_why_empty = ""):
         if not paragraph_buffer:
             return
 
@@ -162,7 +162,8 @@ class PDFMapper:
             content=combined_content,
             words=combined_words,
             type=block_type,
-            is_widow=is_widow
+            is_widow=is_widow,
+            debug_empty=debug_why_empty
         ))
         paragraph_buffer.clear()
     @staticmethod
@@ -246,7 +247,7 @@ class PDFMapper:
                 page.height
             )
             x0_margin = margins["left"]            
-            margin_indent_thresh = 7.5
+            margin_indent_thresh = 20
 
             for block in page.text_blocks:
                 if PDFMapper.is_inside_table(block.bbox, table_bboxes):
@@ -289,12 +290,12 @@ class PDFMapper:
                         vertical_gap = current_y0 - last_y1
                         line_height = current_y1 - current_y0
                         if vertical_gap > line_height * 1.5:
-                            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "zbyt duża wertykalna przerwa")
                     
                     last_y1 = current_y1
                     
                     if paragraph_buffer and (line_x0 > x0_margin + margin_indent_thresh):
-                        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "tab na początku linijki")
 
                     # Wyliczenie mediany przerw dla bieżącej linii (do wykrycia podwójnych spacji)
                     line_gaps = []
@@ -364,7 +365,7 @@ class PDFMapper:
                     current_type = "img_decription"
 
                 if current_type:
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "wykryto blok opisu tabeli/zdjęcia")
                     PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     
                     new_doc.logical_blocks.append(ParagraphBlock(
@@ -376,21 +377,22 @@ class PDFMapper:
                     continue
                 
                 if PDFMapper.is_header(words_info):
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "wykryto nagłówek")
                     PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     
                     new_doc.logical_blocks.append(ParagraphBlock(
                         block_id=block.block_id,
                         content=full_text,
                         words=words_info,
-                        type="heading" 
+                        type="heading", 
+                        debug_empty="wykryto nagłówek"
                     ))
                     continue
 
                 block_type, marker_type = classify_block_content(full_text)
 
                 if block_type == "list":
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "wykryto listę")
                     cleaned_text = strip_list_marker(full_text, marker_type)
                     list_buffer.append({
                         'item': ListItem(
@@ -442,7 +444,7 @@ class PDFMapper:
 
         # Opróżnianie buforów dopiero po przetworzeniu wszystkich stron, by uniknąć urywania akapitów
         PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
-        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "finalne opróżnienie")
 
         return new_doc
 
