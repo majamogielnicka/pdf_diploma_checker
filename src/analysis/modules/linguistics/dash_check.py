@@ -25,7 +25,7 @@ def dash_check(blocks):
             # blad spojnosci jak raz sie uzwa tego i tego
             match = re.search(r'—', text)
             if match:
-                start_page, end_page, word_idxs = get_match_info(unit, match.start(), 1)
+                start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, match.start(), 1)
                 errors.append(Error_type(
                     content="– / —",
                     category="PUNCTUATION",
@@ -35,13 +35,14 @@ def dash_check(blocks):
                     block_id=unit.block_id,
                     page_start=start_page,
                     page_end=end_page,
-                    word_idxs=word_idxs
+                    word_idxs=word_idxs,
+                    error_coordinate= error_coordinare
                 ))
 
         #" - " lub " -" lub "- "
         hyphen_space_regex = r'(\s-\s|\s-|-\s)'
         for m in re.finditer(hyphen_space_regex, text):
-            start_page, end_page, word_idxs = get_match_info(unit, m.start(), len(m.group()))
+            start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
             errors.append(Error_type(
                 content=m.group(),
                 category="PUNCTUATION",
@@ -51,7 +52,8 @@ def dash_check(blocks):
                 block_id=unit.block_id,
                 page_start=start_page,
                 page_end=end_page,
-                word_idxs=word_idxs
+                word_idxs=word_idxs,
+                error_coordinate= error_coordinare
             ))
 
         #litera, myślnik i litera bez spacji
@@ -59,7 +61,7 @@ def dash_check(blocks):
         for m in re.finditer(dash_no_space_regex, text):
             # Sprawdzamy czy to nie jest zakres dat (cyfra-cyfra), co jest dopuszczalne
             if not (re.match(r'\d', m.group(1) or "") and re.match(r'\d', m.group(2) or "")):
-                start_page, end_page, word_idxs = get_match_info(unit, m.start(), len(m.group()))
+                start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
                 errors.append(Error_type(
                     content=m.group(),
                     category="PUNCTUATION",
@@ -69,7 +71,8 @@ def dash_check(blocks):
                     block_id=unit.block_id,
                     page_start=start_page,
                     page_end=end_page,
-                    word_idxs=word_idxs
+                    word_idxs=word_idxs,
+                    error_coordinate= error_coordinare
                 ))
 
         #daty i zakresy
@@ -79,7 +82,7 @@ def dash_check(blocks):
             for m in re.finditer(date_error_regex, text):
                 content = m.group()
                 if '-' in content or ' ' in content:
-                    start_page, end_page, word_idxs = get_match_info(unit, m.start(), len(content))
+                    start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(content))
                     errors.append(Error_type(
                         content=content,
                         category="PUNCTUATION",
@@ -89,13 +92,14 @@ def dash_check(blocks):
                         block_id=unit.block_id,
                         page_start=start_page,
                         page_end=end_page,
-                        word_idxs=word_idxs
+                        word_idxs=word_idxs,
+                        error_coordinate= error_coordinare
                     ))
         else:
             # pl: półpauza lub dywiz bez spacji (1990–2000 lub 1990-2000).
             date_space_regex = r'(\d+\s+[–-]\s+\d+)'
             for m in re.finditer(date_space_regex, text):
-                start_page, end_page, word_idxs = get_match_info(unit, m.start(), len(m.group()))
+                start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
                 errors.append(Error_type(
                     content=m.group(),
                     category="PUNCTUATION",
@@ -105,7 +109,8 @@ def dash_check(blocks):
                     block_id=unit.block_id,
                     page_start=start_page,
                     page_end=end_page,
-                    word_idxs=word_idxs
+                    word_idxs=word_idxs,
+                    error_coordinate= error_coordinare
                 ))
         
         dash_counter += len(errors)

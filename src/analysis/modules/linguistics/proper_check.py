@@ -4,7 +4,7 @@ from src.analysis.extraction.schema import ParagraphBlock, WordInfo
 from .linguistics_types import Error_type
 
 
-def check_if_proper(block, match, proper_names, lemma, text_language):
+def check_if_proper(block, match, proper_names=None, lemma=None, text_language=None):
     """
     Evaluates whether a particular matched word should be considered a valid exception 
     
@@ -42,11 +42,14 @@ def check_if_proper(block, match, proper_names, lemma, text_language):
         proper = [p[0] for p in proper_names]
         proper_lemmas = [p[1] for p in proper_names]
     for word in matched_words:
+        if proper_names is not None:
+            proper = [p[0] for p in proper_names]
+            proper_lemmas = [p[1] for p in proper_names]
             if word.text in proper:
                 return True
             if lemma and text in proper_lemmas:
                 return True
-            if word.italic or word.bold:
-                return True
+        if word.italic or word.bold:
+            return True
 
     return False

@@ -20,6 +20,7 @@ def add_match(items_by_id, num, block_id, category):
         "LIST_COHERENCE": "Wyliczenia nie są spójne lub nie zgadzają się z zasadami interpunkcji.",
     }
     item = items_by_id[num]
+    word_idxs = [word.word_index for word in item.words]
     return Error_type(
                 content = item.text,
                 category = category,
@@ -29,7 +30,8 @@ def add_match(items_by_id, num, block_id, category):
                 block_id = block_id,
                 page_start = item.words[0].page_number if item.words else None,
                 page_end = item.words[-1].page_number if item.words else None,
-                word_idxs = [word.word_index for word in item.words]
+                word_idxs = word_idxs,
+                error_coordinate = (item.words[word_idxs[-1]].bbox[2], item.words[word_idxs[-1]].bbox[3])
             )
 
 def is_short_definition(text, text_language, proper_names, acronyms):

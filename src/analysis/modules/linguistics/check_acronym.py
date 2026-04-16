@@ -21,7 +21,8 @@ def add_match(word, block_id):
                 block_id = block_id,
                 page_start = word.page_number ,
                 page_end = word.page_number,
-                word_idxs = word.word_index
+                word_idxs = word.word_index,
+                error_coordinate= (word.bbox[2], word.bbox[3])
             )
 
 def potential_acronym(text):

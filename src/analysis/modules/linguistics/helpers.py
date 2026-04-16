@@ -51,7 +51,12 @@ def get_match_info(block, offset, length):
             if start_page is None:
                 start_page = word.page_number
             end_page = word.page_number
-    return start_page, end_page, word_idxs
+    if len(word_idxs) >0:
+        error_coordinate = (block.words[word_idxs[-1]].bbox[2], block.words[word_idxs[-1]].bbox[3])
+    else:
+        error_coordinate = (0, 0)
+        #print(f"{word.text} {word.page_number} {word.start_char} {end_offset} {word.end_char} {end_offset}")
+    return start_page, end_page, word_idxs, error_coordinate
 
 def extract_errors_to_json(matches, name):
 

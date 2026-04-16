@@ -3,6 +3,7 @@ from .linguistics_types import Error_type
 from src.analysis.extraction.schema import ParagraphBlock, ListBlock
 from .helpers import get_match_info
 from .exeptions_check import check_quotes
+from .proper_check import check_if_proper
 
 def decimal_check(blocks):
     """
@@ -27,7 +28,7 @@ def decimal_check(blocks):
         text = block.contents
         regexes = list(re.finditer(regex, text))
         for reg in regexes:
-            start_page, end_page, word_idxs = get_match_info(block.block, reg.start(), reg.end()- reg.start())
+            start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
             potential_matches.append(Error_type(
                 content=text[reg.start():reg.end()],
                 category= "DECIMAL",
@@ -38,6 +39,7 @@ def decimal_check(blocks):
                 page_start = start_page,
                 page_end = end_page,
                 word_idxs = word_idxs,
+                error_coordinate= error_coordinate,
             ))
         checked_match, decimal_counter = check_decimal_matches(potential_matches, block)
         checked_matches.extend(checked_match)
@@ -70,6 +72,8 @@ def check_decimal_matches(potential_matches, block):
         begin_check_idx = max(match.offset-30, 0)
         previous_text = re.findall(r'[^.()\[\]{}:,;\s]+', block.contents[begin_check_idx:match.offset].lower())
         if check_quotes(match, block.contents):
+            is_error = 0
+        elif check_if_proper(block.block, match):
             is_error = 0
         elif following_text and len(set(black_list).intersection(following_text)) > 0:
             is_error = 2

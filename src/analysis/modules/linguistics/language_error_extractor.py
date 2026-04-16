@@ -29,9 +29,8 @@ def language_tool_analisys(blocks):
 
         new_matches = []
         for match in matches:
-            # if match.rule_id == 'WHITESPACE_RULE':
-            #     whitespace_counter = whitespace_counter + 1
-            #     print(match)
+            if match.category == 'TYPOGRAPHY' and block.block.type != "paragraph":
+                continue
             if match.category == "TYPOS" and text_language == "pl":
                 word = contents[match.offset:match.offset + match.error_length]
                 if detector.detect_language_of(word) == Language.ENGLISH:
@@ -44,7 +43,7 @@ def language_tool_analisys(blocks):
             new_matches.append(match)
 
         for m in new_matches:
-            start_page, end_page, word_idxs = get_match_info(block.block, m.offset, m.error_length)
+            start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, m.offset, m.error_length)
             errors.append(Error_type(
                 content=contents[m.offset:m.offset + m.error_length],
                 category=m.category,
@@ -55,6 +54,7 @@ def language_tool_analisys(blocks):
                 page_start = start_page,
                 page_end = end_page,
                 word_idxs = word_idxs,
+                error_coordinate= error_coordinate,
             ))
     # print(whitespace_counter)    
     return errors, whitespace_counter
