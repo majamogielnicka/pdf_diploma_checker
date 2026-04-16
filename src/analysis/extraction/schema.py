@@ -146,11 +146,11 @@ class FinalDocument: # Ostateczna struktura dokumentu
 
 # Słownik wzorców dla list
 LIST_PATTERNS = {
-    "number_with_dot": r"^\d+(\.\d+)*\.\s",
-    "number_with_bracket": r"^\d+\)\s?",
+    "number_with_dot": r"^\d{1,3}+(\.\d+)*\.\s",
+    "number_with_bracket": r"^\d{1,3}+\)\s?",
     "letter_with_dot": r"^[a-z]\.\s",
     "letter_with_bracket": r"^[a-z]\)\s?",
-    "bullet": r"^[••●○■]",
+    "bullet": r"^[•••●○■]",
     "dash": r"^[-\u2013\u2014]"
 }
 HEADER_PATTERN = r"^\d+(\.\d+)*\s+"  # Wykrywa 1.1, 1.2.1 itd.
@@ -159,8 +159,8 @@ TOC_DOTS_PATTERN = r"\.{4,}" # Wykrywa ciągi kropek w spisie treści
 
 class DocumentPatterns:
     LIST_PATTERNS = {
-        "number_with_dot": re.compile(r"^\d+(\.\d+)*\.\s"),
-        "number_with_bracket": re.compile(r"^\d+\)\s?"),
+        "number_with_dot": re.compile(r"^\d{1,3}+(\.\d+)*\.\s"),
+        "number_with_bracket": re.compile(r"^\d{1,3}+\)\s?"),
         "letter_with_dot": re.compile(r"^[a-z]\.\s"),
         "letter_with_bracket": re.compile(r"^[a-z]\)\s?"),
         "bullet": re.compile(r"^[••●○■]"),

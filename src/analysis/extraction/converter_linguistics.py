@@ -279,6 +279,40 @@ class PDFMapper:
                 last_y1 = None
 
                 for line in block.lines:
+                    tmp_line_text = "".join(s.text for s in line.spans).strip()
+                    line_type, _ = classify_block_content(tmp_line_text)
+                    
+                    if line_type == "list" and full_text.strip():
+                        prev_type, prev_marker = classify_block_content(full_text)
+                        
+                        if prev_type == "paragraph":
+                            paragraph_buffer.append({
+                                'content': full_text.strip(),
+                                'words': words_info.copy(),
+                                'block_id':block.block_id
+                            })
+                            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "odcięcie wstępu od listy")
+                            full_text = ""
+                            words_info = []
+                            
+                        elif prev_type == "list":
+                            cleaned_text = strip_list_marker(full_text, prev_marker)
+                            list_buffer.append({
+                                'item': ListItem(
+                                    item_id=block.block_id, 
+                                    marker_type=prev_marker, 
+                                    text=cleaned_text, 
+                                    bbox=list(block.bbox),
+                                    words=words_info.copy()
+                                ),
+                                'words': words_info.copy(),
+                                'block_id': block.block_id,
+                                'bbox': list(block.bbox),
+                                'original_text': full_text
+                            })
+                            full_text = ""
+                            words_info = []
+
                     # Lewy koordynat x linii (do sprawdzenia, czy nowy akapit)
                     line_x0 = block.bbox[0]
                     if line.spans:
