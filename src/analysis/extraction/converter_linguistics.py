@@ -141,8 +141,10 @@ class PDFMapper:
             last_word = data['words'][-1]
             if len(data['words']) >= 2:
                 second_to_last_word = data['words'][-2]
-                if last_word.word_index == 0 or second_to_last_word.word_index == 0:
-                    is_widow = True
+                if last_word.word_index == 0:  
+                    is_widow = 1
+                elif second_to_last_word.word_index == 0:
+                    is_widow = 2
 
         block_type = "acronyms" if is_acronym_block else "paragraph"
 
@@ -152,10 +154,10 @@ class PDFMapper:
             elif PDFMapper.is_keywords(combined_words):
                 block_type = "keywords"
 
-        if block_type == "paragraph" and is_widow == True:
-            is_widow = True
+        if block_type == "paragraph" and is_widow != 0:
+            is_widow = is_widow
         else:
-            is_widow = False
+            is_widow = 0
 
         logical_blocks.append(ParagraphBlock(
             block_id=paragraph_buffer[0]['block_id'],
