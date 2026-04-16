@@ -19,6 +19,7 @@ class WordInfo: # Położenie XY oraz relatywne słowa
     italic: bool
     bbox: List[float]
     page_number: int
+    line: int = 0
     
 @dataclass
 class HeadingInfo: # Informacje o nagłówkach (TODO)
@@ -33,6 +34,7 @@ class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być parag
     headings: List[HeadingInfo] = field(default_factory=list)
     type: str = "paragraph"
     is_widow: int = 0
+    is_bekart: bool = False
     debug_empty: str = ""
     words: List[WordInfo] = field(default_factory=list)
 
@@ -148,7 +150,7 @@ class FinalDocument: # Ostateczna struktura dokumentu
 LIST_PATTERNS = {
     "number_with_dot": r"^\d{1,3}+(\.\d+)*\.\s",
     "number_with_bracket": r"^\d{1,3}+\)\s?",
-    "letter_with_dot": r"^[a-z]\.\s",
+    #"letter_with_dot": r"^[a-z]\.\s",
     "letter_with_bracket": r"^[a-z]\)\s?",
     "bullet": r"^[•••●○■]",
     "dash": r"^[-\u2013\u2014]"
@@ -161,7 +163,7 @@ class DocumentPatterns:
     LIST_PATTERNS = {
         "number_with_dot": re.compile(r"^\d{1,3}+(\.\d+)*\.\s"),
         "number_with_bracket": re.compile(r"^\d{1,3}+\)\s?"),
-        "letter_with_dot": re.compile(r"^[a-z]\.\s"),
+        #"letter_with_dot": re.compile(r"^[a-z]\.\s"),
         "letter_with_bracket": re.compile(r"^[a-z]\)\s?"),
         "bullet": re.compile(r"^[••●○■]"),
         "dash": re.compile(r"^[-\u2013\u2014]")

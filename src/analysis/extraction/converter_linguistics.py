@@ -81,7 +81,8 @@ class PDFMapper:
         is_acronym_block = False
         total_lines = len(paragraph_buffer)
 
-        is_widow = False
+        is_widow = 0
+        is_bekart = 0
 
         # Wykrywanie blokow z akronimami, jeśli zlepione w jedną linijkę
         if total_lines == 1:
@@ -110,6 +111,7 @@ class PDFMapper:
         combined_words = []
         current_offset = 0
 
+        # Pętla zapisująca zawartość bufora
         for i, data in enumerate(paragraph_buffer):
             content = data['content']
 
@@ -131,7 +133,8 @@ class PDFMapper:
                     bold=word.bold,
                     italic=word.italic,
                     bbox=word.bbox,
-                    page_number=word.page_number
+                    page_number=word.page_number,
+                    line=word.line
                 ))
 
             combined_content += separator + content
@@ -146,6 +149,29 @@ class PDFMapper:
                 elif second_to_last_word.word_index == 0:
                     is_widow = 2
 
+            # Detekcja bękartów
+            if combined_words:
+                first_page = combined_words[0].page_number
+                first_line = combined_words[0].line
+                page_lines_buf = 1  
+                has_page_break = False  
+            
+                for word in combined_words:
+                    if word.page_number != first_page:
+                        first_page = word.page_number
+                        first_line = word.line
+                        page_lines_buf = 1  
+                        has_page_break = True             
+                    elif word.line != first_line:
+                        first_line = word.line
+                        page_lines_buf += 1
+            
+                if has_page_break and page_lines_buf <= 2:
+                    is_bekart = True
+                else:
+                    is_bekart = False
+
+
         block_type = "acronyms" if is_acronym_block else "paragraph"
 
         if block_type == "paragraph":
@@ -154,10 +180,17 @@ class PDFMapper:
             elif PDFMapper.is_keywords(combined_words):
                 block_type = "keywords"
 
+        # Przypisanie wdowy tylko do bloku typu paragraf
         if block_type == "paragraph" and is_widow != 0:
             is_widow = is_widow
         else:
             is_widow = 0
+
+        # Przypisanie bękarta tylko do bloku typu paragraf
+        if block_type == "paragraph" and is_bekart == True:
+            is_bekart = is_bekart
+        else:
+            is_bekart = False
 
         logical_blocks.append(ParagraphBlock(
             block_id=paragraph_buffer[0]['block_id'],
@@ -165,6 +198,7 @@ class PDFMapper:
             words=combined_words,
             type=block_type,
             is_widow=is_widow,
+            is_bekart=is_bekart,
             debug_empty=debug_why_empty
         ))
         paragraph_buffer.clear()
@@ -234,6 +268,7 @@ class PDFMapper:
         list_buffer = [] 
         paragraph_buffer = []
 
+        curr_line = 0
         for page in old_doc.pages:
             top_thresh = 50
             bottom_thresh = page.height - 50
@@ -250,6 +285,8 @@ class PDFMapper:
             )
             x0_margin = margins["left"]            
             margin_indent_thresh = 20
+            
+
 
             for block in page.text_blocks:
                 if PDFMapper.is_inside_table(block.bbox, table_bboxes):
@@ -294,6 +331,7 @@ class PDFMapper:
                             PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "odcięcie wstępu od listy")
                             full_text = ""
                             words_info = []
+                            curr_line = 0
                             
                         elif prev_type == "list":
                             cleaned_text = strip_list_marker(full_text, prev_marker)
@@ -334,11 +372,13 @@ class PDFMapper:
                         line_height = current_y1 - current_y0
                         if vertical_gap > line_height * 1.5:
                             PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "zbyt duża wertykalna przerwa")
+                            curr_line = 0
                     
                     last_y1 = current_y1
                     
                     if paragraph_buffer and (line_x0 > x0_margin + margin_indent_thresh):
                         PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "tab na początku linijki")
+                        curr_line = 0
 
                     # Wyliczenie mediany przerw dla bieżącej linii (do wykrycia podwójnych spacji)
                     line_gaps = []
@@ -382,15 +422,19 @@ class PDFMapper:
                             bold=span.bold,
                             italic=span.italic,
                             bbox=list(span.bbox),
-                            page_number=page.number
+                            page_number=page.number,
+                            line = curr_line
                         ))
                         
                         full_text += word_text
                         prev_span_x1 = span.bbox[2]
                         word_counter += 1
+                    curr_line += 1
                     
                     if not full_text.endswith(" ") and not full_text.rstrip().endswith("-"):
                         full_text += " "
+
+
                 
                 full_text = full_text.strip()
                 if not full_text: continue
@@ -409,6 +453,7 @@ class PDFMapper:
 
                 if current_type:
                     PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "wykryto blok opisu tabeli/zdjęcia")
+                    curr_line = 0
                     PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     
                     new_doc.logical_blocks.append(ParagraphBlock(
@@ -421,6 +466,7 @@ class PDFMapper:
                 
                 if PDFMapper.is_header(words_info):
                     PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "wykryto nagłówek")
+                    curr_line = 0
                     PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     
                     new_doc.logical_blocks.append(ParagraphBlock(
@@ -436,6 +482,7 @@ class PDFMapper:
 
                 if block_type == "list":
                     PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "wykryto listę")
+                    curr_line = 0
                     cleaned_text = strip_list_marker(full_text, marker_type)
                     list_buffer.append({
                         'item': ListItem(
