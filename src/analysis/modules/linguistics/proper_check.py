@@ -18,16 +18,23 @@ def check_if_proper(block, match, proper_names, lemma, text_language):
     Returns:
         bool: True if the word is deemed a proper name/exception, False otherwise.
     """
-    
-    regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
+    ACADEMIC_TITLES = {"prof.", "dr", "dr hab.", "mgr", "inż.", "lic.", "doc."}
+    BRITISH_ABBREVIATIONS = {"Dr", "Mr", "Mrs", "Ms", "Jr", "Sr", "St"}
+    #regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
     is_digit = re.compile(r'\d')
-    if is_digit.search(lemma):
+    if lemma:
+        text = lemma.strip("():;,.!?[]\n\t ")
+    else:
+        text = match.content.strip("():;,.!?[]\n\t ")
+    if is_digit.search(text):
         return True
-    elif regex.search(lemma) != None:
+    #elif regex.search(text) != None:
+    #    return True
+    if text in ACADEMIC_TITLES or text in BRITISH_ABBREVIATIONS:
         return True
-    elif lemma.isupper():
+    elif text.isupper():
         return True
-    elif lemma.isascii() == True:  
+    elif text.isascii() == True:  
         return True
     else:
         target_words_ids = set(match.word_idxs)
@@ -37,7 +44,7 @@ def check_if_proper(block, match, proper_names, lemma, text_language):
     for word in matched_words:
             if word.text in proper:
                 return True
-            if lemma in proper_lemmas:
+            if lemma and text in proper_lemmas:
                 return True
             if word.italic or word.bold:
                 return True

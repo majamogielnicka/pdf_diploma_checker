@@ -15,7 +15,7 @@ def add_match(word, block_id):
     return Error_type(
                 content = word.text,
                 category = "ACRONYM_UNDEFINED",
-                message = "The acronym does not have any definition before",
+                message = "Skrót nie został zdefiniowany przed jego użyciem.",
                 offset = 0,
                 error_length = len(word.text),
                 block_id = block_id,
@@ -34,8 +34,8 @@ def potential_acronym(text):
     }
 
 
-    clean_text = text.strip("():;,.!?[]")
-    if len(clean_text) < 2:
+    clean_text = text.strip("():;,.!?[]\n\t ")
+    if len(clean_text) < 2 or len(clean_text) > 10:
         return False
     if clean_text.islower():
         return False
@@ -55,7 +55,7 @@ def potential_acronym(text):
 
     return 
 
-def check_if_was_defined(blocks, acronyms_with_definitions):
+def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
 
     """ 
     Checks if the acronym was defined before the current block.
@@ -63,26 +63,34 @@ def check_if_was_defined(blocks, acronyms_with_definitions):
     Args:
         blocks (list): List of blocks.
         acronyms_with_definitions (dict): Dictionary of acronyms and their definitions.
+        proper_names (set): Set of valid proper names.
     
     Returns:
         list: List of error objects.
     """
 
     matches = []
+
+    proper_names_clean = {p[0].strip("() \n\t.,;:") for p in proper_names} if proper_names else set()
+    
     for block in blocks.logical_blocks:
-        if block.type in {"acronyms", "headings"}:
+        if block.type in {"acronyms", "heading"}:
             continue
         for word in block.words:
             text = word.text
-            page = word.page_number
+            clean_text = text.strip("():;,.!?[]\n\t ")
+            
             if not potential_acronym(text):
                 continue
-            if text in acronyms_with_definitions:
-                acronym = acronyms_with_definitions[word.text]
+            if clean_text in proper_names_clean:
+                continue
+
+            page = word.page_number
+            if clean_text in acronyms_with_definitions:
+                acronym = acronyms_with_definitions[clean_text]
                 acronym_page, acronym_bbox = acronym[2], acronym[3]
+
                 if (page, word.bbox[1], word.bbox[0]) < (acronym_page, acronym_bbox[1], acronym_bbox[0]):
-                    continue
-                else:
                     matches.append(add_match(word, block.block_id))
             else:
                 matches.append(add_match(word, block.block_id))

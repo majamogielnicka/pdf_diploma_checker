@@ -8,14 +8,35 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
     "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS",
     "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA",
     }
-    if any(word in new_acronym or word in definition for word in proper_names):
-        if new_acronym.strip() not in acronyms_with_definitions:
-            if new_acronym in TITLE_PAGE_PHRASES:
-                return acronyms_with_definitions
-            if new_acronym in words and words[new_acronym].page_number > 1:
-                word_page = words[new_acronym].page_number
-                word_bbox = words[new_acronym].bbox
-                acronyms_with_definitions[new_acronym] = (definition, block_id, word_page, word_bbox)
+    new_acronym_clean = new_acronym.strip()
+    if new_acronym_clean not in acronyms_with_definitions:
+        if new_acronym_clean in TITLE_PAGE_PHRASES:
+            return acronyms_with_definitions
+            
+        words_list = list(words.values()) if isinstance(words, dict) else words
+        word_page, word_bbox = None, None
+        
+        for w in words_list:
+            if w.text == new_acronym_clean:
+                word_page = w.page_number
+                word_bbox = w.bbox
+                break
+                
+        if word_page is None:
+            for w in words_list:
+                if w.text.startswith(new_acronym_clean):
+                    word_page = w.page_number
+                    word_bbox = w.bbox
+                    break
+        
+        if word_page is None and len(words_list) > 0:
+            w = words_list[0]
+            word_page = w.page_number
+            word_bbox = w.bbox
+            
+        if word_page is not None and word_page > 1:
+            acronyms_with_definitions[new_acronym_clean] = (definition, block_id, word_page, word_bbox)
+            
     return acronyms_with_definitions
 
 def check_first_definition(document, proper_names):
