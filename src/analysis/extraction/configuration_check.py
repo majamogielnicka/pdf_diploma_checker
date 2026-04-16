@@ -103,7 +103,7 @@ class Validator:
         return [f"{issue.category}: {issue.description} (strona {issue.page})" for issue in self.issues]
 
     def check_interline_spacing(self, doc_data: DocumentData) -> bool:
-        line_spacing = doc_data.get_line_spacing()
+        line_spacing = doc_data.get_dominant_line_spacing()
         if line_spacing is None:
             logging.warning("Redaction: nie można określić interlinii")
             return True

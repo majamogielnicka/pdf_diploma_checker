@@ -5,10 +5,17 @@ from configuration_check import Configuration, Validator
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
+import sys
+
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parents[2]
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
 def main():
     #  Ścieżki do plików
-    pdf_path = "pdf_diploma_checker/src/redaction/mock_data/03_pdflatex.pdf"
-    config_path = "pdf_diploma_checker/src/wymagania_inz.json"
+    pdf_path = PROJECT_ROOT / "data" / "zusz.pdf"
+    config_path = PROJECT_ROOT / "src" / "config" / "wymagania_inz.json"
 
     if not Path(pdf_path).exists():
         print(f"Błąd: Nie znaleziono pliku PDF pod adresem: {pdf_path}")

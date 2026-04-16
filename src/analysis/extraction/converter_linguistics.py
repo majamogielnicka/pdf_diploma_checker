@@ -278,7 +278,14 @@ class PDFMapper:
 
                 for line in block.lines:
                     # Lewy koordynat x linii (do sprawdzenia, czy nowy akapit)
-                    line_x0 = line.spans[0].bbox[0] if line.spans else block.bbox[0]
+                    line_x0 = block.bbox[0]
+                    if line.spans:
+                        first_valid_span = next((s for s in line.spans if s.text.strip()), None)
+                        if first_valid_span:
+                            line_x0 = first_valid_span.bbox[0]
+                        else:
+                            line_x0 = line.spans[0].bbox[0]
+                    
                     line_x1 = line.spans[-1].bbox[2] if line.spans else block.bbox[2]
 
                     
