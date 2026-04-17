@@ -2,7 +2,7 @@ from .spacy_helpers import nlp_pl, nlp_en, lemmatization
 import re
 
 
-def get_proper_names(document, text_language):
+def get_proper_names(blocks):
     """
     Extracts proper names and recognized entities from the document using spaCy.
     
@@ -32,22 +32,18 @@ def get_proper_names(document, text_language):
     search_space = re.compile(r"\s")
     bibliography = re.compile(r"^\[\d+\]")
 
-    if text_language == "pl":
-        nlp = nlp_pl
-    else:
-        nlp = nlp_en
-
-    for block in document.logical_blocks:
+    for block in blocks:
         previous = None
 
-        if bibliography.findall(block.content):
+        if bibliography.findall(block.contents):
             continue
-        if any(phrase in block.content for phrase in TITLE_PAGE_PHRASES):
+        if any(phrase in block.contents for phrase in TITLE_PAGE_PHRASES):
             continue
-        if block.type in ("paragraph", "heading", "list", "acronyms"):
+        if block.block.type in ("paragraph", "heading", "list", "acronyms"):
 
-            if text_language == "pl":
-                text = nlp(block.content)
+            if block.language == "pl":
+                nlp = nlp_pl
+                text = nlp(block.contents)
                 for ent in text.ents:
                     ent_text = ent.text.strip("(),.:;[]\n\t ")
                     if not ent.label_ or ent.label_ in SKIP_LABEL_PL or len(ent_text) < 2:
@@ -56,11 +52,12 @@ def get_proper_names(document, text_language):
                         previous = ent
                         ent_text = previous.text + " " + ent_text
                         proper_names.pop(-1)
-                    ent_lemma, is_found = lemmatization(ent_text, text_language)
+                    ent_lemma, is_found = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))  
 
-            elif text_language == "en":
-                text = nlp(block.content)
+            elif block.language == "en":
+                nlp = nlp_en
+                text = nlp(block.contents)
                 for ent in text.ents:
                     ent_text = ent.text.strip("(),.:;[]\n\t ")   
                     if not ent.label_ or ent.label_ in SKIP_LABELS_EN or len(ent_text) < 2:
@@ -69,11 +66,11 @@ def get_proper_names(document, text_language):
                         previous = ent
                         ent_text = previous.text + " " + ent_text
                         proper_names.pop(-1)
-                    ent_lemma, is_found = lemmatization(ent_text, text_language)
+                    ent_lemma, is_found = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))    
 
-        if block.type in ("keywords", "paragraph"):
-            keyword_match = search_keywords.search(block.content)
+        if block.block.type in ("keywords", "paragraph"):
+            keyword_match = search_keywords.search(block.contents)
             if keyword_match:
                 keywords_text = keyword_match.group(1)
                 keywords = split.split(keywords_text)
@@ -85,11 +82,11 @@ def get_proper_names(document, text_language):
                     if search_space.search(keyword):
                         keyword_lemma = keyword
                     else:
-                        keyword_lemma, is_found = lemmatization(keyword, text_language)
-                    #print("Keyword: ", keyword, "Lemma: ", keyword_lemma, "\n")
+                        keyword_lemma, is_found = lemmatization(keyword, block.language)
+                    print("Keyword: ", keyword, "Lemma: ", keyword_lemma, "\n")
                     keywords_lemma.append((keyword, keyword_lemma))
                 proper_names.extend(keywords_lemma)
                 #print("keywords_lemma: ", keywords_lemma)
     proper_names = set(proper_names)
-    #print("Proper names: ", {proper[0] for proper in proper_names})
+    print("Proper names: ", {proper[0] for proper in proper_names})
     return proper_names

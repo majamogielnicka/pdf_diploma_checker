@@ -37,7 +37,11 @@ def check_item(full_text, last_item, second_to_last, text_language, sentence_sty
         return is_upper_and_dot(full_text)
     else:
         if not full_text[0].islower() and not is_en:
-            return False
+            if dominant_ending in {',', ';'}:
+                if last_item:
+                    return full_text.endswith('.')
+                return full_text[-1] == dominant_ending
+            return full_text.endswith('.')
         if marker_type in ("dash", "bullet") and not has_verb(full_text, text_language) and ',' not in full_text[:-2]:
             if len(full_text.split()) < 5 and full_text[-1].isalnum():
                 return True

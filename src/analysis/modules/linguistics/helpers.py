@@ -4,7 +4,7 @@ import json
 import morfeusz2
 from lingua import Language, LanguageDetectorBuilder
 from src.analysis.extraction.schema import *
-from .linguistics_types import Block_context
+from .linguistics_types import Block_context, Error_type
 
 morf = morfeusz2.Morfeusz()
 languages = [Language.ENGLISH, Language.POLISH]
@@ -107,3 +107,28 @@ def get_context(blocks):
         blocks_info.append(block_info)
         
     return blocks_info
+
+def add_match(content, block_id, page_start, page_end, word_idxs, error_coordinate, category, message):
+
+    """
+    Creates an error object for a specific list item.
+
+    Args:
+        items_by_id (dict): Dictionary of items by ID.
+        num (int): Item ID.
+
+    Returns:
+        Error_type: Error type object.
+    """
+    return Error_type(
+                content = content,
+                category = category,
+                message = message,
+                offset = 0,
+                error_length = len(content),
+                block_id = block_id,
+                page_start = page_start ,
+                page_end = page_end,
+                word_idxs = word_idxs,
+                error_coordinate= error_coordinate
+            )

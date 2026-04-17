@@ -1,29 +1,5 @@
 from .linguistics_types import Error_type
-
-def add_match(word, block_id):
-
-    """
-    Creates an error object for a specific list item.
-    
-    Args:
-        items_by_id (dict): Dictionary of items by ID.
-        num (int): Item ID.
-    
-    Returns:
-        Error_type: Error type object.
-    """
-    return Error_type(
-                content = word.text,
-                category = "ACRONYM_UNDEFINED",
-                message = "Skrót nie został zdefiniowany przed jego użyciem.",
-                offset = 0,
-                error_length = len(word.text),
-                block_id = block_id,
-                page_start = word.page_number ,
-                page_end = word.page_number,
-                word_idxs = word.word_index,
-                error_coordinate= (word.bbox[2], word.bbox[3])
-            )
+from .helpers import add_match
 
 def potential_acronym(text):
 
@@ -33,7 +9,6 @@ def potential_acronym(text):
     "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS",
     "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA",
     }
-
 
     clean_text = text.strip("():;,.!?[]\n\t ")
     if len(clean_text) < 2 or len(clean_text) > 10:
@@ -69,12 +44,14 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
     Returns:
         list: List of error objects.
     """
-
+    category = "ACRONYM_UNDEFINED"
+    message = "Skrót nie został zdefiniowany przed jego użyciem."
     matches = []
 
     proper_names_clean = {p[0].strip("() \n\t.,;:") for p in proper_names} if proper_names else set()
     
-    for block in blocks.logical_blocks:
+    for block in blocks:
+        block = block.block
         if block.type in {"acronyms", "heading"}:
             continue
         for word in block.words:
@@ -92,8 +69,8 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                 acronym_page, acronym_bbox = acronym[2], acronym[3]
 
                 if (page, word.bbox[1], word.bbox[0]) < (acronym_page, acronym_bbox[1], acronym_bbox[0]):
-                    matches.append(add_match(word, block.block_id))
+                    matches.append(add_match(word.text, block.block_id, page, page, word.word_index, word.bbox, category, message))
             else:
-                matches.append(add_match(word, block.block_id))
+                matches.append(add_match(word.text, block.block_id, page, page, word.word_index, word.bbox, category, message))
 
     return matches

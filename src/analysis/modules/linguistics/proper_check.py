@@ -4,7 +4,7 @@ from src.analysis.extraction.schema import ParagraphBlock, WordInfo
 from .linguistics_types import Error_type
 
 
-def check_if_proper(block, match, proper_names=None, lemma=None, text_language=None):
+def check_if_proper(block, match, proper_names=None, lemma=None):
     """
     Evaluates whether a particular matched word should be considered a valid exception 
     
@@ -13,7 +13,6 @@ def check_if_proper(block, match, proper_names=None, lemma=None, text_language=N
         match (Error_type): The error match object containing the reported typo.
         proper_names (set): A collection of known proper names in the document.
         lemma (str): The lemmatized version of the matched word.
-        text_language (str): pl for Polish or en for English.
         
     Returns:
         bool: True if the word is deemed a proper name/exception, False otherwise.
@@ -39,8 +38,9 @@ def check_if_proper(block, match, proper_names=None, lemma=None, text_language=N
     else:
         target_words_ids = set(match.word_idxs)
         matched_words = [word for word in block.words if word.word_index in target_words_ids]
-        proper = [p[0] for p in proper_names]
-        proper_lemmas = [p[1] for p in proper_names]
+        if proper_names is not None:
+            proper = [p[0] for p in proper_names]
+            proper_lemmas = [p[1] for p in proper_names]
     for word in matched_words:
         if proper_names is not None:
             proper = [p[0] for p in proper_names]

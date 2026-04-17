@@ -39,7 +39,7 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
             
     return acronyms_with_definitions
 
-def check_first_definition(document, proper_names):
+def check_first_definition(blocks, proper_names):
     """
     Extracts the first definition of an acronym from the document.
     
@@ -56,7 +56,8 @@ def check_first_definition(document, proper_names):
     paragraph_acr_first = re.compile(r'\(([A-Z]{2,})\)\s([A-ZÀ-Ž][a-ząćęłńóśźż\w\s]+)')
     split = re.compile(r"\s[-–—]\s")
     proper = set(p[0] for p in proper_names)
-    for block in document.logical_blocks:
+    for block in blocks:
+        block = block.block
         words = {word.text: word for word in block.words}
         if block.type == "acronyms":
             list_of_acronyms = block.content.split("\n")
@@ -82,5 +83,5 @@ def check_first_definition(document, proper_names):
                 for new_acronym in new_acronyms:
                     acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions, proper)
 
-    #print("\nDetected acronyms and their definitions: \n", "\n ".join([f"\t{acronym} - {definition}, {block_id, page, bbox}" for acronym, (definition, block_id, page, bbox) in acronyms_with_definitions.items()]))
+    print("\nDetected acronyms and their definitions: \n", "\n ".join([f"\t{acronym} - {definition}, {block_id, page, bbox}" for acronym, (definition, block_id, page, bbox) in acronyms_with_definitions.items()]))
     return acronyms_with_definitions

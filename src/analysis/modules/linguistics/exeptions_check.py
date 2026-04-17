@@ -38,7 +38,7 @@ def check_exeptions(matches, blocks, proper_names):
                 if not inside_quotes:
                     if match.category == 'TYPOS':
                         lemma, is_found = lemmatization(word, block.language)
-                        if check_if_proper(block.block, match, proper_names, lemma, block.language):
+                        if check_if_proper(block.block, match, proper_names, lemma):
                             continue
                         potential_exeptions[lemma].append(match)
                         potential_exeption = True
