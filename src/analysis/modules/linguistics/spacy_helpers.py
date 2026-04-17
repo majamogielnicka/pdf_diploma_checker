@@ -2,7 +2,7 @@ import spacy
 import functools
 
 nlp_en = spacy.load('en_core_web_sm')
-nlp_pl = spacy.load('pl_core_news_md')
+nlp_pl = spacy.load('pl_core_news_lg')
 
 @functools.cache
 def lemmatization(word_base, text_language):

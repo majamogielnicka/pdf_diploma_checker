@@ -1,2 +1,0 @@
-﻿FROM C:/Users/Wiktor/models/gemma3/gemma-3-4b-it-Q4_K_M.gguf
-PARAMETER num_ctx 2048

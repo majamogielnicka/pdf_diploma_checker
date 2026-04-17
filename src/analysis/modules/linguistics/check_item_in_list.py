@@ -1,4 +1,4 @@
-import src.linguistics.spacy_helpers as spacy_helpers
+from . import spacy_helpers
 
 NLP_MODELS: dict = {
     "pl": spacy_helpers.nlp_pl,
@@ -15,7 +15,7 @@ def has_verb(text, language):
 def is_upper_and_dot(full_text):
     return full_text[0].isupper() and full_text.endswith(".")
 
-def check_item(full_text, last_item, second_to_last, text_language, sentence_style, dominant_ending):
+def check_item(full_text, last_item, second_to_last, text_language, sentence_style, dominant_ending, marker_type):
 
     """
     Checks and validates the punctuation correctness of a list item.
@@ -27,6 +27,7 @@ def check_item(full_text, last_item, second_to_last, text_language, sentence_sty
         text_language (str): Language code: 'pl' for Polish or 'en' for English.
         sentence_style (bool): True if the list uses uppercase.
         dominant_ending (str): The dominant ending of the list items.
+        marker_type (str): The marker type of the list item.
     Returns:
         bool: True if the item is valid, False if it contains an error.
     """
@@ -37,7 +38,12 @@ def check_item(full_text, last_item, second_to_last, text_language, sentence_sty
     else:
         if not full_text[0].islower() and not is_en:
             return False
+        if marker_type in ("dash", "bullet") and not has_verb(full_text, text_language) and ',' not in full_text[:-2]:
+            if len(full_text.split()) < 5 and full_text[-1].isalnum():
+                return True
         if is_en and dominant_ending:
+            if not has_verb(full_text, text_language) and not sentence_style:
+                return full_text[-1].isalnum()
             if dominant_ending == '.':
                 return full_text.endswith('.')
             elif dominant_ending in {',', ';'}:
