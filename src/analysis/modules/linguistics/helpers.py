@@ -1,3 +1,7 @@
+import os
+import dataclasses
+import json
+
 def get_match_info(block, offset, length):
     '''
     Extracts match data.
@@ -24,3 +28,23 @@ def get_match_info(block, offset, length):
                 start_page = word.page_number
             end_page = word.page_number
     return start_page, end_page, word_idxs
+
+def extract_errors_to_json(matches):
+
+    """
+    Extracts errors from the list of matches and writes them to a JSON file.
+    
+    Args:
+        matches (list): A list of errors to be extracted.
+
+    Returns:
+        None    
+    """
+    all_matches = []
+    for match in matches:
+        all_matches.append(dataclasses.asdict(match))
+
+    output_path = os.path.join(os.path.dirname(__file__), "errors.json")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(all_matches, f, ensure_ascii=False, indent=4)

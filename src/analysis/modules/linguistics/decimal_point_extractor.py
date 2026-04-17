@@ -1,8 +1,8 @@
 import re
-from src.linguistics.linguistics_types import Error_type
-from src.redaction.schema import ParagraphBlock, ListBlock
-from src.linguistics.helpers import get_match_info
-from src.linguistics.exeptions_check import check_quotes
+from .linguistics_types import Error_type
+from src.analysis.extraction.schema import ParagraphBlock, ListBlock
+from .helpers import get_match_info
+from .exeptions_check import check_quotes
 
 def decimal_check(text_language, blocks):
     """

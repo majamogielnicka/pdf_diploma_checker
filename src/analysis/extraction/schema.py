@@ -29,10 +29,10 @@ class HeadingInfo: # Informacje o nagłówkach (TODO)
 @dataclass
 class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być paragrafami, nagłówkami lub listami
     block_id: Union[int, str]
-    content: str
-    words: List[WordInfo]
+    content: str = ""
     headings: List[HeadingInfo] = field(default_factory=list)
     type: str = "paragraph"
+    words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
 class ListItem:
@@ -46,10 +46,10 @@ class ListItem:
 class ListBlock:
     block_id: Union[int, str]
     content: str
-    words: List[WordInfo]
-    items: List[ListItem]
     bbox: List[float]
     type: str = "list"
+    items: List[ListItem] = field(default_factory=list)
+    words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
 class PageArtifact: # Informacje o elementach pływających, takich jak numery stron, nagłówki/stopki, itp.
@@ -144,10 +144,10 @@ class FinalDocument: # Ostateczna struktura dokumentu
 
 # Słownik wzorców dla list
 LIST_PATTERNS = {
-    "number_with_dot": r"^\d+(\.\d+)*\.",
-    "number_with_bracket": r"^\d+\)",
-    "letter_with_dot": r"^[a-z]\.",
-    "letter_with_bracket": r"^[a-z]\)",
+    "number_with_dot": r"^\d+(\.\d+)*\.\s",
+    "number_with_bracket": r"^\d+\)\s?",
+    "letter_with_dot": r"^[a-z]\.\s",
+    "letter_with_bracket": r"^[a-z]\)\s?",
     "bullet": r"^[••●○■]",
     "dash": r"^[-\u2013\u2014]"
 }
