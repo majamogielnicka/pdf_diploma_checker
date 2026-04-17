@@ -26,7 +26,7 @@ except Exception:
     from get_summary import summarize_subtitles
 
 
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "agna.pdf"
+DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
 
 EMBEDDING_MODEL = "intfloat/multilingual_e5_large"
 

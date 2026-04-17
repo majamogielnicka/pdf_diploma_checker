@@ -3,6 +3,12 @@ from pathlib import Path
 
 from llama_cpp import Llama
 
+"""
+Skrypt do generowania jednozdaniowych streszczeń sekcji PDF
+w stylu rzeczowym i bezosobowym, możliwie dobrze nadających się
+do dalszego użycia np. z sentence-transformers.
+"""
+
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
@@ -17,33 +23,34 @@ try:
 except Exception:
     from get_subtitles import extract_subtitles_from_pdf
 
-PDF_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
-#zmien sciezke odpowiednio do miejsca modelu
-MODEL_PATH = Path(r"C:\Users\Wiktor\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf")
-#MODEL_PATH = Path.home() / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
-N_CTX = 2048
+PDF_PATH = PROJECT_ROOT / "data" / "inż_1_.pdf"
 
-PROMPT_PL = (
-    "Na podstawie wyłącznie podanego tekstu napisz jedno zdanie streszczenia po polsku. "
-    "Nie dodawaj żadnych informacji spoza tekstu. "
-    "Nie używaj ogólników. "
-    "Nie łącz wielu niezależnych definicji w jedno sztuczne zdanie. "
-    "Jeśli tekst jest urwany lub niejednoznaczny, streść tylko to, co pewne. "
-    "Zwróć tylko i wyłącznie zdanie wynikowe bez swojego wstępu.\n"
-)
+# Zmień ścieżkę odpowiednio do miejsca modelu
+MODEL_PATH = Path.home() / "models" / "gemma2" / "gemma-2-9b-it-Q4_K_M.gguf"
 
-PROMPT_EN = (
-    "Summarize the given fragment in one sentence in English. "
-    "Do not add any information not present in the text. "
-    "If the fragment is incomplete or ambiguous, summarize only what is certain. "
-    "Return only the final sentence.\n"
-)
-
-MAX_FRAGMENT_CHARS = 2200
-MAX_NEW_TOKENS = 80
+# Ustawienia bardziej uniwersalne
+MAX_FRAGMENT_CHARS = 1600
+MAX_NEW_TOKENS = 96
 N_CTX = 4096
 N_THREADS = None
 N_GPU_LAYERS = 0
+
+PROMPT_PL = (
+    "Na podstawie wyłącznie podanego fragmentu napisz jedno zdanie po polsku streszczające jego główną treść. "
+    "Zdanie ma odnosić się tylko do informacji zawartych w tym fragmencie, bez odwołań do innych części pracy. "
+    "Użyj stylu rzeczowego i możliwie bezosobowego. "
+    "Nie dodawaj informacji spoza tekstu."
+)
+
+PROMPT_EN = (
+    "Write one sentence in English expressing the main content of the fragment. "
+    "Use an impersonal, content-focused style. "
+    "Do not use phrases such as 'the section describes', 'the text presents', "
+    "'the author discusses', or 'the paper explains'. "
+    "Do not summarize the structure of the text; summarize its substantive content. "
+    "Include the most important mechanism, property, goal, or result if present. "
+    "Do not add any information not present in the text."
+)
 
 _LLM = None
 
@@ -118,8 +125,8 @@ def get_summary(fragment, language):
         full_prompt,
         max_tokens=MAX_NEW_TOKENS,
         temperature=0.0,
-        top_p=0.2,
-        repeat_penalty=1.1,
+        top_p=0.1,
+        repeat_penalty=1.12,
         stop=["\n\n", "TEKST:", "TEXT:", "WYNIK:", "RESULT:"],
         echo=False,
     )
@@ -150,6 +157,9 @@ def get_summaries(subtitles, language):
                 "summary": "[BRAK TREŚCI W SEKCJI]"
             })
             print(f"{i}/{len(subtitles)} - {display} -> BRAK TREŚCI")
+            print("SUMMARY:")
+            print("[BRAK TREŚCI W SEKCJI]")
+            print("-" * 80)
             continue
 
         try:
@@ -167,6 +177,9 @@ def get_summaries(subtitles, language):
         })
 
         print(f"{i}/{len(subtitles)} - {display}")
+        print("SUMMARY:")
+        print(summary)
+        print("-" * 80)
 
     return summaries
 
@@ -216,10 +229,7 @@ def main():
 
     print(f"Wykryto nagłówków: {len(subtitles)}")
 
-    summaries = get_summaries(subtitles, language)
-
-    print()
-    print_summaries(summaries)
+    get_summaries(subtitles, language)
 
 
 if __name__ == "__main__":
