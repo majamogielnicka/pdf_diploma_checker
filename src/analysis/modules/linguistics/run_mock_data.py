@@ -17,7 +17,7 @@ import os
 def run_linguistics(raw_blocks):
     text_language = 'en'
     blocks = get_context(raw_blocks)
-    extract_errors_to_json(blocks, "final_document3.json")
+    extract_errors_to_json(blocks, "final_document.json")
     proper_names = get_proper_names(blocks)
     acronyms_with_definitions = check_first_definition(blocks, proper_names)
     acronym_matches = check_if_was_defined(blocks, acronyms_with_definitions, proper_names)
@@ -32,9 +32,14 @@ def run_linguistics(raw_blocks):
 
 
 if __name__ == "__main__":
-    pdf_file = "data/jost2.pdf"
-    document = extractPDF(str(pdf_file))
-    raw_blocks = PDFMapper.map_to_schema(document)
-    matches = run_linguistics(raw_blocks)
-    # print(f"Znaleziono błędów: {len(matches)}")
-    extract_errors_to_json(matches, "errors3.json")
+    pdf_file = "data/doju1.pdf"
+    try:
+        document = extractPDF(str(pdf_file))
+        raw_blocks = PDFMapper.map_to_schema(document)
+    except AttributeError as e:
+        print(f"Ekstrakcja zakończyła się niepowodzeniem.")
+    else:
+        extract_errors_to_json(raw_blocks, "final_document_raw.json")
+        matches = run_linguistics(raw_blocks)
+        print(f"Znaleziono błędów: {len(matches)}")
+        extract_errors_to_json(matches, "errors.json")

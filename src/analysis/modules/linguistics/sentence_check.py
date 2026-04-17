@@ -5,6 +5,7 @@ from .exeptions_check import check_quotes
 from .helpers import get_match_info, morf, language
 from .linguistics_types import Error_type, Analisys_type
 from .proper_check import check_if_proper
+
 def sentence_check(blocks):
     '''
     Marks usage of personal forms of verbs (excluding 3rd) as an error. Creates statistics on passive and active forms of sentences.
@@ -32,6 +33,7 @@ def sentence_check(blocks):
         if sentence_count < 3:
             skip = True
         for sentence in content.sents:
+            # print(sentence.text)
             passive = False
             quotes = False
             is_subject = False
@@ -57,7 +59,7 @@ def sentence_check(blocks):
                             word_idxs = word_idxs,
                             error_coordinate= error_coordinate
                             )   
-                            if not check_quotes(match, text):
+                            if not check_quotes(match, text) and not check_if_proper(block.block, match):
                                 checked_matches.append(match)
                             else:
                                 quotes = True

@@ -16,8 +16,18 @@ def language_tool_analisys(blocks):
     """
     whitespace_counter = 0
     tool_en = language_tool_python.LanguageTool('en-GB')
+    tool_en.disabled_categories.add('BRE_STYLE_OXFORD_SPELLING')
+    tool_en.disabled_categories.add('MULTITOKEN_SPELLING')
+    tool_en.disabled_categories.add('CONFUSED_WORDS')
+    tool_en.disabled_rules.add('EN_UNPAIRED_BRACKETS')
+    tool_en.disabled_rules.add('COMMA_PERIOD_CONFUSION')
+    tool_en.disabled_rules.add('EN_UNPAIRED_QUOTES')
     tool_pl = language_tool_python.LanguageTool('pl-PL')
     tool_pl.disabled_rules.add('NIETYPOWA_KOMBINACJA_DUZYCH_I_MALYCH_LITER')
+    tool_pl.disabled_rules.add('PL_UNPAIRED_BRACKETS')
+    tool_pl.disabled_rules.add('SUBST_ADJ_UNIFY')
+    tool_pl.disabled_rules.add('FORMAT_DZIESIETNY')
+
         
     detector = language_detector
 
