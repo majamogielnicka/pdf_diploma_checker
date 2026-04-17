@@ -8,8 +8,6 @@ import statistics
 import fitz  # PyMuPDF
 from typing import Dict
 
-
-
 from schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,

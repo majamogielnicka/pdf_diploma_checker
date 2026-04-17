@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
-from extraction_json import extractPDF
-from configuration_check import Configuration, Validator
+from src.analysis.extraction.extraction_json import extractPDF
+from src.analysis.extraction.configuration_check import Configuration, Validator
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
