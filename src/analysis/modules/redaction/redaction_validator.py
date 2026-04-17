@@ -5,8 +5,8 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 
 '''
 
-from bare_struct import DocumentData
-from errorStruct import RedactionError, Module
+from src.analysis.extraction.bare_struct import DocumentData
+from src.analysis.errors.error_struct import RedactionError, Module
 
 class RedactionValidator:
     def __init__(self, document_data: DocumentData):
