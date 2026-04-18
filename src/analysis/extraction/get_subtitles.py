@@ -11,8 +11,6 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-
-
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.converter_linguistics import PDFMapper
 
@@ -245,7 +243,7 @@ def get_subtitles(pdf_path: Path, txt_path: Path | None = None):
 
 def main():
     pdf_path = Path(file_path)
-    txt_path = Path("src/llm/wyniki/subtitles.txt")
+    txt_path = BASE_DIR / "wyniki" / "subtitles.txt"
 
     subtitles = get_subtitles(pdf_path, txt_path)
     print_subtitles(subtitles)

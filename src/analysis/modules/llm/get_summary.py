@@ -11,12 +11,9 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-try:
-    from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
-except Exception:
-    from get_subtitles import extract_subtitles_from_pdf
+from analysis.extraction.get_subtitles import extract_subtitles_from_pdf
 
-PDF_PATH = PROJECT_ROOT / "data" / "doro.pdf"
+PDF_PATH = PROJECT_ROOT / "data" / "inż_2_.pdf"
 
 MODEL_NAME = "gemma3local"
 

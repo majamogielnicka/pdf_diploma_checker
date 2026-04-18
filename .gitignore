@@ -9,3 +9,4 @@ env/
 .vscode
 src/llm/wyniki/
 /Modelfile-gemma3-local
+src/analysis/modules/llm/models/gemma3
