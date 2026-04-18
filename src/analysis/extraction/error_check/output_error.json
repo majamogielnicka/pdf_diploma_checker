@@ -1,0 +1,160 @@
+{
+    "wykryte_bledy": [
+        {
+            "id": "ERR_001",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 24,
+            "wspolrzedne": {
+                "x": 99.26,
+                "y": 273.04
+            },
+            "znaleziony_tekst": "elektrycznych materiału.",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_002",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 25,
+            "wspolrzedne": {
+                "x": 283.75,
+                "y": 647.51
+            },
+            "znaleziony_tekst": "𝜌= 𝑅⋅",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_003",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 25,
+            "wspolrzedne": {
+                "x": 499.78,
+                "y": 647.85
+            },
+            "znaleziony_tekst": "(2.2) gdzie:",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_004",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 26,
+            "wspolrzedne": {
+                "x": 310.51,
+                "y": 263.37
+            },
+            "znaleziony_tekst": "𝜌 =",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_005",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 26,
+            "wspolrzedne": {
+                "x": 379.93,
+                "y": 310.84
+            },
+            "znaleziony_tekst": "do formy:",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_006",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 29,
+            "wspolrzedne": {
+                "x": 99.26,
+                "y": 592.17
+            },
+            "znaleziony_tekst": "elektrycznych [1].",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_007",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 32,
+            "wspolrzedne": {
+                "x": 99.26,
+                "y": 224.65
+            },
+            "znaleziony_tekst": "240 °C.",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_008",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 40,
+            "wspolrzedne": {
+                "x": 99.26,
+                "y": 157.45
+            },
+            "znaleziony_tekst": "wykonywania pomiarów.",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_009",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 46,
+            "wspolrzedne": {
+                "x": 99.26,
+                "y": 346.48
+            },
+            "znaleziony_tekst": "parametry obejmowały:",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_010",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 47,
+            "wspolrzedne": {
+                "x": 279.19,
+                "y": 456.32
+            },
+            "znaleziony_tekst": "zakresie prądów",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_011",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 56,
+            "wspolrzedne": {
+                "x": 99.26,
+                "y": 582.81
+            },
+            "znaleziony_tekst": "niewystarczającej jakości.",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        },
+        {
+            "id": "ERR_012",
+            "modul": "REDAKCJA",
+            "kategoria": "typografia",
+            "strona": 58,
+            "wspolrzedne": {
+                "x": 99.26,
+                "y": 88.45
+            },
+            "znaleziony_tekst": "obu pomiarów.",
+            "sugestia": "",
+            "komentarz": "Wykryto wdowę"
+        }
+    ]
+}
