@@ -19,6 +19,7 @@ class WordInfo: # Położenie XY oraz relatywne słowa
     italic: bool
     bbox: List[float]
     page_number: int
+    line: int = 0
     
 @dataclass
 class HeadingInfo: # Informacje o nagłówkach (TODO)
@@ -32,6 +33,10 @@ class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być parag
     content: str = ""
     headings: List[HeadingInfo] = field(default_factory=list)
     type: str = "paragraph"
+    is_widow: int = 0
+    is_bekart: int = 0
+    is_szewc: int = 0
+    debug_empty: str = ""
     words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
@@ -144,27 +149,42 @@ class FinalDocument: # Ostateczna struktura dokumentu
 
 # Słownik wzorców dla list
 LIST_PATTERNS = {
-    "number_with_dot": r"^\d+(\.\d+)*\.\s",
-    "number_with_bracket": r"^\d+\)\s?",
-    "letter_with_dot": r"^[a-z]\.\s",
+    "number_with_dot": r"^\d{1,3}+(\.\d+)*\.\s",
+    "number_with_bracket": r"^\d{1,3}+\)\s?",
+    #"letter_with_dot": r"^[a-z]\.\s",
     "letter_with_bracket": r"^[a-z]\)\s?",
-    "bullet": r"^[••●○■]",
+    "bullet": r"^[•••●○■]",
     "dash": r"^[-\u2013\u2014]"
 }
 HEADER_PATTERN = r"^\d+(\.\d+)*\s+"  # Wykrywa 1.1, 1.2.1 itd.
 CAPTION_PATTERN = r"^(Tabela|Tab|Rysunek|Rys|Wykres|Fig|Figure)\s+\d+"
 TOC_DOTS_PATTERN = r"\.{4,}" # Wykrywa ciągi kropek w spisie treści
 
+class DocumentPatterns:
+    LIST_PATTERNS = {
+        "number_with_dot": re.compile(r"^\d{1,3}+(\.\d+)*\.\s"),
+        "number_with_bracket": re.compile(r"^\d{1,3}+\)\s?"),
+        #"letter_with_dot": re.compile(r"^[a-z]\.\s"),
+        "letter_with_bracket": re.compile(r"^[a-z]\)\s?"),
+        "bullet": re.compile(r"^[••●○■]"),
+        "dash": re.compile(r"^[-\u2013\u2014]")
+    }
+    ACRONYM_PATTERN = re.compile(r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)')
+    ACRONYM_SEP = re.compile(r'^\S{1,15}\s*[-–—−‐:=]\s+')
+
 # Klasyfikacja typu bloku (paragraf lub lista) na podstawie tego czy zaczyna się od typowych elementów dla listy
 def classify_block_content(text: str):
     text = text.strip()
-    for marker_type, pattern in LIST_PATTERNS.items():
-        if re.match(pattern, text, re.IGNORECASE):
+    for marker_type, pattern in DocumentPatterns.LIST_PATTERNS.items():
+        if pattern.match(text): 
             return "list", marker_type
     return "paragraph", None
 
 # Usunięcie markera z początku pozycji na liście
 def strip_list_marker(text: str, marker_type: str) -> str:
-    if marker_type in LIST_PATTERNS:
-        return re.sub(LIST_PATTERNS[marker_type], "", text, count=1).strip()
+    if marker_type in DocumentPatterns.LIST_PATTERNS:
+        return re.sub(DocumentPatterns.LIST_PATTERNS[marker_type], "", text, count=1).strip()
     return text.strip()
+
+def is_acronym(text: str) -> bool:
+    return bool(re.match(DocumentPatterns.ACRONYM_PATTERN, text.strip()))

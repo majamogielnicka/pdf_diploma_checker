@@ -15,13 +15,10 @@ for p in (PROJECT_ROOT, SRC_DIR):
 
 file_path = PROJECT_ROOT / "data" / "bosh.pdf"
 OUTPUT_DIR = BASE_DIR / "wyniki"
-language = "pl"
+language =  "pl"
 EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
 
-try:
-    from analysis.modules.llm.similarity import compute_similarity_for_summaries
-except Exception:
-    from similarity import compute_similarity_for_summaries
+from src.analysis.modules.llm.similarity import compute_similarity_for_summaries
 
 
 def import_function(module_names, function_names):
@@ -130,7 +127,7 @@ def analyze_thesis(pdf_path):
 
     purpose_func, purpose_import_error = import_function(
         module_names=[
-            "analysis.modules.llm.get_purpose",
+            "src.analysis.modules.llm.get_purpose",
         ],
         function_names=[
             "get_purpose",
@@ -156,8 +153,8 @@ def analyze_thesis(pdf_path):
 
     summary_func, summary_import_error = import_function(
         module_names=[
-            "analysis.modules.llm.get_summary",
-            "analysis.modules.llm.summary",
+            "src.analysis.modules.llm.get_summary",
+            "src.analysis.modules.llm.summary",
         ],
         function_names=[
             "summarize_subtitles",
@@ -172,9 +169,7 @@ def analyze_thesis(pdf_path):
         value, err = try_call(
             summary_func,
             ((pdf_path, None, language), {}),
-            ((str(pdf_path), None, language), {}),
-            ((pdf_path, language), {}),
-            ((str(pdf_path), language), {}),
+            ((str(pdf_path), None, "language"), {}),
             ((pdf_path,), {}),
             ((str(pdf_path),), {}),
         )

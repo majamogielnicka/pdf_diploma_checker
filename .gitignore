@@ -10,3 +10,4 @@ env/
 src/llm/wyniki/
 src/analysis/modules/llm/models/gemma3
 /Modelfile-gemma3-local
+src/analysis/modules/llm/models/gemma3

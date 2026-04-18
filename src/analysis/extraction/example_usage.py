@@ -9,7 +9,7 @@ if str(BASE_DIR) not in sys.path:
 
 from extraction_json import extractPDF
 
-input_path = PROJECT_ROOT / "data" / "zusz.pdf"
+input_path = PROJECT_ROOT / "data" / "doju1.pdf"
 output_path = PROJECT_ROOT / "src" / "output.json"
 
 # Tryb debugu:
@@ -17,8 +17,8 @@ output_path = PROJECT_ROOT / "src" / "output.json"
 # 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
 # Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
-debug_mode = 1
-debug_type = "table" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
+debug_mode = 0
+debug_type = "0" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
 debug_path = str(PROJECT_ROOT / "src" / "analysis" / "extraction" / "redaction_debug" / "{debug_type}_example.pdf")
 
 if debug_mode == 0:
