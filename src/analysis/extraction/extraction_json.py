@@ -16,7 +16,7 @@ REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
 
 sys.path.insert(0, str(REDACTION_DIR))
 
-from .bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
+from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, HeaderData, TocData, TocEntry
 
 
 # Tryb debugu:
@@ -959,9 +959,6 @@ def extractPDF(file_path: str) -> DocumentData:
     current_span_id = 0
     if not os.path.exists(file_path):
         #TODO:tutaj jakis wyjatek
-        #musimy ustalić standard zglaszania bledow
-        #na razie print
-        #   ~Bartek 08.03
         print(f"plik nie istnieje")
         return
     
@@ -1226,10 +1223,7 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
                 page=page_num,
                 bbox=(0, 0, 0, 0)  
             ))
-        return TocData(
-            page_num=-1,
-            entries=entries, 
-            text="Wykryto z metadanych"
+        return TocData(page_num=-1,entries=entries, text="Wykryto z metadanych"
         )
 
     keywords = [
@@ -1239,23 +1233,36 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
     for page_obj in pages[:10]:
         full_page_text = ""
         potential_entries = []
+        base_x = None  
         
         for block in page_obj.text_blocks:
             for line in block.lines:
-                line_text = "".join([span.text for span in line.spans]).strip()
-                
+                line_text = " ".join([span.text for span in line.spans]).strip()
                 full_page_text += line_text + " "
                 
-                # r"^(.*?)"  tytuł 
-                # r"\s?[\.\s·]{3,}\s?"  kropki, spacje
-                # r"(\d+)$"  cyfra/liczba na koniec
-                match = re.search(r"^(.*?)\s?[\.\s·]{3,}\s?(\d+)$", line_text)
+                match = re.search(r"^\s*(.*?)\s*[\.\s·\-]{5,}\s*(\d+)\s*$", line_text)
                 
                 if match:
                     title, p_num = match.groups()
+                    title_clean = title.strip()
+
+                    current_x = line.bbox[0]
+                    if base_x is None:
+                        base_x = current_x
+                    
+                    gap_level = 1 + int(max(0, current_x - base_x) / 12)
+
+                    num_match = re.match(r"^(\d+(?:\.\d+)*)\.?", title_clean)
+                    dotted_level = 1
+                    if num_match:
+                        num_part = num_match.group(1)
+                        dotted_level = num_part.count('.') + 1
+
+                    final_level = max(gap_level, dotted_level)
+
                     potential_entries.append(TocEntry(
-                        level=1, 
-                        title=title.strip(),
+                        level=final_level, 
+                        title=title_clean,
                         page=int(p_num),
                         bbox=line.bbox
                     ))
@@ -1263,10 +1270,11 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
         page_text_lower = full_page_text.lower()
         has_keyword = any(word in page_text_lower for word in keywords)
         
-        if has_keyword and len(potential_entries) >= 3:
+        if (has_keyword and len(potential_entries) >= 2) or len(potential_entries) >= 5:
             return TocData(
                 page_num=page_obj.number,
                 entries=potential_entries,
                 text=full_page_text[:500]  
             )
+        
     return None
