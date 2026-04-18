@@ -16,7 +16,7 @@ REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
 
 sys.path.insert(0, str(REDACTION_DIR))
 
-from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, HeaderData, TocData, TocEntry
+from .bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
 
 
 # Tryb debugu:
