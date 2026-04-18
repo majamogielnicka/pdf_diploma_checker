@@ -11,10 +11,9 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
-REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
+PROJECT_ROOT = BASE_DIR.parents[2]
 
-sys.path.insert(0, str(REDACTION_DIR))
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, HeaderData, TocData, TocEntry
 
