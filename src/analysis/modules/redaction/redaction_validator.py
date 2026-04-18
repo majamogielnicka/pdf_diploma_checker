@@ -6,18 +6,18 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 '''
 
 from src.analysis.extraction.bare_struct import DocumentData
-from src.analysis.errors.error_struct import RedactionError, Module
+from src.common.errors.error_struct import RedactionError, Module
 
 class RedactionValidator:
     def __init__(self, document_data: DocumentData, document_data_linguistics: DocumentData):
         self.document_data = document_data
         self.document_data_linguistics = document_data_linguistics
+        self.module = Module.REDACTION
         self.id_counter = 0
 
     def _get_next_id(self):
         id = f"ERR_RED_{self.id_counter}"
         self.id_counter += 1
-        self.module = Module.REDACTION
         return id
 
     def validate(self):
