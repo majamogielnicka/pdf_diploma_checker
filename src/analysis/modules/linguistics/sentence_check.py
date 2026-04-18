@@ -33,7 +33,6 @@ def sentence_check(blocks):
         if sentence_count < 3:
             skip = True
         for sentence in content.sents:
-            # print(sentence.text)
             passive = False
             quotes = False
             is_subject = False
@@ -63,11 +62,16 @@ def sentence_check(blocks):
                                 checked_matches.append(match)
                             else:
                                 quotes = True
+                if token.dep_ in {'nsubj', 'nsubj:pass'}:
+                    is_subject = True
                 if token.pos_ in {'VERB', 'AUX'}:
                     is_verb = True    
-                #for now if even one part of a sentence is passive, whole sentence is marked as passive for clarity of the outcome.
+                #if even one part of a sentence is passive, whole sentence is marked as passive for clarity of the outcome.
                 if token.dep_ == "aux:pass":
                     passive = True
+                    if block.language == 'pl':
+                        if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
+                            is_subject = True
                 elif token.morph.get("Person") and token.morph.get("Person")[0] == "0":
                     impersonal_count +=1
                 elif block.language =='pl'and token.text == "się":
@@ -98,7 +102,6 @@ def sentence_check(blocks):
                     quotes = True
                 elif check_if_proper(block.block, match):
                     quotes = True
-                    #print(match.content)
                 elif block.block.type != "paragraph":
                     pass
                 else:
@@ -121,7 +124,7 @@ def sentence_check(blocks):
         wrong_person_count= len(checked_matches),
         impersonal_count= impersonal_count
     )
-    #print(f"active:{analisys.active_count} passive:{analisys.passive_count} skipped:{skipped} sum sents:{sentence_count} sum counted:{analisys.active_count + analisys.passive_count + skipped}")
+    print(f"active:{analisys.active_count} passive:{analisys.passive_count} skipped:{skipped} sum counted:{analisys.active_count + analisys.passive_count + skipped}")
     return checked_matches, analisys
 
 def morfeusz_check(text):
