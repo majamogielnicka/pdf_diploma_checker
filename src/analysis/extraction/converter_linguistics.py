@@ -8,13 +8,13 @@ import statistics
 import fitz  # PyMuPDF
 from typing import Dict
 
-from schema import (
+from src.analysis.extraction.schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
-from extraction_json import DocumentData, extractPDF, calculate_margins
-from schema import PageArtifact, is_acronym 
+from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
+from src.analysis.extraction.schema import PageArtifact, is_acronym 
 # Klasa mapowania danych do formatu odpowiedniego dla lingwistyki
 class PDFMapper:
     
@@ -81,6 +81,7 @@ class PDFMapper:
 
         is_widow = 0
         is_bekart = 0
+        is_szewc = 0
 
         # Wykrywanie blokow z akronimami, jeśli zlepione w jedną linijkę
         if total_lines == 1:
@@ -153,21 +154,50 @@ class PDFMapper:
                 first_line = combined_words[0].line
                 page_lines_buf = 1  
                 has_page_break = False  
+                words_line_buf = 1
             
                 for word in combined_words:
                     if word.page_number != first_page:
                         first_page = word.page_number
                         first_line = word.line
                         page_lines_buf = 1  
-                        has_page_break = True             
+                        has_page_break = True  
+                        words_line_buf = 1           
                     elif word.line != first_line:
                         first_line = word.line
                         page_lines_buf += 1
+                        words_line_buf = 1
+                    else:
+                        words_line_buf += 1
             
                 if has_page_break and page_lines_buf <= 2:
-                    is_bekart = True
+                    is_bekart = words_line_buf
                 else:
-                    is_bekart = False
+                    is_bekart = 0
+
+            # Detekcja szewców
+            is_szewc = 0
+            if combined_words:
+                first_page = combined_words[0].page_number
+                first_line = combined_words[0].line
+                page_lines_buf = 1  
+                has_page_break = False  
+                words_first_line_buf = 1 
+                
+                for word in combined_words[1:]:
+                    if word.page_number != first_page:
+                        has_page_break = True
+                        break 
+                        
+                    elif word.line != first_line:
+                        first_line = word.line
+                        page_lines_buf += 1
+                        
+                    elif page_lines_buf == 1:
+                        words_first_line_buf += 1
+
+                if has_page_break and page_lines_buf == 1:
+                    is_szewc = words_first_line_buf
 
 
         block_type = "acronyms" if is_acronym_block else "paragraph"
@@ -185,10 +215,16 @@ class PDFMapper:
             is_widow = 0
 
         # Przypisanie bękarta tylko do bloku typu paragraf
-        if block_type == "paragraph" and is_bekart == True:
+        if block_type == "paragraph" and is_bekart != 0:
             is_bekart = is_bekart
         else:
-            is_bekart = False
+            is_bekart = 0
+
+        # Przypisanie szewca tylko do bloku typu paragraf
+        if block_type == "paragraph" and is_szewc != 0:
+            is_szewc = is_szewc
+        else:
+            is_szewc = 0
 
         logical_blocks.append(ParagraphBlock(
             block_id=paragraph_buffer[0]['block_id'],
@@ -197,9 +233,11 @@ class PDFMapper:
             type=block_type,
             is_widow=is_widow,
             is_bekart=is_bekart,
+            is_szewc=is_szewc,
             debug_empty=debug_why_empty
         ))
         paragraph_buffer.clear()
+
     @staticmethod
     # Opróznianie bufora listy:
     # Zapis całości jako lista jeśli więcej niż jeden element,

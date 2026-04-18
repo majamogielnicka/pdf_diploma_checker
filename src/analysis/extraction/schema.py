@@ -34,7 +34,8 @@ class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być parag
     headings: List[HeadingInfo] = field(default_factory=list)
     type: str = "paragraph"
     is_widow: int = 0
-    is_bekart: bool = False
+    is_bekart: int = 0
+    is_szewc: int = 0
     debug_empty: str = ""
     words: List[WordInfo] = field(default_factory=list)
 

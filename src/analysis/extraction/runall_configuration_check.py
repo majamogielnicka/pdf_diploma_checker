@@ -2,6 +2,9 @@ import logging
 from pathlib import Path
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.configuration_check import Configuration, Validator
+from src.analysis.extraction.redaction_validator import RedactionValidator
+from src.analysis.extraction.converter_linguistics import PDFMapper
+
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
@@ -14,7 +17,7 @@ if str(BASE_DIR) not in sys.path:
 
 def main():
     #  Ścieżki do plików
-    pdf_path = PROJECT_ROOT / "data" / "zusz.pdf"
+    pdf_path = PROJECT_ROOT / "data" / "doju1.pdf"
     config_path = PROJECT_ROOT / "src" / "config" / "wymagania_inz.json"
 
     if not Path(pdf_path).exists():
@@ -27,6 +30,7 @@ def main():
 
         print("Ekstrakcja danych z PDF... (to może chwilę potrwać)")
         doc_data = extractPDF(pdf_path)
+        doc_data_linguistics = PDFMapper.map_to_schema(doc_data)
         
         validator = Validator(config)
 
@@ -50,8 +54,22 @@ def main():
                 page_info = f"strona {issue.page}" if issue.page > 0 else "cały dokument"
                 print(f"  - [{issue.category}] ({page_info}): {issue.description}")
 
+        validator = RedactionValidator(doc_data, doc_data_linguistics)
+        found_errors = validator.validate()
+    
+        # Tymczasowe
+        if not found_errors:
+            print("Nie znaleziono błędów z redakcją")
+        else:
+            print(f"Znaleziono {len(found_errors)} błędów:")
+            for error in found_errors:
+                print(f"[{error.id}] Typ: {error.category}, Strona: {error.page_nr}, Bbox: {error.bounding_box}, Text: {error.text}")
+                print(f"  -> Komentarz: {error.comments}")
+                print("-" * 40)
+
     except Exception as e:
         print(f" Wystąpił błąd podczas procesowania: {e}")
+        
 
 if __name__ == "__main__":
     main()
