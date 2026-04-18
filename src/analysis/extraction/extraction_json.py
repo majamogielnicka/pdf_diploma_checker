@@ -9,13 +9,14 @@ from typing import Dict
 import re
 import sys
 from pathlib import Path
-from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent.parent
 REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
 
 sys.path.insert(0, str(REDACTION_DIR))
+
+from bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, HeaderData, TocData, TocEntry
 
 
 # Tryb debugu:
@@ -1056,7 +1057,7 @@ def extractPDF(file_path: str) -> DocumentData:
             blank_page = False
         cur_page.is_blank = blank_page
         document_data.pages.append(cur_page)
-
+    document_data.toc = extract_TOC(doc, document_data.pages)
     doc.close()
     return document_data
 
@@ -1209,3 +1210,63 @@ def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: flo
             return True
 
     return False
+
+def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
+    """
+    Funkcja do ekstrakcji spisu treści. 
+    Zwraca obiekt TocData jeśli znaleziono spis, w przeciwnym razie None.
+    """
+    built_in_toc = doc.get_toc()
+    if built_in_toc:
+        entries = []
+        for lvl, ttl, page_num in built_in_toc:
+            entries.append(TocEntry(
+                level=lvl,
+                title=ttl.strip(),
+                page=page_num,
+                bbox=(0, 0, 0, 0)  
+            ))
+        return TocData(
+            page_num=-1,
+            entries=entries, 
+            text="Wykryto z metadanych"
+        )
+
+    keywords = [
+        "spis treści", "spis tresci", 
+        "table of contents", "contents", "toc"
+    ]
+    for page_obj in pages[:10]:
+        full_page_text = ""
+        potential_entries = []
+        
+        for block in page_obj.text_blocks:
+            for line in block.lines:
+                line_text = "".join([span.text for span in line.spans]).strip()
+                
+                full_page_text += line_text + " "
+                
+                # r"^(.*?)"  tytuł 
+                # r"\s?[\.\s·]{3,}\s?"  kropki, spacje
+                # r"(\d+)$"  cyfra/liczba na koniec
+                match = re.search(r"^(.*?)\s?[\.\s·]{3,}\s?(\d+)$", line_text)
+                
+                if match:
+                    title, p_num = match.groups()
+                    potential_entries.append(TocEntry(
+                        level=1, 
+                        title=title.strip(),
+                        page=int(p_num),
+                        bbox=line.bbox
+                    ))
+
+        page_text_lower = full_page_text.lower()
+        has_keyword = any(word in page_text_lower for word in keywords)
+        
+        if has_keyword and len(potential_entries) >= 3:
+            return TocData(
+                page_num=page_obj.number,
+                entries=potential_entries,
+                text=full_page_text[:500]  
+            )
+    return None
