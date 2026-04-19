@@ -1,9 +1,5 @@
 import logging
 from pathlib import Path
-from src.analysis.extraction.extraction_json import extractPDF
-from src.analysis.extraction.configuration_check import Configuration, Validator
-from src.analysis.modules.redaction.redaction_validator import RedactionValidator
-from src.analysis.extraction.converter_linguistics import PDFMapper
 
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -12,12 +8,16 @@ import sys
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[2]
-if str(BASE_DIR) not in sys.path:
-    sys.path.insert(0, str(BASE_DIR))
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.analysis.extraction.extraction_json import extractPDF
+from src.analysis.extraction.configuration_check import Configuration, Validator
+from src.analysis.modules.redaction.redaction_validator import RedactionValidator
+from src.analysis.extraction.converter_linguistics import PDFMapper
 
 def main():
     #  Ścieżki do plików
-    pdf_path = PROJECT_ROOT / "data" / "doju1.pdf"
+    pdf_path = PROJECT_ROOT / "data" / "zusz.pdf"
     config_path = PROJECT_ROOT / "src" / "config" / "wymagania_inz.json"
 
     if not Path(pdf_path).exists():
