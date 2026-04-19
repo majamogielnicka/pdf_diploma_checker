@@ -46,6 +46,19 @@ class RedactionValidator:
                 comments = "Blank page detected. Consider checking content of this page."
             )
             errors.append(error)
+        wrong_toc_entries = self.check_toc()
+        for entry in wrong_toc_entries:
+            error = RedactionError(
+                id = self._get_next_id(),
+                module = self.module,
+                category = "TOC_mismatch",
+                page_nr = entry.page,
+                bounding_box = entry.bbox,
+                text = entry.title,
+                comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+            )
+            errors.append(error)
+
         converter_errors = self.check_from_converter()
         errors.extend(converter_errors)
         return errors
@@ -182,3 +195,35 @@ class RedactionValidator:
             comments="Wykryto szewc"
         )
     
+    def check_toc(self):
+            wrong_entries = []
+            if not self.document_data.toc or not self.document_data.toc.entries:
+                return wrong_entries
+
+            for entry in self.document_data.toc.entries:
+                if entry.page < 0:
+                    continue
+
+                expected_page = entry.page
+                expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
+                correct_page = False
+
+                for page in self.document_data.pages:
+                    if page.number == expected_page:
+                        page_full_text = ""
+                        for block in page.text_blocks:
+                            for line in block.lines:
+                                line_text = " ".join([s.text for s in line.spans])
+                                page_full_text += line_text + " "
+                        
+                        page_full_text = " ".join(page_full_text.lower().split())
+                        
+                        if expected_title in page_full_text:
+                            correct_page = True
+                            break
+                
+                if not correct_page:
+                    wrong_entries.append(entry)
+                    
+            return wrong_entries
+
