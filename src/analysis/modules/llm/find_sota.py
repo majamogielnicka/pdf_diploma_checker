@@ -1,12 +1,11 @@
-import requests
 import json
 from pathlib import Path
 
 from get_content import get_content, ChapterBlock
 from extract_citations import analyze_sota_citations, extract_citations
+from evaluate_sota import get_llm, analyze_sota_chapter, print_sota_report
 
-MODEL_PL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
-MODEL_EN = "qwen2.5:14b"
+llm = get_llm()
 
 PROMPT_EVALUATE_PL = """Jesteś ekspertem analizującym strukturę prac naukowych. 
 Twoim zadaniem jest ocenić, czy podany rozdział stanowi SOTA (State of the Art / Przegląd literatury / Stan obecny).
@@ -63,19 +62,22 @@ def evaluate_chapter_with_llm(block: ChapterBlock, language: str) -> dict:
     
     if language == "pl":
         prompt = PROMPT_EVALUATE_PL.format(title=block.title if block.title else "Brak", content=truncated_content)
-        model_to_use = MODEL_PL
     else:
         prompt = PROMPT_EVALUATE_EN.format(title=block.title if block.title else "None", content=truncated_content)
-        model_to_use = MODEL_EN
 
     try:
-        resp = requests.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model_to_use, "prompt": prompt, "stream": False, "format": "json", "options": {"temperature": 0.0, "top_p": 0.1}},
-            timeout=120
+        response = llm.create_chat_completion(
+            messages=[
+                {"role": "system", "content": "Zwracaj wyłącznie poprawny format JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.0,
+            top_p=0.1,
+            max_tokens=200
         )
-        resp.raise_for_status()
-        data = json.loads(resp.json()["response"])
+        result_text = response["choices"][0]["message"]["content"]
+        data = json.loads(result_text)
         return {
             "czy_sota": data.get("czy_sota", False),
             "pewnosc_procentowa": data.get("pewnosc_procentowa", 0),
@@ -83,8 +85,7 @@ def evaluate_chapter_with_llm(block: ChapterBlock, language: str) -> dict:
         }
     except Exception as e:
         print(f"  [Błąd AI w bloku {block.id}]: {e}")
-        return {"czy_sota": False, "pewnosc_procentowa": 0, "uzasadnienie": "Błąd API"}
-
+        return {"czy_sota": False, "pewnosc_procentowa": 0, "uzasadnienie": "Błąd modelu"}
 
 def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
     print(f"\nRozpoczynam wczytywanie pliku: {path}")
@@ -140,7 +141,7 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
             break
 
     if not sota_chapter:
-        print(f"\n[INFO] Nie znaleziono po tytule. Uruchamiam analizę AI ({'Bielik' if language == 'pl' else 'Qwen'})...")
+        print(f"\n[INFO] Nie znaleziono po tytule. Uruchamiam analizę AI...")
         llm_candidates = []
         THRESHOLD = 90 
         
@@ -232,13 +233,26 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
     print(f"\nZapisano podsumowanie do pliku: {output_filename.absolute()}")
 
     if sota_chapter:
-        print(f"\nPrzekazuję wykryte ID ([{sota_chapter.id}]) do skryptu cytowań...")
-        analyze_sota_citations(path, [sota_chapter.id], output_dir)
+        safe_id = str(sota_chapter.id)
+        safe_title = str(sota_chapter.title) if sota_chapter.title else "Nieznany tytuł"
+        
+        print(f"\nPrzekazuję wykryte ID ([{safe_id}]) do skryptu cytowań...")
+        try:
+            analyze_sota_citations(path, [safe_id], output_dir)
+        except Exception as e:
+            print(f"Błąd analizy cytowań: {e}")
+
+        print(f"\nPrzekazuję wykryte ID ([{safe_id}]) do szczegółowej oceny SOTA (R1, R2, R3)...")
+        try:
+            ocena = analyze_sota_chapter(safe_id, safe_title, path)
+            print_sota_report(ocena)
+        except Exception as e:
+            print(f"Błąd szczegółowej oceny SOTA: {e}")
 
 if __name__ == "__main__":
-    test_file_path = "src/theses/jago.pdf"
+    test_file_path = "data/jabi.pdf"
     test_language = "pl" 
-    test_output_dir = "src/llm/wyniki"
+    test_output_dir = "src/analysis/modules/llm/wynikiSota"
     
     print(f"--- URUCHAMIANIE TRYBU TESTOWEGO DLA: {test_file_path} ({test_language}) ---")
     if Path(test_file_path).exists():
