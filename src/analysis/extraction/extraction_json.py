@@ -1229,28 +1229,32 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
         "spis treści", "spis tresci", 
         "table of contents", "contents", "toc"
     ]
+    all_entries = []
+    first_page = None
+    toc_started = False
+    full_toc_text = ""
+    base_x = None
+
     for page_obj in pages[:10]:
-        full_page_text = ""
-        potential_entries = []
-        base_x = None  
+        page_entries = []
+        page_text = ""
         
         for block in page_obj.text_blocks:
             for line in block.lines:
                 line_text = " ".join([span.text for span in line.spans]).strip()
-                full_page_text += line_text + " "
+                page_text += line_text + " "
                 
                 match = re.search(r"^\s*(.*?)\s*[\.\s·\-]{5,}\s*(\d+)\s*$", line_text)
                 
                 if match:
                     title, p_num = match.groups()
                     title_clean = title.strip()
-
                     current_x = line.bbox[0]
+                    
                     if base_x is None:
                         base_x = current_x
                     
                     gap_level = 1 + int(max(0, current_x - base_x) / 12)
-
                     num_match = re.match(r"^(\d+(?:\.\d+)*)\.?", title_clean)
                     dotted_level = 1
                     if num_match:
@@ -1259,21 +1263,32 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
 
                     final_level = max(gap_level, dotted_level)
 
-                    potential_entries.append(TocEntry(
+                    page_entries.append(TocEntry(
                         level=final_level, 
                         title=title_clean,
                         page=int(p_num),
                         bbox=line.bbox
                     ))
 
-        page_text_lower = full_page_text.lower()
-        has_keyword = any(word in page_text_lower for word in keywords)
+        has_keyword = any(word in page_text.lower() for word in keywords)
         
-        if (has_keyword and len(potential_entries) >= 2) or len(potential_entries) >= 5:
-            return TocData(
-                page_num=page_obj.number,
-                entries=potential_entries,
-                text=full_page_text[:500]  
-            )
+        if not toc_started:
+            if has_keyword and len(page_entries) >= 2:
+                toc_started = True
+                first_page = page_obj.number
+                all_entries.extend(page_entries)
+                full_toc_text = page_text[:500]
+        else:
+            if len(page_entries) >= 1:
+                all_entries.extend(page_entries)
+            else:
+                break
+                
+    if all_entries:
+        return TocData(
+            page_num=first_page,
+            entries=all_entries,
+            text=full_toc_text
+        )
         
     return None
