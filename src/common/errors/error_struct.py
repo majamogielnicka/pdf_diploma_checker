@@ -1,7 +1,5 @@
 '''
 Struktura błędu wykrytego podczas analizy. Zawiera wszystkie informacje według template.json.
-Docelowo chciałbym, żeby była to globalna struktura dla naszego projektu, na razie umieszczam
-tylko tutaj.
 '''
 
 from dataclasses import dataclass
@@ -12,7 +10,7 @@ class Module:
     LLM = "llm"
 
 @dataclass
-class RedactionError:
+class Error:
     id: str
     module: str
     category: str
