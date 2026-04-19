@@ -73,6 +73,7 @@ def fetch_chapter_content(file_path: str, chapter_id: str) -> str:
     return ""
 
 def analyze_sota_chapter(chapter_id: str, chapter_title: str, file_path: str) -> Dict[str, Any]:
+    """Zwraca słownik z kompletną oceną rozdziału."""
     content = fetch_chapter_content(file_path, chapter_id)
     if not content:
         raise ValueError(f"Nie znaleziono rozdziału {chapter_id} w pliku {file_path}")
@@ -96,28 +97,3 @@ def analyze_sota_chapter(chapter_id: str, chapter_title: str, file_path: str) ->
         "status": status,
         "procent": percentage
     }
-
-def print_sota_report(result: Dict[str, Any]):
-    print("=" * 60)
-    print(f"RAPORT OCENY JAKOŚCI SOTA: {result['tytul']}")
-    print("=" * 60)
-    print(f"R1 (Ocena istniejących rozwiązań): {'1 - SPEŁNIONO' if result['r1'] else '0 - NIESPEŁNIONO'}")
-    print(f"R2 (Wskazanie luki badawczej):     {'1 - SPEŁNIONO' if result['r2'] else '0 - NIESPEŁNIONO'}")
-    print(f"R3 (Synteza/porównanie metod):     {'1 - SPEŁNIONO' if result['r3'] else '0 - NIESPEŁNIONO'}")
-    print("-" * 60)
-    print(f"SUMA PUNKTÓW: {result['suma']}/3")
-    print(f"WYNIK PROCENTOWY SOTA: {result['procent']}%")
-    print(f"WERDYKT: {result['status']}")
-    print("=" * 60)
-
-if __name__ == "__main__":
-    TEST_FILE = "data/jago.pdf"
-    TEST_CHAPTER_ID = "2"
-    TEST_TITLE = "Modele emocji"
-    
-    try:
-        print(f"Rozpoczynam analizę rozdziału {TEST_CHAPTER_ID}...")
-        wynik = analyze_sota_chapter(TEST_CHAPTER_ID, TEST_TITLE, TEST_FILE)
-        print_sota_report(wynik)
-    except Exception as e:
-        print(f"Błąd krytyczny: {e}")
