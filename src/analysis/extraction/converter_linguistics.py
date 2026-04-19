@@ -14,7 +14,7 @@ from src.analysis.extraction.schema import (
     classify_block_content, strip_list_marker
 )
 from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
-from src.analysis.extraction.schema import PageArtifact, is_acronym 
+from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description 
 # Klasa mapowania danych do formatu odpowiedniego dla lingwistyki
 class PDFMapper:
     
@@ -62,7 +62,7 @@ class PDFMapper:
 
             if ix0 < ix1 and iy0 < iy1:
                 intersect_area = (ix1 - ix0) * (iy1 - iy0)
-                if intersect_area / block_area > 0.5: 
+                if intersect_area / block_area > 0.8: 
                     return True
         return False
 
@@ -327,8 +327,8 @@ class PDFMapper:
 
 
             for block in page.text_blocks:
-                if PDFMapper.is_inside_table(block.bbox, table_bboxes):
-                    continue
+                #if PDFMapper.is_inside_table(block.bbox, table_bboxes):
+                #    continue
                 full_text = ""
                 words_info = []
                 word_counter = 0
@@ -373,6 +373,9 @@ class PDFMapper:
 
 
                 for line in block.lines:
+                    line_bbox = [line.spans[0].bbox[0], line.bbox[1], line.spans[-1].bbox[2], line.bbox[3]] if line.spans else line.bbox
+                    if PDFMapper.is_inside_table(line_bbox, table_bboxes):
+                        continue
                     tmp_line_text = "".join(s.text for s in line.spans).strip()
                     line_type, _ = classify_block_content(tmp_line_text)
                     
@@ -535,10 +538,10 @@ class PDFMapper:
                 clean_img_descs = {re.sub(r'\s+', ' ', d).strip() for d in page_img_descs}
 
                 current_type = None
-                if normalized_text in clean_table_descs:
-                    current_type = "table_description"
-                elif normalized_text in clean_img_descs:
-                    current_type = "img_decription"
+                #if normalized_text in clean_table_descs:
+                #    current_type = "table_description"
+                #elif normalized_text in clean_img_descs:
+                #    current_type = "img_decription"
 
                 if current_type:
                     PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "wykryto blok opisu tabeli/zdjęcia")
@@ -614,7 +617,7 @@ class PDFMapper:
                     type="table",
                     page_number=page.number,
                     bbox=list(table.bbox),
-                    caption={"text": table.description},
+                    caption="",
                     table_data=table.data,
                     format={"num_rows": table.row_count, "num_columns": table.col_count}
                 )
@@ -623,6 +626,63 @@ class PDFMapper:
         # Opróżnianie buforów dopiero po przetworzeniu wszystkich stron, by uniknąć urywania akapitów
         PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
         PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "finalne opróżnienie")
+        
+        # Łączenie nagłówków
+        i = 0
+        logical_blocks = new_doc.logical_blocks
+        while i < len(logical_blocks) - 1:
+            curr = logical_blocks[i]
+            nxt = logical_blocks[i+1]
+
+            if (getattr(curr, "type", None) == "heading" and 
+                getattr(nxt, "type", None) == "heading"):
+                
+                separator = " "
+                old_len = len(curr.content) + len(separator)
+                curr.content += separator + nxt.content
+                
+                for word in nxt.words:
+                    word.start_char += old_len
+                    word.end_char += old_len
+                    word.word_index += len(curr.words)
+                    curr.words.append(word)
+                
+                logical_blocks.pop(i + 1)
+                continue 
+            
+            i += 1
+
+        # Finalne przypisanie opisów do tabel i obrazów (TODO: poprawić)
+        for page in old_doc.pages:
+            for table in page.tables:
+                desc_text, found_side = find_table_description(list(table.bbox), new_doc.logical_blocks, priority_side="above")
+                
+                final_caption = desc_text if desc_text else table.description
+
+                ve = VisualElement(
+                    element_id=id(table),
+                    type="table",
+                    page_number=page.number,
+                    bbox=list(table.bbox),
+                    caption={"text": final_caption},
+                    table_data=table.data,
+                    format={"num_rows": table.row_count, "num_columns": table.col_count}
+                )
+                new_doc.floating_elements.visual_elements.append(ve)
+                
+                if final_caption:
+                    for lb in new_doc.logical_blocks:
+                        if hasattr(lb, 'content') and lb.content.strip() == final_caption:
+                            lb.type = "table_description"
+                            break
+
+            for img in page.images:
+                 desc_text, found_side = find_image_description(list(img.bbox), new_doc.logical_blocks, priority_side="below")
+                 if desc_text:
+                     for lb in new_doc.logical_blocks:
+                         if hasattr(lb, 'content') and lb.content.strip() == desc_text:
+                             lb.type = "image_description"
+                             break
 
         return new_doc
 
