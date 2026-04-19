@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.configuration_check import Configuration, Validator
-from analysis.modules.redaction.redaction_validator import RedactionValidator
+from src.analysis.modules.redaction.redaction_validator import RedactionValidator
 from src.analysis.extraction.converter_linguistics import PDFMapper
 
 

@@ -305,6 +305,8 @@ class PDFMapper:
         paragraph_buffer = []
 
         curr_line = 0
+        last_y1 = None
+
         for page in old_doc.pages:
             top_thresh = 50
             bottom_thresh = page.height - 50
@@ -335,6 +337,26 @@ class PDFMapper:
                 
                 x0, y0, x1, y1 = block.bbox
 
+                # Filtr kontynuacji listy
+                is_valid_list_cont = False
+                if list_buffer:
+                    last_item = list_buffer[-1]
+                    if PDFMapper.is_continuation(last_item['bbox'], list(block.bbox)):
+                        is_valid_list_cont = True
+                        # Filtr wertykalny
+                        if last_y1 is not None and (y0 - last_y1) > 12: 
+                            is_valid_list_cont = False
+                        # Filtr wcięcia
+                        text_x0 = last_item['bbox'][0]
+                        if 'words' in last_item and len(last_item['words']) > 0:
+                            for w in last_item['words']:
+                                if w.bbox[0] > last_item['bbox'][0] + 3:
+                                    text_x0 = w.bbox[0]
+                                    break
+                                    
+                        if x0 < text_x0 - 5:
+                            is_valid_list_cont = False
+
                 # Uproszczone sprawdzanie artefaktów na dole i górze strony 
                 if (y1 < top_thresh or y0 > bottom_thresh):
                     
@@ -349,7 +371,6 @@ class PDFMapper:
                     
                     continue
 
-                last_y1 = None
 
                 for line in block.lines:
                     tmp_line_text = "".join(s.text for s in line.spans).strip()
@@ -402,19 +423,51 @@ class PDFMapper:
                     # Sprawdzanie, czy nowy akapit jeśli za duża różnica w pionie między linijkami
                     current_y0 = line.spans[0].bbox[1] if line.spans else line.bbox[1]
                     current_y1 = line.spans[-1].bbox[3] if line.spans else line.bbox[3]
-    
+
+                    # Detekcja nowego akapitu
+                    is_new_paragraph = False
+                    debug_reason = ""
+
+                    # Wertykalna przerwa
                     if last_y1 is not None:
-                        vertical_gap = current_y0 - last_y1
-                        line_height = current_y1 - current_y0
-                        if vertical_gap > line_height * 1.5:
-                            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "zbyt duża wertykalna przerwa")
-                            curr_line = 0
+                        if current_y0 < last_y1 - 10:
+                            last_y1 = None
+                        else:
+                            vertical_gap = current_y0 - last_y1
+                            line_height = current_y1 - current_y0
+                            if vertical_gap > line_height * 1.5:
+                                is_new_paragraph = True
+                                debug_reason = "zbyt duża wertykalna przerwa"
                     
                     last_y1 = current_y1
-                    
-                    if paragraph_buffer and (line_x0 > x0_margin + margin_indent_thresh):
-                        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, "tab na początku linijki")
-                        curr_line = 0
+
+                    # Wcięcie akapitowe 
+                    if not is_new_paragraph:
+                        if not full_text.strip() and (line_x0 > x0_margin + margin_indent_thresh):
+                            is_new_paragraph = True
+                            debug_reason = "wcięcie na początku bloku/strony"
+
+                    is_list_continuation = bool(list_buffer and PDFMapper.is_continuation(list_buffer[-1]['bbox'], list(block.bbox)))
+                    if is_valid_list_cont:
+                        is_new_paragraph = False
+
+                    # Egzekucja podziału
+                    if is_new_paragraph:
+                        if full_text.strip():
+                            paragraph_buffer.append({
+                                'content': full_text.strip(),
+                                'words': words_info.copy(),
+                                'block_id': block.block_id
+                            })
+                            full_text = ""
+                            words_info = []
+                        
+                        # Opróżnienie akaitów w razie wykrycia nowego akapitu 
+                        if list_buffer:
+                            PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+                        if paragraph_buffer:
+                            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer, debug_reason)
+                            curr_line = 0
 
                     # Wyliczenie mediany przerw dla bieżącej linii (do wykrycia podwójnych spacji)
                     line_gaps = []
@@ -533,7 +586,7 @@ class PDFMapper:
                         'bbox': list(block.bbox),
                         'original_text': full_text
                     })
-                elif list_buffer and PDFMapper.is_continuation(list_buffer[-1]['bbox'], list(block.bbox)):
+                elif is_valid_list_cont: 
                     last_item_data = list_buffer[-1]
                     connector = "" if last_item_data['item'].text.rstrip().endswith('-') else " "
                     last_item_data['item'].text += connector + full_text
@@ -546,7 +599,6 @@ class PDFMapper:
                         max(last_item_data['item'].bbox[2], b[2]),
                         max(last_item_data['item'].bbox[3], b[3])
                     ]
-                    # Synchronizacja bbox w słowniku bufora
                     last_item_data['bbox'] = last_item_data['item'].bbox
                 else:
                     PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)

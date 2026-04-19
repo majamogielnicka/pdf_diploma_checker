@@ -10,7 +10,7 @@ class Module:
     LLM = "llm"
 
 @dataclass
-class Error:
+class RedactionError:
     id: str
     module: str
     category: str
