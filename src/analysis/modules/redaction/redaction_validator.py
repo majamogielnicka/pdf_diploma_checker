@@ -46,18 +46,31 @@ class RedactionValidator:
                 comments = "Blank page detected. Consider checking content of this page."
             )
             errors.append(error)
-        wrong_toc_entries = self.check_toc()
-        for entry in wrong_toc_entries:
+        wrong_toc_entries, is_toc = self.check_toc()
+
+        if not is_toc:
             error = RedactionError(
                 id = self._get_next_id(),
-                module = self.module,
-                category = "TOC_mismatch",
-                page_nr = entry.page,
-                bounding_box = entry.bbox,
-                text = entry.title,
-                comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                module=self.module,
+                category = "TOC_lack",
+                page_nr = 1,
+                bounding_box = (self.document_data.pages[0].width - 60, 10, self.document_data.pages[0].width - 10, 60), 
+                text = None,
+                comments = f"Wykryto brak spisu treści."
             )
             errors.append(error)
+        else:
+            for entry in wrong_toc_entries:
+                error = RedactionError(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "TOC_mismatch",
+                    page_nr = entry.page,
+                    bounding_box = entry.bbox,
+                    text = entry.title,
+                    comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                )
+                errors.append(error) 
 
         converter_errors = self.check_from_converter()
         errors.extend(converter_errors)
@@ -196,34 +209,34 @@ class RedactionValidator:
         )
     
     def check_toc(self):
-            wrong_entries = []
-            if not self.document_data.toc or not self.document_data.toc.entries:
-                return wrong_entries
+        wrong_entries = []
+        is_toc = True
 
-            for entry in self.document_data.toc.entries:
-                if entry.page < 0:
-                    continue
+        if self.document_data.toc == None:
+            is_toc = False
+            return None, is_toc
 
-                expected_page = entry.page
-                expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
-                correct_page = False
+        for entry in self.document_data.toc.entries:
+            expected_page = entry.page
+            expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
+            correct_page = False
 
-                for page in self.document_data.pages:
-                    if page.number == expected_page:
-                        page_full_text = ""
-                        for block in page.text_blocks:
-                            for line in block.lines:
-                                line_text = " ".join([s.text for s in line.spans])
-                                page_full_text += line_text + " "
+            for page in self.document_data.pages:
+                if page.number == expected_page:
+                    page_full_text = ""
+                    for block in page.text_blocks:
+                        for line in block.lines:
+                            line_text = " ".join([s.text for s in line.spans])
+                            page_full_text += line_text + " "
                         
-                        page_full_text = " ".join(page_full_text.lower().split())
+                    page_full_text = " ".join(page_full_text.lower().split())
                         
-                        if expected_title in page_full_text:
-                            correct_page = True
-                            break
+                    if expected_title in page_full_text:
+                        correct_page = True
+                        break
                 
-                if not correct_page:
-                    wrong_entries.append(entry)
+            if not correct_page:
+                wrong_entries.append(entry)
                     
-            return wrong_entries
+            return wrong_entries, is_toc
 

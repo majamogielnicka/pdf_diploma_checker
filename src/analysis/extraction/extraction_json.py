@@ -1273,7 +1273,7 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
         has_keyword = any(word in page_text.lower() for word in keywords)
         
         if not toc_started:
-            if has_keyword and len(page_entries) >= 2:
+            if has_keyword and len(page_entries) >= 2 or len(page_entries) >= 5:
                 toc_started = True
                 first_page = page_obj.number
                 all_entries.extend(page_entries)
