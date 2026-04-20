@@ -44,17 +44,18 @@ def get_match_info(block, offset, length):
     word_idxs = []
     start_page = None
     end_page = None
-
+    last_word = None
     for word in block.words:
         if word.start_char < end_offset and word.end_char > offset:
             word_idxs.append(word.word_index)
+            last_word = word
             if start_page is None:
                 start_page = word.page_number
             end_page = word.page_number
-    if len(word_idxs) >0:
-        error_coordinate = (block.words[word_idxs[-1]].bbox[2], block.words[word_idxs[-1]].bbox[3])
-    else:
-        error_coordinate = (0, 0)
+        if last_word is not None:
+            error_coordinate = (last_word.bbox[2], last_word.bbox[3])
+        else:
+            error_coordinate = (0, 0)
         #print(f"{word.text} {word.page_number} {word.start_char} {end_offset} {word.end_char} {end_offset}")
     return start_page, end_page, word_idxs, error_coordinate
 
