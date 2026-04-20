@@ -65,7 +65,7 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
             for item in block.items:
                 items_by_id[item.item_id] = item
                 if (item.marker_type == "number_with_bracket" or item.marker_type == "letter_with_dot") and language == "pl":
-                    matches.append(add_match(items_by_id, item.item_id, block.block_id, "LIST_MARKER"))
+                    matches.append(add_list_error(items_by_id, item.item_id, block.block_id, "LIST_MARKER"))
                     marker_error_ids.add(item.item_id)
             upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
             for item in block.items:
