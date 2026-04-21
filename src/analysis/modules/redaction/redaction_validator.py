@@ -6,7 +6,7 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 '''
 
 from src.analysis.extraction.bare_struct import DocumentData
-from src.common.errors.error_struct import RedactionError, Module
+from src.common.errors.error_struct import Error, FileError, Module
 from dataclasses import dataclass
 from typing import List
 import json
@@ -36,7 +36,7 @@ class Configuration:
         except FileNotFoundError:
             raise FileNotFoundError(f"nie znaleziono konfiguracji {config_path}")
         except json.JSONDecodeError:
-            raise ConfigValidationError(f"nieporpawny format jsona {config_path}")
+            raise FileError(f"nieporpawny format jsona {config_path}")
     
     def _validateAndAssign(self, data: dict):
         try:
@@ -46,20 +46,20 @@ class Configuration:
             self.font_size = int(data["rozmiar_czcionki"])
             
             if self.min_stron > self.max_stron:
-                raise ConfigValidationError("min_stron > max_stron, błąd konfiguracji")
+                raise FileError("min_stron > max_stron, błąd konfiguracji")
 
             if data["margines"].lower() not in ["lustrzany", "standardowy"]:
-                raise ConfigValidationError("błędny margines, oczekiwano 'lustrzany' lub 'standardowy'")
+                raise FileError("błędny margines, oczekiwano 'lustrzany' lub 'standardowy'")
             self.margin_type = data["margines"]
 
             self.format = data["format"]
 
             if data["orientacja"].lower() not in ["pionowa", "pozioma"]:
-                raise ConfigValidationError("błędna orientacja, oczekiwano 'pionowa' lub 'pozioma'")
+                raise FileError("błędna orientacja, oczekiwano 'pionowa' lub 'pozioma'")
             self.orientation = data["orientacja"]
 
             if data["justowanie"].lower() not in ["tak", "nie"]:
-                raise ConfigValidationError("błędne justowanie, oczekiwano 'tak' lub 'nie'")
+                raise FileError("błędne justowanie, oczekiwano 'tak' lub 'nie'")
             self.justowanie = data["justowanie"].lower() == "tak"
 
             czcionki_dict = data.get("czcionka", {})
@@ -69,9 +69,9 @@ class Configuration:
                 logging.warning("brak dozwolonych czcionek w konfiguracji")
 
         except KeyError as e:
-            raise ConfigValidationError(f"brakujący klucz w konfiguracji: {e}")
+            raise FileError(f"brakujący klucz w konfiguracji: {e}")
         except ValueError as e:
-            raise ConfigValidationError(f"niepoprawny typ danych w konfiguracji: {e}")
+            raise FileError(f"niepoprawny typ danych w konfiguracji: {e}")
 
 class RedactionValidator:
     def __init__(self, document_data: DocumentData, document_data_linguistics: DocumentData):
@@ -89,7 +89,7 @@ class RedactionValidator:
         errors = []
         orphans = self.check_orphans()
         for orphan in orphans:
-            error = RedactionError(
+            error = FileError(
                 id=self._get_next_id(),
                 module=self.module,
                 category="orphan",
@@ -101,7 +101,7 @@ class RedactionValidator:
             errors.append(error)
         blank_pages = self.check_blank_page()
         for blank_page in blank_pages:
-            error = RedactionError(
+            error = FileError(
                 id = self._get_next_id(),
                 module = self.module,
                 category = "blank_page",
@@ -114,7 +114,7 @@ class RedactionValidator:
         wrong_toc_entries, is_toc = self.check_toc()
 
         if not is_toc:
-            error = RedactionError(
+            error = FileError(
                 id = self._get_next_id(),
                 module=self.module,
                 category = "TOC_lack",
@@ -126,7 +126,7 @@ class RedactionValidator:
             errors.append(error)
         else:
             for entry in wrong_toc_entries:
-                error = RedactionError(
+                error = FileError(
                     id = self._get_next_id(),
                     module = self.module,
                     category = "TOC_mismatch",
@@ -139,7 +139,7 @@ class RedactionValidator:
 
         page_1_footer_bbox, lack_of_footers = self.check_footers()
         if page_1_footer_bbox:
-            error = RedactionError(
+            error = FileError(
                 id = self._get_next_id(),
                 module = self.module,
                 category = "Footer_on_1st_page",
@@ -151,7 +151,7 @@ class RedactionValidator:
             errors.append(error) 
 
         for number in lack_of_footers:
-            error = RedactionError(
+            error = FileError(
                 id = self._get_next_id(),
                 module = self.module,
                 category = "No_footer",
@@ -244,7 +244,7 @@ class RedactionValidator:
         bottom_y = max([w.bbox[3] for w in widow_words])
         widow_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
         
-        return RedactionError(
+        return Error(
             id=self._get_next_id(), 
             module=self.module,
             category="widow", 
@@ -269,7 +269,7 @@ class RedactionValidator:
         bottom_y = max([w.bbox[3] for w in bekart_words])
         bekart_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
         
-        return RedactionError(
+        return Error(
             id=self._get_next_id(), 
             module=self.module,
             category="bekart", 
@@ -294,7 +294,7 @@ class RedactionValidator:
         bottom_y = max([w.bbox[3] for w in szewc_words])
         bekart_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
         
-        return RedactionError(
+        return Error(
             id=self._get_next_id(), 
             module=self.module,
             category="szewc", 
