@@ -47,7 +47,7 @@ def get_summary_text_for_embedding(text):
     return f"search_document: {text}"
 
 
-def compute_similarity_for_summaries(purpose, summaries):
+def compute_similarity_for_summaries(purpose, summaries, embedding_model):
     purpose = normalize_text(purpose)
     items = []
 
@@ -84,7 +84,7 @@ def compute_similarity_for_summaries(purpose, summaries):
         }
 
     model = SentenceTransformer(
-        EMBEDDING_MODEL,
+        embedding_model,
         trust_remote_code=True
     )
 

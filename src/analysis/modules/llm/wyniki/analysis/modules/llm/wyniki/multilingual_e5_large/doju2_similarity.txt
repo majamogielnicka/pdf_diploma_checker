@@ -1,0 +1,104 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\doju2.pdf
+Wygenerowano: 2026-04-11T13:58:33.284454
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.842011
+
+CEL PRACY
+Koncepcja zrównoważonego rozwoju zakłada podejmowanie działań z myślą o ich potencjalnych konsekwencjach w krótkim i długim okresie
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Pojęcie reputacji
+SUMMARY:
+M. Leszczyński zauważa, że zainteresowanie pojęciem reputacji pojawiło się w latach 80. XX wieku, ponieważ wcześniej używano go synonimem terminu wizerunek, a reputacja jest często postrzegana przez pryzmat organizacji, tożsamości i wizerunku.
+COSINE_SIMILARITY: 0.798906
+
+--------------------------------------------------------------------------------
+
+1.2 Reputacja państwa
+SUMMARY:
+Państwa coraz bardziej dbają o swoją reputację w środowisku międzynarodowym, mierząc ją i zarządzając nią, co wynika z prestiżu i postrzegania ich pozycji przez opinię publiczną oraz wpływa na ich wiarygodność w konkurencji rządów.
+COSINE_SIMILARITY: 0.806541
+
+--------------------------------------------------------------------------------
+
+1.3 Sposoby pomiaru reputacji państwa
+SUMMARY:
+Reputacja organizacji jest złożona i trudna do zmierzenia, a badania nad nią wykorzystują różne metody, takie jak Harris-Fombrun Reputation Quotient, który uwzględnia dwadzieścia czynników, w tym wrażenia emocjonalne, jakość produktów i usług oraz odpowiedzialność społeczną.
+COSINE_SIMILARITY: 0.805804
+
+--------------------------------------------------------------------------------
+
+1.4 Reputacja państwa a konkurencyjność gospodarki
+SUMMARY:
+Postrzeganie państwa, w tym jego zdolność do przyciągania, eksportu, dostosowywania się i zarabiania, wpływa na jego pozycję na arenie międzynarodowej.
+COSINE_SIMILARITY: 0.835131
+
+--------------------------------------------------------------------------------
+
+1.5 Podsumowanie
+SUMMARY:
+Reputacja państwa wpływa na jego atrakcyjność, która z kolei przekłada się na jego konkurencyjność na arenie międzynarodowej.
+COSINE_SIMILARITY: 0.816859
+
+--------------------------------------------------------------------------------
+
+2.1 Koncepcja zrównoważonego rozwoju
+SUMMARY:
+Idea zrównoważonego rozwoju powstała w odpowiedzi na kumulujące się problemy środowiskowe, obejmujące nadmierną eksploatację zasobów i zanieczyszczenie, i zakłada prowadzenie działań z myślą o konsekwencjach zarówno krótkoterminowych, jak i długoterminowych.
+COSINE_SIMILARITY: 0.930482
+
+--------------------------------------------------------------------------------
+
+2.2 Zrównoważony rozwój w Unii Europejskiej
+SUMMARY:
+Od 1992 roku zrównoważony rozwój jest zasadą rozwoju gospodarczego UE, mającą na celu harmonijny rozwój działalności gospodarczej, ochronę środowiska i poprawę jakości życia.
+COSINE_SIMILARITY: 0.880386
+
+--------------------------------------------------------------------------------
+
+2.3 Podsumowanie
+SUMMARY:
+Polityka zrównoważonego rozwoju jest priorytetem państw wysoko rozwiniętych, wymagająca interdyscyplinarnego podejścia i zwiększania świadomości społecznej, choć różnie interpretowana przez państwa o różnym poziomie rozwoju.
+COSINE_SIMILARITY: 0.882781
+
+--------------------------------------------------------------------------------
+
+3.1 Metodologia badań własnych
+SUMMARY:
+Badano związek między realizacją polityki zrównoważonego rozwoju przez państwa Unii Europejskiej a ich reputacją na arenie międzynarodowej, wykorzystując dane z Europejskiego Urzędu Statystycznego dotyczące strategii Europa 2020.
+COSINE_SIMILARITY: 0.855371
+
+--------------------------------------------------------------------------------
+
+3.2 Realizacja celów strategii Europa 2020 w państwach Unii Europejskiej
+SUMMARY:
+Analizując przedstawione dane, możemy wyciągnąć następujące wnioski dotyczące realizacji celów UE w zakresie zatrudnienia i badań i rozwoju: **1. Zatrudnienie:** * **Ogólny trend:** Większość krajów UE osiągała poziom zatrudnienia powyżej 3% PKB, co jest minimalnym wymogiem UE. *
+COSINE_SIMILARITY: 0.820085
+
+--------------------------------------------------------------------------------
+
+3.3 Reputacja państw Unii Europejskiej na arenie międzynarodowej
+SUMMARY:
+Analiza obejmuje pozycje państw UE w rankingach Country RepTrak, Country Brand Index i The Soft Power 30 z lat 2014-2019, a na jej podstawie dokonano uśrednienia wyników tych rankingów dla państw obecnych we wszystkich badanych latach.
+COSINE_SIMILARITY: 0.812130
+
+--------------------------------------------------------------------------------
+
+3.4 Rola zrównoważonego rozwoju w kształtowaniu reputacji państwa – wyniki badań
+SUMMARY:
+Analiza korelacji rang Spearmana wykazała umiarkowaną korelację pomiędzy realizacją strategii Europa 2020 a reputacją państw w środowisku międzynarodowym, szczególnie silną w przypadku inwestycji w badania i rozwój oraz poziomu zatrudnienia.
+COSINE_SIMILARITY: 0.823597
+
+--------------------------------------------------------------------------------
+
+3.5 Podsumowanie
+SUMMARY:
+Analiza dotycząca zrównoważonego rozwoju w państwach UE wskazuje na znaczący wkład w ich reputację międzynarodową, choć istnieje umiarkowana korelacja pomiędzy zaangażowaniem w politykę zrównoważonego rozwoju a postrzeganiem Unii Europejskiej.
+COSINE_SIMILARITY: 0.878067
+
+--------------------------------------------------------------------------------

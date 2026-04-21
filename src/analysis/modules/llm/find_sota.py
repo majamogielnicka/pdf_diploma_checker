@@ -4,9 +4,10 @@ from pathlib import Path
 
 from get_content import get_content, ChapterBlock
 from extract_citations import analyze_sota_citations, extract_citations
+from evaluate_sota import analyze_sota_chapter, print_sota_report
 
-MODEL_PL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
-MODEL_EN = "qwen2.5:14b"
+MODEL_PL = "gemma3:4b"
+MODEL_EN = "gemma3:4b"
 
 PROMPT_EVALUATE_PL = """Jesteś ekspertem analizującym strukturę prac naukowych. 
 Twoim zadaniem jest ocenić, czy podany rozdział stanowi SOTA (State of the Art / Przegląd literatury / Stan obecny).
@@ -235,10 +236,15 @@ def find_sota_chapter(path: str, language: str = "pl", output_dir: str = "."):
         print(f"\nPrzekazuję wykryte ID ([{sota_chapter.id}]) do skryptu cytowań...")
         analyze_sota_citations(path, [sota_chapter.id], output_dir)
 
+    if sota_chapter:
+        print(f"\nPrzekazuję wykryte ID ([{sota_chapter.id}]) do szczegółowej oceny SOTA...")
+        ocena = analyze_sota_chapter(sota_chapter.id, sota_chapter.title, path)
+        print_sota_report(ocena)
+
 if __name__ == "__main__":
-    test_file_path = "src/theses/jago.pdf"
+    test_file_path = "data/jago.pdf"
     test_language = "pl" 
-    test_output_dir = "src/llm/wyniki"
+    test_output_dir = "src/llm/wynikiSOTA"
     
     print(f"--- URUCHAMIANIE TRYBU TESTOWEGO DLA: {test_file_path} ({test_language}) ---")
     if Path(test_file_path).exists():

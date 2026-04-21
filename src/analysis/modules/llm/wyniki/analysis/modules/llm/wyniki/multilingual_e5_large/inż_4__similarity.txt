@@ -1,0 +1,307 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\inż_4_.pdf
+Wygenerowano: 2026-04-11T14:16:48.204622
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.863775
+
+CEL PRACY
+Analiza i rozpoznawanie emocji psów na podstawie obrazu za pomocą metod głębokiego uczenia, systemu DogFACS i technik wyjaśnialnej sztucznej inteligencji modeli klasyfikacji emocji oraz ocena procesu decyzyjnego
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Cel pracy
+SUMMARY:
+Emocje są złożonymi reakcjami organizmu na bodźce, obejmującymi subiektywne doświadczenia i wpływającymi na motywację, adaptację oraz procesy poznawcze, takie jak percepcja i pamięć, a ich powstanie związane jest z aktywacją neuronów w strukturach mózgu, takich jak ciało migdałow
+COSINE_SIMILARITY: 0.834909
+
+--------------------------------------------------------------------------------
+
+2.1 Emocje u ludzi
+SUMMARY:
+Emocje są subiektywnym doświadczeniem, różniącym się indywidualnie i pod wpływem czynników kulturowych, pełniąc adaptacyjną funkcję w zachowaniu organizmu oraz wpływając na interakcje społeczne i procesy poznawcze.
+COSINE_SIMILARITY: 0.827786
+
+--------------------------------------------------------------------------------
+
+2.2 FACS
+SUMMARY:
+System kodowania czynności twarzy FACS, opracowany przez Ekmana i Friesena, umożliwia enkodowanie ruchów indywidualnych mięśni na twarzy na podstawie zmian w jej wyglądzie, a jego zastosowanie w badaniach klinicznych ujawniło braki w ekspresji twarzy u pacjentów z zaburzeniami psychicznymi.
+COSINE_SIMILARITY: 0.843015
+
+--------------------------------------------------------------------------------
+
+2.3 Emocje u zwierz ˛at
+SUMMARY:
+Badania nad emocjami wskazują, że emocje u ssaków są zakorzenione w mechanizmach neurologicznych i mogą być badane u zwierząt poprzez analizę ich zachowań i reakcji.
+COSINE_SIMILARITY: 0.881195
+
+--------------------------------------------------------------------------------
+
+2.4 DogFACS
+SUMMARY:
+DogFACS, opracowany w 2013 roku, to narzędzie do obiektywnego kodowania mimiki psów, oparte na wcześniejszych systemach FACS dla innych gatunków, mające na celu eliminację subiektywnych interpretacji i umożliwienie porównywania zmian mimicznych między różnymi rasami i badaniami.
+COSINE_SIMILARITY: 0.886380
+
+--------------------------------------------------------------------------------
+
+2.4.1 Historia Powstania
+SUMMARY:
+DogFACS, opracowany w 2013 roku, to narzędzie do obiektywnego kodowania mimiki psów, oparte na wcześniejszych systemach FACS dla innych gatunków, mające na celu eliminację subiektywnych interpretacji i umożliwienie porównywania zmian mimicznych między różnymi rasami i badaniami.
+COSINE_SIMILARITY: 0.886380
+
+--------------------------------------------------------------------------------
+
+2.4.2 Podstawy działania DogFACS
+SUMMARY:
+DogFACS identyfikuje AUs odpowiadające za ruch konkretnych mięśni twarzy u psów, umożliwiając obiektywne kodowanie ekspresji mimicznych niezależnie od ich interpretacji.
+COSINE_SIMILARITY: 0.894882
+
+--------------------------------------------------------------------------------
+
+2.4.3 DogFACS a interpretacja emocji
+SUMMARY:
+Ruchy mięśni twarzy psa, takie jak uniesienie brwi, marszczenie nosa czy rozchylenie warg, wyrażają różne emocje, w tym smutek, złość, przyjazność, niepewność czy stres, w zależności od kontekstu.
+COSINE_SIMILARITY: 0.855902
+
+--------------------------------------------------------------------------------
+
+2.5 Podsumowanie
+SUMMARY:
+Zrozumienie emocji u ludzi i zwierząt, wykorzystujące obiektywne dane mimiki i uczenie maszynowe, umożliwia budowę systemów sztucznej inteligencji zdolnych do ich interpretacji w kontekście relacji człowiek-zwierzę.
+COSINE_SIMILARITY: 0.911652
+
+--------------------------------------------------------------------------------
+
+3.1 Sztuczna inteligencja w analizie obrazu
+SUMMARY:
+Sztuczna inteligencja, a w szczególności konwolucyjne sieci neuronowe, znacząco poprawiła dokładność analizy obrazu, umożliwiając automatyczne rozpoznawanie obiektów i ich lokalizację w złożonych scenach.
+COSINE_SIMILARITY: 0.860320
+
+--------------------------------------------------------------------------------
+
+3.2 Konwolucyjne sieci neuronowe (CNN)
+SUMMARY:
+Sieci konwolucyjne, wykorzystujące współdzielenie wag i warstwy konwolucyjne oraz pooling, automatycznie przetwarzają obrazy na abstrakcyjne reprezentacje cech, co umożliwia rozpoznawanie twarzy i osiąganie wysokiej skuteczności w zadaniach wizji komputerowej.
+COSINE_SIMILARITY: 0.850729
+
+--------------------------------------------------------------------------------
+
+3.2.1 Klasyczne architektury konwolucyjnych sieci neuronowych
+SUMMARY:
+LeNet-5, AlexNet i VGG-16 to klasyczne architektury CNN, które przyczyniły się do rozwoju głębokich sieci konwolucyjnych i zostały wykorzystane do rozpoznawania odręcznych cyfr oraz klasyfikacji obiektów w obrazach.
+COSINE_SIMILARITY: 0.825608
+
+--------------------------------------------------------------------------------
+
+3.2.2 Wybrane architektury konwolucyjne
+SUMMARY:
+ResNet-50 i EfficientNetV2-S to architektury CNN, które wykorzystują bloki resztkowe i automatyczne wyszukiwanie architektury, aby osiągnąć wysoką dokładność i efektywność w zadaniach klasyfikacji obrazów.
+COSINE_SIMILARITY: 0.819598
+
+--------------------------------------------------------------------------------
+
+3.2.3 Wybór architektury modelu
+SUMMARY:
+Do detekcji punktów charakterystycznych pyska zastosowano model YOLOv8, który osiąga wysoką dokładność i wydajność, a do klasyfikacji emocji psów wybrano model RegNet, charakteryzujący się wysoką skutecznością przy relatywnie małych wymaganiach sprzętowych.
+COSINE_SIMILARITY: 0.885201
+
+--------------------------------------------------------------------------------
+
+3.3 Metody wyjaśnialnej sztucznej inteligencji (XAI)
+SUMMARY:
+Metody wyjaśnialnej sztucznej inteligencji (XAI) pozwalają na zrozumienie działania sieci konwolucyjnych, w tym identyfikację istotnych obszarów obrazu i weryfikację, czy model analizuje odpowiednie elementy, co zwiększa wiarygodność i odpowiedzialność algorytmów.
+COSINE_SIMILARITY: 0.858967
+
+--------------------------------------------------------------------------------
+
+3.3.1 Techniki wizualizacji aktywacji w sieciach CNN
+SUMMARY:
+Metoda Grad-CAM pozwala na wizualizację obszarów obrazu, które miały największy wpływ na decyzje sieci CNN, poprzez obliczanie gradientów i generowanie map aktywacji klasowych.
+COSINE_SIMILARITY: 0.843022
+
+--------------------------------------------------------------------------------
+
+3.3.2 Wybór metody wyjaśnialnej AI (XAI)
+SUMMARY:
+W pracy zastosowano klasyczną metodę Grad-CAM do wyjaśniania decyzji modelu sztucznej inteligencji w rozpoznawaniu emocji u psów, ze względu na jej prostotę, dokładność i powszechność stosowania w literaturze naukowej.
+COSINE_SIMILARITY: 0.902981
+
+--------------------------------------------------------------------------------
+
+3.4 Przegl ˛ad istniej ˛acych zbiorów danych
+SUMMARY:
+Różne zbiory danych, takie jak Ultralytics, StanfordExtra, Kaggle i DogFLW, są wykorzystywane do trenowania i testowania modeli detekcji pozycji ciała, analizy mowy ciała i rozpoznawania emocji psów.
+COSINE_SIMILARITY: 0.877114
+
+--------------------------------------------------------------------------------
+
+3.4.1 Wybór zbiorów danych
+SUMMARY:
+Wybrano zestawy danych DogFLW i Dog Emotion do detekcji punktów kluczowych na pysku psa oraz trenowania modelu klasyfikującego emocje psa.
+COSINE_SIMILARITY: 0.907458
+
+--------------------------------------------------------------------------------
+
+3.5 Podsumowanie
+SUMMARY:
+Rozdział przedstawia implementację systemu analizy emocji u psów, wykorzystującego sieci konwolucyjne, wizualizację aktywacji Grad-CAM oraz wybór odpowiednich zbiorów danych.
+COSINE_SIMILARITY: 0.905206
+
+--------------------------------------------------------------------------------
+
+4.1 Kategoryzacja emocji
+SUMMARY:
+Zastosowano model RegNetY-32GF wytrenowany na zbiorze 4000 zdjęć psów z czterema klasami emocji, osiągając 89% dokładności na zbiorze testowym i 92.17% na zbiorze walidacyjnym, co wskazuje na poprawne generalizowanie modelu i brak przeuczenia.
+COSINE_SIMILARITY: 0.877496
+
+--------------------------------------------------------------------------------
+
+4.1.1 Trening
+SUMMARY:
+Model RegNetY-32GF osiągnął dokładność 89% na zbiorze testowym i 92,17% na zbiorze walidacyjnym po treningu przez 90 epok z wczesnym zatrzymaniem, wykorzystując hiperparametry i augmentację danych w celu zapewnienia generalizacji.
+COSINE_SIMILARITY: 0.812028
+
+--------------------------------------------------------------------------------
+
+4.2 Grad-CAM
+SUMMARY:
+Badanie wykorzystało Grad-CAM do wizualizacji, na które obszary pyska model zwraca największą uwagę podczas rozpoznawania emocji psów, a następnie planuje je powiązać z punktami kluczowymi.
+COSINE_SIMILARITY: 0.890373
+
+--------------------------------------------------------------------------------
+
+4.3 Detekcja punktów charakterystycznych pyska
+SUMMARY:
+Do detekcji punktów kluczowych na pysku wykorzystano model YOLOv8s-pose wytrenowany na zbiorze danych zawierającym 4335 zdjęć, z których 3853 służyło do treningu, a 479 do walidacji, osiągając precyzję 99,5% w wykrywaniu bounding
+COSINE_SIMILARITY: 0.846388
+
+--------------------------------------------------------------------------------
+
+4.3.1 Trening
+SUMMARY:
+Trening modelu YOLOv8s-pose zakończył się po 300 epokach, wykorzystując własny mechanizm wczesnego zatrzymania oparty na monitorowaniu błędów lokalizacji punktów kluczowych, co doprowadziło do dokładności 99,5% w wykrywaniu bounding boxów i średniego błędu 3,
+COSINE_SIMILARITY: 0.836979
+
+--------------------------------------------------------------------------------
+
+4.4 Ł ˛aczenie danych
+SUMMARY:
+Zbiór 3049 obrazów z poprawnie sklasyfikowanymi emocjami psów został utworzony po wykluczeniu obrazów z błędnie zdetektowaniami punktami kluczowymi oraz tych zawierających więcej niż jednego psa.
+COSINE_SIMILARITY: 0.890537
+
+--------------------------------------------------------------------------------
+
+4.5 Analiza danych
+SUMMARY:
+Zastosowano dwuetapową metodę segmentacji pyska, wykorzystującą model SAM do wyodrębnienia obszarów anatomicznych, a następnie analizując intensywność aktywacji Grad-CAM w celu określenia wpływu poszczególnych regionów na klasyfikację emocji.
+COSINE_SIMILARITY: 0.875838
+
+--------------------------------------------------------------------------------
+
+4.6 Podsumowanie
+SUMMARY:
+Badanie wykorzystało 3046 obrazów psów do analizy regionalnej emocji, zidentyfikując obszary pyska, które mają największy wpływ na decyzje modelu RegNetY-32GF podczas rozpoznawania czterech klas emocji.
+COSINE_SIMILARITY: 0.896652
+
+--------------------------------------------------------------------------------
+
+5.1 Statystyki globalne
+SUMMARY:
+Pysk dominuje w emocjach złości (0.424) i szczęścia (0.409), podczas gdy smutek koncentruje uwagę na górnej części pyska, obszarze pod oczami i nad nosem. Spokój charakteryzuje wyrównaną dystrybucję intensywności uwagi.
+COSINE_SIMILARITY: 0.826941
+
+--------------------------------------------------------------------------------
+
+5.1.1 Analiza wartości maksymalnych
+SUMMARY:
+Model identyfikuje silniejsze aktywacje w pyszku podczas emocji złości i szczęścia, a w pod oczami i oczach podczas smutku, z wyrównanymi wartościami w uszach podczas emocji spokoju.
+COSINE_SIMILARITY: 0.860659
+
+--------------------------------------------------------------------------------
+
+5.1.2 Analiza wartości minimalnych
+SUMMARY:
+Badania wykazały niskie wartości minimalne aktywacji w różnych regionach twarzy podczas różnych emocji.
+COSINE_SIMILARITY: 0.843481
+
+--------------------------------------------------------------------------------
+
+5.2 Analiza poszczególnych emocji
+SUMMARY:
+Analiza wzorców aktywacji wykazała, że w przypadku złości model skupiał się głównie na pysku, osiągając średnią intensywność 0.424, co jest najwyższą wartością spośród wszystkich regionów i emocji, a zmienność ta może wynikać z różnic w sposobie wyrażania złości przez różne psy
+COSINE_SIMILARITY: 0.857698
+
+--------------------------------------------------------------------------------
+
+5.2.1 Złość
+SUMMARY:
+Model skupił się głównie na regionie pyska, osiągając najwyższą intensywność aktywacji (0.424) podczas wykrywania złości u psów, co jest zgodne z obserwacjami dotyczącymi agresji i mimiki.
+COSINE_SIMILARITY: 0.863045
+
+--------------------------------------------------------------------------------
+
+5.2.2 Szcz˛eście
+SUMMARY:
+Model wykazuje silną koncentrację na regionie pyska, zwłaszcza na rozchylonych wargach i otwartej paszczy, przy rozpoznawaniu emocji szcz˛eścia, z wartością intensywności 0.409 (± 0.130).
+COSINE_SIMILARITY: 0.864161
+
+--------------------------------------------------------------------------------
+
+5.2.3 Smutek
+SUMMARY:
+Badanie wykazało, że intensywność aktywacji w obszarach pod oczami i nad nosem jest najwyższa podczas wyrażania smutku, a obszar pyska charakteryzuje się niską intensywnością, co sugeruje specyficzne AUs związane z tym stanem emocjonalnym.
+COSINE_SIMILARITY: 0.849220
+
+--------------------------------------------------------------------------------
+
+5.2.4 Spokój
+SUMMARY:
+Model nauczył się rozróżniać stan spokoju poprzez kombinację subtelnych cech z różnych regionów twarzy, mimo rozmytego wzorca ekspresji.
+COSINE_SIMILARITY: 0.850601
+
+--------------------------------------------------------------------------------
+
+5.3 Zgodność modelu z literatur ˛a
+SUMMARY:
+Wyrażanie emocji obejmuje złość, szczęście i smutek, które manifestują się w mimice twarzy i posturze uszu.
+COSINE_SIMILARITY: 0.852509
+
+--------------------------------------------------------------------------------
+
+5.4 Analiza statystyczna AU
+SUMMARY:
+Manualna weryfikacja 3000 obrazów wykazała, że jednostka AU110 występuje niemal wyłącznie w kontekście złości, a AU27 głównie w kontekście szczęścia, podczas gdy AU19 występuje głównie w kontekście szczęścia.
+COSINE_SIMILARITY: 0.821160
+
+--------------------------------------------------------------------------------
+
+5.4.1 Cz˛estość wyst˛epowania Action Units
+SUMMARY:
+Analiza jednostek AU wskazuje, że uniesienie górnej wargi występuje niemal wyłącznie w kontekście złości, szeroko otwarty pysk głównie w szczęściu oraz wystawiony język głównie w szczęściu, a uniesienie wewnętrznej części brwi najczęściej w stanie smutku, co sugeruje trudności w uchwyceniu
+COSINE_SIMILARITY: 0.829539
+
+--------------------------------------------------------------------------------
+
+5.5 Podsumowanie i wnioski
+SUMMARY:
+Wykorzystując mapy Grad-CAM, segmentację SAM i algorytm Voronoi, opracowano system rozpoznawania emocji psów, który identyfikuje charakterystyczne wzorce aktywacji w określonych regionach pyska, zgodne z systemem DogFACS.
+COSINE_SIMILARITY: 0.915705
+
+--------------------------------------------------------------------------------
+
+6.1 Problemy
+SUMMARY:
+W trakcie realizacji projektu napotkano trudności związane z jakością i różnorodnością danych, segmentacją obrazów pyska oraz zmiennością wyrażania emocji psów z powodu różnic rasowych i warunków wykonania zdjęć.
+COSINE_SIMILARITY: 0.876970
+
+--------------------------------------------------------------------------------
+
+6.2 Kierunki rozwoju
+SUMMARY:
+Przyszłe prace powinny skupić się na rozszerzeniu systemu o dodatkowe klasy emocji, analizie różnic w wyrażaniu emocji między rasami oraz przejściu od analizy obrazów do analizy wideo, a także na integracji z analizą postawy ciała w celu poprawy dokładności rozpoznawania.
+COSINE_SIMILARITY: 0.882264
+
+--------------------------------------------------------------------------------

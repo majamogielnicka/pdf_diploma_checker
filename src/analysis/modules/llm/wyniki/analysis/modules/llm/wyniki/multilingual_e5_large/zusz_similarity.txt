@@ -1,0 +1,335 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\zusz.pdf
+Wygenerowano: 2026-04-11T14:34:20.990453
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.818118
+
+CEL PRACY
+Optymalna temperatura dyszy wynosi 220–230 °C, zapewniając najlepszą przewodność i stabilność materiału
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+2.1 Technologie druku 3D
+SUMMARY:
+SLA to technologia addytywna, która wytwarza elementy poprzez miejscowe utwardzanie żywicy polimerowej promieniowaniem UV, a JS wykorzystuje warstwowe nakładanie kropli żywicy i utwardzanie ich za pomocą lampy UV.
+COSINE_SIMILARITY: 0.775872
+
+--------------------------------------------------------------------------------
+
+2.1.1 Stereolitografia
+SUMMARY:
+SLA to metoda druku 3D, która polega na utwardzaniu kolejnych warstw płynnej żywicy za pomocą promieniowania UV, a następnie obniżaniu platformy roboczej i wyrównywaniu powierzchni.
+COSINE_SIMILARITY: 0.794848
+
+--------------------------------------------------------------------------------
+
+2.1.2 Metoda JS
+SUMMARY:
+Metoda JS, wykorzystująca utwardzanie żywicy polimerowej promieniowaniem UV, polega na warstwowym nakładaniu i utwardzaniu żywicy, a następnie obniżaniu platformy, aby umożliwić kolejne nakładanie.
+COSINE_SIMILARITY: 0.795959
+
+--------------------------------------------------------------------------------
+
+2.1.3 Metoda SLS
+SUMMARY:
+Technologia SLS, stworzona przez Carla Deckarda, pozwala na wytwarzanie przedmiotów z różnych materiałów, takich jak poliamidy i kompozyty, poprzez warstwowe spiekanie proszków za pomocą lasera.
+COSINE_SIMILARITY: 0.792358
+
+--------------------------------------------------------------------------------
+
+2.1.4 Metoda 3DP
+SUMMARY:
+Metoda 3DP, opracowana na Uniwersytecie MIT, wykorzystuje proszki polimerowe lub metalowe do tworzenia obiektów warstwa po warstwie, a następnie wzmacnia je poprzez infiltrację substancjami, oferując niski koszt i szybki czas realizacji.
+COSINE_SIMILARITY: 0.799972
+
+--------------------------------------------------------------------------------
+
+2.1.5 Metoda LOM
+SUMMARY:
+Laminowanie arkuszy to technologia druku 3D, która polega na łączeniu warstw materiałów, takich jak folia PVC lub papier, za pomocą spoiwa.
+COSINE_SIMILARITY: 0.796355
+
+--------------------------------------------------------------------------------
+
+2.1.6 Metoda FDM
+SUMMARY:
+Metoda FDM, wykorzystująca FFF, wytwarza obiekty poprzez nakładanie warstw materiału, sterowanych numerycznie, z możliwością regulacji parametrów i zastosowania podpór, które są następnie usuwane.
+COSINE_SIMILARITY: 0.800294
+
+--------------------------------------------------------------------------------
+
+2.2 Materiały wykorzystywane w metodzie FDM
+SUMMARY:
+Technologia FDM umożliwia tworzenie części z różnych materiałów, w tym biodegradowalnego PLA, który jest produkowany z naturalnych surowców i charakteryzuje się właściwościami organoleptycznymi.
+COSINE_SIMILARITY: 0.817207
+
+--------------------------------------------------------------------------------
+
+2.2.1 PLA (polilaktyd)
+SUMMARY:
+Najpopularniejszym materiałem do druku 3D jest PLA, biodegradowalny polimer produkowany z naturalnych surowców, który charakteryzuje się amorficzną strukturą i właściwościami organoleptycznymi.
+COSINE_SIMILARITY: 0.809741
+
+--------------------------------------------------------------------------------
+
+2.2.2 ABS
+SUMMARY:
+W technologii FDM wykorzystywane są polimery takie jak ABS, PETG i Nylon, charakteryzujące się różnymi właściwościami, temperaturami topnienia i zastosowaniami, w tym do prototypowania i produkcji elementów mechanicznych.
+COSINE_SIMILARITY: 0.833953
+
+--------------------------------------------------------------------------------
+
+2.2.3 PET-G
+SUMMARY:
+PET-G to łatwy w druku filament o wysokiej wytrzymałości mechanicznej i odporności na uderzenia, który dzięki zawartości glikolu łączy zalety PLA i ABS, a także znajduje zastosowanie w przemyśle spożywczym.
+COSINE_SIMILARITY: 0.802144
+
+--------------------------------------------------------------------------------
+
+2.2.4 TPU
+SUMMARY:
+Termoplastyczne poliuretany (TPU) to polimery blokowe łączące segmenty twarde i miękkie, charakteryzujące się wysoką wytrzymałością mechaniczną, elastycznością i odpornością chemiczną, a ich optymalna temperatura druku wynosi 210°C.
+COSINE_SIMILARITY: 0.837419
+
+--------------------------------------------------------------------------------
+
+2.2.5 Nylon
+SUMMARY:
+Nylon to wytrzymały i elastyczny materiał, powszechnie wykorzystywany w produkcji komponentów robotów, wymagający odpowiedniego przechowywania i suszenia ze względu na jego zdolność do wchłaniania wilgoci.
+COSINE_SIMILARITY: 0.829712
+
+--------------------------------------------------------------------------------
+
+2.2.6 Materiały kompozytowe
+SUMMARY:
+Materiały kompozytowe, łączące różne materiały, oferują lepsze właściwości niż ich składniki, takie jak zwiększona wytrzymałość i odporność na korozję.
+COSINE_SIMILARITY: 0.813046
+
+--------------------------------------------------------------------------------
+
+2.3 Proces tworzenia modeli 3D
+SUMMARY:
+Tworzenie obiektów 3D zaczyna się od wirtualnego modelu, który jest generowany w specjalistycznym programie, a następnie zapisywany w formacie STL lub 3MF, aby umożliwić jego wydrukowanie na drukarce 3D.
+COSINE_SIMILARITY: 0.790264
+
+--------------------------------------------------------------------------------
+
+2.4 Filamenty przewodzące w druku 3D
+SUMMARY:
+Filamenty przewodzące powstają poprzez wprowadzenie wypełniaczy, takich jak nanorurki węglowe czy grafen, do matryc polimerowych, a ich właściwości elektryczne zależą od równomiernego rozmieszczenia tych wypełniaczy i zjawiska perkolacji.
+COSINE_SIMILARITY: 0.810890
+
+--------------------------------------------------------------------------------
+
+2.4.1 Zjawisko perkolacji
+SUMMARY:
+Zjawisko perkolacji umożliwia przewodzenie prądu w kompozytach poprzez tunelowanie elektronów lub bezpośredni kontakt cząsteczek przewodzących, a jego efektywność zależy od ilości wypełniacza przewodzącego, określonej przez próg perkolacji i zależnej od właściwości materiału.
+COSINE_SIMILARITY: 0.816839
+
+--------------------------------------------------------------------------------
+
+2.4.2 Rezystywność elektryczna
+SUMMARY:
+Rezystywność elektryczna, mierzona za pomocą wzoru ρ=𝑅⋅𝐿, określa opór materiału przed przepływem prądu elektrycznego i jest odwrotna do przewodności.
+COSINE_SIMILARITY: 0.808390
+
+--------------------------------------------------------------------------------
+
+2.4.3 Elektronika drukowana
+SUMMARY:
+Elektronika drukowana, wykorzystująca druk 3D z różnymi materiałami, umożliwia produkcję szerokiego zakresu urządzeń, takich jak PCB i czujniki, oferując elastyczność projektowania i niższe koszty produkcji.
+COSINE_SIMILARITY: 0.811197
+
+--------------------------------------------------------------------------------
+
+2.4.4 Grafen
+SUMMARY:
+Grafen, pojedyncza warstwa atomów węgla, charakteryzuje się wyjątkową sztywnością, wysoką przewodnością i przezroczystością, co czyni go obiecującym materiałem do zastosowań w magazynowaniu energii i elektronice.
+COSINE_SIMILARITY: 0.812526
+
+--------------------------------------------------------------------------------
+
+2.4.5 GNP – nanopłatki grafenowe/Graphene nanoplatelets
+SUMMARY:
+GNP znajdują zastosowanie w urządzeniach elektronicznych, takich jak obwody logiczne i ogniwa słoneczne, a ich osadzanie w matrycach polimerowych poprawia ich właściwości elektryczne, mechaniczne i termiczne.
+COSINE_SIMILARITY: 0.806442
+
+--------------------------------------------------------------------------------
+
+2.4.6 CNT – nanorurki węglowe/carbon nanotubes
+SUMMARY:
+Nanorurki węglowe, charakteryzujące się wyjątkową wytrzymałością, przewodnością i lekkością, są wykorzystywane jako wypełniacze w różnych materiałach i aplikacjach, takich jak nanotechnologia i nanomedycyna.
+COSINE_SIMILARITY: 0.817082
+
+--------------------------------------------------------------------------------
+
+2.4.7 CB – sadza/carbon black
+SUMMARY:
+Cząsteczki sadzy, wykorzystywane w druku FDM, tworzą przewodzące ścieżki w polimerach, wpływając na ich właściwości elektryczne, mechaniczne i termiczne.
+COSINE_SIMILARITY: 0.837162
+
+--------------------------------------------------------------------------------
+
+2.4.8 Grafit
+SUMMARY:
+Grafit, dzięki swojej warstwowej strukturze i właściwościom przewodzącym, jest użytecznym, choć ograniczonym ze względu na trudności w obróbce, wypełniaczem w kompozytach przewodzących.
+COSINE_SIMILARITY: 0.817686
+
+--------------------------------------------------------------------------------
+
+2.5 Podsumowanie
+SUMMARY:
+Filamenty przewodzące na bazie PLA i grafenu, działające w temperaturze pokojowej, umożliwiają drukowanie elementów o właściwościach elektrochemicznych, takich jak ścieżki przewodzące, przy napięciu do 12 V i prąd do 100 mA.
+COSINE_SIMILARITY: 0.842461
+
+--------------------------------------------------------------------------------
+
+3.1 Zasoby techniczne
+SUMMARY:
+W części eksperymentalnej wykorzystano określone zasoby techniczne.
+COSINE_SIMILARITY: 0.816286
+
+--------------------------------------------------------------------------------
+
+3.2 Parametry eksperymentalne
+SUMMARY:
+W eksperymencie zmieniano określone parametry.
+COSINE_SIMILARITY: 0.807992
+
+--------------------------------------------------------------------------------
+
+3.3 Specyfikacja techniczna drukarki 3D
+SUMMARY:
+Projekt wykorzystywał drukarkę Bambu Lab X1 Carbon, która drukuje szeroką gamę filamentów, obsługuje polimery wzmacniane włóknem węglowym i szklanym oraz posiada parametry techniczne takie jak objętość roboczą 256 x 256 x 256 mm i maksymalną temperaturę
+COSINE_SIMILARITY: 0.823489
+
+--------------------------------------------------------------------------------
+
+3.4 Pomiar rezystancji metodą czteroelektrodową
+SUMMARY:
+Metoda czteropunktowa została zastosowana do pomiaru rezystancji, aby zminimalizować wpływ rezystancji kontaktowej elektrod i uzyskać dokładniejsze wyniki.
+COSINE_SIMILARITY: 0.800697
+
+--------------------------------------------------------------------------------
+
+3.4.1 Rozmieszczenie elektrod prądowych
+SUMMARY:
+Rozmieszczenie elektrod prądowych na górnej powierzchni próbki, z dwoma elektrodami napięciowymi i dwoma elektrodami prądowymi, umożliwiło precyzyjne pomiary, generując koncentryczne okręgi linii ekwipotencjalnych i gradient potencjału w pobliżu elektrody.
+COSINE_SIMILARITY: 0.803434
+
+--------------------------------------------------------------------------------
+
+3.5 Procedura pomiarów elektrycznych
+SUMMARY:
+Układ został podłączony do urządzenia Keithley 2400 SourceMeter w celu bezpośredniego pomiaru rezystancji materiału, wykorzystując prąd 1 mA, aby uniknąć problemów związanych z nagrzewaniem i zapewnić dokładne, stabilne i powtarzalne wyniki.
+COSINE_SIMILARITY: 0.814473
+
+--------------------------------------------------------------------------------
+
+3.6 Zasady przeprowadzania obliczeń statystycznych i wymiary próbek
+SUMMARY:
+Dla zwiększenia precyzji pomiarów, odległość między elektrodami napięciowymi była jednakowa, a wymiary próbek mierzone były za pomocą suwmiarki, co umożliwiło obliczenie rezystywności i przewodności materiału.
+COSINE_SIMILARITY: 0.827711
+
+--------------------------------------------------------------------------------
+
+4.1 Projektowanie układu pomiarowego
+SUMMARY:
+Zaprojektowano układ pomiarowy w programie Fusion 360 z podstawką i prowadnicami, aby zapewnić stabilne i powtarzalne pomiary elektrod prądowych i napięciowych, chroniąc próbkę przed odkształceniami.
+COSINE_SIMILARITY: 0.822911
+
+--------------------------------------------------------------------------------
+
+4.2 Analiza początkowych koncepcji układu pomiarowego
+SUMMARY:
+W celu uzyskania precyzyjnych wyników pomiarów elektrycznych, zespół wprowadził szereg modyfikacji, w tym precyzyjne wgłębienia podstawek, stałe umiejscowienie elektrod i mechanizm dociskowy ze sprężyną, eliminując problemy związane z przesuwanie się próbki i nieodpowiednią siłą docisku.
+COSINE_SIMILARITY: 0.819143
+
+--------------------------------------------------------------------------------
+
+4.3 Próbne wydruki i weryfikacja parametrów
+SUMMARY:
+Przeprowadzono serię próbek wydruków z filamentu nieprzewodzącego PLA w celu określenia optymalnych parametrów, w tym gęstości wypełnienia, temperatury dyszy i wysokości warstwy, a ostatecznie zdecydowano się na wypełnienie 100%, temperaturę 230°C i wysokość warstwy
+COSINE_SIMILARITY: 0.882545
+
+--------------------------------------------------------------------------------
+
+4.4 Przygotowanie próbek do badań
+SUMMARY:
+Zastosowano oprogramowanie Fusion 360 do modelowania próbek oraz Bambu Studio do przygotowania wydruków, a następnie zmierzono rezystancję elektryczną próbek z PLA z grafenem w zależności od parametrów drukowania, takich jak temperatura dyszy i kierunek drukowania.
+COSINE_SIMILARITY: 0.836181
+
+--------------------------------------------------------------------------------
+
+5.1 Metodyka pomiarowa
+SUMMARY:
+Wykonano wielokrotne pomiary elektryczne, mierząc identyczne próbki po 10 razy i sprawdzając rezystancję powierzchni styku.
+COSINE_SIMILARITY: 0.821619
+
+--------------------------------------------------------------------------------
+
+5.2 Charakterystyka prądowo-napięciowa (I-V) przewodzącego filamentu PLA z grafenem
+SUMMARY:
+Charakterystyka prądowo-napięciowa filamentu PLA z grafenem wykazała liniowy wzrost napięcia w zakresie prądów od 0,1 mA do 10 mA, po którym napięcie stabilizowało się na poziomie 209 mV przy prądzie 40 mA, a następnie materiał nasycał się.
+COSINE_SIMILARITY: 0.809265
+
+--------------------------------------------------------------------------------
+
+5.3 Badanie przewodności elektrycznej filamentu przed wydrukiem dla różnych odległości elektrod napięciowych
+SUMMARY:
+Przepustowość elektryczna filamentu Black Magic 3D PLA z grafenem wynosiła 86,3 [S/cm] przy odległości elektrod 1, a rosła liniowo wraz z odległością, co wskazuje na stabilność właściwości materiału.
+COSINE_SIMILARITY: 0.826937
+
+--------------------------------------------------------------------------------
+
+5.4 Wpływ kierunku wypełnienia na przewodność elektryczną
+SUMMARY:
+Zbadano wpływ kierunku wypełnienia (0° i 90°) na przewodność elektryczną próbek, gdzie średnia rezystancja dla kierunku 0° wynosiła 12,49 Ω, a dla kierunku 90° 83,91 Ω, co sugeruje, że ta orientacja warstw utrudnia przepływ pr
+COSINE_SIMILARITY: 0.832452
+
+--------------------------------------------------------------------------------
+
+5.5 Badanie przewodności elektrycznej jednej warstwy
+SUMMARY:
+Zbadano wpływ kierunku wypełnienia na przewodność elektryczną pojedynczej warstwy, stwierdzając, że wypełnienie w kierunku 0° powoduje niższą rezystancję niż w kierunku 90°.
+COSINE_SIMILARITY: 0.821793
+
+--------------------------------------------------------------------------------
+
+5.6 Badanie przewodności elektrycznej pojedynczego włókna
+SUMMARY:
+Badano rezystancję elektryczną włókna o wymiarach 30 x 0,04 x 0,02 mm, a wyniki pomiarów, obarczone dużym błędem ze względu na odkształcenia i trudności w precyzyjnym umieszczeniu, wykazywały znaczne odchylenie standardowe.
+COSINE_SIMILARITY: 0.809840
+
+--------------------------------------------------------------------------------
+
+5.7 Wpływ temperatury dyszy na przewodność elektryczną
+SUMMARY:
+Zbadano wpływ temperatury dyszy (210°C, 220°C i 230°C) na rezystancję próbek, które wykazywały spadek rezystancji wraz ze wzrostem temperatury, a także większą przyczepność filamentu do stołu roboczego przy niższych temperaturach druku.
+COSINE_SIMILARITY: 0.908028
+
+--------------------------------------------------------------------------------
+
+5.8 Wpływ zmian właściwości filamentu na rezystancję elektryczną
+SUMMARY:
+Problemy z wydrukami spowodowane były kruchością i zatykaniem ekstrudera filamentu przewodzącego, prawdopodobnie z powodu absorpcji wilgoci lub wad produkcyjnych, co objawiało się wzrostem rezystancji elektrycznej.
+COSINE_SIMILARITY: 0.817287
+
+--------------------------------------------------------------------------------
+
+5.9 Wpływ odkształceń mechanicznych na przewodność elektryczną
+SUMMARY:
+Badanie wykazało, że odkształcenia mechaniczne zwiększają rezystancję elektryczną próbek, szczególnie tych wydrukowanych w kierunku 90°, co sugeruje zmiany strukturalne utrudniające przepływ prądu.
+COSINE_SIMILARITY: 0.820790
+
+--------------------------------------------------------------------------------
+
+5.10 Analiza wpływu długoterminowego pomiaru przewodności elektrycznej na zmiany rezystancji w czasie
+SUMMARY:
+Przeprowadzono analizę wpływu temperatury na rezystancję elektryczną próbki, która wykazywała zmniejszenie wartości o około 0,7 Ω w ciągu pierwszych 20 minut pomiaru, a następnie stabilizowała się, co sugeruje osiągnięcie równowagi termicznej i powtarzalność wyników.
+COSINE_SIMILARITY: 0.840730
+
+--------------------------------------------------------------------------------
