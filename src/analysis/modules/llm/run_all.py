@@ -13,7 +13,7 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-file_path = PROJECT_ROOT / "data" / "bosh.pdf"
+file_path = PROJECT_ROOT / "data" / "bosh_mock.pdf"
 OUTPUT_DIR = BASE_DIR / "wyniki"
 language = "pl"
 EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"

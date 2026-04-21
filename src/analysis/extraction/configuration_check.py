@@ -173,7 +173,7 @@ class Validator:
                     if margin.get("left", 0) <= margin.get("right", 0):
                         self.issues.append(Issue(
                             category="Marginesy",
-                            description=f"Strona {page_num}: oczekiwany większy margines po lewej stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}",
+                            description=f"Strona {page_num}: oczekiwany większy margines po lewej stronie", # : left={margin.get('left', 0)}, right={margin.get('right', 0)}
                             page=page_num,
                             xy=(0, 0)
                         ))
@@ -182,7 +182,7 @@ class Validator:
                     if margin.get("right", 0) <= margin.get("left", 0):
                         self.issues.append(Issue(
                             category="Marginesy",
-                            description=f"Strona {page_num}: oczekiwany większy margines po prawej stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}",
+                            description=f"Strona {page_num}: oczekiwany większy margines po prawej stronie", # : left={margin.get('left', 0)}, right={margin.get('right', 0)}
                             page=page_num,
                             xy=(0, 0)
                         ))
@@ -277,7 +277,7 @@ class Validator:
                 if len(lines) <= 1:
                     continue
             
-                for i in range(len(lines) - 1):
+                for i in range(1, len(lines) - 1):
                     line = lines[i]
 
                     if not line.spans:
