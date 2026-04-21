@@ -1,0 +1,153 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\jost2.pdf
+Wygenerowano: 2026-04-11T14:28:11.173062
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.837987
+
+CEL PRACY
+Cel to przeprowadzić pierwsze badanie in vivo właściwości immunomodulujących i bezpieczeństwa Venetin-1 na myszach
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+4.1 Cyclophosphamide 4.2 Side-effects
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.822914
+
+--------------------------------------------------------------------------------
+
+4.2.1 Protective agents against cyclophosphamide’s toxicity 4.2.2 Immune-stimulating agents 4.3 Earthworms
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.822914
+
+--------------------------------------------------------------------------------
+
+4.3.1 Venetin-1 5. PURPOSE OF THE PROJECT 6. MATERIALS AND METHODS
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.822914
+
+--------------------------------------------------------------------------------
+
+6.1 Mice and reagents 6.2 Protocols for CP and Venetin-1 treatment 6.3 Homogenization of the spleen and cell lysis 6.4 Protein digestion using FASP procedure 6.5 Peptide purification 6.6 Mass spectrometry analysis LC/MS-MS – SWATH-MS 6.7 Statistical and functional analysis 7. RESULTS
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.822914
+
+--------------------------------------------------------------------------------
+
+7.1 Effects of animal treatment 7.2 Statistical analysis of SWATH-MS data 7.3 KEGG pathways enrichment analysis 7.4 Common altered proteins in Venetin-1 treatment groups 8. DISCUSSION 9. REFERENCES
+SUMMARY:
+Proteomic analiza płcnn z myszy po podaniu Venetin-1 po immunosupresji cyklfosfamidą wykazała, że wyższa dawka Venetin-1 powoduje zwiększenie ekspresji wielu białek związanych z procesami immunologicznymi i proliferacji.
+COSINE_SIMILARITY: 0.890490
+
+--------------------------------------------------------------------------------
+
+4.2 Side-effects
+SUMMARY:
+Cyclophosphamide wykazuje toksyczność dla szybko się dzielących tkanek, powodując tymczasowe i długoterminowe skutki, takie jak nudności, wypadanie włosów, a także potencjalne uszkodzenia serca, nerek i płodów, co wymaga stosowania suplementów antyoksydantów w celu złagodzenia tych objawów.
+COSINE_SIMILARITY: 0.791939
+
+--------------------------------------------------------------------------------
+
+4.2.1 Protective agents against cyclophosphamide’s toxicity
+SUMMARY:
+Badania wykazały, że probucol zapobiega toksyczności serca po podaniu cyklfosfamidów poprzez zwiększenie ekspresji genów antyoksydacyjnych i poprawę produkcji energii w tkankach serca.
+COSINE_SIMILARITY: 0.816376
+
+--------------------------------------------------------------------------------
+
+4.2.2 Immune-stimulating agents
+SUMMARY:
+Naukowcy badali różne związki stymulujące układ odpornościowy, aby przywrócić funkcję układu obronnego u myszy po leczeniu chemioterapią, w tym stosując Shenqi Fuzheng Injection, chitooligosacharydy i polisacharydy z Sargassum fusiforme.
+COSINE_SIMILARITY: 0.851744
+
+--------------------------------------------------------------------------------
+
+4.3 Earthworms
+SUMMARY:
+Badania wykazały, że ślimaki ziemne produkują różne substancje biologicznie aktywne, takie jak coelomocyty i agglutiny, które mają właściwości lecznicze, a Venetin-1, izolowany z ich płynu śródpowrózowego, wykazuje aktywność przeciwnowotnową i przeciwwirusową.
+COSINE_SIMILARITY: 0.853366
+
+--------------------------------------------------------------------------------
+
+4.3.1 Venetin-1
+SUMMARY:
+Venetin-1, izolowany z wydzieliny robaczków Dendrobaena veneta, wykazuje działanie antynowrażliwe na komórki raka płuc A549 oraz antygrzybicze na drożdże Candida albicans, a także wykazuje właściwości immunostymulujące w makrofagach.
+COSINE_SIMILARITY: 0.874568
+
+--------------------------------------------------------------------------------
+
+6.1 Mice and reagents
+SUMMARY:
+Badanie obejmowało 12 myszy C57BL/6, które zostały podzielone na grupy i poddane 14-dniowej terapii solanką, cyklosporyną lub frakcją Venetin-1 w różnych stężeniach.
+COSINE_SIMILARITY: 0.883220
+
+--------------------------------------------------------------------------------
+
+6.3 Homogenization of the spleen and cell lysis
+SUMMARY:
+Spleń od mowy został umyty, zhomogenizowany i poddany sonizacji w celu przygotowania próbek do analizy.
+COSINE_SIMILARITY: 0.830763
+
+--------------------------------------------------------------------------------
+
+6.4 Protein digestion using FASP procedure
+SUMMARY:
+Próbki z wyekstrahowanego soku z płuc mózgowych zostały poddane trawieniu białek metodą FASP, obejmującej usuwanie niepożądanych składników, alkilację tioli, trawienie białek za pomocą trypsyny i elucję peptydów.
+COSINE_SIMILARITY: 0.800903
+
+--------------------------------------------------------------------------------
+
+6.4 Peptide Purification
+SUMMARY:
+Peptydy zostały oczyszczone i odzyskane za pomocą metody StageTips, która wykorzystywała pipetowe końcówki z fazą stałą C18, a proces obejmował umaczanie, płukanie i kondycjonowanie sorbentu przed elucją peptydów.
+COSINE_SIMILARITY: 0.798552
+
+--------------------------------------------------------------------------------
+
+6.5 Mass spectrometry analysis LC/MS-MS – SWATH-MS
+SUMMARY:
+Wykorzystano spektrometr masowy TripleTOF 5600+ w połączeniu z systemem chromatografii cieczowej Ekspert MicroLC 200 Plus do analizy 12 próbek śledziony w trzech powtórzeniach technicznych, wykorzystując metodę DDA i SWATH z fragmentacją w 25 zmiennych oknach
+COSINE_SIMILARITY: 0.811274
+
+--------------------------------------------------------------------------------
+
+6.6 Statistical and functional analyses
+SUMMARY:
+Przeprowadzono analizy statystyczne T-test z poziomem istotności q < 0,05 oraz obliczenia zmiany wielkości (FC) w Perseus, porównując różne grupy próbek z grupami kontrolnymi NaCl i CP.
+COSINE_SIMILARITY: 0.809597
+
+--------------------------------------------------------------------------------
+
+7.1 Effects of animal treatment
+SUMMARY:
+Badanie dotyczyło wpływu Venetin-1 na immunomodulację w myszach z osłabionym układem odpornościowym, po podaniu CP i Venetin-1, a następnie analizy izolowanych białek za pomocą metod chromatograficznych i spektrometrii mas.
+COSINE_SIMILARITY: 0.919342
+
+--------------------------------------------------------------------------------
+
+7.2 Statistical analysis of SWATH-MS data
+SUMMARY:
+Przeprowadzono analizę ilościową próbek tkanki śledziony za pomocą metody SWATH-MS, porównując grupy myszy poddane różnym schematom leczenia (NaCl, cyclophosphamid i Venetin-1 w różnych dawkach) z grupą kontrolną, aby zidentyfikować białka o znaczącej zmianie poziomu.
+COSINE_SIMILARITY: 0.862297
+
+--------------------------------------------------------------------------------
+
+7.3 KEGG pathways enrichment analysis
+SUMMARY:
+Analiza danych z wykorzystaniem oprogramowania STRING i analizy wzbogacenia szlaków KEGG zidentyfikowała upregulowane szlaki, w tym „Afrykańska trypanosomoza” w grupie CP, oraz „Regulacja cytoszkieletu” i „Zgrubienie połączeń” w grupie CP+100V, w
+COSINE_SIMILARITY: 0.811608
+
+--------------------------------------------------------------------------------
+
+7.4 Common altered proteins in Venetin-1 treatment groups
+SUMMARY:
+Analiza Venetin-1 skupiła się na białkach, których ekspresja uległa zmianie w grupach leczonych tym związkiem, a diagramy Venn ilustrowały unikalne i powtarzające się zmiany w ekspresji białek w różnych grupach.
+COSINE_SIMILARITY: 0.862052
+
+--------------------------------------------------------------------------------

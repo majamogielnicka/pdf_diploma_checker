@@ -1,0 +1,13 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\jost.pdf
+Wygenerowano: 2026-04-11T14:24:50.147298
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.000000
+
+CEL PRACY
+Zakłada się, że pośród peptydów obecnych w płynie pęcherzykowym znajdują się markery jakości komórki jajowej
+
+PODOBIEŃSTWO DLA STRESZCZEŃ

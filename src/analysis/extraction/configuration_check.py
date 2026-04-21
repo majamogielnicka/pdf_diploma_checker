@@ -5,7 +5,7 @@ Klasa ConfigValidationError to niestandardowy wyjątek do obsługi błędów wal
 Klasa Validator do sprawdzania błędów pdf'a na podstawie konfiguracji
  '''
 
-from bare_struct import DocumentData
+from src.analysis.extraction.bare_struct import DocumentData
 import json
 import logging # proponuje omówić wspólne mechanizmy logów do błędów i debugowania ~Bartek 24.03
 from dataclasses import dataclass

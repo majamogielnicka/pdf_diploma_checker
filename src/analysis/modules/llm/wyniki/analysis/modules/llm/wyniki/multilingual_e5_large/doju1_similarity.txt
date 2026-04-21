@@ -1,0 +1,167 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\doju1.pdf
+Wygenerowano: 2026-04-11T13:56:47.877450
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.845269
+
+CEL PRACY
+Efektywna polityka klimatyczna jest istotna
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Wyzwania związane ze zmianami klimatu
+SUMMARY:
+Rozwój cywilizacyjny prowadzi do wzrostu efektywności i wygodzie, ale także do negatywnych skutków dla klimatu i środowiska, w tym intensyfikacji ekstremalnych zjawisk pogodowych.
+COSINE_SIMILARITY: 0.844405
+
+--------------------------------------------------------------------------------
+
+1.2 Założenia polityki klimatycznej
+SUMMARY:
+Polityka klimatyczna ma na celu ograniczenie emisji gazów cieplarnianych w sektorach takich jak energetyka, rolnictwo i transport, aby przeciwdziałać pogłębianemu kryzysowi ekologicznemu i negatywnym skutkom zmian klimatycznych.
+COSINE_SIMILARITY: 0.887829
+
+--------------------------------------------------------------------------------
+
+1.3 Rozwój międzynarodowej polityki klimatycznej
+SUMMARY:
+W latach 70. XX wieku, podczas Konferencji Sztokholmskiej ONZ, zaczęła kształtować się idea polityki ochrony środowiska, skupiona na zapobieganiu zanieczyszczeniu i ochronie warstwy ozonowej.
+COSINE_SIMILARITY: 0.836944
+
+--------------------------------------------------------------------------------
+
+1.4 Uwarunkowania realizacji polityki klimatycznej
+SUMMARY:
+Skuteczna walka ze zmianami klimatu wymaga skoordynowanych działań wszystkich krajów, uwzględniających ich indywidualne uwarunkowania gospodarcze i finansowe.
+COSINE_SIMILARITY: 0.877838
+
+--------------------------------------------------------------------------------
+
+1.5 Polityka klimatyczna a polityka gospodarcza
+SUMMARY:
+Ekstremalne zjawiska pogodowe negatywnie wpływają na rolnictwo, rynek pracy, sektor energetyczny i handel międzynarodowy, prowadząc do spadku produktywności, wzrostu kosztów i pogłębiania nierówności gospodarczych.
+COSINE_SIMILARITY: 0.831183
+
+--------------------------------------------------------------------------------
+
+1.6 Podsumowanie
+SUMMARY:
+Globalne ocieplenie wywołane działalnością człowieka stanowi poważne wyzwanie, wymagające kompleksowej polityki klimatycznej, która napotyka na opór polityczny i ograniczenia finansowe, a jej skuteczność jest znacznie niższa niż wymagana.
+COSINE_SIMILARITY: 0.882045
+
+--------------------------------------------------------------------------------
+
+2.1 Początki i płaszczyzny rozwoju polityki klimatycznej UE
+SUMMARY:
+W latach 70. XX wieku Unia Europejska rozpoczęła politykę klimatyczną, zainicjowaną w 1972 roku w Paryżu, mającą na celu przeciwdziałanie zmianom klimatu poprzez bezpieczeństwo energetyczne, rozwój gospodarczy i legitymizację integracji europejskiej.
+COSINE_SIMILARITY: 0.853441
+
+--------------------------------------------------------------------------------
+
+2.2 Ramy prawne dla realizacji polityki klimatycznej UE
+SUMMARY:
+Jednolity Akt Europejski z 1986 r. ustanowił podstawę prawną wspólnej polityki ochrony środowiska, określając cele dotyczące zachowania, ochrony i poprawy jakości środowiska, przyczyniania się do ochrony zdrowia ludzkiego oraz racjonalnego wykorzystywania zasobów naturalnych.
+COSINE_SIMILARITY: 0.820631
+
+--------------------------------------------------------------------------------
+
+2.3 Założenia polityki klimatycznej UE
+SUMMARY:
+Polityka UE w ochronie środowiska opiera się na zasadzie ostrożności, która pozwala na szybkie reagowanie w przypadku potencjalnych zagrożeń dla zdrowia i środowiska, zwłaszcza gdy brakuje wystarczających danych naukowych do oceny ryzyka.
+COSINE_SIMILARITY: 0.823234
+
+--------------------------------------------------------------------------------
+
+2.4 Rozwój polityki klimatycznej UE
+SUMMARY:
+Polityka klimatyczna Unii Europejskiej zaczęła kształtować się pod koniec lat 80. XX wieku, zainspirowana rosnącą świadomością społeczna i podpisaniem Konwencji Klimatycznej w Rio de Janeiro oraz Protokołu z Kioto.
+COSINE_SIMILARITY: 0.842599
+
+--------------------------------------------------------------------------------
+
+2.5 Podsumowanie
+SUMMARY:
+Unia Europejska aktywnie przeciwdziała zmianom klimatu poprzez kompleksową politykę klimatyczną, obejmującą różne sektory i narzędzia, w tym system EU ETS oraz krajowe plany energetyczno-klimatyczne, z celem osiągnięcia neutralności klimatycznej i transformacji gospodarki.
+COSINE_SIMILARITY: 0.854595
+
+--------------------------------------------------------------------------------
+
+3.1 Uwarunkowania polityki klimatycznej UE
+SUMMARY:
+Realizacja długookresowej strategii gospodarki niskoemisyjnej UE jest utrudniona przez czynniki ekonomiczne i polityczne, w tym presję związaną z narzuconym tempem wprowadzania zmian oraz potrzebę ukierunkowanych inwestycji w innowacyjne technologie.
+COSINE_SIMILARITY: 0.843850
+
+--------------------------------------------------------------------------------
+
+3.2 Implikacje polityki klimatycznej UE dla państw członkowskich
+SUMMARY:
+Unijna polityka klimatyczna, narzucając konkretne cele, wpływa na politykę gospodarczą państw członkowskich, szczególnie w sektorze energetycznym, co prowadzi do społeczno-ekonomicznych, geopolitycznych i politycznych wyzwań.
+COSINE_SIMILARITY: 0.867287
+
+--------------------------------------------------------------------------------
+
+3.3 Ocena realizacji polityki klimatycznej UE w świetle zobowiązań międzynarodowych
+SUMMARY:
+Parlament Europejski zwraca uwagę na niewystarczające wdrażanie celów klimatycznych przez państwa członkowskie i podkreśla znaczenie monitorowania implementacji unijnych przepisów ochrony środowiska.
+COSINE_SIMILARITY: 0.861490
+
+--------------------------------------------------------------------------------
+
+3.4 Podsumowanie
+SUMMARY:
+Skuteczność polityki klimatycznej w UE zależy od dostępnych zasobów, kapitału i technologii, a także od potencjalnych negatywnych konsekwencji społeczno-ekonomicznych, które mogą wpływać na wiarę polityczną w prowadzenie działań ekologicznych.
+COSINE_SIMILARITY: 0.872677
+
+--------------------------------------------------------------------------------
+
+4.1 Prognozy klimatyczne
+SUMMARY:
+Według raportów IPCC, średnia temperatura Ziemi prawdopodobnie wzrośnie do 2,7°C w ciągu najbliższych dwóch dekad, nawet przy realizacji najbardziej optymistycznych celów klimatycznych.
+COSINE_SIMILARITY: 0.819184
+
+--------------------------------------------------------------------------------
+
+4.2 Ograniczenia globalnej polityki klimatycznej
+SUMMARY:
+Krajowa sytuacja gospodarcza i brak porozumienia w zakresie celów klimatycznych ograniczają skuteczność globalnej polityki klimatycznej, ponieważ rządy koncentrują się na krótkoterminowych działaniach i potrzebach społecznych.
+COSINE_SIMILARITY: 0.867326
+
+--------------------------------------------------------------------------------
+
+4.3 Koszty zmian klimatu
+SUMMARY:
+Dodatkowe tony dwutlenku węgla emitowane do atmosfery generują znaczne koszty społeczne, szacowane na 185 USD na tonę, znacznie przewyższające obecne szacunki i ceny w systemach handlu emisjami.
+COSINE_SIMILARITY: 0.809675
+
+--------------------------------------------------------------------------------
+
+4.4 Polityka klimatyczna z perspektywy największych emitentów
+SUMMARY:
+Raport Wspólnego Centrum Badawczego wskazuje, że światowe emisje z spalania paliw kopalnych w 2019 roku wyniosły 38 Gt CO2.
+COSINE_SIMILARITY: 0.820803
+
+--------------------------------------------------------------------------------
+
+4.5 Wpływ wojny w Ukrainie na przyszłość światowej energetyki
+SUMMARY:
+Inwazja Rosji na Ukrainę spowodowała wzrost cen paliw, energii elektrycznej i żywności, co przyspieszyło inflację na świecie.
+COSINE_SIMILARITY: 0.797434
+
+--------------------------------------------------------------------------------
+
+4.6 Podstawowe założenia transformacji sektora energetycznego
+SUMMARY:
+Inwazja Rosji na Ukrainę podkreśliła zależność świata od paliw kopalnych, co zagraża bezpieczeństwu energetycznemu, gospodarce i środowisku, wymagając ograniczenia ich wykorzystania i transformacji sektora energetycznego w kierunku odnawialnych źródeł energii.
+COSINE_SIMILARITY: 0.822764
+
+--------------------------------------------------------------------------------
+
+4.7 Podsumowanie
+SUMMARY:
+Globalna mobilizacja jest niezbędna do skutecznego przeciwdziałania zmianom klimatu, ponieważ obecne działania państw nie pozwalają na spełnienie celów Porozumienia Paryskiego i ograniczają tempo wzrostu temperatury.
+COSINE_SIMILARITY: 0.858679
+
+--------------------------------------------------------------------------------
