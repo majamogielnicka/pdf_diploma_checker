@@ -97,6 +97,7 @@ class RedactionValidator:
 
     def validate(self, config_ckeck: bool = True, basic_redaction_check: bool = True, advanced_redaction_check: bool = True):
         self.errors.clear() #metody indywidualnie wrzucaja errory na stos
+        self.id_counter = 0
         #--------------------config check
         if self.config is not None and config_ckeck:
             self.check_interline_spacing(self.document_data)
@@ -182,6 +183,10 @@ class RedactionValidator:
     
     def last_errors_to_json(self):
         return json.dumps([error.__dict__ for error in self.errors], ensure_ascii=False, indent=4)
+    
+    def last_errors_to_file(self, path):
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(self.last_errors_to_json())
 
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
@@ -200,9 +205,21 @@ class RedactionValidator:
                     if last_span is None:
                         continue
                     if len(last_span.text) == 1:
-                        if last_span.text in ".,;:!?\"')]}":
+                        if last_span.text < 'a' or last_span.text > 'z':
+                            continue
+
+                        if last_span.size < self.document_data.get_most_common_font_size() * 0.8:
                             continue
                         orphans.append(last_span)
+                        self.errors.append(Error(
+                            id = self._get_next_id(),
+                            module = self.module,
+                            category = "orphan_span",
+                            page_nr = page.number,
+                            bounding_box = last_span.bbox,
+                            text = last_span.text,
+                            comments = "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji."
+                        ))
         return orphans
     
     def check_blank_page(self):
@@ -387,6 +404,8 @@ class RedactionValidator:
 
         return page_1_footer_bbox, lack_of_footers
     
+    #------------------config checks-----------------------
+    #funckje w tym bloku zwracają True jeśli wszystko ok, False jeśli wykryto błąd
     def check_interline_spacing(self, doc_data: DocumentData) -> bool:
         line_spacing = doc_data.get_dominant_line_spacing()
         if line_spacing is None:
@@ -628,24 +647,3 @@ class RedactionValidator:
             logging.info("Redaction: justowanie zgodne z wymaganiami")
 
         return not errors_found
-
-class Validator:
-    def __init__(self, config: Configuration):
-        self.config = config
-        self.errors = [] # lista błędów
-
-    def validate_pdf(self, doc_data: DocumentData) -> List[str]:
-        self.errors.clear() # czyścimy poprzednie błędy
-
-        self.check_interline_spacing(doc_data)
-        self.check_page_count(doc_data)
-        self.check_font_size(doc_data)
-        self.check_margins(doc_data)
-        self.check_orientation(doc_data)
-        self.check_fonts(doc_data)
-        self.check_justification(doc_data)
-        self.check_format(doc_data)
-
-        return [f"{error.category}: {error.description} (strona {error.page})" for error in self.errors]
-
-    
