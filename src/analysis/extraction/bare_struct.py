@@ -138,6 +138,20 @@ class DocumentData:
                         font_usage[span.size] = font_usage.get(span.size, 0) + 1
         return font_usage
     
+    def get_most_common_font(self) -> str | None:
+        font_usage = self.get_font_usage()
+        if not font_usage:
+            return None
+        most_common_font = max(font_usage, key=font_usage.get)
+        return most_common_font
+
+    def get_most_common_font_size(self) -> float | None:
+        font_size_usage = self.get_font_size_usage()
+        if not font_size_usage:
+            return None
+        most_common_font_size = max(font_size_usage, key=font_size_usage.get)
+        return most_common_font_size
+
     def get_margins(self) -> Dict[str, float]:
         margins = {}
         for page in self.pages:
