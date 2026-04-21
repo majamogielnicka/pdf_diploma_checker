@@ -1,4 +1,4 @@
-from extraction_json import extractPDF
+from src.analysis.extraction.extraction_json import extractPDF
 
 
 class ExtractionService:

@@ -11,12 +11,11 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
-REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
+PROJECT_ROOT = BASE_DIR.parents[2]
 
-sys.path.insert(0, str(REDACTION_DIR))
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from .bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
+from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, HeaderData, TocData, TocEntry
 
 
 # Tryb debugu:
@@ -959,9 +958,6 @@ def extractPDF(file_path: str) -> DocumentData:
     current_span_id = 0
     if not os.path.exists(file_path):
         #TODO:tutaj jakis wyjatek
-        #musimy ustalić standard zglaszania bledow
-        #na razie print
-        #   ~Bartek 08.03
         print(f"plik nie istnieje")
         return
     
@@ -1057,7 +1053,7 @@ def extractPDF(file_path: str) -> DocumentData:
             blank_page = False
         cur_page.is_blank = blank_page
         document_data.pages.append(cur_page)
-
+    document_data.toc = extract_TOC(doc, document_data.pages)
     doc.close()
     return document_data
 
@@ -1210,3 +1206,89 @@ def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: flo
             return True
 
     return False
+
+def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
+    """
+    Funkcja do ekstrakcji spisu treści. 
+    Zwraca obiekt TocData jeśli znaleziono spis, w przeciwnym razie None.
+    """
+    built_in_toc = doc.get_toc()
+    if built_in_toc:
+        entries = []
+        for lvl, ttl, page_num in built_in_toc:
+            entries.append(TocEntry(
+                level=lvl,
+                title=ttl.strip(),
+                page=page_num,
+                bbox=(0, 0, 0, 0)  
+            ))
+        return TocData(page_num=-1,entries=entries, text="Wykryto z metadanych"
+        )
+
+    keywords = [
+        "spis treści", "spis tresci", 
+        "table of contents", "contents", "toc"
+    ]
+    all_entries = []
+    first_page = None
+    toc_started = False
+    full_toc_text = ""
+    base_x = None
+
+    for page_obj in pages[:10]:
+        page_entries = []
+        page_text = ""
+        
+        for block in page_obj.text_blocks:
+            for line in block.lines:
+                line_text = " ".join([span.text for span in line.spans]).strip()
+                page_text += line_text + " "
+                
+                match = re.search(r"^\s*(.*?)\s*[\.\s·\-]{5,}\s*(\d+)\s*$", line_text)
+                
+                if match:
+                    title, p_num = match.groups()
+                    title_clean = title.strip()
+                    current_x = line.bbox[0]
+                    
+                    if base_x is None:
+                        base_x = current_x
+                    
+                    gap_level = 1 + int(max(0, current_x - base_x) / 12)
+                    num_match = re.match(r"^(\d+(?:\.\d+)*)\.?", title_clean)
+                    dotted_level = 1
+                    if num_match:
+                        num_part = num_match.group(1)
+                        dotted_level = num_part.count('.') + 1
+
+                    final_level = max(gap_level, dotted_level)
+
+                    page_entries.append(TocEntry(
+                        level=final_level, 
+                        title=title_clean,
+                        page=int(p_num),
+                        bbox=line.bbox
+                    ))
+
+        has_keyword = any(word in page_text.lower() for word in keywords)
+        
+        if not toc_started:
+            if has_keyword and len(page_entries) >= 2 or len(page_entries) >= 5:
+                toc_started = True
+                first_page = page_obj.number
+                all_entries.extend(page_entries)
+                full_toc_text = page_text[:500]
+        else:
+            if len(page_entries) >= 1:
+                all_entries.extend(page_entries)
+            else:
+                break
+                
+    if all_entries:
+        return TocData(
+            page_num=first_page,
+            entries=all_entries,
+            text=full_toc_text
+        )
+        
+    return None
