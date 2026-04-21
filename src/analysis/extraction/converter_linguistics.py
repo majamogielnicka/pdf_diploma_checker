@@ -313,7 +313,7 @@ class PDFMapper:
 
         for page in old_doc.pages:
             top_thresh = 50
-            bottom_thresh = page.height - 50
+            bottom_thresh = page.height - 75
 
             page_table_descs = {t.description for t in page.tables if t.description}
             page_img_descs = {img.description for img in page.images if img.description}
