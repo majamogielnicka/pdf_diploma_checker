@@ -28,7 +28,7 @@ except Exception:
 
 DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "agna.pdf"
 
-EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
 
 
 def normalize_text(text):
