@@ -20,30 +20,31 @@ def decimal_check(blocks):
     checked_matches = []
 
     for block in blocks:
-        if block.language == 'pl':
-            regex = r'(?<![\d.a-zA-Z])\d+\.\d+(?!\.?\d)'
-        else:
-            regex = r'(\d+,(?!\d{3}(?!\d))\d+)'
-        potential_matches = []
-        text = block.contents
-        regexes = list(re.finditer(regex, text))
-        for reg in regexes:
-            start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
-            potential_matches.append(Error_type(
-                content=text[reg.start():reg.end()],
-                category= "DECIMAL",
-                message= "",
-                offset= reg.start(),
-                error_length=reg.end() - reg.start(),
-                block_id = block.block.block_id,
-                page_start = start_page,
-                page_end = end_page,
-                word_idxs = word_idxs,
-                error_coordinate= error_coordinate,
-            ))
-        checked_match, decimal_counter = check_decimal_matches(potential_matches, block)
-        checked_matches.extend(checked_match)
-        counter += decimal_counter
+        if block.block.type == 'paragraph':
+            if block.language == 'pl':
+                regex = r'(?<![\d.a-zA-Z])\d+\.\d+(?!\.?\d)'
+            else:
+                regex = r'(\d+,(?!\d{3}(?!\d))\d+)'
+            potential_matches = []
+            text = block.contents
+            regexes = list(re.finditer(regex, text))
+            for reg in regexes:
+                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
+                potential_matches.append(Error_type(
+                    content=text[reg.start():reg.end()],
+                    category= "DECIMAL",
+                    message= "",
+                    offset= reg.start(),
+                    error_length=reg.end() - reg.start(),
+                    block_id = block.block.block_id,
+                    page_start = start_page,
+                    page_end = end_page,
+                    word_idxs = word_idxs,
+                    error_coordinate= error_coordinate,
+                ))
+            checked_match, decimal_counter = check_decimal_matches(potential_matches, block)
+            checked_matches.extend(checked_match)
+            counter += decimal_counter
     return checked_matches, counter
 
 def check_decimal_matches(potential_matches, block):
@@ -73,7 +74,8 @@ def check_decimal_matches(potential_matches, block):
         previous_text = re.findall(r'[^.()\[\]{}:,;\s]+', block.contents[begin_check_idx:match.offset].lower())
         if check_quotes(match, block.contents):
             is_error = 0
-        elif check_if_proper(block.block, match):
+        elif check_if_proper(block.block, match, is_diff= True):
+            print(match.content)
             is_error = 0
         elif following_text and len(set(black_list).intersection(following_text)) > 0:
             is_error = 2

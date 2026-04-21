@@ -21,6 +21,7 @@ class Analisys_type:
     impersonal_count: int
     wrong_person_count: int
     passive_ratio: str
+    sentence_count: int
 
 @dataclass
 class Block_context:

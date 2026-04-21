@@ -8,7 +8,7 @@ from .proper_check import check_if_proper
 
 def sentence_check(blocks):
     '''
-    Marks usage of personal forms of verbs (excluding 3rd) as an error. Creates statistics on passive and active forms of sentences.
+    Marks usage of 1st personal form as an error. Creates statistics on passive and active forms of sentences.
     Args:
         blocks (list(Block_context)): List contaning Block_context objects.
     Returns:
@@ -18,7 +18,7 @@ def sentence_check(blocks):
     sentence_count = 0
     passive_count = 0
     active_count = 0
-    skipped = 0
+    verbless_count = 0
     impersonal_count = 0
     checked_matches = []
     for block in blocks:
@@ -28,15 +28,11 @@ def sentence_check(blocks):
             nlp = nlp_en
         text = block.contents
         content = nlp(text)
-        skip = False
-        sentence_count = len(list(content.sents))
-        if sentence_count < 3:
-            skip = True
         for sentence in content.sents:
             passive = False
-            quotes = False
             is_subject = False
             is_verb = False
+            sentence_count += 1
             for token in sentence:
                 if token.morph.get("Person"):
                     is_subject = True
@@ -58,7 +54,7 @@ def sentence_check(blocks):
                             word_idxs = word_idxs,
                             error_coordinate= error_coordinate
                             )   
-                            if not check_quotes(match, text) and not check_if_proper(block.block, match):
+                            if not check_quotes(match, text) and not check_if_proper(block.block, match, is_diff = True):
                                 checked_matches.append(match)
                             else:
                                 quotes = True
@@ -66,21 +62,24 @@ def sentence_check(blocks):
                     is_subject = True
                 if token.pos_ in {'VERB', 'AUX'}:
                     is_verb = True    
-                #if even one part of a sentence is passive, whole sentence is marked as passive for clarity of the outcome.
+                #nawet gdy jedna z części zdania jest bierna, całe zdanie złożone uznawane jest za bierne dla przejrzystości wyników.
                 if token.dep_ == "aux:pass":
                     passive = True
-                    if block.language == 'pl':
+                    if block.language == 'pl' and not is_subject:
+                        #dla zdań biernych, gdy parser nie wykryje podmiotu
                         if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
                             is_subject = True
                 elif token.morph.get("Person") and token.morph.get("Person")[0] == "0":
                     impersonal_count +=1
+                #wykrywanie form typu: Mówi się jako bezosobowe
                 elif block.language =='pl'and token.text == "się":
                     if token.head.morph.get("Person") and token.head.morph.get("Person")[0] == "3":
                         if not any(child.dep_ == "nsubj" for child in token.head.children):
                             impersonal_count +=1
             match_list = []
-            if not skip:
+            if block.block.type == "paragraph":
                 if not is_subject:
+                    #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.
                     match_list.append(("NO_SUBJECT", "Brak podmiotu w zdaniu."))
                 if not is_verb:
                     match_list.append(("NO_VERB", "Brak orzeczenia w zdaniu."))
@@ -98,21 +97,15 @@ def sentence_check(blocks):
                 word_idxs = word_idxs,
                 error_coordinate= error_coordinate
                 )
-                if check_quotes(match, text):
-                    quotes = True
-                elif check_if_proper(block.block, match):
-                    quotes = True
-                elif block.block.type != "paragraph":
-                    pass
-                else:
+                #sprawdzanie czy zdanie jest cytatem, aby nie uwzględniać ich jako błędów.
+                if not check_quotes(match, text) and not check_if_proper(block.block, match):
                     checked_matches.append(match)
             if passive:
                 passive_count += 1
-            elif not quotes:
-                active_count += 1
+            elif not is_verb:
+                verbless_count += 1
             else: 
-                #print(sentence.text)
-                skipped += 1
+                active_count += 1
     if passive_count + active_count > 0:
         passive_ratio = passive_count/(passive_count + active_count)
     else:
@@ -120,11 +113,12 @@ def sentence_check(blocks):
     analisys = Analisys_type(
         passive_count= passive_count,
         active_count= active_count,
-        passive_ratio= f"{passive_ratio}%",
+        passive_ratio= f"{round(passive_ratio * 100, 2)}%",
         wrong_person_count= len(checked_matches),
-        impersonal_count= impersonal_count
+        impersonal_count= impersonal_count,
+        sentence_count = sentence_count
     )
-    print(f"active:{analisys.active_count} passive:{analisys.passive_count} skipped:{skipped} sum counted:{analisys.active_count + analisys.passive_count + skipped}")
+    print(f"active:{analisys.active_count} passive:{analisys.passive_count} sum counted:{sentence_count}")
     return checked_matches, analisys
 
 def morfeusz_check(text):

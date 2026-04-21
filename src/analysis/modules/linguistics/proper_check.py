@@ -17,9 +17,17 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
     Returns:
         bool: True if the word is deemed a proper name/exception, False otherwise.
     """
+    target_words_ids = set(match.word_idxs) if isinstance(match.word_idxs, list) else {match.word_idxs}
+    matched_words = [word for word in block.words if word.word_index in target_words_ids]
+    if is_diff:
+        if all((word.italic) for word in matched_words):
+            return True
+        else: 
+            return False
     ACADEMIC_TITLES = {"prof.", "dr", "dr hab.", "mgr", "inż.", "lic.", "doc."}
     BRITISH_ABBREVIATIONS = {"Dr", "Mr", "Mrs", "Ms", "Jr", "Sr", "St"}
     #regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
+
     is_digit = re.compile(r'\d')
     if lemma:
         text = lemma.strip("():;,.!?[]\n\t ")
@@ -34,9 +42,8 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
     if text.isupper():
         return True
 
-    target_words_ids = set(match.word_idxs) if isinstance(match.word_idxs, list) else {match.word_idxs}
-    matched_words = [word for word in block.words if word.word_index in target_words_ids]
 
+    
     if proper_names is not None:
         proper = [p[0] for p in proper_names]
         proper_lemmas = [p[1] for p in proper_names]
@@ -46,8 +53,8 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
             if lemma and text in proper_lemmas:
                 return True
 
-    if is_diff and matched_words:
-        if all((word.italic or word.bold) for word in matched_words):
+    if matched_words:
+        if all((word.italic) for word in matched_words):
             return True
 
     return False
