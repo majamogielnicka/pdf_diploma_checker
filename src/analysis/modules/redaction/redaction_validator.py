@@ -52,6 +52,9 @@ class Configuration:
                 raise FileError("błędny margines, oczekiwano 'lustrzany' lub 'standardowy'")
             self.margin_type = data["margines"]
 
+
+            if data["format"].lower() not in ["a3", "a4", "a5"]:
+                raise FileError("błędny format strony, oczekiwano 'a3', 'a4' lub 'a5'")
             self.format = data["format"]
 
             if data["orientacja"].lower() not in ["pionowa", "pozioma"]:
@@ -89,7 +92,7 @@ class RedactionValidator:
         errors = []
         orphans = self.check_orphans()
         for orphan in orphans:
-            error = FileError(
+            error = Error(
                 id=self._get_next_id(),
                 module=self.module,
                 category="orphan",
@@ -101,7 +104,7 @@ class RedactionValidator:
             errors.append(error)
         blank_pages = self.check_blank_page()
         for blank_page in blank_pages:
-            error = FileError(
+            error = Error(
                 id = self._get_next_id(),
                 module = self.module,
                 category = "blank_page",
@@ -114,7 +117,7 @@ class RedactionValidator:
         wrong_toc_entries, is_toc = self.check_toc()
 
         if not is_toc:
-            error = FileError(
+            error = Error(
                 id = self._get_next_id(),
                 module=self.module,
                 category = "TOC_lack",
@@ -126,7 +129,7 @@ class RedactionValidator:
             errors.append(error)
         else:
             for entry in wrong_toc_entries:
-                error = FileError(
+                error = Error(
                     id = self._get_next_id(),
                     module = self.module,
                     category = "TOC_mismatch",
@@ -139,7 +142,7 @@ class RedactionValidator:
 
         page_1_footer_bbox, lack_of_footers = self.check_footers()
         if page_1_footer_bbox:
-            error = FileError(
+            error = Error(
                 id = self._get_next_id(),
                 module = self.module,
                 category = "Footer_on_1st_page",
@@ -151,7 +154,7 @@ class RedactionValidator:
             errors.append(error) 
 
         for number in lack_of_footers:
-            error = FileError(
+            error = Error(
                 id = self._get_next_id(),
                 module = self.module,
                 category = "No_footer",
@@ -355,6 +358,234 @@ class RedactionValidator:
 
         return page_1_footer_bbox, lack_of_footers
 
+class Validator:
+    def __init__(self, config: Configuration):
+        self.config = config
+        self.errors = [] # lista błędów
+
+    def validate_pdf(self, doc_data: DocumentData) -> List[str]:
+        self.errors.clear() # czyścimy poprzednie błędy
+
+        self.check_interline_spacing(doc_data)
+        self.check_page_count(doc_data)
+        self.check_font_size(doc_data)
+        self.check_margins(doc_data)
+        self.check_orientation(doc_data)
+        self.check_fonts(doc_data)
+        self.check_justification(doc_data)
+        self.check_format(doc_data)
+
+        return [f"{error.category}: {error.description} (strona {error.page})" for error in self.errors]
+
+    def check_interline_spacing(self, doc_data: DocumentData) -> bool:
+        line_spacing = doc_data.get_dominant_line_spacing()
+        if line_spacing is None:
+            logging.warning("Redaction: nie można określić interlinii")
+            return True
+        elif abs(line_spacing - self.config.interlinia) > 0.1: # dopuszczalna różnica 0.1
+            self.errors.append(Error(
+                category="Interlinia",
+                description=f"Interlinia: {line_spacing}, oczekiwana: {self.config.interlinia}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        else:
+            logging.info(f"Redaction: interlinia {line_spacing} jest zgodna z wymaganiami")
+            return True
+        
+    def check_page_count(self, doc_data: DocumentData) -> bool:
+        page_count = doc_data.get_page_count()
+        if page_count < self.config.min_stron:
+            self.errors.append(Error(
+                category="Strony",
+                description=f"Dokument ma {page_count} stron, mniej niż minimalna liczba {self.config.min_stron}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        elif page_count > self.config.max_stron:
+            self.errors.append(Error(
+                category="Strony",
+                description=f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.max_stron}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        else:
+            logging.info(f"Redaction: liczba stron {page_count} jest w dozwolonym zakresie")
+            return True
+    
+    def check_font_size(self, doc_data: DocumentData) -> bool:
+        most_used_font_size = max(doc_data.get_font_size_usage(), key=doc_data.get_font_size_usage().get, default=None)
+        if most_used_font_size is None:
+            logging.warning("Redaction: nie można określić rozmiaru czcionki")
+            return True
+        elif abs(most_used_font_size - self.config.font_size) > 0.1: # dopuszczalna różnica 0.1
+            self.errors.append(Error(
+                category="Czcionka",
+                description=f"Rozmiar czcionki: {most_used_font_size}, oczekiwany: {self.config.font_size}",
+                page=0,
+                xy=(0, 0)
+            ))
+            return False
+        else:
+            logging.info(f"Redaction: rozmiar czcionki {most_used_font_size} jest zgodny z wymaganiami")
+            return True
+
+    def check_margins(self, doc_data: DocumentData) -> bool:
+        margins = doc_data.get_margins()
+        if not margins:
+            logging.warning("Redaction: nie można określić marginesów")
+            return True
+        if self.config.margin_type == "lustrzany":
+            if len(margins) < 2:
+                logging.warning("Redaction: zbyt mało stron do oceny marginesów lustrzanych")
+                return True
+            
+            for page_num, margin in margins.items():
+                if page_num % 2 == 1: # strona nieparzysta
+                    if margin.get("left", 0) <= margin.get("right", 0):
+                        self.errors.append(Error(
+                            category="Marginesy",
+                            description=f"Strona {page_num}: oczekiwany większy margines po lewej stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}",
+                            page=page_num,
+                            xy=(0, 0)
+                        ))
+                        return False
+                else: # strona parzysta
+                    if margin.get("right", 0) <= margin.get("left", 0):
+                        self.errors.append(Error(
+                            category="Marginesy",
+                            description=f"Strona {page_num}: oczekiwany większy margines po prawej stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}",
+                            page=page_num,
+                            xy=(0, 0)
+                        ))
+                        return False
+                    margins[page_num]["left"], margins[page_num]["right"] = margins[page_num]["right"], margins[page_num]["left"]
+            
+            org_margin = margins[1]
+            for page_num, margin in margins.items():
+                if margin != org_margin:
+                    self.errors.append(Error(
+                        category="Marginesy",
+                        description=f"Strona {page_num}: marginesy różnią się od innych stron: {margin} vs {org_margin}",
+                        page=page_num,
+                        xy=(0, 0)
+                    ))
+                    return False
+            logging.info("Redaction: marginesy lustrzane są zgodne na wszystkich stronach")
+            return True
+
+    def check_format(self, doc_data: DocumentData) -> bool:
+        tolerance = 10
+
+        formats = {
+            "A5": (420, 595),
+            "A4": (595, 842),
+            "A3": (842, 1191)
+        }
+
+        if self.config.format not in formats:
+            logging.warning("Redaction: nieznany format strony w konfiguracji")
+            return False
+        exp_w,exp_h = formats[self.config.format]
+        for page_num, (width,height) in doc_data.get_page_dimensions().items():
+            if not ((abs(width - exp_w)<=tolerance and abs(height-exp_h)<=tolerance) or (abs(width-exp_h)<=tolerance and abs(height-exp_w)<=tolerance)):
+                self.errors.append(Error(
+                    category="Format",
+                    description = f"Strona {page_num}: oczekiwany format {self.config.format}, wymiary strony: {width} x {height}",
+                    page = page_num,
+                    xy = (0, 0)
+                ))
+                return False
+        logging.info("Redaction:format stron jest zgodny z wymaganiami")
+        return True
+    
+    def check_orientation(self, doc_data: DocumentData) -> bool:
+        doc_data.get_page_dimensions()
+        for page_num, (width, height) in doc_data.get_page_dimensions().items():
+            if self.config.orientation == "pionowa" and width > height:
+                self.errors.append(Error(
+                    category="Orientacja",
+                    description=f"Strona {page_num}: oczekiwana orientacja pionowa, wymiary strony: {width}x{height}",
+                    page=page_num,
+                    xy=(0, 0)
+                ))
+                return False
+            elif self.config.orientation == "pozioma" and height > width:
+                self.errors.append(Error(
+                    category="Orientacja",
+                    description=f"Strona {page_num}: oczekiwana orientacja pozioma, wymiary strony: {width}x{height}",
+                    page=page_num,
+                    xy=(0, 0)
+                ))
+                return False
+        logging.info("Redaction: orientacja stron jest zgodna z wymaganiami")
+        return True
+
+    def check_fonts(self, doc_data: DocumentData) -> bool:
+        font_usage = doc_data.get_font_usage()
+        if not font_usage:
+            logging.warning("Redaction: nie można określić używanych czcionek")
+            return True
+        for font in font_usage.keys():
+            if font not in self.config.font_list:
+                self.errors.append(Error(
+                    category="Czcionka",
+                    description=f"Używana czcionka '{font}' nie jest dozwolona",
+                    page=0,
+                    xy=(0, 0)
+                ))
+                return False
+        logging.info("Redaction: wszystkie używane czcionki są dozwolone")
+        return True
+    
+    def check_justification(self, doc_data: DocumentData) -> bool:
+        expected_justified = self.config.justowanie
+        errors_found = False
+
+        for page in doc_data.pages:
+            for block in page.text_blocks:
+                lines = block.lines
+            
+                if len(lines) <= 1:
+                    continue
+            
+                for i in range(len(lines) - 1):
+                    line = lines[i]
+
+                    if not line.spans:
+                        continue
+
+                    is_justified = (
+                        line.alignement == "justified" 
+                    )
+
+                    if expected_justified and not is_justified:
+                        self.errors.append(Error(
+                            category="Justowanie",
+                            description=f"Brak justowania w akapicie (linia {i+1})",
+                            page=page.number,
+                            xy=line.bbox[:2]
+                        ))
+                        errors_found = True
+
+                    elif not expected_justified and is_justified:
+                        self.errors.append(Error(
+                            category="Justowanie",
+                            description=f"Tekst jest wyjustowany, a nie powinien (linia {i+1})",
+                            page=page.number,
+                            xy=line.bbox[:2]
+                        ))
+                        errors_found = True
+
+        if not errors_found:
+            logging.info("Redaction: justowanie zgodne z wymaganiami")
+
+        return not errors_found
+
+	    
 
 
 
