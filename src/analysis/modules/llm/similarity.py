@@ -26,9 +26,9 @@ except Exception:
     from get_summary import summarize_subtitles
 
 
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "agna.pdf"
+DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "mock.pdf"
 
-EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
 
 
 def normalize_text(text):
@@ -47,7 +47,7 @@ def get_summary_text_for_embedding(text):
     return f"search_document: {text}"
 
 
-def compute_similarity_for_summaries(purpose, summaries):
+def compute_similarity_for_summaries(purpose, summaries, embedding_model):
     purpose = normalize_text(purpose)
     items = []
 
@@ -84,7 +84,7 @@ def compute_similarity_for_summaries(purpose, summaries):
         }
 
     model = SentenceTransformer(
-        EMBEDDING_MODEL,
+        embedding_model,
         trust_remote_code=True
     )
 
