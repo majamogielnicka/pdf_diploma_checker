@@ -72,6 +72,37 @@ class RedactionValidator:
                 )
                 errors.append(error) 
 
+        page_1_footer_bbox, lack_of_footers = self.check_footers()
+        if page_1_footer_bbox:
+            error = RedactionError(
+                id = self._get_next_id(),
+                module = self.module,
+                category = "Footer_on_1st_page",
+                page_nr = 1,
+                bounding_box = page_1_footer_bbox, 
+                text = "1",
+                comments = "Wykryto numerację na pierwszej stronie, która nie powinna się tam znaleźć."
+            )
+            errors.append(error) 
+
+        for number in lack_of_footers:
+            error = RedactionError(
+                id = self._get_next_id(),
+                module = self.module,
+                category = "No_footer",
+                page_nr = number,
+                bounding_box = (self.document_data.pages[number - 1].width/2 - 20, 
+                                self.document_data.pages[number - 1].height - 40, 
+                                self.document_data.pages[number - 1].width/2 + 20, 
+                                self.document_data.pages[number - 1].height - 10),
+                text = None,
+                comments = f"Wykryto brak numeracji lub niepoprawną numerację na stronie {number}"
+            )
+            errors.append(error)
+
+
+
+
         converter_errors = self.check_from_converter()
         errors.extend(converter_errors)
         return errors
@@ -239,4 +270,26 @@ class RedactionValidator:
                 wrong_entries.append(entry)
                     
             return wrong_entries, is_toc
+        
+    def check_footers(self):
+        lack_of_footers = []
+        page_1_footer_bbox = None
+
+        for page in self.document_data.pages:
+            footer_block = None
+
+            for block in page.text_blocks:
+                if block.block_type == "footer":
+                    footer_block = block
+            if page.number == 1:
+                if footer_block:
+                    page_1_footer_bbox = footer_block.bbox
+            else: 
+                if not footer_block:
+                    lack_of_footers.append(page.number)
+
+        return page_1_footer_bbox, lack_of_footers
+
+
+
 

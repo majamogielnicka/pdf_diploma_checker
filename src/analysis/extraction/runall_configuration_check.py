@@ -17,7 +17,7 @@ from src.analysis.extraction.converter_linguistics import PDFMapper
 
 def main():
     #  Ścieżki do plików
-    pdf_path = PROJECT_ROOT / "data" / "jago.pdf"
+    pdf_path = PROJECT_ROOT / "data" / "bosh.pdf"
     config_path = PROJECT_ROOT / "src" / "config" / "wymagania_inz.json"
 
     if not Path(pdf_path).exists():
