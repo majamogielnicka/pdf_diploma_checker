@@ -6,6 +6,7 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 '''
 
 from src.analysis.extraction.bare_struct import DocumentData
+from src.analysis.extraction.schema import FinalDocument
 from src.common.errors.error_struct import Error, FileError, Module
 from dataclasses import dataclass
 from typing import List
@@ -77,45 +78,48 @@ class Configuration:
             raise FileError(f"niepoprawny typ danych w konfiguracji: {e}")
 
 class RedactionValidator:
-    def __init__(self, document_data: DocumentData, document_data_linguistics: DocumentData, config_path: str = None):
+    def __init__(self, document_data: DocumentData, document_data_linguistics: FinalDocument, config_path: str = None):
         self.document_data = document_data
         self.document_data_linguistics = document_data_linguistics
+        if config_path is not None:
+            self.config = Configuration(config_path)
+        else:
+            self.config = None
+
         self.module = Module.REDACTION
         self.id_counter = 0
+        self.errors = []
 
     def _get_next_id(self):
         id = f"ERR_RED_{self.id_counter}"
         self.id_counter += 1
         return id
 
-    def validate(self):
-        errors = []
-        orphans = self.check_orphans()
-        for orphan in orphans:
-            error = Error(
-                id=self._get_next_id(),
-                module=self.module,
-                category="orphan",
-                page_nr=0, #orphan.page_nr,
-                bounding_box= 0, #orphan.bounding_box,
-                text=orphan.text,
-                comments="Orphan character detected. Consider checking the redaction quality."
-            )
-            errors.append(error)
-        blank_pages = self.check_blank_page()
-        for blank_page in blank_pages:
-            error = Error(
-                id = self._get_next_id(),
-                module = self.module,
-                category = "blank_page",
-                page_nr = blank_page.number,
-                bounding_box = None,
-                text = None,
-                comments = "Blank page detected. Consider checking content of this page."
-            )
-            errors.append(error)
-        wrong_toc_entries, is_toc = self.check_toc()
+    def validate(self, config_ckeck: bool = True, basic_redaction_check: bool = True, advanced_redaction_check: bool = True):
+        self.errors.clear() #metody indywidualnie wrzucaja errory na stos
+        #--------------------config check
+        if self.config is not None and config_ckeck:
+            self.check_interline_spacing(self.document_data)
+            self.check_page_count(self.document_data)
+            self.check_font_size(self.document_data)
+            self.check_margins(self.document_data)
+            self.check_orientation(self.document_data)
+            self.check_fonts(self.document_data)
+            self.check_justification(self.document_data)
+            self.check_format(self.document_data)
 
+        #--------------------basic redaction check
+        if basic_redaction_check:
+            self.check_blank_page()
+
+        #--------------------advanced redaction check
+        if advanced_redaction_check:
+            self.check_orphans()
+            self.check_widows()
+            self.check_bekarts()
+            self.check_szewce()
+
+        '''
         if not is_toc:
             error = Error(
                 id = self._get_next_id(),
@@ -173,11 +177,15 @@ class RedactionValidator:
 
         converter_errors = self.check_from_converter()
         errors.extend(converter_errors)
-        return errors
+        '''
+        return self.errors
+    
+    def last_errors_to_json(self):
+        return json.dumps([error.__dict__ for error in self.errors], ensure_ascii=False, indent=4)
 
     def check_orphans(self):
+        '''Zwraca listę sierot (spans)'''
         orphans = []
-        conjuncions = []
         for page in self.document_data.pages:
             for block in page.text_blocks:
                 for line in block.lines:
@@ -202,6 +210,15 @@ class RedactionValidator:
         for page in self.document_data.pages:
             if page.is_blank == True:
                 blank_pages.append(page)
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "blank_page",
+                    page_nr = page.number,
+                    bounding_box = (0,0,0,0),
+                    text = "",
+                    comments = "Pusta strona"
+                ))
 
         return blank_pages
     
@@ -232,6 +249,10 @@ class RedactionValidator:
 
         return converter_errors
 
+    def check_widows(self):
+        #TODO: przeniesc tu sprawdzanie wdów (musimy mieć opcje żeby nie robić zaawansowanej redakcji do trybu szybkiego)
+        pass
+
     def handle_widow(self, block, widow_which):
         if not block.words:
             return
@@ -257,6 +278,10 @@ class RedactionValidator:
             comments="Wykryto wdowę"
         )
     
+    def check_bekarts(self):
+        #TODO: to samo co wyżej
+        pass
+
     def handle_bekart(self, block, bekart_which):
         if not block.words:
             return
@@ -282,6 +307,10 @@ class RedactionValidator:
             comments="Wykryto bękarta"
         )
     
+    def check_szewce(self):
+        #TODO: to samo co wyżej
+        pass
+
     def handle_szewc(self, block, szewc_which):
         if not block.words:
             return
