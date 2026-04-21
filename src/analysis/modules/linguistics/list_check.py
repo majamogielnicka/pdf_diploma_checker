@@ -1,5 +1,3 @@
-from .linguistics_types import Error_type
-from src.analysis.extraction.schema import ListBlock
 from .check_item_in_list import check_item, has_verb, is_upper_and_dot
 from .helpers import add_match
 import re
@@ -12,10 +10,12 @@ def add_list_error(items_by_id, num, block_id, category):
         "LIST_ENDING": "Niepoprawne zakończenie elementu wyliczenia.",
     }
     item = items_by_id[num]
+    if not item.words:
+        return None
     word_idxs = [word.word_index for word in item.words]
-    page_start = item.words[0].page_number if item.words else None,
-    page_end = item.words[-1].page_number if item.words else None
-    error_coordinate = (item.words[word_idxs[-1]].bbox[2], item.words[word_idxs[-1]].bbox[3])
+    page_start = item.words[0].page_number
+    page_end = item.words[-1].page_number
+    error_coordinate = (item.words[-1].bbox[2], item.words[-1].bbox[3])
     return add_match(item.text, block_id, page_start, page_end, word_idxs, error_coordinate, category, Category_and_message[category])
 
 def is_short_definition(text, text_language):
@@ -65,7 +65,9 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
             for item in block.items:
                 items_by_id[item.item_id] = item
                 if (item.marker_type == "number_with_bracket" or item.marker_type == "letter_with_dot") and language == "pl":
-                    matches.append(add_list_error(items_by_id, item.item_id, block.block_id, "LIST_MARKER"))
+                    error = add_list_error(items_by_id, item.item_id, block.block_id, "LIST_MARKER")
+                    if error:
+                        matches.append(error)
                     marker_error_ids.add(item.item_id)
             upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
             for item in block.items:
@@ -184,8 +186,12 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                         ending_error_ids.append(item.item_id)
                 
             for num in casing_error_ids:
-                matches.append(add_list_error(items_by_id, num, block.block_id, "LIST_CASING"))
+                error = add_list_error(items_by_id, num, block.block_id, "LIST_CASING")
+                if error:
+                    matches.append(error)
             for num in ending_error_ids:
-                matches.append(add_list_error(items_by_id, num, block.block_id, "LIST_ENDING"))
+                error = add_list_error(items_by_id, num, block.block_id, "LIST_ENDING")
+                if error:
+                    matches.append(error)
 
     return matches
