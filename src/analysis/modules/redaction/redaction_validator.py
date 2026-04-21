@@ -386,26 +386,7 @@ class RedactionValidator:
                     lack_of_footers.append(page.number)
 
         return page_1_footer_bbox, lack_of_footers
-
-class Validator:
-    def __init__(self, config: Configuration):
-        self.config = config
-        self.errors = [] # lista błędów
-
-    def validate_pdf(self, doc_data: DocumentData) -> List[str]:
-        self.errors.clear() # czyścimy poprzednie błędy
-
-        self.check_interline_spacing(doc_data)
-        self.check_page_count(doc_data)
-        self.check_font_size(doc_data)
-        self.check_margins(doc_data)
-        self.check_orientation(doc_data)
-        self.check_fonts(doc_data)
-        self.check_justification(doc_data)
-        self.check_format(doc_data)
-
-        return [f"{error.category}: {error.description} (strona {error.page})" for error in self.errors]
-
+    
     def check_interline_spacing(self, doc_data: DocumentData) -> bool:
         line_spacing = doc_data.get_dominant_line_spacing()
         if line_spacing is None:
@@ -647,3 +628,24 @@ class Validator:
             logging.info("Redaction: justowanie zgodne z wymaganiami")
 
         return not errors_found
+
+class Validator:
+    def __init__(self, config: Configuration):
+        self.config = config
+        self.errors = [] # lista błędów
+
+    def validate_pdf(self, doc_data: DocumentData) -> List[str]:
+        self.errors.clear() # czyścimy poprzednie błędy
+
+        self.check_interline_spacing(doc_data)
+        self.check_page_count(doc_data)
+        self.check_font_size(doc_data)
+        self.check_margins(doc_data)
+        self.check_orientation(doc_data)
+        self.check_fonts(doc_data)
+        self.check_justification(doc_data)
+        self.check_format(doc_data)
+
+        return [f"{error.category}: {error.description} (strona {error.page})" for error in self.errors]
+
+    
