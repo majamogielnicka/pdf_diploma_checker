@@ -13,10 +13,10 @@ for p in (PROJECT_ROOT, SRC_DIR):
 
 
 
-from src.analysis.extraction.extraction_json import extractPDF
-from src.analysis.extraction.converter_linguistics import PDFMapper
+from src.analysis.extraction.helper_llm.extraction_json_llm import extractPDF
+from src.analysis.extraction.helper_llm.converter_linguistics_llm import PDFMapper
 
-file_path = PROJECT_ROOT / "data" / "inż_1_.pdf"
+file_path = PROJECT_ROOT / "data" / "kana.pdf"
 
 NUMBERED_HEADING_RE = re.compile(r"^\s*(\d+\.\d+(?:\.\d+)*)(?:\.)?\s+(.+?)\s*$")
 HEADING_WITH_PREFIX_RE = re.compile(r"^\s*(?:\d+\.\s+)?(\d+\.\d+(?:\.\d+)*)(?:\.)?\s+(.+?)\s*$")

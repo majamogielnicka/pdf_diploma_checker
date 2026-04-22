@@ -11,12 +11,11 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
-REDACTION_DIR = PROJECT_ROOT / "src" / "redaction"
+PROJECT_ROOT = BASE_DIR.parents[2]
 
-sys.path.insert(0, str(REDACTION_DIR))
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from .bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo
+from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, HeaderData, TocData, TocEntry
 
 
 # Tryb debugu:
@@ -120,6 +119,10 @@ def fix_latex(text):
         "´N": "Ń",
         "´o": "ó",
         "´O": "Ó",
+        "˛a": "ą",
+        "˛A": "Ą",
+        "˛e": "ę",
+        "˛E": "Ę",
     }
     for wrong, right in replace.items():
         text = text.replace(wrong, right)
@@ -285,6 +288,347 @@ def extract_tables(page: fitz.Page, drawings: list, cur_page: PageData, priority
 
     return table_bboxes, priority_side
 
+def extract_apa_tables(page: fitz.Page, drawings: list, cur_page: PageData, existing_table_bboxes: list, priority_side=None) -> tuple[list, str]:
+    """
+    Extracts APA-style tables (characterized by horizontal lines and absence of vertical lines) from a given PDF page and passes them to json.
+    
+    Args:
+        page (fitz.Page): The PDF page.
+        drawings (list): A list of vector drawings on the page, used to identify horizontal lines forming the table structure.
+        cur_page (PageData): The data object for the current page where extracted tables are appended.
+        existing_table_bboxes (list): A list of bounding boxes from already extracted tables to avoid duplication.
+        priority_side (str, optional): The preferred side (above/below) to look for descriptions.        
+        
+    Returns:
+        tuple: A tuple containing a list of fitz.Rect objects representing the bounding boxes of the extracted APA tables, and a string indicating the priority side.
+    """
+    apa_bboxes = []
+    
+    horizontal_lines = []
+    for d in drawings:
+        rect = fitz.Rect(d["rect"])
+        if rect.height <= 4 and rect.width > 100:
+            horizontal_lines.append(rect)
+            
+    horizontal_lines = sorted(horizontal_lines, key=lambda r: r.y0)
+    
+    grouped_table_rects = []
+    used_lines = set()
+    
+    for i, line in enumerate(horizontal_lines):
+        if i in used_lines: continue
+        current_group = [line]
+        used_lines.add(i)
+        
+        for j, other_line in enumerate(horizontal_lines[i+1:], start=i+1):
+            if j in used_lines: continue
+            if abs(line.x0 - other_line.x0) < 25 and abs(line.x1 - other_line.x1) < 25:
+                if other_line.y0 - current_group[-1].y0 < 500:
+                    current_group.append(other_line)
+                    used_lines.add(j)
+                    
+        if len(current_group) >= 2:
+            top_y = current_group[0].y0 - 10
+            bottom_y = current_group[-1].y1 + 10
+            min_x = min(l.x0 for l in current_group) - 10
+            max_x = max(l.x1 for l in current_group) + 10
+            apa_rect = fitz.Rect(min_x, top_y, max_x, bottom_y)
+            grouped_table_rects.append(apa_rect)
+
+    for apa_rect in grouped_table_rects:
+        is_duplicate = False
+        for existing_rect in existing_table_bboxes:
+            intersect = apa_rect & existing_rect
+            if intersect.is_valid and not intersect.is_empty:
+                overlap_area = intersect.width * intersect.height
+                if overlap_area / min(apa_rect.width * apa_rect.height, existing_rect.width * existing_rect.height + 0.001) > 0.15:
+                    is_duplicate = True
+                    break
+        if is_duplicate:
+            continue
+
+
+        words = page.get_text("words", clip=apa_rect)
+        if not words: continue
+        
+        words.sort(key=lambda w: w[1]) 
+        top_y = words[0][1]
+        header_words = [w for w in words if w[1] < top_y + 15]
+        header_words.sort(key=lambda w: w[0]) 
+        
+        col_dividers = [apa_rect.x0 - 10]
+        last_x1 = -999
+        is_first = True
+        for w in header_words:
+            if is_first:
+                is_first = False
+                last_x1 = w[2]
+                continue
+                
+            if w[0] > last_x1 + 15: 
+                col_dividers.append(w[0] - 5)
+            last_x1 = max(last_x1, w[2])
+        col_dividers.append(apa_rect.x1 + 10)
+        
+        num_cols = len(col_dividers) - 1
+        if num_cols < 2:
+            continue
+
+        words.sort(key=lambda w: (w[1], w[0]))
+        lines = []
+        current_line = []
+        last_y = -999
+        for w in words:
+            if abs(w[1] - last_y) > 4: 
+                if current_line:
+                    current_line.sort(key=lambda x: x[0])
+                    lines.append(current_line)
+                current_line = [w]
+                last_y = w[1]
+            else:
+                current_line.append(w)
+        if current_line:
+            current_line.sort(key=lambda x: x[0])
+            lines.append(current_line)
+            
+        grid = []
+        for line in lines:
+            row_data = [""] * num_cols
+            for w in line:
+                c_idx = num_cols - 1
+                for c in range(num_cols):
+                    if w[0] < col_dividers[c+1]:
+                        c_idx = c
+                        break
+                row_data[c_idx] += fix_latex(w[4]) + " "
+            grid.append([cell.strip() for cell in row_data])
+            
+        final_data = []
+        for row in grid:
+            if not any(row): continue
+            if not final_data:
+                final_data.append(row)
+                continue
+                
+            if row[0] == "":
+                for c in range(num_cols):
+                    if row[c]:
+                        prev = final_data[-1][c]
+                        if prev and prev.endswith("-"):
+                            final_data[-1][c] = prev[:-1] + row[c]
+                        elif prev:
+                            final_data[-1][c] = prev + " " + row[c]
+                        else:
+                            final_data[-1][c] = row[c]
+            else:
+                final_data.append(row)
+                
+        total_cells = len(final_data) * num_cols if final_data else 0
+        if total_cells > 0:
+            filled_cells = sum(1 for row in final_data for cell in row if cell != "")
+            if (filled_cells / total_cells) < 0.20:
+                continue        
+                
+        description, found_side = find_table_description(apa_rect, cur_page.text_blocks, priority_side)
+        if description and priority_side is None:
+            priority_side = found_side
+
+        apa_bboxes.append(apa_rect)
+        cur_page.tables.append(TableInfo(
+            bbox=(apa_rect.x0, apa_rect.y0, apa_rect.x1, apa_rect.y1),
+            row_count=len(final_data),
+            col_count=num_cols,
+            description=description,
+            data=final_data,
+            table_type="apa" 
+        ))      
+
+    return apa_bboxes, priority_side
+
+def extract_lineless_tables(page: fitz.Page, cur_page: PageData, existing_table_bboxes: list, priority_side=None) -> tuple[list, str]:
+    """
+    Extracts tables completely lacking borders (lineless tables) from a given PDF page and passes them to json.
+    
+    Args:
+        page (fitz.Page): The PDF page.
+        cur_page (PageData): The data object for the current page where extracted tables are appended.
+        existing_table_bboxes (list): A list of bounding boxes from already extracted tables to avoid duplication.
+        priority_side (str, optional): The preferred side (above/below) to look for descriptions, which also dictates the scanning direction (up/down).
+        
+    Returns:
+        tuple: A tuple containing a list of fitz.Rect objects representing the bounding boxes of the extracted lineless tables, and a string indicating the priority side.
+    """
+    lineless_bboxes = []
+    
+    captions = []
+    for block in cur_page.text_blocks:
+        full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
+        if full_text.lower().startswith(("tabela", "tab.", "tabele", "table", "tables")):
+            captions.append({"bbox": fitz.Rect(block.bbox), "text": full_text})
+            
+    for cap in captions:
+        is_already_handled = False
+        for ext_bbox in existing_table_bboxes:
+            if abs(cap["bbox"].y1 - ext_bbox.y0) < 60 or abs(cap["bbox"].y0 - ext_bbox.y1) < 60:
+                is_already_handled = True
+                break
+        if is_already_handled:
+            continue
+            
+        down_y0 = cap["bbox"].y1
+        down_y1 = down_y0 + 350
+        for block in cur_page.text_blocks:
+            b_rect = fitz.Rect(block.bbox)
+            if b_rect.y0 > down_y0 + 5: 
+                full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
+                
+                is_paragraph = (b_rect.width > cur_page.width * 0.55 and len(block.lines) >= 2) or (b_rect.width > cur_page.width * 0.70)
+                is_caption = full_text.lower().startswith(("rys", "tab", "fot", "wykres", "źródło", "zródło", "source"))
+                is_legend = full_text.lower().startswith("gdzie") # <--- NOWY HAMULEC NA WZORY
+                
+                if is_paragraph or is_caption or is_legend:
+                    down_y1 = min(down_y1, b_rect.y0 - 15)
+                    break
+                    
+        up_y1 = cap["bbox"].y0
+        up_y0 = up_y1 - 350
+        for block in reversed(cur_page.text_blocks):
+            b_rect = fitz.Rect(block.bbox)
+            if b_rect.y1 < up_y1 - 5:
+                full_text = " ".join(span.text for line in block.lines for span in line.spans).strip()
+                
+                is_paragraph = (b_rect.width > cur_page.width * 0.55 and len(block.lines) >= 2) or (b_rect.width > cur_page.width * 0.70)
+                is_caption = full_text.lower().startswith(("rys", "tab", "fot", "wykres", "źródło", "zródło", "source"))
+                is_legend = full_text.lower().startswith("gdzie") # <--- NOWY HAMULEC NA WZORY
+                
+                if is_paragraph or is_caption or is_legend:
+                    up_y0 = max(up_y0, b_rect.y1 + 15)
+                    break
+
+        if priority_side == "below":
+            areas_to_check = [
+                fitz.Rect(0, up_y0, cur_page.width, up_y1),
+                fitz.Rect(0, down_y0, cur_page.width, down_y1)
+            ]
+        else:
+            areas_to_check = [
+                fitz.Rect(0, down_y0, cur_page.width, down_y1),
+                fitz.Rect(0, up_y0, cur_page.width, up_y1)
+            ]
+
+        table_extracted = False
+
+        for table_rect in areas_to_check:
+            if table_extracted: break
+            if table_rect.height < 20: continue
+            
+            raw_words = page.get_text("words", clip=table_rect)
+            if not raw_words: continue
+            
+            words = []
+            for w in raw_words:
+                center_y = (w[1] + w[3]) / 2
+                if table_rect.y0 <= center_y <= table_rect.y1:
+                    words.append(w)
+                    
+            if not words: continue
+            
+            words.sort(key=lambda w: w[1]) 
+            top_y = words[0][1]
+            header_words = [w for w in words if w[1] < top_y + 15]
+            header_words.sort(key=lambda w: w[0]) 
+            
+            col_dividers = [0]
+            last_x1 = -999
+            is_first = True
+            for w in header_words:
+                if is_first:
+                    is_first = False
+                    last_x1 = w[2]
+                    continue
+                    
+                if w[0] > last_x1 + 10: 
+                    col_dividers.append(w[0] - 5)
+                last_x1 = max(last_x1, w[2])
+            col_dividers.append(cur_page.width)
+            
+            num_cols = len(col_dividers) - 1
+            if num_cols < 2:
+                continue
+
+            words.sort(key=lambda w: (w[1], w[0]))
+            lines = []
+            current_line = []
+            last_y = -999
+            for w in words:
+                if abs(w[1] - last_y) > 5:
+                    if current_line:
+                        current_line.sort(key=lambda x: x[0])
+                        lines.append(current_line)
+                    current_line = [w]
+                    last_y = w[1]
+                else:
+                    current_line.append(w)
+            if current_line:
+                current_line.sort(key=lambda x: x[0])
+                lines.append(current_line)
+                
+            grid = []
+            for line in lines:
+                row_data = [""] * num_cols
+                for w in line:
+                    c_idx = num_cols - 1
+                    for c in range(num_cols):
+                        if w[0] < col_dividers[c+1]:
+                            c_idx = c
+                            break
+                    row_data[c_idx] += fix_latex(w[4]) + " "
+                grid.append([cell.strip() for cell in row_data])
+                
+            final_data = []
+            for row in grid:
+                if not any(row): continue
+                if not final_data:
+                    final_data.append(row)
+                    continue
+                    
+                if row[0] == "":
+                    for c in range(num_cols):
+                        if row[c]:
+                            prev = final_data[-1][c]
+                            if prev and prev.endswith("-"):
+                                final_data[-1][c] = prev[:-1] + row[c]
+                            elif prev:
+                                final_data[-1][c] = prev + " " + row[c]
+                            else:
+                                final_data[-1][c] = row[c]
+                else:
+                    final_data.append(row)
+                    
+            total_cells = len(final_data) * num_cols if final_data else 0
+            if total_cells > 0:
+                filled_cells = sum(1 for row in final_data for cell in row if cell != "")
+                if (filled_cells / total_cells) < 0.20:
+                    continue        
+                    
+            actual_y0 = min(w[1] for w in words)
+            actual_y1 = max(w[3] for w in words)
+            actual_x0 = min(w[0] for w in words)
+            actual_x1 = max(w[2] for w in words)
+            found_bbox = fitz.Rect(actual_x0, actual_y0, actual_x1, actual_y1)
+
+            lineless_bboxes.append(found_bbox)
+            cur_page.tables.append(TableInfo(
+                bbox=(found_bbox.x0, found_bbox.y0, found_bbox.x1, found_bbox.y1),
+                row_count=len(final_data),
+                col_count=num_cols,
+                description=cap["text"],
+                data=final_data,
+                table_type="lineless"
+            ))
+            table_extracted = True
+
+    return lineless_bboxes, priority_side
 
 def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, table_bboxes: list, cur_page: PageData, priority_side=None) -> str:
     """
@@ -504,13 +848,116 @@ def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, ta
 
     return priority_side
 
+def extract_raster_images(blocks: list, drawings: list, page_width: float, page_height: float, page_index: int, cur_page: PageData, priority_side=None) -> str:
+    """
+    Extracts raster images from PDF blocks, filters them (removes backgrounds, small icons), and saves them to images.
+    
+    Args:
+        blocks (list): A list of blocks extracted from page.get_text("dict")["blocks"].
+        drawings (list): A list of vector drawings on the page, used for collision detection.
+        page_width (float): The width of the page.
+        page_height (float): The height of the page.
+        page_index (int): The index of the current page, used for generating image filenames.
+        cur_page (PageData): The data object for the current page where extracted image metadata is appended.
+        priority_side (str, optional): The preferred side (above/below) to look for descriptions.
+        
+    Returns:
+        str: The updated priority_side for images.
+    """
+    for block in blocks:
+        if block["type"] == 1:
+            x0, y0, x1, y1 = block["bbox"]
+            phys_width = x1 - x0
+            phys_height = y1 - y0
+            img_rect = fitz.Rect(block["bbox"])
+
+            MIN_PHYSICAL_WIDTH = 20
+            MIN_PHYSICAL_HEIGHT = 20
+            
+            if phys_width < MIN_PHYSICAL_WIDTH or phys_height < MIN_PHYSICAL_HEIGHT:
+                continue
+
+            if phys_width < 40 and phys_height < 40:
+                is_inline_with_text = False
+                for t_block in cur_page.text_blocks:
+                    t_rect = fitz.Rect(t_block.bbox) + (-2, -2, 2, 2)
+                    if img_rect.intersects(t_rect):
+                        is_inline_with_text = True
+                        break
+                        
+                is_in_drawing = False
+                for d in drawings:
+                    d_rect = fitz.Rect(d["rect"])
+                    if d_rect.width < page_width * 0.9 and d_rect.height < page_height * 0.9:
+                        if img_rect.intersects(d_rect):
+                            is_in_drawing = True
+                            break
+                            
+                if is_inline_with_text and not is_in_drawing:
+                    continue
+                    
+                if not is_in_drawing and block["width"] < 150 and block["height"] < 150:
+                    continue
+
+            if phys_height > 0:
+                aspect_ratio = phys_width / phys_height
+                if aspect_ratio > 15.0 or aspect_ratio < 0.15:
+                    continue
+                
+                if phys_height < 35 and aspect_ratio > 2.5:
+                    continue
+
+            try:
+                pix = fitz.Pixmap(block["image"])
+                if pix.is_unicolor:
+                    continue
+            except:
+                pass
+
+            is_background = False
+            if img_rect.height < 60:
+                for t_block in cur_page.text_blocks:
+                    for line in t_block.lines:
+                        t_rect = fitz.Rect(line.bbox)
+                        intersect = img_rect & t_rect
+                        if intersect.is_valid and not intersect.is_empty:
+                            overlap_area = intersect.width * intersect.height
+                            img_area = img_rect.width * img_rect.height
+                            if overlap_area / img_area > 0.6:
+                                is_background = True
+                                break
+                    if is_background:
+                        break
+                        
+            if is_background:
+                continue
+            
+            description, found_side = find_image_description(block["bbox"], cur_page.text_blocks, priority_side)
+            if description and priority_side is None:
+                priority_side = found_side
+
+            ext = block.get("ext", "png")
+            img_path = f"images/p{page_index}_b{block['number']}.{ext}"
+
+            # zapisywanie obrazów
+            with open(img_path, "wb") as img_file:
+                img_file.write(block["image"])
+                
+            cur_page.images.append(ImageInfo(
+                path=img_path,
+                bbox=block["bbox"],
+                width=block["width"],
+                height=block["height"],
+                image_type="raster",
+                description=description
+            ))
+            
+    return priority_side
+
 def extractPDF(file_path: str) -> DocumentData:
     current_span_id = 0
     if not os.path.exists(file_path):
         #TODO:tutaj jakis wyjatek
-        #musimy ustalić standard zglaszania bledow
-        #na razie print
-        #   ~Bartek 08.03
         print(f"plik nie istnieje")
         return
     
@@ -545,6 +992,8 @@ def extractPDF(file_path: str) -> DocumentData:
 
         page_format, page_orientation = check_page_format(p_width, p_height)
 
+        blank_page = True
+
         cur_page = PageData(
             number=page_index + 1,
             width=p_width,
@@ -553,7 +1002,8 @@ def extractPDF(file_path: str) -> DocumentData:
             text_blocks=[],
             images=[],
             orientation = page_orientation,
-            format = page_format
+            format = page_format,
+            is_blank = True
         )
 
         drawings = page.get_drawings()
@@ -568,95 +1018,20 @@ def extractPDF(file_path: str) -> DocumentData:
                 text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id, all_spacings, is_ftr)
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
+                    if not is_ftr:
+                        blank_page = False
 
-        # Dopiero po zebraniu tekstu procesujemy obrazy, aby opisy pod nimi były już dostępne  
-        for block in raw_dict["blocks"]:
-            if block["type"] == 1:
-                x0, y0, x1, y1 = block["bbox"]
-                phys_width = x1 - x0
-                phys_height = y1 - y0
-                img_rect = fitz.Rect(block["bbox"])
+        # Dopiero po zebraniu tekstu procesujemy obrazy rastrowe, aby opisy pod nimi były już dostępne  
+        detected_img_priority = extract_raster_images(
+            blocks=raw_dict["blocks"],
+            drawings=drawings,
+            page_width=p_width,
+            page_height=p_height,
+            page_index=page_index,
+            cur_page=cur_page,
+            priority_side=detected_img_priority
+        )
 
-                MIN_PHYSICAL_WIDTH = 20
-                MIN_PHYSICAL_HEIGHT = 20
-                
-                if phys_width < MIN_PHYSICAL_WIDTH or phys_height < MIN_PHYSICAL_HEIGHT:
-                    continue
-
-                if phys_width < 40 and phys_height < 40:
-                    is_inline_with_text = False
-                    for t_block in cur_page.text_blocks:
-                        t_rect = fitz.Rect(t_block.bbox) + (-2, -2, 2, 2)
-                        if img_rect.intersects(t_rect):
-                            is_inline_with_text = True
-                            break
-                            
-                    is_in_drawing = False
-                    for d in drawings:
-                        d_rect = fitz.Rect(d["rect"])
-                        if d_rect.width < p_width * 0.9 and d_rect.height < p_height * 0.9:
-                            if img_rect.intersects(d_rect):
-                                is_in_drawing = True
-                                break
-                                
-                    if is_inline_with_text and not is_in_drawing:
-                        continue
-                        
-                    if not is_in_drawing and block["width"] < 150 and block["height"] < 150:
-                        continue
-
-                if phys_height > 0:
-                    aspect_ratio = phys_width / phys_height
-                    if aspect_ratio > 15.0 or aspect_ratio < 0.15:
-                        continue
-                    
-                    if phys_height < 35 and aspect_ratio > 2.5:
-                        continue
-
-                try:
-                    pix = fitz.Pixmap(block["image"])
-                    if pix.is_unicolor:
-                        continue
-                except:
-                    pass
-
-                img_rect = fitz.Rect(block["bbox"])
-                is_background = False
-                if img_rect.height < 60:
-                    for t_block in cur_page.text_blocks:
-                        for line in t_block.lines:
-                            t_rect = fitz.Rect(line.bbox)
-                            intersect = img_rect & t_rect
-                            if intersect.is_valid and not intersect.is_empty:
-                                overlap_area = intersect.width * intersect.height
-                                img_area = img_rect.width * img_rect.height
-                                if overlap_area / img_area > 0.6:
-                                    is_background = True
-                                    break
-                        if is_background:
-                            break
-                            
-                if is_background:
-                    continue
-                
-                description, found_side = find_image_description(block["bbox"], cur_page.text_blocks, detected_img_priority)
-                if description and detected_img_priority is None:
-                    detected_img_priority = found_side
-
-                ext = block.get("ext", "png")
-                img_path = f"images/p{page_index}_b{block['number']}.{ext}"
-
-                #zapisywanie obrazów
-                with open(img_path, "wb") as img_file:
-                    img_file.write(block["image"])
-                cur_page.images.append(ImageInfo(
-                    path=img_path,
-                    bbox=block["bbox"],
-                    width=block["width"],
-                    height=block["height"],
-                    image_type="raster",
-                    description=description
-                ))
         if all_spacings: #Znajdywanie średniej interlinii wykorzystywanej w pliku
             for s in range(len(all_spacings)):
                 all_spacings[s] = round(all_spacings[s], 1)
@@ -664,10 +1039,21 @@ def extractPDF(file_path: str) -> DocumentData:
             document_data.metadata["avarge_line_spacing"] = mode
 
         table_bboxes, detected_priority = extract_tables(page, drawings, cur_page, detected_priority)
-        detected_img_priority = extract_vector_graphics(page, drawings, page_index, table_bboxes, cur_page, detected_img_priority)    
 
+        apa_bboxes, detected_priority = extract_apa_tables(page, drawings, cur_page, table_bboxes, detected_priority)
+
+        existing_for_lineless = table_bboxes + apa_bboxes
+        lineless_bboxes, detected_priority = extract_lineless_tables(page, cur_page, existing_for_lineless, detected_priority)
+
+        all_table_bboxes = table_bboxes + apa_bboxes + lineless_bboxes
+        if all_table_bboxes: 
+            blank_page = False
+        detected_img_priority = extract_vector_graphics(page, drawings, page_index, all_table_bboxes, cur_page, detected_img_priority)    
+        if len(cur_page.images) > 0:
+            blank_page = False
+        cur_page.is_blank = blank_page
         document_data.pages.append(cur_page)
-
+    document_data.toc = extract_TOC(doc, document_data.pages)
     doc.close()
     return document_data
 
@@ -820,3 +1206,89 @@ def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: flo
             return True
 
     return False
+
+def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
+    """
+    Funkcja do ekstrakcji spisu treści. 
+    Zwraca obiekt TocData jeśli znaleziono spis, w przeciwnym razie None.
+    """
+    built_in_toc = doc.get_toc()
+    if built_in_toc:
+        entries = []
+        for lvl, ttl, page_num in built_in_toc:
+            entries.append(TocEntry(
+                level=lvl,
+                title=ttl.strip(),
+                page=page_num,
+                bbox=(0, 0, 0, 0)  
+            ))
+        return TocData(page_num=-1,entries=entries, text="Wykryto z metadanych"
+        )
+
+    keywords = [
+        "spis treści", "spis tresci", 
+        "table of contents", "contents", "toc"
+    ]
+    all_entries = []
+    first_page = None
+    toc_started = False
+    full_toc_text = ""
+    base_x = None
+
+    for page_obj in pages[:10]:
+        page_entries = []
+        page_text = ""
+        
+        for block in page_obj.text_blocks:
+            for line in block.lines:
+                line_text = " ".join([span.text for span in line.spans]).strip()
+                page_text += line_text + " "
+                
+                match = re.search(r"^\s*(.*?)\s*[\.\s·\-]{5,}\s*(\d+)\s*$", line_text)
+                
+                if match:
+                    title, p_num = match.groups()
+                    title_clean = title.strip()
+                    current_x = line.bbox[0]
+                    
+                    if base_x is None:
+                        base_x = current_x
+                    
+                    gap_level = 1 + int(max(0, current_x - base_x) / 12)
+                    num_match = re.match(r"^(\d+(?:\.\d+)*)\.?", title_clean)
+                    dotted_level = 1
+                    if num_match:
+                        num_part = num_match.group(1)
+                        dotted_level = num_part.count('.') + 1
+
+                    final_level = max(gap_level, dotted_level)
+
+                    page_entries.append(TocEntry(
+                        level=final_level, 
+                        title=title_clean,
+                        page=int(p_num),
+                        bbox=line.bbox
+                    ))
+
+        has_keyword = any(word in page_text.lower() for word in keywords)
+        
+        if not toc_started:
+            if has_keyword and len(page_entries) >= 2 or len(page_entries) >= 5:
+                toc_started = True
+                first_page = page_obj.number
+                all_entries.extend(page_entries)
+                full_toc_text = page_text[:500]
+        else:
+            if len(page_entries) >= 1:
+                all_entries.extend(page_entries)
+            else:
+                break
+                
+    if all_entries:
+        return TocData(
+            page_num=first_page,
+            entries=all_entries,
+            text=full_toc_text
+        )
+        
+    return None

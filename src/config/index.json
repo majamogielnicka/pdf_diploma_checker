@@ -11,6 +11,13 @@
             "sciezka_lokalna": "/home/m/uni/sem6/zsd/data/bosh.pdf",
             "typ": "inzynierska",
             "data_dodania": "2026-03-16"
+        },
+        {
+            "nazwa_pliku": "jost.pdf",
+            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jost.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-04-22",
+            "komentarze": []
         }
     ],
     "konfiguracje_regul": []

@@ -1,0 +1,503 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\inż_3_.pdf
+Wygenerowano: 2026-04-11T14:13:24.203170
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.838443
+
+CEL PRACY
+Opracowanie i weryfikacja systemu sterowania robotem mobilnym z wykorzystaniem estymacji kierunku spojrzenia opartej na sieciach neuronowych przeznaczonego do zastosowań w interakcji człowiek–robot
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Cel i zakres pracy
+SUMMARY:
+Praca ma na celu stworzenie i przetestowanie systemu sterowania robotem mobilnym, wykorzystującego estymację kierunku spojrzenia opartej na sieciach neuronowych, z interfejsem webowym dostępnym na różnych urządzeniach.
+COSINE_SIMILARITY: 0.954150
+
+--------------------------------------------------------------------------------
+
+1.2 Założenia projektowe i kryteria oceny
+SUMMARY:
+Projekt zakładał uwzględnienie różnic w układach współrzędnych oraz poprawne mapowanie i interpretację reprezentacji kierunku spojrzenia, aby uniknąć błędów porównań międzyzbiorowych.
+COSINE_SIMILARITY: 0.843913
+
+--------------------------------------------------------------------------------
+
+1.3 Wkład inżynierski i charakterystyka rozwiązania
+SUMMARY:
+Przeglądarka odbiera wyniki estymacji z serwera, a decyzje i komendy są lokalnie przetwarzane na komputerze użytkownika, minimalizując opóźnienia sieciowe.
+COSINE_SIMILARITY: 0.821633
+
+--------------------------------------------------------------------------------
+
+1.4 Struktura pracy
+SUMMARY:
+Estymacja kierunku spojrzenia jest kluczowym elementem naturalnej interakcji człowiek-robot, ale stworzenie niezawodnych systemów w zmiennych warunkach pozostaje trudnym wyzwaniem ze względu na złożoność problemu.
+COSINE_SIMILARITY: 0.894691
+
+--------------------------------------------------------------------------------
+
+2.1 Rodzaje metod i zadań w estymacji wzroku
+SUMMARY:
+Badacze rozróżniają dwa zadania w dziedzinie estymacji spojrzenia, które wpływają na architekturę modeli i zbiory danych, a metody te obejmują konwencjonalne podejścia wykorzystujące wektor pozycji głowy oraz sieci neuronowe, które mogą wykorzystywać informacje o oczach do poprawy dokładności.
+COSINE_SIMILARITY: 0.862793
+
+--------------------------------------------------------------------------------
+
+2.1.1 Splotowe sieci neuronowe w estymacji spojrzenia
+SUMMARY:
+Sieci splotowe zostały wykorzystane do estymacji kierunku spojrzenia, a dalsze badania skupiły się na poprawie dokładności poprzez łączenie cech z obu oczu oraz kwantyzację kierunku spojrzenia w celu redukcji błędów i optymalizacji wydajności.
+COSINE_SIMILARITY: 0.873490
+
+--------------------------------------------------------------------------------
+
+2.1.2 Sieci typu Transformer w estymacji spojrzenia
+SUMMARY:
+Architektura sieci Transformer, w szczególności ViT, wykorzystuje mechanizmy uwagi do modelowania globalnego kontekstu obrazu, co pozwala na lepsze uogólnianie i redukcję stronniczości w zadaniach estymacji spojrzenia.
+COSINE_SIMILARITY: 0.829620
+
+--------------------------------------------------------------------------------
+
+2.2 Wyzwania i ograniczenia estymacji kierunku spojrzenia
+SUMMARY:
+Estymacja kierunku spojrzenia jest skomplikowana ze względu na zmienność obrazu, różnice między osią wzrokową a optyczną oraz ruchy głowy, co wymaga uwzględnienia pozycji i orientacji głowy dla poprawnego uogólniania modeli w interakcjach z robotami.
+COSINE_SIMILARITY: 0.878104
+
+--------------------------------------------------------------------------------
+
+2.2.1 Czynnik pozycji i orientacji głowy
+SUMMARY:
+Jawne modelowanie pozycji i orientacji głowy jest kluczowe w interakcjach robotów z ludźmi w przestrzeni 3D, ponieważ ruchy głowy znacząco wpływają na wektor spojrzenia, a modele uczenia głębokiego nie zawsze są w stanie skutecznie kompensować tę zmienność.
+COSINE_SIMILARITY: 0.848910
+
+--------------------------------------------------------------------------------
+
+2.2.2 Różnica między osią wzrokową a optyczną
+SUMMARY:
+Model prowadzący obliczenia pomijający wektor przesunięcia kappa powoduje systematyczne błędy w odniesieniu do kierunku patrzenia i optycznego.
+COSINE_SIMILARITY: 0.823547
+
+--------------------------------------------------------------------------------
+
+2.2.3 Ograniczenia percepcyjne systemu wizyjnego
+SUMMARY:
+Niekorzystne warunki obrazu obniżają skuteczność estymacji, a do łagodzenia tych problemów stosuje się różne strategie.
+COSINE_SIMILARITY: 0.806210
+
+--------------------------------------------------------------------------------
+
+2.3 Platformy
+SUMMARY:
+Do estymacji spojrzenia wykorzystuje się różne typy kamer, w tym kamery montowane nad, pod monitorem, w telefonach lub w oprawkach okularów.
+COSINE_SIMILARITY: 0.845574
+
+--------------------------------------------------------------------------------
+
+2.4 Przygotowanie danych
+SUMMARY:
+Przed analizą obrazu przez sieć neuronową, należy go przetworzyć, normalizując przestrzeń, redukując wpływ oświetlenia oraz usuwając tło i zbędne elementy, aby zminimalizować złożoność obliczeniową i poprawić efektywność uczenia.
+COSINE_SIMILARITY: 0.840210
+
+--------------------------------------------------------------------------------
+
+2.4.1 Segmentacja i normalizacja obrazu
+SUMMARY:
+Przed analizą obrazu, należy go przygotować poprzez usunięcie tła, wykrycie twarzy i oczu, przycięcie obrazu oraz normalizację, aby zminimalizować wpływ oświetlenia i ujednolicić układ kamery.
+COSINE_SIMILARITY: 0.824256
+
+--------------------------------------------------------------------------------
+
+2.4.2 Normalizacja przez wirtualną kamerę
+SUMMARY:
+Normalizacja przestrzenna tworzy wirtualną kamerę w stałej pozycji względem głowy, redukując przestrzeń treningową i poprawiając efektywność uczenia w środowiskach HRI.
+COSINE_SIMILARITY: 0.834928
+
+--------------------------------------------------------------------------------
+
+2.5 Zbiory danych
+SUMMARY:
+Zbiory danych, zawierające precyzyjne etykiety i informacje o obiektach, są wykorzystywane do trenowania i walidacji modeli rozumiejących intencje i uwagę w kontekście wizualnym.
+COSINE_SIMILARITY: 0.848440
+
+--------------------------------------------------------------------------------
+
+2.5.1 Zbiory danych dla regresji kierunku spojrzenia
+SUMMARY:
+Zbiory te dostarczają etykiet numerycznych (kątów 3D lub współrzędnych 2D) i służą jako podstawa dla modeli szacujących kierunek wzroku.
+COSINE_SIMILARITY: 0.838512
+
+--------------------------------------------------------------------------------
+
+2.5.2 Zbiory danych dla detekcji celu spojrzenia
+SUMMARY:
+Zbiory te zawierają adnotacje wskazujące, na co zwracają uwagę osoby w scenie, co jest niezbędne do trenowania modeli rozumiejących intencje i uwagę w kontekście wizualnym.
+COSINE_SIMILARITY: 0.829672
+
+--------------------------------------------------------------------------------
+
+2.6 Ewaluacja i wdrożenie w HRI
+SUMMARY:
+Ocena wydajności modeli estymacji spojrzenia i ich wdrożenie na platformie robotycznej wymaga specyficznych metryk, takich jak stabilność czasowa i latencja end-to-end, oraz uwzględnienia ograniczeń zasobowych platformy.
+COSINE_SIMILARITY: 0.872054
+
+--------------------------------------------------------------------------------
+
+2.6.1 Metryki i protokoły ewaluacyjne
+SUMMARY:
+Wybór metryk ewaluacyjnych zależy od typu zadania, a kluczowe są m.in. stabilność czasowa i latencja end-to-end, testy person-independent i generalizacji cross-dataset.
+COSINE_SIMILARITY: 0.820471
+
+--------------------------------------------------------------------------------
+
+2.6.2 Wyzwania wdrożeniowe w robotyce
+SUMMARY:
+Wdrożenie modelu na platformie robotycznej wymaga optymalizacji pod kątem dokładności, niskiej latencji i stabilności działania.
+COSINE_SIMILARITY: 0.859800
+
+--------------------------------------------------------------------------------
+
+2.7 Wybrane modele estymacji spojrzenia
+SUMMARY:
+Tekst opisuje kluczowe modele pogrupowane według zadań regresji kierunku spojrzenia i detekcji celu.
+COSINE_SIMILARITY: 0.857996
+
+--------------------------------------------------------------------------------
+
+2.7.1 Modele regresji kierunku spojrzenia
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.822285
+
+--------------------------------------------------------------------------------
+
+2.7.2 Modele detekcji celu spojrzenia
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.822285
+
+--------------------------------------------------------------------------------
+
+2.8 Zastosowania estymacji spojrzenia w interakcji człowiek–robot
+SUMMARY:
+Estymacja kierunku spojrzenia w interakcjach człowiek-robot jest kluczowa dla regulacji dynamiki interakcji i przekazywania informacji, jednak wymaga rozwiązywania problemu błędnej interpretacji przypadkowych spojrzeń jako komend.
+COSINE_SIMILARITY: 0.898318
+
+--------------------------------------------------------------------------------
+
+3.1 Metody i modele
+SUMMARY:
+Zdecydowano się ewaluować wybrane metody z przeglądu literatury ze względu na dostępność kodów źródłowych i wytrenowanych wag, w kolejności chronologicznej.
+COSINE_SIMILARITY: 0.840870
+
+--------------------------------------------------------------------------------
+
+3.2 Zbiory danych
+SUMMARY:
+Ewaluacja skupiła się na dwóch zbiorach danych, które ujawniły, że modele trenowane na jednym zbiorze i testowane na drugim wykazują błędy wynikające z nauczenia się specyficznych dla danego zbioru konwencji, a nie z własnej błędności.
+COSINE_SIMILARITY: 0.813803
+
+--------------------------------------------------------------------------------
+
+3.2.1 Konwencja osi Z i układu współrzędnych
+SUMMARY:
+Modele trenowane na jednym zbiorze danych wykazują znaczne błędy podczas testowania na innym, jeśli nie zostanie zastosowana korekta Z-flip, co wskazuje na naukę specyficznych konwencji dla danego zbioru.
+COSINE_SIMILARITY: 0.798954
+
+--------------------------------------------------------------------------------
+
+3.3 Przygotowanie danych
+SUMMARY:
+System adapterów zapewnia standaryzowane przetwarzanie danych wejściowych poprzez ujednolicony interfejs, obejmujący detekcję twarzy, normalizację przestrzenną i fotometryczną, oraz automatyczne wykorzystywanie punktów charakterystycznych twarzy.
+COSINE_SIMILARITY: 0.821099
+
+--------------------------------------------------------------------------------
+
+3.3.1 Detekcja twarzy
+SUMMARY:
+System detekcji twarzy lokalizuje twarze na obrazach wejściowych, wykorzystując mechanizm wstępnego przetwarzania punktów charakterystycznych w celu przyspieszenia ewaluacji i zachowania jakości normalizacji geometrycznej.
+COSINE_SIMILARITY: 0.827525
+
+--------------------------------------------------------------------------------
+
+3.3.2 Normalizacja przestrzenna
+SUMMARY:
+Metody detekcji kierunku spojrzenia wymagają normalizacji geometrycznej obrazów twarzy, aby wyeliminować zmienność spowodowaną odległością i rotacją głowy, a nowsze architektury polegają na elastycznym uczeniu się kompensacji tej zmienności przez sieć neuronową.
+COSINE_SIMILARITY: 0.865712
+
+--------------------------------------------------------------------------------
+
+3.3.3 Normalizacja fotometryczna
+SUMMARY:
+Normalizacja statystyczna, oparta na odchyleniu standardowym, jest standardową procedurą dla modeli wykorzystujących wstępnie wytrenowane sieci splotowe, a analiza czasu przetwarzania obejmuje detekcję twarzy i inne etapy inferencji.
+COSINE_SIMILARITY: 0.830789
+
+--------------------------------------------------------------------------------
+
+3.4 Testy modeli
+SUMMARY:
+Przeanalizowano wydajność modelu RT-GENE, który w testach syntetycznych osiągnął średni błąd kątowy 20.11° na zbiorze MPIIFaceGaze i 16.96° na zbiorze EYEDIAP, a jego przepustowość średnio wynosiła od 0 do 60 FPS w zależności
+COSINE_SIMILARITY: 0.816661
+
+--------------------------------------------------------------------------------
+
+3.4.1 RT-GENE
+SUMMARY:
+Model RT-GENE charakteryzuje się zintegrowanym potokiem przetwarzania, który w testach syntetycznych na zbiorach danych MPIIFaceGaze i EYEDIAP osiągnął średni błąd kątowy odpowiednio 20.11° i 16.96°, a analiza czasu przetwarzania wykazała wpływ rozdzielc
+COSINE_SIMILARITY: 0.826222
+
+--------------------------------------------------------------------------------
+
+3.4.2 ETH-XGaze
+SUMMARY:
+Model ETH-XGaze bazujący na ResNet-50 stosuje rygorystyczną normalizację geometryczną twarzy, aby uprościć estymację kierunku wzroku, jednak średni błąd kątowy jest wyższy niż w poprzednim modelu, a czas przetwarzania wzrasta wraz ze wzrostem rozdzielczości obrazu.
+COSINE_SIMILARITY: 0.839069
+
+--------------------------------------------------------------------------------
+
+3.4.3 GazeTR
+SUMMARY:
+Model L2CS-Net, łączący CNN z Transformerem, osiąga lepsze wyniki w estymacji spojrzenia niż model ETH-XGaze, szczególnie na zbiorze danych EYEDIAP, przy jednoczesnym zachowaniu efektywnego wykorzystania zasobów obliczeniowych.
+COSINE_SIMILARITY: 0.837053
+
+--------------------------------------------------------------------------------
+
+3.4.4 L2CS-Net
+SUMMARY:
+Modele wytrenowane na zbiorach Gaze360 i MPIIGaze, wykorzystujące architekturę klasyfikacyjną i funkcję softmax, osiągają średni błąd kątowy 17.05° oraz przepustowość od 66.97 FPS do 73.57 FPS, a model wytrenowany na zbiorze Gaze
+COSINE_SIMILARITY: 0.818680
+
+--------------------------------------------------------------------------------
+
+3.4.5 MobileGaze
+SUMMARY:
+Oficjalna implementacja oferuje warianty modeli opartych na MobileNetV2, ResNet-18, ResNet-34, ResNet-50 oraz MobileOne-S0, wykorzystujące sploty separowalne głębokościowo w celu redukcji parametrów i zapewnienia szybkiego działania, osiągając najlepsze wyniki,
+COSINE_SIMILARITY: 0.812432
+
+--------------------------------------------------------------------------------
+
+3.4.6 UniGaze
+SUMMARY:
+Porównano błędy bezwzględne i liczbę klatek na sekundę estymacji twarzy dla różnych modeli, takich jak ETH-XGaze, MobileGaze, ResNet50, GazeTR, L2CS-Net, Gaze360, RT-GENE i UniGaze H14 Joint, przy różnych rozdzielczości
+COSINE_SIMILARITY: 0.818671
+
+--------------------------------------------------------------------------------
+
+3.5 Porównanie i wnioski
+SUMMARY:
+徭文を基に、このテキストから重要な情報を抽出します。 **主なポイント:** * **目的:** このテキストは、顔の向きを推定するシステム (NetEye) の性能評価に関するものです。 * **評価指標:** 性能は、フレームレート (FPS - Frames Per Second) で評価されています。FPSが高いほど、システムはより速く動作していることを
+COSINE_SIMILARITY: 0.804343
+
+--------------------------------------------------------------------------------
+
+4.1 Analiza i wybór platformy robotycznej
+SUMMARY:
+W celu sterowania robotem za pomocą estymacji kierunku spojrzenia, rozważano roboty przemysłowe, drony i lądowe roboty mobilne, jednak budżetowe konstrukcje okazały się niewystarczająco stabilne i powtarzalne, co mogłoby negatywnie wpłynąć na algorytm estymacji wz
+COSINE_SIMILARITY: 0.885425
+
+--------------------------------------------------------------------------------
+
+4.1.1 Kryteria wyboru i analiza dostępnych rozwiązań
+SUMMARY:
+Zespół projektowy budował ramiona robotyczne drukowane w 3D, aby zrealizować projekt inżynierski, jednak niskie sztywności i powtarzalność ruchów tych konstrukcji stanowiły istotny problem.
+COSINE_SIMILARITY: 0.838826
+
+--------------------------------------------------------------------------------
+
+4.1.2 Wybór i charakterystyka platformy docelowej
+SUMMARY:
+Analiza wskazała na wybór robota mobilnego jako platformy docelowej w układzie samochodowym, który ma zostać zintegrowany z mikrokontrolerem.
+COSINE_SIMILARITY: 0.868285
+
+--------------------------------------------------------------------------------
+
+4.2 Platforma sprzętowa robota mobilnego
+SUMMARY:
+Zestaw do samodzielnego montażu o symbolu HA-D02B składa się z pojazdu i kontrolera TC118, zbudowanych z lekkiej płyty sklejkowej, a jego montaż wymaga precyzyjnego wykonania połączeń mechanicznych za pomocą śrub.
+COSINE_SIMILARITY: 0.814143
+
+--------------------------------------------------------------------------------
+
+4.2.1 Podzespoły i parametry techniczne
+SUMMARY:
+Zestaw konstrukcyjny składa się z pojazdu, zbudowanego z lekkiej płyty sklejkowej, oraz kontrolera TC118, który jest mostkiem H MOSFET zapewniającym sterowanie kierunkiem obrotów i hamowanie.
+COSINE_SIMILARITY: 0.818453
+
+--------------------------------------------------------------------------------
+
+4.2.2 Proces składania
+SUMMARY:
+Na rysunku 4.1 przedstawiono etapy montażu robota mobilnego, w których śruby wkręcane w otwory w drewnie służyły do tworzenia sztywnych i trwałych połączeń mechanicznych.
+COSINE_SIMILARITY: 0.836426
+
+--------------------------------------------------------------------------------
+
+4.3 Inżynieria wsteczna
+SUMMARY:
+Przeprowadzono inżynierię wsteczną układu elektronicznego modułu sterującego, aby zrozumieć, jak mikrokontroler odczytuje stany przełączników poprzez monitorowanie stanu logicznego na wejściach, co umożliwiło programową symulację interakcji użytkownika.
+COSINE_SIMILARITY: 0.859964
+
+--------------------------------------------------------------------------------
+
+4.4 Architektura systemu sterowania
+SUMMARY:
+System kontroli pojazdu wykorzystuje symulację manipulatora drążkowego, wymagającą określonych pozycji wzroku użytkownika do sterowania ruchem, skrętem i kierunkiem jazdy.
+COSINE_SIMILARITY: 0.868814
+
+--------------------------------------------------------------------------------
+
+4.4.1 Mechanizm interakcji
+SUMMARY:
+Sterowanie pojazdem odbywa się poprzez symulację działania manipulatora drążkowego, gdzie kierunek jazdy i skręcania zależy od kierunku patrzenia użytkownika.
+COSINE_SIMILARITY: 0.863678
+
+--------------------------------------------------------------------------------
+
+4.5 Pętla nadawania obrazu (strona internetowa)
+SUMMARY:
+Interfejs użytkownika umożliwia podgląd obrazu z kamery, kontrolę trybów wyświetlania oraz komunikację z mikrokontrolerem, a po stronie przeglądarki zaimplementowano mechanizm kontroli przepływu zapobiegający przepełnieniu bufora sieciowego.
+COSINE_SIMILARITY: 0.826757
+
+--------------------------------------------------------------------------------
+
+4.5.1 Architektura dwupętlowa i kontrola przepływu
+SUMMARY:
+Po stronie przeglądarki zaimplementowano mechanizm kontroli przepływu, który zapobiega przepełnieniu bufora sieciowego poprzez wysyłanie kolejnych klatek dopiero po otrzymaniu potwierdzenia od serwera, a pętla renderowania pobiera, przetwarza i wyświetla aktualną ramkę wideo w podglądzie.
+COSINE_SIMILARITY: 0.808417
+
+--------------------------------------------------------------------------------
+
+4.5.2 Transmisja bezpośrednia (Web Serial API)
+SUMMARY:
+Zaimplementowano alternatywną ścieżkę sterowania robotem, w której przeglądarka internetowa bezpośrednio komunikuje się z portem szeregowym poprzez Web Serial API, a logika decyzyjna realizowana jest lokalnie na kliencie.
+COSINE_SIMILARITY: 0.849864
+
+--------------------------------------------------------------------------------
+
+4.5.3 Optymalizacje i aspekty wydajnościowe
+SUMMARY:
+Liczba klatek na sekundę jest obliczana jako średnia krocząca z 30 próbek, zapewniająca stabilny pomiar wydajności systemu, uwzględniający opóźnienia sieciowe i czas inferencji modelu.
+COSINE_SIMILARITY: 0.815593
+
+--------------------------------------------------------------------------------
+
+4.6 Pętla przetwarzania (warstwa serwera)
+SUMMARY:
+Warstwa serwera realizuje logikę estymacji spojrzenia i generowania komend sterujących, wykorzystując architekturę ASGI do obsługi wielu połączeń i zapewnienia nieblokującej inferencji w czasie rzeczywistym.
+COSINE_SIMILARITY: 0.843326
+
+--------------------------------------------------------------------------------
+
+4.6.1 Implementacja serwera i potok danych
+SUMMARY:
+Warstwa serwera realizuje logikę biznesową, obsługuje wiele połączeń WebSocket i zapewnia nieblokującą inferencję w czasie rzeczywistym, wykorzystując architekturę ASGI do minimalizacji narzutu pamięciowego.
+COSINE_SIMILARITY: 0.787141
+
+--------------------------------------------------------------------------------
+
+4.6.2 Warstwa adapterów i modularność modeli
+SUMMARY:
+Projekt wykorzystuje architekturę modułów adaptacyjnych, które zapewniają wspólny interfejs dla testowania i porównywania różnych modeli estymacji spojrzenia, redukując potrzebę modyfikacji kodu źródłowego i umożliwiając polimorficzne traktowanie modeli przez systemy wyższego poziomu.
+COSINE_SIMILARITY: 0.853105
+
+--------------------------------------------------------------------------------
+
+4.6.3 Algorytmy sterowania i logiki
+SUMMARY:
+System wykorzystuje dwupoziomową normalizację, aby kalibrować ruch gałki ocznej użytkownika i mapować surowe wartości na znormalizowaną przestrzeń decyzyjną, eliminując wpływ indywidualnych cech i warunków rejestracji.
+COSINE_SIMILARITY: 0.859856
+
+--------------------------------------------------------------------------------
+
+4.6.4 Komunikacja i konfiguracja
+SUMMARY:
+Wygenerowana komenda sterująca, przekazywana przez UART, jest integralną częścią systemu, w którym dane konfiguracyjne przechowywane w formacie JSON są ładowane automatycznie i aktualizowane w czasie rzeczywistym.
+COSINE_SIMILARITY: 0.812303
+
+--------------------------------------------------------------------------------
+
+4.6.5 Optymalizacje i aspekty wydajnościowe
+SUMMARY:
+Warstwa serwera wykorzystuje optymalizacje, takie jak asynchroniczne przetwarzanie klatek i buforowanie modelu, aby zapewnić wysoką wydajność i stabilny pomiar liczby klatek na sekundę.
+COSINE_SIMILARITY: 0.803378
+
+--------------------------------------------------------------------------------
+
+4.7 Pętla sterująca ESP32
+SUMMARY:
+Oprogramowanie mikrokontrolera zarządza odbiorem komend, generowaniem sygnałów sterujących i mechanizmami bezpieczeństwa, w tym adaptacyjnym algorytmem kompensującym opóźnienia sieciowe w celu utrzymania ciągłości ruchu robota.
+COSINE_SIMILARITY: 0.850509
+
+--------------------------------------------------------------------------------
+
+4.7.1 Generowanie sygnałów sterujących
+SUMMARY:
+Do pojazdu zastosowano programową modulację szerokości impulsu o niskiej częstotliwości, generowaną przez nadajnik 10 Hz, do sterowania jazdą przód-tył i skrętem.
+COSINE_SIMILARITY: 0.837356
+
+--------------------------------------------------------------------------------
+
+4.7.2 Kompensacja charakterystyki silnika
+SUMMARY:
+Zaimplementowano dwa mechanizmy kompensacyjne, aby zapewnić prawidłowe działanie przy niskich prędkościach.
+COSINE_SIMILARITY: 0.827770
+
+--------------------------------------------------------------------------------
+
+4.7.3 Algorytm dynamicznego limitu czasowego
+SUMMARY:
+System wykorzystuje algorytm adaptacyjny, który dynamicznie dostosowuje próg czasowy, aby zapobiec niepotrzebnym zatrzymywaniom robota w wyniku zmiennych opóźnień sieciowych, gwarantując jednocześnie zatrzymanie pojazdu w przypadku całkowitego zerwania łączności po pół sekundy.
+COSINE_SIMILARITY: 0.852528
+
+--------------------------------------------------------------------------------
+
+5.1 Strona internetowa
+SUMMARY:
+Uruchomienie aplikacji w przeglądarce wymaga zapewnienia bezpiecznego dostępu do kamery przez HTTPS oraz zgodności z Web Serial API, które jest dostępne tylko w przeglądarkach opartych na silniku Chromium.
+COSINE_SIMILARITY: 0.822463
+
+--------------------------------------------------------------------------------
+
+5.1.1 Wymagane uprawnienia przeglądarki
+SUMMARY:
+Aby umożliwić dostęp do kamery przez stronę internetową przy użyciu Web Serial API, konieczny jest samopodpisany certyfikat SSL, który wymaga ręcznego zaufania w przeglądarkach opartych na silnikach Chromium, takich jak Chrome, Edge, Brave i Opera.
+COSINE_SIMILARITY: 0.810029
+
+--------------------------------------------------------------------------------
+
+5.1.2 Responsywność strony internetowej
+SUMMARY:
+Interfejs użytkownika dostosowuje się do użytku stacjonarnego i mobilnego, skalując przyciski i inne elementy strony w zależności od szerokości ekranu.
+COSINE_SIMILARITY: 0.817987
+
+--------------------------------------------------------------------------------
+
+5.2 Skuteczność modeli w warunkach rzeczywistych
+SUMMARY:
+Różne modele, takie jak UniGaze H14 Joint i GazeTR, osiągają wysoką precyzję i niskie odchylenia standardowe w pomiarach, podczas gdy L2CS-Net charakteryzuje się wysoką dokładnością, ale niską precyzją, a MobileGaze wykazuje znaczny szum i
+COSINE_SIMILARITY: 0.796911
+
+--------------------------------------------------------------------------------
+
+5.2.1 Poprawność estymacji
+SUMMARY:
+Modele UniGaze H14 Joint i GazeTR charakteryzują się wysoką precyzją i niskim odchyleniem standardowym, podczas gdy L2CS-Net, MobileGaze i ETH-XGaze wykazują niską precyzję i wyższe odchylenia standardowe.
+COSINE_SIMILARITY: 0.796972
+
+--------------------------------------------------------------------------------
+
+5.2.2 Płynność estymacji
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.822285
+
+--------------------------------------------------------------------------------
+
+5.3 Sterowanie pojazdem
+SUMMARY:
+Przeprowadzono weryfikację systemu sterowania robotem mobilnym, obejmującego estymację kierunku spojrzenia, komunikację i ruch pojazdu, z wykorzystaniem mikrokontrolera ESP32 oraz platformy robotycznej.
+COSINE_SIMILARITY: 0.918697
+
+--------------------------------------------------------------------------------

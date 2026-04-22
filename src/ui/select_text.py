@@ -26,8 +26,16 @@ class ErrorMarker(QPushButton):
         self.clicked.connect(self.show_details)
 
     def show_details(self):
-        info = (f"<b>Błąd:</b> {self.data.get('kategoria', 'Nieznany')}<br>"
-                f"<b>Tekst:</b> {self.data.get('znaleziony_tekst', '')}")
+        opis = self.data.get('komentarz', 'Brak szczegółowego opisu błędu')
+        kat = self.data.get('kategoria', 'Błąd')
+        tekst = self.data.get('znaleziony_tekst', '')
+
+        info = (f"<b>Kategoria:</b> {kat}<br>"
+                f"<b>Opis:</b> {opis}<br>")
+        
+        if tekst and tekst != "[Brak tekstu]":
+            info += f"<b>Dotyczy tekstu:</b> <i>{tekst}</i>"
+
         QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
 
 class CommentMarker(QPushButton):
@@ -50,7 +58,6 @@ class CommentMarker(QPushButton):
         self.clicked.connect(self.show_details)
 
     def show_details(self):
-        #Pokazujemy treść Twojego komentarza i fragment tekstu
         info = (f"<b>Twój komentarz:</b> {self.data.get('tekst_komentarza', '')}<br>"
                 f"<b>Fragment:</b> {self.data.get('znaleziony_tekst', '')}")
         QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
@@ -127,17 +134,14 @@ class SelectablePdfView(QPdfView):
                 size_pt = doc.pagePointSize(i)
                 target_page_y_px += (size_pt.height() * zoom * (dpi_y / 72.0)) + self.pageSpacing()
 
-            #pozycja X
             size_pt = doc.pagePointSize(page_idx)
             page_w_px = size_pt.width() * zoom * (dpi_x / 72.0)
             viewport_w = self.viewport().width()
             x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
 
-            #przeliczamy współrzędne markera (x, y) na piksele
             px_x = x_start_px + (coords["x"] * zoom * (dpi_x / 72.0)) - self.horizontalScrollBar().value()
             px_y = target_page_y_px + (coords["y"] * zoom * (dpi_y / 72.0)) - self.verticalScrollBar().value()
 
-            #pozycjonowanie markeru
             marker.move(int(px_x - 10), int(px_y - 10))
             marker.show()
         for box in self.highlight_boxes:
@@ -173,7 +177,6 @@ class SelectablePdfView(QPdfView):
         self.update_markers_pos()
 
     def update_selection_box_pos(self):
-        #jesli rysujemy badz nie ma prostokata to nie przeliczamy
         if not self.origin.isNull() or self.selection_page_idx == -1 or not self.selection_pdf_rect:
             return
         
@@ -319,11 +322,9 @@ class SelectablePdfView(QPdfView):
         menu.exec(global_pos)
 
     def add_custom_comment(self):
-        #sprawdzamy, czy mamy poprawne zaznaczenie
         if not self.selection_pdf_rect or self.selection_page_idx == -1:
             return
             
-        #otwieramy okno dialogowe do wpisania komentarza
         text, ok = QInputDialog.getText(self, "Dodaj komentarz", "Wpisz treść komentarza:")
         if ok and text:
             comment_data = {
@@ -355,10 +356,8 @@ class SelectablePdfView(QPdfView):
         if not self.selected_text:
             return
             
-        # Usunięcie zbędnych białych znaków
         clean_text = " ".join(self.selected_text.split())
         
-        # limit maksymalnie 300 znaków
         if len(clean_text) > 300:
             clean_text = clean_text[:300]
             print("Ostrzeżenie: Przekroczono limit 300 znaków. Tekst został przycięty.")

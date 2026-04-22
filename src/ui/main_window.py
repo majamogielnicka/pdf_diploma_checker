@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QStackedWidget, QFileDialog, QMessageBox,
     QDialog, QInputDialog
 )
-from PySide6.QtCore import Qt, QSize, QPointF
+from PySide6.QtCore import Qt, QSize, QPointF, QObject, Signal, QThread
 from PySide6.QtGui import QPixmap
 from PySide6.QtPdf import QPdfDocument
 from PySide6.QtPdfWidgets import QPdfView
@@ -35,10 +35,26 @@ from start_page import StartPage
 from saving_files import saving_files
 import styles
 from analysis_dialog import AnalysisDialog
+from pipeline import AnalysisPipeline
 
 from PySide6.QtWidgets import QFrame
 from entry import run_analysis_for_pdf
 
+class AnalysisWorker(QObject):
+    progress = Signal(int, str)
+    finished = Signal(list)
+    error = Signal(str)
+
+    def __init__(self, pdf_path, config_path):
+        super().__init__()
+        self.pdf_path = pdf_path
+        self.config_path = config_path
+
+    def run(self):
+        try:
+            self.finished.emit([])
+        except Exception as e:
+            self.error.emit(str(e))
 
 class PDFReader(QMainWindow):
     def __init__(self):
@@ -71,6 +87,15 @@ class PDFReader(QMainWindow):
         self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 160);") # 160 to stopień przyciemnienia (0 = przezroczyste, 255 = czarne)
         self.overlay.hide()
 
+    def start_background_analysis(self, pdf_path, config_path):
+        self.analysis_thread = QThread()
+        self.worker = AnalysisWorker(pdf_path, config_path)
+        self.worker.moveToThread(self.analysis_thread)
+
+        self.analysis_thread.started.connect(self.worker.run)        
+        self.analysis_thread.start()
+        print("Wątek wystartował!")
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, 'overlay'):
@@ -91,7 +116,6 @@ class PDFReader(QMainWindow):
 
         splitter = QSplitter(Qt.Horizontal)
         
-        #panel miniatur
         self.thumb_area = QScrollArea()
         self.thumb_area.setFixedWidth(160)
         self.thumb_area.setWidgetResizable(True)
@@ -100,7 +124,6 @@ class PDFReader(QMainWindow):
         self.thumb_layout.setAlignment(Qt.AlignTop)
         self.thumb_area.setWidget(self.thumb_widget)
 
-        #główny widok PDF
         self.pdf_view = SelectablePdfView()
         self.pdf_view.setDocument(self.document)
         self.pdf_view.setPageMode(QPdfView.PageMode.MultiPage)
@@ -181,26 +204,28 @@ class PDFReader(QMainWindow):
             self.load_and_switch(path)
 
     def load_and_switch(self, path):
-        self.overlay.resize(self.size())
-        self.overlay.raise_()
         self.overlay.show()
-
         dialog = AnalysisDialog(path, self)
-        result = dialog.exec()
+        result = dialog.exec() 
 
         self.overlay.hide()
 
         if result == QDialog.Accepted:
-            nazwa = os.path.basename(path)
-            self.manager.dodaj_prace(nazwa, path, "inzynierska")
-            
             self.load_pdf(path)
-            
-            if self.document.status() == QPdfDocument.Status.Ready:
-                self.stack.setCurrentIndex(1)
-            
+            self.manager.dodaj_prace(os.path.basename(path), path, "PDF")
             self.refresh_file_list()
-
+            self.last_report = getattr(dialog, 'final_report', None)
+            
+            if hasattr(dialog, 'final_report') and dialog.final_report:
+                bledy = dialog.final_report.get("bledy", [])
+                sota_data = dialog.final_report.get("sota", None)
+        
+                self.pdf_view.add_errors(bledy)
+                self.update_sota_panel(sota_data)
+                
+            self.stack.setCurrentIndex(1)
+            print("Analiza zakończona, widok przełączony.")
+    
     def refresh_file_list(self):
         pliki = self.manager.data.get("prace", [])
         self.start_page.render_doc_list(pliki)
@@ -222,8 +247,6 @@ class PDFReader(QMainWindow):
             return
         self.current_pdf_path = path
         self.document.load(path)
-        
-        #Sprawdzanie błędów
         current_error = self.document.error()
         if current_error == QPdfDocument.Error.IncorrectPassword:
             QMessageBox.warning(self, "Plik zabezpieczony", "Ten PDF wymaga hasła.")
@@ -238,8 +261,7 @@ class PDFReader(QMainWindow):
             self.generate_thumbnails()
             self.pdf_view.setZoomFactor(1.0)
             self.zoom_label.setText("100%")
-            
-            #Wczytywanie błędów z template.json
+        
             self.load_template_errors()
             self.load_custom_comments()
 
@@ -269,15 +291,12 @@ class PDFReader(QMainWindow):
             self.thumb_layout.addWidget(btn)
 
     def add_comment(self, pos):
-        #sprawdzamy czy dokument jest w ogóle wczytany
         if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
             return
 
-        #jeśli kliknięto wewnątrz zaznaczonego tekstu, ignorujemy
         if self.pdf_view.selection_box.isVisible() and self.pdf_view.selection_box.geometry().contains(pos):
             return
 
-        #pop-up do komentarza
         tekst, ok = QInputDialog.getMultiLineText(self, "Własny komentarz", "Wpisz treść komentarza:")
         
         if ok and tekst.strip():
@@ -299,7 +318,6 @@ class PDFReader(QMainWindow):
             for i in range(aktualna_strona):
                 target_page_y_px += (doc.pagePointSize(i).height() * zoom * (dpi_y / 72.0)) + self.pdf_view.pageSpacing()
 
-            #obliczamy relatywne piksele i konwertujemy na punkty PDF
             pdf_x = ((pos.x() + scroll_x - x_start_px) / zoom) * (72.0 / dpi_x)
             pdf_y = ((pos.y() + scroll_y - target_page_y_px) / zoom) * (72.0 / dpi_y)
 
@@ -313,7 +331,48 @@ class PDFReader(QMainWindow):
             self.pdf_view.comment_markers.append(marker)
             self.pdf_view.update_markers_pos()
             self.save_custom_comment(comment_data)
-            
+
+    def update_sota_panel(self, sota_data):
+        for i in reversed(range(1, self.right_panel.layout().count())): 
+            widget = self.right_panel.layout().itemAt(i).widget()
+            if widget:
+                widget.setParent(None)
+
+        if not sota_data:
+            brak_label = QLabel("Brak danych SOTA (Tryb szybki)")
+            brak_label.setStyleSheet("color: #7f8c8d; font-style: italic; border: none;")
+            self.right_panel.layout().addWidget(brak_label)
+            self.right_panel.layout().addStretch()
+            return
+
+        tytul_lbl = QLabel(f"<b>Znaleziony rozdział:</b><br>{sota_data.get('tytul', 'Brak')}")
+        tytul_lbl.setWordWrap(True)
+        tytul_lbl.setStyleSheet("border: none; font-size: 13px; margin-top: 10px;")
+
+        wynik = sota_data.get('ocena', 0)
+        kolor_oceny = "#27ae60" if wynik >= 50 else "#c0392b"
+        ocena_lbl = QLabel(f"<b>Ocena SOTA:</b> <span style='color:{kolor_oceny}; font-size:16px;'>{wynik}%</span>")
+        ocena_lbl.setStyleSheet("border: none; margin-top: 5px;")
+        def format_text(val, label):
+            status = "Tak" if val else "Nie"
+            return f"<b>{label}:</b> {status}"
+
+        r1_lbl = QLabel(format_text(sota_data.get('r1'), "Ocena istniejących rozwiązań"))
+        r2_lbl = QLabel(format_text(sota_data.get('r2'), "Wskazanie luki/problemu"))
+        r3_lbl = QLabel(format_text(sota_data.get('r3'), "Synteza/porównanie metod"))
+        
+        for lbl in [r1_lbl, r2_lbl, r3_lbl]:
+            lbl.setStyleSheet("border: none; font-size: 13px; margin-top: 3px;")
+
+        l = self.right_panel.layout()
+        l.addWidget(tytul_lbl)
+        l.addWidget(ocena_lbl)
+        l.addWidget(r1_lbl)
+        l.addWidget(r2_lbl)
+        l.addWidget(r3_lbl)
+        l.addStretch()
+
+
     def zoom_in(self):
         self.pdf_view.setZoomFactor(self.pdf_view.zoomFactor() * 1.1)
         self.zoom_label.setText(f"{int(self.pdf_view.zoomFactor()*100)}%")
@@ -330,98 +389,76 @@ class PDFReader(QMainWindow):
             QMessageBox.warning(self, "Uwaga", "Brak załadowanego dokumentu do eksportu.")
             return
 
-        #gdzie zapisać nowy plik
         save_path, _ = QFileDialog.getSaveFileName(
             self, "Zapisz PDF z uwagami", 
             f"sprawdzony_{os.path.basename(self.current_pdf_path)}", 
             "PDF Files (*.pdf)"
         )
         
-        if not save_path:
-            return
+        if not save_path: return
 
         try:
             doc = fitz.open(self.current_pdf_path)
-            counter = 0
+            
+            bledy_do_zapisu = []
+            if hasattr(self, 'last_report') and self.last_report:
+                bledy_do_zapisu = self.last_report.get("bledy", [])
 
-            json_path = os.path.join(BASE_DIR, "errors_output3.json")
-            if os.path.exists(json_path):
-                with open(json_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    bledy = data.get("wykryte_bledy", [])
-                    
-                    for err in bledy:
-                        try:
-                            page_num = int(err.get("strona", 1)) - 1
-                            
-                            if 0 <= page_num < len(doc):
-                                page = doc[page_num]
-                                coords = err.get("wspolrzedne", {"x": 50, "y": 50})
-                                
-                                x = float(coords.get("x", 50))
-                                y = float(coords.get("y", 50))
-                                
-                                rect_page = page.rect
-                                if x > rect_page.width or x < 0: x = 50
-                                if y > rect_page.height or y < 0: y = 50
-                                
-                                point = fitz.Point(x, y)
-                                
-                                kat = str(err.get('kategoria', 'Błąd'))
-                                txt = str(err.get('znaleziony_tekst', ''))
-                                opis = f"{kat}\n\nDotyczy tekstu:\n\"{txt}\""
-                                
-                                annot = page.add_text_annot(point, opis, icon="Comment")
-                                annot.set_info(title="Weryfikacja")
-                                annot.set_colors(stroke=(1, 0.8, 0))
-                                annot.update()
-                                
-                                counter += 1
-                        except Exception as e:
-                            print(f"Błąd przy automatycznej adnotacji z JSON: {e}")
-            else:
-                print(f"Brak pliku JSON w: {json_path}. Pominęto błędy automatyczne.")
+            for err in bledy_do_zapisu:
+                try:
+                    page_num = int(err.get("strona", 1)) - 1
+                    if 0 <= page_num < len(doc):
+                        page = doc[page_num]
+                        coords = err.get("wspolrzedne", {})
+                        
+                        x = float(coords.get("x", 50))
+                        y = float(coords.get("y", 50))
+                        
+                        point = fitz.Point(x, y)
+                        
+                        kat = str(err.get('kategoria', 'Błąd'))
+                        txt = str(err.get('znaleziony_tekst', ''))
+                        msg = str(err.get('komentarz', ''))
+                        
+                        opis = f"KATEGORIA: {kat}\nOPIS: {msg}\n\nDOTYCZY: {txt}"
+                        
+                        annot = page.add_text_annot(point, opis, icon="Comment")
+                        annot.set_info(title="Automatyczna Weryfikacja")
+                        annot.set_colors(stroke=(1, 0, 0))
+                        annot.update()
+                except Exception as e:
+                    print(f"Błąd przy eksporcie punktu: {e}")
 
-            if hasattr(self.pdf_view, 'comment_markers') and self.pdf_view.comment_markers:
+            if hasattr(self.pdf_view, 'comment_markers'):
                 for marker in self.pdf_view.comment_markers:
                     try:
                         notatka = marker.data
                         page_idx = notatka["strona"] - 1
-                        
                         if 0 <= page_idx < len(doc):
                             page = doc[page_idx]
-                            x = notatka["wspolrzedne"]["x"]
-                            y = notatka["wspolrzedne"]["y"]
+                            x, y = notatka["wspolrzedne"]["x"], notatka["wspolrzedne"]["y"]
+                            
                             w = notatka["wspolrzedne"].get("w", 0)
                             h = notatka["wspolrzedne"].get("h", 0)
-                            
-                            rect_page = page.rect
-                            if x > rect_page.width - 20: 
-                                x = rect_page.width - 30
-                            
                             if w > 0 and h > 0:
                                 rect = fitz.Rect(x, y, x + w, y + h)
-                                highlight = page.add_highlight_annot(rect)
-                                highlight.set_colors(stroke=(0.3, 0.7, 1.0)) # Jasnoniebieski kolor
-                                highlight.update()
+                                hl = page.add_highlight_annot(rect)
+                                hl.set_colors(stroke=(0, 0.5, 1))
+                                hl.update()
 
-                            point = fitz.Point(max(0, x - 15), max(0, y - 5))
-                            opis = f"Twoja uwaga:\n{notatka['tekst_komentarza']}"
-                            
-                            annot = page.add_text_annot(point, opis, icon="Note")
+                            annot = page.add_text_annot(fitz.Point(x, y), notatka['tekst_komentarza'], icon="Note")
                             annot.set_info(title="Mój komentarz")
                             annot.set_colors(stroke=(0, 0.4, 1))
                             annot.update()
-                            
-                            counter += 1
                     except Exception as e:
-                        print(f"Błąd przy rysowaniu własnej notatki: {e}")
+                        print(f"Błąd przy eksporcie notatki ręcznej: {e}")
 
             doc.save(save_path)
             doc.close()
+            QMessageBox.information(self, "Sukces", "PDF został zapisany pomyślnie!")
                         
         except Exception as e:
-            QMessageBox.critical(self, "Błąd eksportu:\n{str(e)}")
+            QMessageBox.critical(self, "Błąd", f"Błąd eksportu:\n{str(e)}")
 
     def save_custom_comment(self, comment_data):
         if hasattr(self, 'current_pdf_path') and self.current_pdf_path:
