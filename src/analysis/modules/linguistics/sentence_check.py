@@ -56,8 +56,6 @@ def sentence_check(blocks):
                             )   
                             if not check_quotes(match, text) and not check_if_proper(block.block, match, is_diff = True):
                                 checked_matches.append(match)
-                            else:
-                                quotes = True
                 if token.dep_ in {'nsubj', 'nsubj:pass'}:
                     is_subject = True
                 if token.pos_ in {'VERB', 'AUX'}:

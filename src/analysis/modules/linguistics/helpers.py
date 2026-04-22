@@ -94,18 +94,19 @@ def get_context(blocks):
     """
     blocks_info = []
     for block in blocks.logical_blocks:
-        if isinstance(block, ParagraphBlock):
-            contents = block.content
-        elif isinstance(block, ListBlock):
-            contents = " ".join(item.text for item in block.items if item.text)
-        else:
-            continue
-        block_info = Block_context(
-            block = block,
-            contents = contents,
-            language = language(contents),
-        )
-        blocks_info.append(block_info)
+        if block.words[-1].page_number != 1:
+            if isinstance(block, ParagraphBlock):
+                contents = block.content
+            elif isinstance(block, ListBlock):
+                contents = " ".join(item.text for item in block.items if item.text)
+            else:
+                continue
+            block_info = Block_context(
+                block = block,
+                contents = contents,
+                language = language(contents),
+            )
+            blocks_info.append(block_info)
         
     return blocks_info
 
