@@ -15,7 +15,7 @@ from pathlib import Path, PurePath
 import os
 
 def run_linguistics(raw_blocks):
-    text_language = 'en'
+    text_language = 'pl'
     blocks = get_context(raw_blocks)
     extract_errors_to_json(blocks, "final_document.json")
     proper_names = get_proper_names(blocks)
@@ -41,5 +41,5 @@ if __name__ == "__main__":
     else:
         extract_errors_to_json(raw_blocks, "final_document_raw.json")
         matches = run_linguistics(raw_blocks)
-        print(f"Znaleziono błędów: {len(matches)}")
+        #print(f"Znaleziono błędów: {len(matches)}")
         extract_errors_to_json(matches, "errors.json")

@@ -116,7 +116,7 @@ def sentence_check(blocks):
         impersonal_count= impersonal_count,
         sentence_count = sentence_count
     )
-    print(f"active:{analisys.active_count} passive:{analisys.passive_count} sum counted:{sentence_count}")
+    #print(f"active:{analisys.active_count} passive:{analisys.passive_count} sum counted:{sentence_count}")
     return checked_matches, analisys
 
 def morfeusz_check(text):

@@ -48,10 +48,11 @@ def get_proper_names(blocks):
                     ent_text = ent.text.strip("(),.:;[]\n\t ")
                     if not ent.label_ or ent.label_ in SKIP_LABEL_PL or len(ent_text) < 2:
                         continue
-                    if previous is not None and (previous_check.findall(previous.text) or previous.label == "PERSON") and ent.label_ == "PERSON":
+                    if previous is not None and (previous_check.findall(previous.text) or previous.label_ == "PERSON") and ent.label_ == "PERSON":
                         previous = ent
                         ent_text = previous.text + " " + ent_text
-                        proper_names.pop(-1)
+                        if proper_names:
+                            proper_names.pop(-1)
                     ent_lemma, is_found = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))  
 
@@ -62,10 +63,11 @@ def get_proper_names(blocks):
                     ent_text = ent.text.strip("(),.:;[]\n\t ")   
                     if not ent.label_ or ent.label_ in SKIP_LABELS_EN or len(ent_text) < 2:
                         continue
-                    if previous is not None and (previous_check.findall( previous.text) or previous.label == "PERSON") and ent.label_ == "PERSON":
+                    if previous is not None and (previous_check.findall(previous.text) or previous.label_ == "PERSON") and ent.label_ == "PERSON":
                         previous = ent
                         ent_text = previous.text + " " + ent_text
-                        proper_names.pop(-1)
+                        if proper_names:
+                            proper_names.pop(-1)
                     ent_lemma, is_found = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))    
 
@@ -83,10 +85,7 @@ def get_proper_names(blocks):
                         keyword_lemma = keyword
                     else:
                         keyword_lemma, is_found = lemmatization(keyword, block.language)
-                    print("Keyword: ", keyword, "Lemma: ", keyword_lemma, "\n")
                     keywords_lemma.append((keyword, keyword_lemma))
                 proper_names.extend(keywords_lemma)
-                #print("keywords_lemma: ", keywords_lemma)
     proper_names = set(proper_names)
-    print("Proper names: ", {proper[0] for proper in proper_names})
     return proper_names

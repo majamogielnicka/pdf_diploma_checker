@@ -84,8 +84,6 @@ def language_tool_analisys(blocks):
                 message = polish_messages[m.category]
             else:
                 message = m.message
-                print(match.matched_text)
-                print(match.rule_id)
             errors.append(Error_type(
                 content=contents[m.offset:m.offset + m.error_length],
                 category=m.category,
