@@ -18,6 +18,13 @@
             "typ": "PDF",
             "data_dodania": "2026-04-22",
             "komentarze": []
+        },
+        {
+            "nazwa_pliku": "zusz.pdf",
+            "sciezka_lokalna": "C:/Users/48570/Desktop/ZSD/pdf_diploma_checker/data/zusz.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-04-22",
+            "komentarze": []
         }
     ],
     "konfiguracje_regul": []

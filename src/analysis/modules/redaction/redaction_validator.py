@@ -226,6 +226,8 @@ class RedactionValidator:
     def check_korytarze(self):
         korytarze = []
         for page in self.document_data.pages:
+            if page < 3:
+                continue
             for block in page.text_blocks:
                 if block.lines is None or len(block.lines) <= 1:
                     continue
