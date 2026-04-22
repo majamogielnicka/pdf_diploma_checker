@@ -4,13 +4,12 @@
 
 ## 1) Layout / Parser PDF
 
-- **PyMuPDF (fitz)** – ekstrakcja tekstu, pobieranie bounding boxów, odczyt rozmiaru i nazwy czcionki, wykrywanie obrazów, odczyt wymiarów strony, numeracja stron, pozycje bloków tekstu; szybkie przetwarzanie PDF.
-- **pdfplumber** – alternatywa dla PyMuPDF; przydatne do ekstrakcji tabel oraz analizy bardziej złożonych layoutów.
-- **NumPy** – obliczenia pomocnicze.
-- **regex / re** – reguły tekstowe: numeracja stron, podpisy rysunków/tabel, elementy struktury bibliografii, wzorce odwołań.
-- **matplotlib** – debug wizualny (np. rysowanie bboxów, wizualizacja marginesów).
-- **pydantic** – walidacja struktur danych między modułami.
-
+- **PyMuPDF (fitz)** – główny silnik ekstrakcji.
+- **statistics** – analiza heurystycznea: ocena justowania tekstu (odchylenie standardowe), precyzyjne wykrywanie spacji/wcięć (mediana przerw) oraz obliczanie dominującej interlinii w dokumencie.
+- **dataclasses** – wykorzystywane do tworzenia struktur dokumentu (np. bloki tekstu, listy, nagłówki, elementy wizualne) oraz ich łatwego parsowania do formatu JSON.
+- **pathlib** / **os** – obsługa ścieżek.
+- **regex / re** – reguły tekstowe i klasyfikacja: wykrywanie numeracji stron, identyfikacja wzorców list (kropki, nawiasy, myślniki), akronimów oraz podpisów tabel i rysunków.
+- **typing** - adnotacje typów (`Dict`, `Any`, `List`)
 ---
 
 ## 2) GUI i Plagiat
@@ -18,7 +17,7 @@
 - **PySide6** – implementacja GUI.
 - **BeautifulSoup4** – czyszczenie HTML i ekstrakcja tekstu ze stron.
 - **PyMuPDF (fitz)** – parser PDF (wyciąganie tekstu/fragmentów na potrzeby plagiatu).
-- **webbrowser** – służy do otwierania stron internetowych w przeglądarce.
+- **webbrowser** – otwieranie stron internetowych w przeglądarce.
 - **urllib.parse** - analiza oraz budowa adresów URL.
 
 Opcjonalnie: 
@@ -31,38 +30,41 @@ Opcjonalnie:
 ## 3) Lingwistyka (język, redakcja, bibliografia)
 
 - **Java 17+** – wymagana do działania `language_tool_python`.
-- **language_tool_python** – sprawdzanie gramatyki i interpunkcji.
-- **lingua-language-detector** – wykrywanie języka (PL/EN) oraz wykrywanie słów angielskich w polskim tekście.
-- **regex / re** – reguły redakcyjne (np. podwójne spacje, symbole dziesiętne, wzorce bibliografii wg PN-ISO 690:2012).
-- **FlashText** – szybkie wyszukiwanie fraz (np. definicja skrótu przy pierwszym użyciu).
-- **thefuzz** – dopasowania tekstowe (np. dopasowanie cytowań do bibliografii, wstępna ocena spójności).
-- **spaCy** – analiza składniowa zdań (heurystyki: podmiot/orzeczenie, strona bierna).
-- **pandas** – analiza struktury składniowej zdań. 
+- **spaCy** – analiza składniowa zdań, wykorzystywane modele: `en_core_web_lg` (angielski) i `pl_core_news_lg` (polski)
+- **language_tool_python** – sprawdzanie gramatyki, pisowni i interpunkcji w języku polskim i angielskim
+- **lingua** – wykrywanie języka bloku tekstu (PL/EN) oraz identyfikacja słów angielskich w polskim tekście
+- **morfeusz2** – morfologiczna analiza języka polskiego, weryfikacja form osobowych czasowników
+- **re** – wyrażenia regularne do wykrywania błędów redakcyjnych
+- **dataclasses** – definicje typów danych
+- **typing** – adnotacje typów (`Union`)
+- **collections** – `defaultdict` do grupowania błędów według bloków i lemmatów
+- **string** – operacje na znakach
+- **functools** – `cache` do cachowania wyników lemmatyzacji
 
 ---
 
 ## 4) LLM + Vision (merytoryka + analiza obrazów/wykresów)
 
-- **Ollama** – uruchamianie lokalnego modelu LLM.
-- **Modele LLM:**
-  - **bielik** – język polski
-  - **qwen2.5** – język angielski
-- **sentence-transformers** – embeddingi do oceny podobieństwa semantycznego (np. zgodność SOTA z celem pracy, zgodność sekcji z tematyką).
-- **torch** – backend dla modeli (wymagany przez modele embeddingowe; CPU lub GPU).
-- **pydantic** – walidacja struktur wyników merytorycznych.
-- **NumPy** – obliczenia pomocnicze (progi podobieństwa, metryki).
-- **OpenCV** – analiza obrazów (kontrast, ostrość, heurystyki dla wykresów).
-- **Pillow** – podstawowa obróbka obrazów (konwersje, przycięcia, formaty).
-- **matplotlib** – debug wizualny (podgląd wykrytych obszarów, bboxów, osi wykresów).
-- **scikit-image** – dodatkowe metryki jakości obrazu/cech.
-- **LLaVA** - do analizy danych na obrazach/wykresach.
-- **EasyOCR** - do odczytywania danych i tekstów z wykresów.
+- **PyMuPDF** (`fitz`) – ekstrakcja tekstu i metadanych z plików PDF (rozmiary fontów, bloki tekstu, wykrywanie nagłówków)
+- **llama_cpp** – uruchamianie lokalnych modeli LLM w formacie GGUF (analiza SOTA, ekstrakcja celu pracy, generowanie streszczeń)
+- **huggingface_hub** – pobieranie modeli językowych z Hugging Face Hub
+- **sentence_transformers** – generowanie embeddingów tekstowych do obliczania podobieństwa cosinusowego
+- **scikit-learn** (`sklearn`) – obliczanie podobieństwa cosinusowego między embeddingami
+- **requests** – obsługa błędów połączenia z modelami
+- **re** – wyrażenia regularne do wykrywania cytowań, nagłówków, wzorców bibliograficznych
+- **dataclasses** – definicje typów danych (`ChapterBlock`, `SubtitleBlock`)
+- **collections** – zliczanie rozmiarów fontów (`Counter`)
+- **datetime** – znaczniki czasu w plikach wynikowych
+- **importlib** – dynamiczny import modułów w runtime
+- **traceback** – szczegółowe komunikaty błędów
+- **time** – mierzenie czasu przetwarzania plików
+- **typing** – adnotacje typów (`Dict`, `Any`, `List`)
 
 ---
 
 ## 5) Spis ogólny
 
 - **Język:** Python 3.11+.
-- **PyYAML** - obsługa formatu YAML, konfiguracja reguł 
 - **JSON** – konfiguracja reguł (wytyczne uczelni), raporty wyników (lista błędów, metadane).
-- **pytest** - testy jednostkowe.
+- **os** / **sys** – zarządzanie strukturą katalogów, operacje na plikach (czyszczenie i zapis obrazów) oraz ręczne zarządzanie ścieżkami importów (`sys.path`) pomiędzy modułami aplikacji.
+- **logging** –  zarządzanie logami i przechwytywanie błędów z modułów (zamiast standardowego wyjścia konsoli). 
