@@ -1,7 +1,7 @@
 import spacy
 import functools
 
-nlp_en = spacy.load('en_core_web_sm')
+nlp_en = spacy.load('en_core_web_lg')
 nlp_pl = spacy.load('pl_core_news_lg')
 
 @functools.cache
@@ -29,3 +29,4 @@ def lemmatization(word_base, text_language):
     if lemma == word:
         is_found = False
     return lemma, is_found
+

@@ -1,6 +1,30 @@
 import os
 import dataclasses
 import json
+import morfeusz2
+from lingua import Language, LanguageDetectorBuilder
+from src.analysis.extraction.schema import *
+from .linguistics_types import Block_context, Error_type
+
+morf = morfeusz2.Morfeusz()
+languages = [Language.ENGLISH, Language.POLISH]
+language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
+
+def language(text):
+    '''
+    Detects language of a block for further text analysis.
+    Args:
+        text (str): string of text to be analysed.
+        
+    Returns:
+        str: 'pl' for Polish and 'en' for English
+
+    '''
+    detected = language_detector.detect_language_of(text)
+    if detected == Language.POLISH:
+        return 'pl'
+    else:
+        return 'en'
 
 def get_match_info(block, offset, length):
     '''
@@ -20,16 +44,22 @@ def get_match_info(block, offset, length):
     word_idxs = []
     start_page = None
     end_page = None
-
+    last_word = None
     for word in block.words:
         if word.start_char < end_offset and word.end_char > offset:
             word_idxs.append(word.word_index)
+            last_word = word
             if start_page is None:
                 start_page = word.page_number
             end_page = word.page_number
-    return start_page, end_page, word_idxs
+        if last_word is not None:
+            error_coordinate = (last_word.bbox[2], last_word.bbox[3])
+        else:
+            error_coordinate = (0, 0)
+        #print(f"{word.text} {word.page_number} {word.start_char} {end_offset} {word.end_char} {end_offset}")
+    return start_page, end_page, word_idxs, error_coordinate
 
-def extract_errors_to_json(matches):
+def extract_errors_to_json(matches, name):
 
     """
     Extracts errors from the list of matches and writes them to a JSON file.
@@ -40,11 +70,67 @@ def extract_errors_to_json(matches):
     Returns:
         None    
     """
-    all_matches = []
-    for match in matches:
-        all_matches.append(dataclasses.asdict(match))
-
-    output_path = os.path.join(os.path.dirname(__file__), "errors.json")
+    if type(matches) is list:
+        all_matches = []
+        for match in matches:
+            all_matches.append(dataclasses.asdict(match))
+    else:
+        all_matches = dataclasses.asdict(matches)
+    output_path = os.path.join(os.path.dirname(__file__), name)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(all_matches, f, ensure_ascii=False, indent=4)
+
+
+def get_context(blocks):
+    """
+    Extracts block.content for analysis and its language.
+    
+    Args:
+        block (logical_block): contains string and metadata of each word.
+
+    Returns:
+        blocks (list(Block_context)): List contaning Block_context objects.
+    """
+    blocks_info = []
+    for block in blocks.logical_blocks:
+        if block.words[-1].page_number != 1:
+            if isinstance(block, ParagraphBlock):
+                contents = block.content
+            elif isinstance(block, ListBlock):
+                contents = " ".join(item.text for item in block.items if item.text)
+            else:
+                continue
+            block_info = Block_context(
+                block = block,
+                contents = contents,
+                language = language(contents),
+            )
+            blocks_info.append(block_info)
+        
+    return blocks_info
+
+def add_match(content, block_id, page_start, page_end, word_idxs, error_coordinate, category, message):
+
+    """
+    Creates an error object for a specific list item.
+
+    Args:
+        items_by_id (dict): Dictionary of items by ID.
+        num (int): Item ID.
+
+    Returns:
+        Error_type: Error type object.
+    """
+    return Error_type(
+                content = content,
+                category = category,
+                message = message,
+                offset = 0,
+                error_length = len(content),
+                block_id = block_id,
+                page_start = page_start ,
+                page_end = page_end,
+                word_idxs = word_idxs,
+                error_coordinate= error_coordinate
+            )
