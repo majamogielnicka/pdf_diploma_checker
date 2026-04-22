@@ -1,4 +1,5 @@
 from .helpers import add_match
+import re
 
 def potential_acronym(text):
 
@@ -8,8 +9,9 @@ def potential_acronym(text):
     "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS",
     "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA",
     }
-
     clean_text = text.strip("():;,.!?[]\n\t \"„”«»“‟‘’")
+    if re.match(r'^([A-Z]\.){1,}[A-Z]?$', clean_text):
+        return False
     if len(clean_text) < 2 or len(clean_text) > 10:
         return False
     if clean_text.islower():
