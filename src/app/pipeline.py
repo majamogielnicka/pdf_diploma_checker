@@ -38,7 +38,10 @@ class AnalysisPipeline:
         report_progress(10, "Rozpoczynam ekstrakcję tekstu z PDF...")
         
         from analysis.extraction.extraction_json import extractPDF
+        from analysis.extraction.converter_linguistics import PDFMapper
+
         doc_obj = extractPDF(pdf_path) 
+
         doc_dict = doc_obj._to_dict()
 
         extraction_result = ModuleResult(
@@ -106,7 +109,7 @@ class AnalysisPipeline:
             
             validator = RedactionValidator(
                 document_data=doc_obj, 
-                document_data_linguistics=DummyLinguistics(), 
+                document_data_linguistics=PDFMapper.map_to_schema(doc_obj), 
                 config_path=config_path
             )
             

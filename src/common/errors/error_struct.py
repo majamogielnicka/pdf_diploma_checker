@@ -14,7 +14,7 @@ class Error:
     id: str
     module: str
     category: str
-    page_nr: int
+    page_number: int
     bounding_box: list
     text: str
     comments: str
