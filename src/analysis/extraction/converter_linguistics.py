@@ -322,7 +322,7 @@ class PDFMapper:
                 page.height
             )
             x0_margin = margins["left"]            
-            margin_indent_thresh = 20
+            margin_indent_thresh = 10
             
 
 
