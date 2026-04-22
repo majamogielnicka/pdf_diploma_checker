@@ -40,7 +40,6 @@ def language_tool_analisys(blocks):
     tool_en.disabled_categories.add('TON_ACADEMIC')
     tool_en.disabled_categories.add('CONFUSED_WORDS')
     tool_en._disabled_categories.add('CREATIVE_WRITING')
-    tool_en.disabled_categories.add('REDUNDANCY')
     tool_en.disabled_categories.add('REPETITIONS_STYLE')
     tool_en.disabled_categories.add('SEMATICS')
     tool_en.disabled_categories.add('STYLE')
@@ -51,6 +50,8 @@ def language_tool_analisys(blocks):
     tool_pl.disabled_rules.add('ADJ_SUBST_ADJ_UNIFY')
     tool_pl.disabled_rules.add('FORMAT_DZIESIETNY')
     tool_pl.disabled_rules.add('SPACJA_ZA_PRZECINKIEM_DZIESITNYM')
+    tool_pl.disabled_rules.add('ZDANIE_PODRZEDNE_Z_KTORY_LUB_JAKI')
+    tool_pl.disabled_categories.add('MISC')
 
         
     detector = language_detector
@@ -64,8 +65,11 @@ def language_tool_analisys(blocks):
 
             new_matches = []
             for match in matches:
-                if match.category == 'TYPOGRAPHY' and block.block.type != "paragraph":
-                    continue
+                if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
+                    if block.block.type != "paragraph":
+                        continue
+                    elif not any(match.matched_text.isalpha() for _ in match.matched_text):
+                        continue
                 if match.category == "TYPOS" and text_language == "pl":
                     word = contents[match.offset:match.offset + match.error_length]
                     if detector.detect_language_of(word) == Language.ENGLISH:
