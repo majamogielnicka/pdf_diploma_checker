@@ -141,12 +141,15 @@ class PDFMapper:
 
             # Detekcja wdów (maksymalnie 2 samotne słowa na końcu akapitu)
             last_word = data['words'][-1]
-            if len(data['words']) >= 2:
-                second_to_last_word = data['words'][-2]
-                if last_word.word_index == 0:  
+            if combined_words and len(combined_words) >= 10:
+                last_word = combined_words[-1]
+                second_to_last_word = combined_words[-2]    
+                if last_word.line != second_to_last_word.line:
                     is_widow = 1
-                elif second_to_last_word.word_index == 0:
-                    is_widow = 2
+                elif len(combined_words) >= 3:
+                    third_to_last_word = combined_words[-3]
+                    if second_to_last_word.line != third_to_last_word.line:
+                        is_widow = 2
 
             # Detekcja bękartów
             if combined_words:

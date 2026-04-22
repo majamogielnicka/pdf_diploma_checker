@@ -1,5 +1,4 @@
-from src.analysis.extraction.extraction_json import extractPDF
-
+from analysis.extraction.extraction_json import extractPDF
 
 class ExtractionService:
     def process(self, input_document):
