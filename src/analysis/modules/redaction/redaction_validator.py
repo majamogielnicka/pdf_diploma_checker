@@ -119,6 +119,7 @@ class RedactionValidator:
             self.check_widows()
             self.check_bekarts()
             self.check_szewce()
+            self.check_korytarze()
 
         '''
         if not is_toc:
@@ -222,6 +223,42 @@ class RedactionValidator:
                         ))
         return orphans
     
+    def check_korytarze(self):
+        korytarze = []
+        for page in self.document_data.pages:
+            for block in page.text_blocks:
+                if block.lines is None or len(block.lines) == 1:
+                    continue
+                if len(block.lines[0].spans) < 2 or block.lines[0].spans is None:
+                    continue
+
+                paths_to_check = []
+                for span in block.lines[0].spans[-2:]:
+                    next_span = block.lines[0].spans[block.lines[0].spans.index(span) + 1]
+                    paths_to_check.append((span.bbox[2], next_span.bbox[0]))
+                
+                for line in block.lines[1:]:
+                    for span in line.spans:
+                        for (x1, x2) in paths_to_check:
+                            if (span.bbox[0] > x1 and span.bbox[0] < x2) or (span.bbox[2] > x1 and span.bbox[2] < x2):
+                                korytarze.append(span)
+                                self.errors.append(Error(
+                                    id = self._get_next_id(),
+                                    module = self.module,
+                                    category = "korytarz",
+                                    page_nr = page.number,
+                                    bounding_box = (x1, span.bbox[1] - 15, x2, span.bbox[3]),
+                                    text = None,
+                                    comments = "Wykryto korytarz."
+                                ))
+                    paths_to_check = []
+                    if line.spans is None or len(line.spans) < 2:
+                        continue
+                    for span in line.spans[-2:]:
+                        next_span = line.spans[line.spans.index(span) + 1]
+                        paths_to_check.append((span.bbox[2], next_span.bbox[0]))
+        return korytarze
+
     def check_blank_page(self):
         blank_pages = []
         for page in self.document_data.pages:
