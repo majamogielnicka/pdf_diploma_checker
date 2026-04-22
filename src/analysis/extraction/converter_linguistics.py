@@ -141,7 +141,7 @@ class PDFMapper:
 
             # Detekcja wdów (maksymalnie 2 samotne słowa na końcu akapitu)
             last_word = data['words'][-1]
-            if len(data['words']) >= 2:
+            if len(data['words']) >= 10:
                 second_to_last_word = data['words'][-2]
                 if last_word.word_index == 0:  
                     is_widow = 1
