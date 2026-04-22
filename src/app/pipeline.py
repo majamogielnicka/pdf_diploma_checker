@@ -23,7 +23,7 @@ class AnalysisPipeline:
         self.linguistics_service = LinguisticsService()
         self.llm_service = None
 
-    def run(self, input_document, progress_callback=None, use_llm=True):
+    def run(self, input_document, progress_callback=None, use_llm=True, config_path=None):
         def report_progress(value, text):
             if progress_callback:
                 progress_callback(value, text)
@@ -100,11 +100,22 @@ class AnalysisPipeline:
         report_progress(85, "Trwa sprawdzanie błędów redakcyjnych...")
         try:
             from analysis.modules.redaction.redaction_validator import RedactionValidator
+            
             class DummyLinguistics:
                 def __init__(self): self.logical_blocks = []
-            validator = RedactionValidator(document_data=doc_obj, document_data_linguistics=DummyLinguistics())
+            
+            validator = RedactionValidator(
+                document_data=doc_obj, 
+                document_data_linguistics=DummyLinguistics(), 
+                config_path=config_path
+            )
+            
+            font_usage = doc_obj.get_font_size_usage()
+            doc_obj.get_most_common_font_size = lambda: max(font_usage, key=font_usage.get, default=12) if font_usage else 12
+            
             redaction_errors = validator.validate()
             print(f"[PIPELINE] Znaleziono {len(redaction_errors)} błędów redakcyjnych.")
+            
         except Exception as e:
             print(f"[PIPELINE] Błąd analizy redakcyjnej: {e}")
             import traceback

@@ -10,7 +10,7 @@ class Module:
     LLM = "llm"
 
 @dataclass
-class RedactionError:
+class Error:
     id: str
     module: str
     category: str
@@ -22,3 +22,9 @@ class RedactionError:
     def get_xy(self):
         x1, y1, _, _ = self.bounding_box
         return (x1, y1)
+    
+'''
+Wszystkie błędy z wczytywaniem plików, walidacją plików, itd.
+'''
+class FileError(Error):
+    pass

@@ -12,4 +12,4 @@ def run_analysis_for_pdf(pdf_path, language="pl", config_path=None, progress_cal
     )
 
     pipeline = AnalysisPipeline()
-    return pipeline.run(input_document, progress_callback=progress_callback, use_llm=use_llm)
+    return pipeline.run(input_document, progress_callback=progress_callback, use_llm=use_llm, config_path=config_path)
