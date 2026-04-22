@@ -19,6 +19,7 @@ class WordInfo: # Położenie XY oraz relatywne słowa
     italic: bool
     bbox: List[float]
     page_number: int
+    line: int = 0
     
 @dataclass
 class HeadingInfo: # Informacje o nagłówkach (TODO)
@@ -32,6 +33,10 @@ class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być parag
     content: str = ""
     headings: List[HeadingInfo] = field(default_factory=list)
     type: str = "paragraph"
+    is_widow: int = 0
+    is_bekart: int = 0
+    is_szewc: int = 0
+    debug_empty: str = ""
     words: List[WordInfo] = field(default_factory=list)
 
 @dataclass
@@ -144,27 +149,143 @@ class FinalDocument: # Ostateczna struktura dokumentu
 
 # Słownik wzorców dla list
 LIST_PATTERNS = {
-    "number_with_dot": r"^\d+(\.\d+)*\.\s",
-    "number_with_bracket": r"^\d+\)\s?",
-    "letter_with_dot": r"^[a-z]\.\s",
+    "number_with_dot": r"^\d{1,3}+(\.\d+)*\.\s",
+    "number_with_bracket": r"^\d{1,3}+\)\s?",
+    #"letter_with_dot": r"^[a-z]\.\s",
     "letter_with_bracket": r"^[a-z]\)\s?",
-    "bullet": r"^[••●○■]",
-    "dash": r"^[-\u2013\u2014]"
+    "bullet": r"^[•••●○■]",
+    "dash": r"^[-−\u2013\u2014]"
 }
 HEADER_PATTERN = r"^\d+(\.\d+)*\s+"  # Wykrywa 1.1, 1.2.1 itd.
 CAPTION_PATTERN = r"^(Tabela|Tab|Rysunek|Rys|Wykres|Fig|Figure)\s+\d+"
 TOC_DOTS_PATTERN = r"\.{4,}" # Wykrywa ciągi kropek w spisie treści
 
+class DocumentPatterns:
+    LIST_PATTERNS = {
+        "number_with_dot": re.compile(r"^\d{1,3}+(\.\d+)*\.\s"),
+        "number_with_bracket": re.compile(r"^\d{1,3}+\)\s?"),
+        #"letter_with_dot": re.compile(r"^[a-z]\.\s"),
+        "letter_with_bracket": re.compile(r"^[a-z]\)\s?"),
+        "bullet": re.compile(r"^[••●○■]"),
+        "dash": re.compile(r"^[-−\u2013\u2014]")
+    }
+    ACRONYM_PATTERN = re.compile(r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)')
+    ACRONYM_SEP = re.compile(r'^\S{1,15}\s*[-–—−‐:=]\s+')
+
 # Klasyfikacja typu bloku (paragraf lub lista) na podstawie tego czy zaczyna się od typowych elementów dla listy
 def classify_block_content(text: str):
     text = text.strip()
-    for marker_type, pattern in LIST_PATTERNS.items():
-        if re.match(pattern, text, re.IGNORECASE):
+    for marker_type, pattern in DocumentPatterns.LIST_PATTERNS.items():
+        if pattern.match(text): 
             return "list", marker_type
     return "paragraph", None
 
 # Usunięcie markera z początku pozycji na liście
 def strip_list_marker(text: str, marker_type: str) -> str:
-    if marker_type in LIST_PATTERNS:
-        return re.sub(LIST_PATTERNS[marker_type], "", text, count=1).strip()
+    if marker_type in DocumentPatterns.LIST_PATTERNS:
+        return re.sub(DocumentPatterns.LIST_PATTERNS[marker_type], "", text, count=1).strip()
     return text.strip()
+
+def is_acronym(text: str) -> bool:
+    return bool(re.match(DocumentPatterns.ACRONYM_PATTERN, text.strip()))
+
+# Wykrywanie opisów tabel (analogiczne do metody w extraction_json)
+def find_table_description(table_bbox: list, logical_blocks: list, priority_side=None):
+    x0, y0, x1, y1 = table_bbox
+    kw_matches = {"above": [], "below": []}
+    other_matches = {"above": [], "below": []}
+
+    for block in logical_blocks:            
+        if getattr(block, 'type', None) == "list":
+             continue
+        
+        if hasattr(block, 'bbox') and block.bbox:
+            block_bbox = block.bbox
+        elif hasattr(block, 'words') and block.words:
+            block_bbox = [
+                min(w.bbox[0] for w in block.words),
+                min(w.bbox[1] for w in block.words),
+                max(w.bbox[2] for w in block.words),
+                max(w.bbox[3] for w in block.words)
+            ]
+        else:
+            continue
+
+        bx0, by0, bx1, by1 = block_bbox
+        
+        is_close_above = (y0 - 100 < by1) and (by0 < y0 + 60)
+        is_close_below = (y1 - 60 < by0) and (by1 < y1 + 100) 
+        
+        
+        if is_close_above or is_close_below:
+            full_text = block.content.strip()
+            if not full_text: continue
+            
+            side = "above" if is_close_above else "below"
+            
+            if full_text.lower().startswith(("tabele", "tabela", "tab.", "table", "tab")):
+                kw_matches[side].append(full_text)
+            else:
+                other_matches[side].append(full_text)
+
+    primary = priority_side if priority_side else "above"
+    secondary = "below" if primary == "above" else "above"
+
+    if kw_matches[primary]: return kw_matches[primary][0], primary
+    if kw_matches[secondary]: return kw_matches[secondary][0], secondary
+    if other_matches[primary]: return other_matches[primary][0], primary
+    if other_matches[secondary]: return other_matches[secondary][0], secondary
+
+    return "", priority_side
+
+# Wykrywanie opisów zdjęć (analogiczne do metody w extraction_json)
+def find_image_description(image_bbox: list, logical_blocks: list, priority_side=None):
+    x0, y0, x1, y1 = image_bbox
+    kw_matches = {"above": [], "below": []}
+    other_matches = {"above": [], "below": []}
+
+    img_keywords = ("rysunek", "rys.", "fot.", "ilustracja", "wykres", "rycina", 
+                    "schemat", "diagram", "grafika", "figure", "fig.", "photo", 
+                    "img", "image", "schema", "chart", "plot")
+
+    for block in logical_blocks:
+        if getattr(block, 'type', None) == "list":
+             continue
+        
+        if hasattr(block, 'bbox') and block.bbox:
+            block_bbox = block.bbox
+        elif hasattr(block, 'words') and block.words:
+            block_bbox = [
+                min(w.bbox[0] for w in block.words),
+                min(w.bbox[1] for w in block.words),
+                max(w.bbox[2] for w in block.words),
+                max(w.bbox[3] for w in block.words)
+            ]
+        else:
+            continue
+
+        bx0, by0, bx1, by1 = block_bbox
+        
+        is_close_above = abs(by1 - y0) < 40
+        is_close_below = abs(by0 - y1) < 40
+        
+        if is_close_above or is_close_below:
+            full_text = block.content.strip()
+            if not full_text: continue
+            
+            side = "above" if is_close_above else "below"
+            
+            if full_text.lower().startswith(img_keywords):
+                kw_matches[side].append(full_text)
+            else:
+                other_matches[side].append(full_text)
+
+    primary = priority_side if priority_side else "below" 
+    secondary = "below" if primary == "above" else "above"
+
+    if kw_matches[primary]: return kw_matches[primary][0], primary
+    if kw_matches[secondary]: return kw_matches[secondary][0], secondary
+    if other_matches[primary]: return other_matches[primary][0], primary
+    if other_matches[secondary]: return other_matches[secondary][0], secondary
+
+    return "", priority_side

@@ -1,0 +1,15 @@
+from dataclasses import dataclass, asdict
+
+@dataclass
+class ValidationError:
+    id: str
+    modul: str
+    kategoria: str
+    strona: int
+    wspolrzedne: dict  
+    znaleziony_tekst: str
+    sugestia: str
+    komentarz: str
+
+    def to_dict(self):
+        return asdict(self)

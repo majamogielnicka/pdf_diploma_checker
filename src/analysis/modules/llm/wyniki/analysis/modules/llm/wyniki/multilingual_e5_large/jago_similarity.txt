@@ -1,0 +1,468 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\jago.pdf
+Wygenerowano: 2026-04-11T14:24:30.863586
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.826514
+
+CEL PRACY
+Stworzenie systemu detekcji oraz śledzenia emocji na podstawie obrazu wideo
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Cel pracy
+SUMMARY:
+Praca inżynierska ma na celu stworzenie systemu, który analizuje obraz wideo, wykrywa i śledzi twarze, a następnie identyfikuje emocje.
+COSINE_SIMILARITY: 0.924703
+
+--------------------------------------------------------------------------------
+
+1.2 Układ pracy
+SUMMARY:
+Emocje są krótkotrwałymi stanami psychicznymi, intensywnymi i związanymi z konkretnymi bodźcami, podczas gdy nastrój charakteryzuje długotrwałość, niską intensywność oraz trudność w zidentyfikowaniu jego przyczyny.
+COSINE_SIMILARITY: 0.825480
+
+--------------------------------------------------------------------------------
+
+2.1 Modele emocji
+SUMMARY:
+Model emocji Paula Ekmana obejmuje siedem podstawowych emocji, takich jak strach, radość i złość, a model Roberta Plutchika opisuje intensywności i polaryzację ośmiu podstawowych emocji, z których powstają bardziej złożone poprzez kombinacje i stopnie pośrednie.
+COSINE_SIMILARITY: 0.810846
+
+--------------------------------------------------------------------------------
+
+2.2 Podsumowanie emocji
+SUMMARY:
+W projekcie wykorzystano model emocji Paula Ekmana i system FACS do selekcji danych, a także omówiono teoretyczne aspekty i porównano architektury sieci neuronowych.
+COSINE_SIMILARITY: 0.858932
+
+--------------------------------------------------------------------------------
+
+3.1 Aspekty współczesnych sieci neuronowych (Jakub Góralski)
+SUMMARY:
+Sieci neuronowe, takie jak perceptrony wielowarstwowe (MLP), wykorzystują wiele warstw połączonych neuronów do rozwiązywania skomplikowanych problemów, a konwolucyjne sieci neuronowe (CNN) są efektywne w analizie danych wizualnych dzięki operacjom konwolucji.
+COSINE_SIMILARITY: 0.798042
+
+--------------------------------------------------------------------------------
+
+3.1.1 Perceptron wielowarstwowy
+SUMMARY:
+Sieci MLP wykorzystują wiele warstw neuronów do rozwiązywania skomplikowanych, nieliniowych problemów poprzez propagację wsteczną błędu i aktualizację wag.
+COSINE_SIMILARITY: 0.803973
+
+--------------------------------------------------------------------------------
+
+3.1.2 Konwolucyjna sieć neuronowa
+SUMMARY:
+Konwolucyjne sieci neuronowe wykorzystują filtry do analizy obrazów, wyodrębniając hierarchicznie cechy, takie jak krawędzie i tekstury, a następnie wykorzystują warstwy pooling do redukcji rozmiaru danych i przyspieszenia uczenia.
+COSINE_SIMILARITY: 0.809362
+
+--------------------------------------------------------------------------------
+
+3.1.3 Sieć w pełni konwolucyjna
+SUMMARY:
+Sieć w pełni konwolucyjna (FCN) wykorzystuje konwolucje o rozmiarze 1x1 i dekonwolucje, aby przetwarzać obrazy o różnych rozmiarach i generować predykcje dla każdego piksela, minimalizując utratę informacji o lokalizacji.
+COSINE_SIMILARITY: 0.797213
+
+--------------------------------------------------------------------------------
+
+3.1.4 Sieć piramidy cech
+SUMMARY:
+Sieć piramidy cech (FPN) przygotowuje mapy cech o różnych skalach poprzez połączenie ścieżek bottom-up i top-down, z zastosowaniem filtrów konwolucyjnych i upsamplingu, aby umożliwić detekcję obiektów w różnych rozmiarach.
+COSINE_SIMILARITY: 0.803365
+
+--------------------------------------------------------------------------------
+
+3.1.5 Mechanizm uwagi
+SUMMARY:
+Mechanizm uwagi w sieciach neuronowych wykorzystuje zapytania i klucze do ważonej sumy wartości wektorów, co pozwala na uwydatnienie istotnych informacji w kontekście reszty danych.
+COSINE_SIMILARITY: 0.841412
+
+--------------------------------------------------------------------------------
+
+3.1.6 Bloki residualne
+SUMMARY:
+Bloki residualne zapobiegają problemom z gradientem w głębokich sieciach neuronowych poprzez wprowadzenie połączeń skrótowych, które pozwalają modelowi "przeskakiwać" warstwy i uczyć się jedynie różnicy między wejściem a wyjściem.
+COSINE_SIMILARITY: 0.785578
+
+--------------------------------------------------------------------------------
+
+3.1.7 Przestrzenie projektowe (Tymoteusz Prud)
+SUMMARY:
+Badacze zaproponowali metodę tworzenia optymalnych topologii sieci konwolucyjnych, analizując wpływ głębokości, szerokości, współczynnika ograniczenia i szerokości grupy na wydajność sieci.
+COSINE_SIMILARITY: 0.815819
+
+--------------------------------------------------------------------------------
+
+3.2 Najpopularniejsze architektury sieci przetwarzających obraz (Tymoteusz Prud)
+SUMMARY:
+Sztuczne sieci neuronowe, takie jak VGG16, wykorzystują konwolucyjne warstwy do identyfikacji elementów obrazów i klasyfikacji przedmiotów, osiągając wysokie wyniki w zadaniach klasyfikacji obrazów.
+COSINE_SIMILARITY: 0.829533
+
+--------------------------------------------------------------------------------
+
+3.2.1 VGG16
+SUMMARY:
+Architektura VGG16, składająca się z 16 warstw konwolucyjnych i dwóch warstw w pełni połączonych, wykorzystuje małe filtry do wyodrębniania cech obrazu i klasyfikacji, osiągając wysokie wyniki w klasyfikacji obrazów, choć obecnie jest mniej konkurencyjna ze względu na brak nowoczesnych technik.
+COSINE_SIMILARITY: 0.804031
+
+--------------------------------------------------------------------------------
+
+3.2.2 ResNet
+SUMMARY:
+Model ResNet rozwiązuje problem degradacji w głębokich sieciach poprzez wprowadzenie bloków residualnych z połączeniami skrótu, które umożliwiają uczenie mapowań tożsamościowych i redukują spadek dokładności.
+COSINE_SIMILARITY: 0.791154
+
+--------------------------------------------------------------------------------
+
+3.2.3 ViT
+SUMMARY:
+Vision Transformer (ViT) przetwarza obrazy jako sekwencje fragmentów, wykorzystując mechanizmy uwagi wielogłowicowej i wektorów pozycji do tworzenia reprezentacji obrazu, która jest następnie wykorzystywana w pre-treningu i fine-tuningu.
+COSINE_SIMILARITY: 0.820400
+
+--------------------------------------------------------------------------------
+
+3.2.4 Self Regulated Network - RegNet
+SUMMARY:
+RegNet ulepsza architekturę ResNet, wykorzystując ConvRNN z blokami resztkowymi opartymi na ConvLSTM, aby zwiększyć globalny kontekst obrazu i poprawić dokładność klasyfikacji zdjęć.
+COSINE_SIMILARITY: 0.799039
+
+--------------------------------------------------------------------------------
+
+3.2.5 YOLO (You Only Look Once)
+SUMMARY:
+YOLO to architektura sieci neuronowej, która efektywnie detekuje obiekty, w tym twarze, poprzez podział obrazu na siatkę i przewidywanie prostokątnych ram z lokalizacją i pewnością, oferując szybkie przetwarzanie obrazu.
+COSINE_SIMILARITY: 0.822949
+
+--------------------------------------------------------------------------------
+
+3.3 Sposoby uczenia sieci (Jakub Góralski)
+SUMMARY:
+Przygotowanie danych, optymalizacja treningu, normalizacja, zanurzenia, augmentacja danych oraz dostrajanie wstępnie nauczonych modeli są kluczowymi aspektami kształtowania efektywnych modeli sieci neuronowych.
+COSINE_SIMILARITY: 0.809562
+
+--------------------------------------------------------------------------------
+
+3.3.1 Aspekty związane z zanurzeniem i normalizacją
+SUMMARY:
+Normalizacja i zanurzenie to techniki preprocesingu danych, a augmentacja danych zwiększa ilość danych poprzez modyfikacje, co wpływa na efektywność treningu modeli uczenia maszynowego.
+COSINE_SIMILARITY: 0.796808
+
+--------------------------------------------------------------------------------
+
+3.3.2 Dostrajanie
+SUMMARY:
+Dostrajanie polega na modyfikowaniu wstępnie wytrenowanych modeli poprzez dodatkowy trening lub delikatne zmiany, co pozwala na poprawę wydajności w konkretnym zadaniu przy mniejszym zbiorze danych i krótszym czasie treningu.
+COSINE_SIMILARITY: 0.808270
+
+--------------------------------------------------------------------------------
+
+3.3.3 Adaptacja domen
+SUMMARY:
+Adaptacja domen to technika uczenia maszynowego, która poprawia działanie modelu wytrenowanego na jednym zbiorze danych w innej domenie, biorąc pod uwagę dostępność etykiet i podejście do dopasowania (w jednym kroku lub w wielu krokach).
+COSINE_SIMILARITY: 0.776486
+
+--------------------------------------------------------------------------------
+
+4.1 Facial Expression Recognition
+SUMMARY:
+Zbiór FER2013 zawiera 32 298 obrazów twarzy o wymiarach 48x48 pikseli, przypisanych do siedmiu kategorii emocji, jednak proporcje między nimi są nierówne.
+COSINE_SIMILARITY: 0.835160
+
+--------------------------------------------------------------------------------
+
+4.2 Expression in-the-Wild
+SUMMARY:
+Zbiór danych ExpW zawiera 91 793 zdjęcia twarzy, ręcznie przypisane do siedmiu emocji, pochodzących z różnych źródeł internetowych i przedstawiających twarze w codziennych sytuacjach.
+COSINE_SIMILARITY: 0.843288
+
+--------------------------------------------------------------------------------
+
+4.3 LFW
+SUMMARY:
+Zestaw danych Labeled Faces in the Wild zawiera ponad 13000 zdjęć twarzy, z których wiele przedstawia tę samą osobę, i jest zbyt mały, aby wywołać obawy dotyczące wydajności nowoczesnych metod detekcji twarzy.
+COSINE_SIMILARITY: 0.807842
+
+--------------------------------------------------------------------------------
+
+4.4 CelebA
+SUMMARY:
+Zbiór danych CelebA zawiera ponad 200 000 zdjęć twarzy ponad 1000 osób, w tym znanych celebrytów, oznaczonych imieniem, nazwiskiem i 40 atrybutami.
+COSINE_SIMILARITY: 0.806115
+
+--------------------------------------------------------------------------------
+
+4.5 CK+
+SUMMARY:
+Zestaw CK+ zawiera 593 krótkie filmy z twarzami 123 osób w wieku 18-50 lat, rejestrujące przejście od ekspresji neutralnej do siedmiu emocji, takich jak złość czy zaskoczenie, i służy do badań nad systemami widzeniowymi.
+COSINE_SIMILARITY: 0.851295
+
+--------------------------------------------------------------------------------
+
+5.1 Facial Expression Recognition Based on Deep Evolutional Spatial-Temporal Networks
+SUMMARY:
+Autorzy opracowali PHRNN, sieć rekurencyjną z dwukierunkowym przetwarzaniem, która analizuje zmiany w wyglądzie twarzy wideo, wykorzystując zarówno statyczną analizę klatek, jak i dynamiczne modelowanie morfologicznych zmian, co doprowadziło do poprawy wyników w porównaniu z istniejącymi rozwiązaniami.
+COSINE_SIMILARITY: 0.835876
+
+--------------------------------------------------------------------------------
+
+5.2 A Face Emotion Recognition Method Using Convolutional Neural Network and Image Edge
+SUMMARY:
+Artykuł [38] opisuje, jak zastosowanie dodatkowego elementu obróbki wstępnej zdjęć, w tym wykrywania krawędzi, może zredukować czas i zasoby obliczeniowe potrzebne do treningu sieci konwolucyjnej do detekcji emocji.
+COSINE_SIMILARITY: 0.857684
+
+--------------------------------------------------------------------------------
+
+5.3 Deeper cascaded peak-piloted network for weak expression recognition
+SUMMARY:
+Artykuł opisuje nową sieć DCPN, która wykorzystuje dynamiczne sekwencje ekspresji szczytowych i nie-szczytowych do poprawy detekcji słabo ekspresyjnych emocji twarzy, osiągając wyniki lepsze niż poprzednie metody na zestawach danych CK+ i Oulu-CASIA.
+COSINE_SIMILARITY: 0.833892
+
+--------------------------------------------------------------------------------
+
+6.1 Śledzenie twarzy (Jakub Góralski)
+SUMMARY:
+Techniki śledzenia twarzy wykorzystują filtry, takie jak filtr Kalmana i nieskalowany filtr Kalmana, do estymacji kolejnych pozycji twarzy na podstawie analizy poprzednich klatek wideo.
+COSINE_SIMILARITY: 0.848755
+
+--------------------------------------------------------------------------------
+
+6.1.1 Filtr Kalmana
+SUMMARY:
+Filtr Kalmana predykuje i aktualizuje położenie obiektu na podstawie pomiarów, minimalizując koszty obliczeniowe i poprawiając skuteczność śledzenia.
+COSINE_SIMILARITY: 0.809345
+
+--------------------------------------------------------------------------------
+
+6.1.2 CAMShift z filtrem Kalmana
+SUMMARY:
+Autorzy zastosowali algorytm UKF do metody CAMShift w celu poprawy skuteczności śledzenia twarzy w zmiennych warunkach oświetleniowych i na zatłoczonym tle.
+COSINE_SIMILARITY: 0.845999
+
+--------------------------------------------------------------------------------
+
+6.1.3 DeepSORT
+SUMMARY:
+System zaproponowany przez autorów wykorzystuje detekcję i śledzenie twarzy, a następnie rozpoznawanie twarzy przy użyciu modelu ArcFace, aby zoptymalizować czas pracy systemu.
+COSINE_SIMILARITY: 0.861508
+
+--------------------------------------------------------------------------------
+
+6.2 Rozpoznawanie twarzy (Tymoteusz Prud)
+SUMMARY:
+Rozpoznawanie twarzy wykorzystuje analizę unikalnych cech twarzy, takich jak proporcje i układ oczu, a nowoczesne systemy opierają się na sieciach syjamskich do rozróżniania osób, co pozwala na przekształcenie obrazów twarzy w zbiór wartości liczbowych opisujących wykryte cechy.
+COSINE_SIMILARITY: 0.833860
+
+--------------------------------------------------------------------------------
+
+6.2.1 Deepid3: Face recognition with very deep neural networks
+SUMMARY:
+Model DeepID, wykorzystujący sieci VGG i GoogLeNet w architekturze zespołu ekspertów i warstwach Inception, osiągnął wynik 99,5% na zbiorze danych LFW, choć autorzy sugerują, że może to być związane z niedostatecznie dużym zbiorem treningowym.
+COSINE_SIMILARITY: 0.806762
+
+--------------------------------------------------------------------------------
+
+6.2.2 ArcFace: Additive Angular Margin Loss for Deep Face Recognition
+SUMMARY:
+Artykuł [47] opisuje nową metodę rozpoznawania twarzy wykorzystującą funkcję straty ArcFace, która poprawia rozróżnialność twarzy, stabilizuje trening i generuje obrazy twarzy, osiągając wysoką dokładność na zbiorach danych LFW i CelebA.
+COSINE_SIMILARITY: 0.829988
+
+--------------------------------------------------------------------------------
+
+6.2.3 AdaFace: Quality Adaptive Margin for Face Recognition
+SUMMARY:
+Artykuł [61] wprowadza funkcję straty AdaFace, która poprawia dokładność rozpoznawania twarzy na obrazach niskiej jakości, szczególnie w zastosowaniach z kamer monitoringu i dronów, minimalizując wpływ artefaktów.
+COSINE_SIMILARITY: 0.822008
+
+--------------------------------------------------------------------------------
+
+6.2.4 Podsumowanie
+SUMMARY:
+Rozwiązanie zaproponowane w artykule umożliwia identyfikację i analizę emocji twarzy w obrazach wideo poprzez sekwencję kroków obejmującą detekcję twarzy, identyfikację osoby, korekcję błędów detekcji oraz klasyfikację emocji.
+COSINE_SIMILARITY: 0.899062
+
+--------------------------------------------------------------------------------
+
+7.1 Wstępne przetwarzanie wideo (Tymoteusz Prud)
+SUMMARY:
+Ze względu na złożoność przetwarzania obrazu wideo z uwzględnieniem zależności międzyklatkowych, zdecydowano się przetwarzać film na sekwencję statycznych obrazów, które następnie podlegają dodatkowemu przetwarzaniu w celu dopasowania do wymagań modeli sztucznej inteligencji.
+COSINE_SIMILARITY: 0.861966
+
+--------------------------------------------------------------------------------
+
+7.1.1 Zamiana trybu kolorów
+SUMMARY:
+Klatka musi zostać przetworzona do formatu tablicy liczb zmiennoprzecinkowych o 8-bitowych wartościach, aby spełnić wymagania modeli sztucznej inteligencji i być kompatybilna z detektorem twarzy.
+COSINE_SIMILARITY: 0.832184
+
+--------------------------------------------------------------------------------
+
+7.2 Detekcja twarzy
+SUMMARY:
+Rozwiązanie wykorzystuje kaskadę Haara do detekcji twarzy na obrazie, zoptymalizowaną pod kątem minimalnego zużycia mocy obliczeniowej, przy czym współczynnik skalowania ustawiono na 1,3.
+COSINE_SIMILARITY: 0.843040
+
+--------------------------------------------------------------------------------
+
+7.2.1 Wybory projektowe
+SUMMARY:
+Rozwiązanie wykorzystuje kaskadę Haara do detekcji twarzy na obrazie, zoptymalizowaną pod kątem minimalnego zużycia mocy obliczeniowej i stabilnego śledzenia twarzy, szczególnie w warunkach oświetlenia sztucznego.
+COSINE_SIMILARITY: 0.847429
+
+--------------------------------------------------------------------------------
+
+7.2.2 Implementacja
+SUMMARY:
+Algorytm detekcji twarzy wykorzystuje kaskadę Haara i filtr Kalmana do lokalizacji twarzy, a następnie rozszerza obszar detekcji o 20% i trenuje modele rozpoznawania twarzy na rozszerzonych danych obrazów.
+COSINE_SIMILARITY: 0.835904
+
+--------------------------------------------------------------------------------
+
+7.3 Rozpoznawanie twarzy (Tymoteusz Prud)
+SUMMARY:
+Narzędzie wykorzystujące algorytmy rozpoznawania twarzy ma identyfikować unikalne twarze, aby precyzyjnie określać ich pozycję i prędkość, minimalizując niepewność pomiarową i zużycie zasobów obliczeniowych, przy czym uwzględnia potencjalne obecność osób trzecich w kadrze.
+COSINE_SIMILARITY: 0.855389
+
+--------------------------------------------------------------------------------
+
+7.3.1 Wybór architektury modelu
+SUMMARY:
+[BRAK TREŚCI W SEKCJI]
+COSINE_SIMILARITY: 0.831550
+
+--------------------------------------------------------------------------------
+
+7.3.2 Zbiór danych
+SUMMARY:
+Badacze wykorzystali zbiór danych CelebA, podzielony na zbiór treningowy, walidacyjny i testowy, aby wytrenować model rozpoznawania twarzy o architekturze syjamskiej, normalizując zdjęcia i tworząc pary zdjęć różnych i tych samych osób.
+COSINE_SIMILARITY: 0.825750
+
+--------------------------------------------------------------------------------
+
+7.3.3 Architektura modelu
+SUMMARY:
+Model syjamski składa się z dwóch identycznych modeli konwolucyjnych, które przetwarzają oddzielne próbki danych, dzieląc tę samą architekturę i współdzieląc wagi, a następnie porównują wyniki za pomocą warstwy Lambda.
+COSINE_SIMILARITY: 0.785952
+
+--------------------------------------------------------------------------------
+
+7.3.4 Trening
+SUMMARY:
+Trening modelu wykorzystywał współczynnik uczenia, który stopniowo zmniejszano od 1,5 * 10⁻⁴ do 0,5 * 10⁻⁴, a następnie zastosowano funkcję binarnej entropii krzyżowej po niepowodzeniu zastosowania funkcji straty kontrastowej.
+COSINE_SIMILARITY: 0.806825
+
+--------------------------------------------------------------------------------
+
+7.4 Korekcja szacunkowej pozycji filtrem Kalmana (Jakub Góralski)
+SUMMARY:
+Implementacja filtru Kalmana, z wykorzystaniem sieci syjamskiej, pozwala na śledzenie współrzędnych twarzy poprzez aktualizację parametrów i korektę w przypadku odchyleń od rzeczywistych pomiarów.
+COSINE_SIMILARITY: 0.835075
+
+--------------------------------------------------------------------------------
+
+7.5 Detekcja emocji (Jakub Góralski)
+SUMMARY:
+Badanie wykorzystało zbiór danych FER2013, reprezentowany przez kodowanie one-hot, oraz podzielone na zbiory treningowy, walidacyjny i testowy, znormalizowane obrazy i optymalizator ADAM do trenowania sieci neuronowej z funkcją straty categorical_crossentropy.
+COSINE_SIMILARITY: 0.824327
+
+--------------------------------------------------------------------------------
+
+7.5.1 Zbiór danych
+SUMMARY:
+Badanie wykorzystało zbiór danych FER2013, reprezentowany za pomocą kodowania one-hot, do skutecznego rozpoznawania emocji na podstawie modelu Paula Ekmana.
+COSINE_SIMILARITY: 0.857005
+
+--------------------------------------------------------------------------------
+
+7.5.2 Model
+SUMMARY:
+Sieć neuronowa została skompilowana z wykorzystaniem funkcji straty categorical_crossentropy, optymalizatora ADAM i strategii wczesnego zatrzymywania, a także z wykorzystaniem danych podzielonych na zbiory treningowy, walidacyjny i testowy po zastosowaniu over-samplingu i augmentacji danych obrazowych.
+COSINE_SIMILARITY: 0.825598
+
+--------------------------------------------------------------------------------
+
+7.6 Zapis w bazie
+SUMMARY:
+Program zapisuje istotne informacje o zidentyfikowanych twarzach, w tym cechy twarzy, wartości filtru Kalmana i wykryte emocje, aby umożliwić kontynuację badania po ponownym pojawieniu się osoby lub uruchomieniu programu.
+COSINE_SIMILARITY: 0.863703
+
+--------------------------------------------------------------------------------
+
+8.1 Wyniki detekcji twarzy (Tymoteusz Prud)
+SUMMARY:
+Detektor twarzy oparty na kaskadach Haar’a wykorzystuje hiperparametry czułości i skalowania, aby wykrywać twarze, a jego skuteczność została oceniona na podstawie porównania z istniejącymi kaskadami na zestawie testowym z 300 zdjęciami.
+COSINE_SIMILARITY: 0.832522
+
+--------------------------------------------------------------------------------
+
+8.1.1 Zestaw testowy
+SUMMARY:
+Zestaw testowy zdjęć twarzy został wykorzystany do obiektywnej oceny jakości detekcji przez detektor Haara, porównując jego wyniki z detekcjami kaskady "domyślna twarz", przy użyciu wartości indeksu Jaccarda wynoszącej 0.3.
+COSINE_SIMILARITY: 0.827566
+
+--------------------------------------------------------------------------------
+
+8.1.2 Hiperparametry
+SUMMARY:
+Testy wykazały, że najwyższą czułość i precyzję detekcji twarzy za pomocą kaskady Haara osiąga konfiguracja z współczynnikiem skalowania równym 1.3 i minimalną liczbą sąsiadów równą 1.
+COSINE_SIMILARITY: 0.823083
+
+--------------------------------------------------------------------------------
+
+8.1.3 Parametry detektora w rozwiązaniu
+SUMMARY:
+Zostały wybrane parametry o współczynniku skalowania 1.3 i 3 sąsiadach, które zapewniają wysoką czułość, dokładność i precyzję przy mniejszym koszcie obliczeniowym.
+COSINE_SIMILARITY: 0.819390
+
+--------------------------------------------------------------------------------
+
+8.2 Wyniki rozpoznawania twarzy (Tymoteusz Prud)
+SUMMARY:
+Model osiągnął około 70% dokładności na zbiorze testowym po treningu, który rozpoczął się od 50% dokładności i charakteryzował się oscylacjami w pierwszych fazach, a następnie stabilizacją i dalszym spadkiem straty.
+COSINE_SIMILARITY: 0.810482
+
+--------------------------------------------------------------------------------
+
+8.2.1 Proces uczenia
+SUMMARY:
+Model osiągnął dokładność około 70% po treningu, charakteryzującym się oscylacjami w wartościach straty i dokładności, a dalsze uczenie mogłoby prowadzić do przetrenowania.
+COSINE_SIMILARITY: 0.815921
+
+--------------------------------------------------------------------------------
+
+8.2.2 Wyniki testów
+SUMMARY:
+Model osiągał dobre wyniki w warunkach testowych, gdy analizował zróżnicowane zdjęcia twarzy, ale w rzeczywistych zastosowaniach, gdzie zdjęcia były bardziej spójne i dobrze oświetlone, błędy były rzadkie.
+COSINE_SIMILARITY: 0.817565
+
+--------------------------------------------------------------------------------
+
+8.3 Wyniki filtru Kalmana (Jakub Góralski)
+SUMMARY:
+Przeprowadzono 10 prób testowych filtru Kalmana, obliczając pierwiastek z błędu średniokwadratowego i błąd bezpośredni, co wskazuje na akceptowalne błędy pomiarowe i skuteczne wygładzanie trajektorii ruchu obiektu.
+COSINE_SIMILARITY: 0.789133
+
+--------------------------------------------------------------------------------
+
+8.4 Wyniki modelu do detekcji emocji (Jakub Góralski)
+SUMMARY:
+Proces uczenia modelu, zaczynając od niskiej dokładności, prowadził do stopniowego wzrostu, stabilizacji i zbliżania się do maksymalnego potencjału, przy jednoczesnym zmniejszaniu się wartości funkcji straty, a analiza macierzy pomyłek pozwalała zidentyfikować i poprawić błędy w rozpoznawaniu emocji.
+COSINE_SIMILARITY: 0.836193
+
+--------------------------------------------------------------------------------
+
+8.4.1 Proces uczenia
+SUMMARY:
+Proces uczenia modelu rozpoczął się od losowych wag i przebiegał przez cztery etapy, charakteryzujące się stopniowym wzrostem dokładności i spadkiem funkcji straty, aż do osiągnięcia stabilizacji i efektywnego generalizowania.
+COSINE_SIMILARITY: 0.818520
+
+--------------------------------------------------------------------------------
+
+8.4.2 Wyniki walidacji
+SUMMARY:
+Macierz pomyłek pozwala zidentyfikować, które emocje są rozpoznawane przez model, a także w których przypadkach występują błędy, szczególnie w przypadku emocji złości, charakteryzującej się najniższą precyzją.
+COSINE_SIMILARITY: 0.839938
+
+--------------------------------------------------------------------------------
