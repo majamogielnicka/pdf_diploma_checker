@@ -141,7 +141,6 @@ class PDFMapper:
 
             # Detekcja wdów (maksymalnie 2 samotne słowa na końcu akapitu)
             last_word = data['words'][-1]
-            last_word = data['words'][-1]
             if combined_words and len(combined_words) >= 10:
                 last_word = combined_words[-1]
                 second_to_last_word = combined_words[-2]    
@@ -326,7 +325,7 @@ class PDFMapper:
                 page.height
             )
             x0_margin = margins["left"]            
-            margin_indent_thresh = 10
+            margin_indent_thresh = 20
             
 
 
