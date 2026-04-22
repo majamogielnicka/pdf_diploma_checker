@@ -63,10 +63,10 @@ def sentence_check(blocks):
                 #nawet gdy jedna z części zdania jest bierna, całe zdanie złożone uznawane jest za bierne dla przejrzystości wyników.
                 if token.dep_ == "aux:pass":
                     passive = True
-                    if block.language == 'pl' and not is_subject:
-                        #dla zdań biernych, gdy parser nie wykryje podmiotu
-                        if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
-                            is_subject = True
+                if block.language == 'pl' and not is_subject:
+                    #dla zdań biernych, gdy parser nie wykryje podmiotu
+                    if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
+                        is_subject = True
                 elif token.morph.get("Person") and token.morph.get("Person")[0] == "0":
                     impersonal_count +=1
                 #wykrywanie form typu: Mówi się jako bezosobowe
