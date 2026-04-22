@@ -49,7 +49,7 @@ class AnalysisPipeline:
         )
         
         if use_llm:
-            report_progress(35, "Trwa analiza SOTA (State of the Art)...")
+            report_progress(35, "Trwa analiza SOTA...")
             try:
                 from run_sota import get_final_sota_report
                 

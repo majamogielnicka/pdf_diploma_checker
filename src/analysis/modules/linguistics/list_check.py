@@ -50,7 +50,7 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
     """
     matches = []
     #symbols = set(r"""`~!@#$%^&*()_-+={[}}|\:;"'<,>.?/""")
-    quote_marks = {'"', '„', '”', '«', '»'}
+    quote_marks = {'"', '„', '”', '«', '»', '('}
     definition_search = re.compile(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s')
 
     for b in blocks:
@@ -69,38 +69,50 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                     if error:
                         matches.append(error)
                     marker_error_ids.add(item.item_id)
+            quote_close = {'"', '»', '”', '’', '"', ')'}
             upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
             for item in block.items:
                 item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
-                if item_text[0] in quote_marks:
-                    quote_id.append(item.item_id)
-                    continue
-                if (definition_search.match(item_text) or is_short_definition(item_text, language)):
+                effective_text = item_text
+                starts_with_quote = item_text[0] in quote_marks
+                if starts_with_quote:
+                    effective_text = item_text[1:].lstrip()
+                    if not effective_text:
+                        quote_id.append(item.item_id)
+                        continue
+                if (definition_search.match(effective_text) or is_short_definition(effective_text, language)):
                     definition_id.append(item.item_id)
                     continue
-                if item_text[0].isupper():
+                if effective_text[0].isupper():
                     is_known = False
-                    for proper in proper_names:
-                        proper_text = proper[0] if isinstance(proper, tuple) else proper
-                        first_word = proper_text.split()[0]
-                        if re.match(re.escape(first_word) + r'\s', item_text):
-                            neutral_id.append(item.item_id)
-                            is_known = True
-                            break
+                    if starts_with_quote:
+                        neutral_id.append(item.item_id)
+                        is_known = True
+                    if not is_known:
+                        for proper in proper_names:
+                            proper_text = proper[0] if isinstance(proper, tuple) else proper
+                            first_word = proper_text.split()[0]
+                            if re.match(re.escape(first_word) + r'\s', effective_text):
+                                neutral_id.append(item.item_id)
+                                is_known = True
+                                break
                     if not is_known:
                         for abbreviation in acronyms:
                             abbr_text = abbreviation[0] if isinstance(abbreviation, tuple) else abbreviation
-                            if re.match(re.escape(abbr_text) + r'\s', item_text):
+                            if re.match(re.escape(abbr_text) + r'\s', effective_text):
                                 neutral_id.append(item.item_id)
                                 is_known = True
                                 break
                     if not is_known:
                         upper_id.append(item.item_id)
-                elif item_text[0].islower():
+                elif effective_text[0].islower():
                     lower_id.append(item.item_id)
                 else:
                     neutral_id.append(item.item_id)
-                endings.append(item_text[-1])
+                end_char = item_text[-1]
+                if end_char in quote_close and len(item_text) >= 2:
+                    end_char = item_text[-2] if item_text[-2] not in quote_close else end_char
+                endings.append(end_char)
             if endings:
                 dominant_ending = max(sorted(set(endings)), key=endings.count)
                 if any(',' in item.text[:-2] for item in block.items) and dominant_ending == ',':

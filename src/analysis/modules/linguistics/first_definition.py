@@ -1,4 +1,5 @@
 import re
+from .check_acronym import potential_acronym
 
 def check_position_if_new(new_acronym, definition, words, block_id, acronyms_with_definitions, proper_names):
 
@@ -51,14 +52,15 @@ def check_first_definition(blocks, proper_names):
     """
 
     acronyms_with_definitions = {}
-    list_acronyms = re.compile(r'^[A-Z]{2,}\s+[–—\-−:]\s|^((\S+\s){1,4})[–—\-−:]\s')
-    paragraph_def_first = re.compile(r'([A-ZÀ-Ž][a-ząćęłńóśźż\w\s]+)\s*\(([A-Z]{2,})\)')
-    paragraph_acr_first = re.compile(r'\(([A-Z]{2,})\)\s([A-ZÀ-Ž][a-ząćęłńóśźż\w\s]+)')
-    split = re.compile(r"\s[-–—]\s")
+    list_acronyms = re.compile(r'^[A-Z]{2,}\s+[\u2013\u2014\-\u2212:]\s|^((\S+\s){1,4})[\u2013\u2014\-\u2212:]\s')
+    paragraph_def_first = re.compile(r'([A-Z\u00c0-\u017d][a-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c\w\s]+)\s*\(([A-Z]{2,})\)')
+    paragraph_acr_first = re.compile(r'\(([A-Z]{2,})\)\s([A-Z\u00c0-\u017d][a-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c\w\s]+)')
+    paragraph_acr_then_expansion = re.compile(r'\b([A-Z]{2,})\s*\(([A-Z][a-zA-ZÀ-Ž][a-zA-ZÀ-Žąćęłńóśźż\s\-]{2,})\)')
+    split = re.compile(r"\s[-\u2013\u2014]\s")
     proper = set(p[0] for p in proper_names)
     for block in blocks:
         block = block.block
-        words = {word.text: word for word in block.words}
+        words = block.words
         if block.type == "acronyms":
             list_of_acronyms = block.content.split("\n")
             for item in list_of_acronyms:
@@ -72,16 +74,17 @@ def check_first_definition(blocks, proper_names):
                 if list_acronyms.search(item.text):
                     new_acronym = split.split(item.text, 1)
                     new_acronym[0] = new_acronym[0].strip()
-                    if len(new_acronym) > 1:
+                    if len(new_acronym) > 1 and potential_acronym(new_acronym[0]):
                         acronyms_with_definitions = check_position_if_new(new_acronym[0], new_acronym[1].strip(), item.words, block.block_id, acronyms_with_definitions, proper)
 
-        elif block.type in ("paragraph", "heading", "list"):
+        if block.type in ("paragraph", "heading", "list"):
             if '(' in block.content:
                 text = block.content
+                new_acronyms = paragraph_acr_first.findall(text)
+                new_acronyms.extend(paragraph_acr_then_expansion.findall(text))
+                for new_acronym in new_acronyms:
+                    acronyms_with_definitions = check_position_if_new(new_acronym[0], new_acronym[1], words, block.block_id, acronyms_with_definitions, proper)
                 new_acronyms = paragraph_def_first.findall(text)
-                new_acronyms.extend(paragraph_acr_first.findall(text))
                 for new_acronym in new_acronyms:
                     acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions, proper)
-
-    print("\nDetected acronyms and their definitions: \n", "\n ".join([f"\t{acronym} - {definition}, {block_id, page, bbox}" for acronym, (definition, block_id, page, bbox) in acronyms_with_definitions.items()]))
     return acronyms_with_definitions

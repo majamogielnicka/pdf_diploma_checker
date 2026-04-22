@@ -56,8 +56,6 @@ def sentence_check(blocks):
                             )   
                             if not check_quotes(match, text) and not check_if_proper(block.block, match, is_diff = True):
                                 checked_matches.append(match)
-                            else:
-                                quotes = True
                 if token.dep_ in {'nsubj', 'nsubj:pass'}:
                     is_subject = True
                 if token.pos_ in {'VERB', 'AUX'}:
@@ -65,10 +63,10 @@ def sentence_check(blocks):
                 #nawet gdy jedna z części zdania jest bierna, całe zdanie złożone uznawane jest za bierne dla przejrzystości wyników.
                 if token.dep_ == "aux:pass":
                     passive = True
-                    if block.language == 'pl' and not is_subject:
-                        #dla zdań biernych, gdy parser nie wykryje podmiotu
-                        if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
-                            is_subject = True
+                if block.language == 'pl' and not is_subject:
+                    #dla zdań biernych, gdy parser nie wykryje podmiotu
+                    if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
+                        is_subject = True
                 elif token.morph.get("Person") and token.morph.get("Person")[0] == "0":
                     impersonal_count +=1
                 #wykrywanie form typu: Mówi się jako bezosobowe
@@ -118,7 +116,7 @@ def sentence_check(blocks):
         impersonal_count= impersonal_count,
         sentence_count = sentence_count
     )
-    print(f"active:{analisys.active_count} passive:{analisys.passive_count} sum counted:{sentence_count}")
+    #print(f"active:{analisys.active_count} passive:{analisys.passive_count} sum counted:{sentence_count}")
     return checked_matches, analisys
 
 def morfeusz_check(text):

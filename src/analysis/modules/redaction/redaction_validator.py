@@ -106,7 +106,7 @@ class RedactionValidator:
             self.check_margins(self.document_data)
             self.check_orientation(self.document_data)
             self.check_fonts(self.document_data)
-            self.check_justification(self.document_data)
+            #self.check_justification(self.document_data)
             self.check_format(self.document_data)
 
         #--------------------basic redaction check
@@ -115,11 +115,11 @@ class RedactionValidator:
 
         #--------------------advanced redaction check
         if advanced_redaction_check:
-            self.check_orphans()
+            #self.check_orphans()
             self.check_widows()
             self.check_bekarts()
             self.check_szewce()
-            self.check_korytarze()
+            #self.check_korytarze()
 
         '''
         if not is_toc:

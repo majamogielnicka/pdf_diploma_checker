@@ -31,6 +31,15 @@ def check_item(full_text, last_item, second_to_last, text_language, sentence_sty
     Returns:
         bool: True if the item is valid, False if it contains an error.
     """
+    STRIP_OPEN = '\u201e\u00ab\u201c\u2018"('
+    STRIP_CLOSE = '\u201d\u00bb\u201d\u2019")'
+    full_text = full_text.lstrip(STRIP_OPEN)
+    if not full_text:
+        return True
+    if len(full_text) >= 2 and full_text[-1] in '.;,:!' and full_text[-2] in STRIP_CLOSE:
+        full_text = full_text[:-2] + full_text[-1]
+    elif full_text[-1] in STRIP_CLOSE:
+        full_text = full_text.rstrip(STRIP_CLOSE) or full_text
 
     is_en = True if text_language == "en" else False
     if has_verb(full_text, text_language) and sentence_style:

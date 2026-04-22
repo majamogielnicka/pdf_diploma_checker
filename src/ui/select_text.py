@@ -10,7 +10,7 @@ class ErrorMarker(QPushButton):
     def __init__(self, error_data, parent=None):
         super().__init__(parent)
         self.data = error_data
-        self.setFixedSize(20, 20)
+        self.setFixedSize(10, 10)
         self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet("""
             QPushButton {
@@ -88,7 +88,6 @@ class SelectablePdfView(QPdfView):
         self.selection_page_idx = -1
         self.selected_text = ""
         
-        #naprawienie pozycji po scrollu
         self.verticalScrollBar().valueChanged.connect(self.update_selection_box_pos)
         self.horizontalScrollBar().valueChanged.connect(self.update_selection_box_pos)
         self.verticalScrollBar().valueChanged.connect(self.update_markers_pos)
@@ -128,7 +127,6 @@ class SelectablePdfView(QPdfView):
             page_idx = data.get("strona", 1) - 1
             coords = data.get("wspolrzedne", {"x": 0, "y": 0})
             
-            #pozycja Y strony
             target_page_y_px = self.documentMargins().top()
             for i in range(page_idx):
                 size_pt = doc.pagePointSize(i)

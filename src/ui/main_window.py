@@ -1,6 +1,9 @@
 import sys
 import os
-
+if hasattr(sys, '_MEIPASS'):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 APP_DIR = os.path.join(BASE_DIR, "app")
 COMMON_DIR = os.path.join(BASE_DIR, "common")

@@ -1,23 +1,21 @@
 {
     "prace": [
         {
-            "nazwa_pliku": "StronaTytulowa_197585-3.pdf",
-            "sciezka_lokalna": "/home/m/Downloads/StronaTytulowa_197585-3.pdf",
-            "typ": "inzynierska",
-            "data_dodania": "2026-03-16"
-        },
-        {
-            "nazwa_pliku": "bosh.pdf",
-            "sciezka_lokalna": "/home/m/uni/sem6/zsd/data/bosh.pdf",
-            "typ": "inzynierska",
-            "data_dodania": "2026-03-16"
-        },
-        {
             "nazwa_pliku": "jost.pdf",
             "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jost.pdf",
             "typ": "PDF",
             "data_dodania": "2026-04-22",
-            "komentarze": []
+            "komentarze": [
+                {
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "x": 52.5,
+                        "y": 104.46002197265625
+                    },
+                    "tekst_komentarza": "blad",
+                    "znaleziony_tekst": "(Komentarz dodany w pustym miejscu)"
+                }
+            ]
         }
     ],
     "konfiguracje_regul": []
