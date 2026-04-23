@@ -60,7 +60,7 @@ class PDFReader(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Diploma checker")
-        self.resize(1300, 900)
+        self.resize(1300, 600)
         self.manager = saving_files()
         self.own_comments = []
         self.document = QPdfDocument(self)
@@ -84,8 +84,7 @@ class PDFReader(QMainWindow):
 
         self.refresh_file_list()
         self.overlay = QFrame(self)
-        self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 160);") # 160 to stopień przyciemnienia (0 = przezroczyste, 255 = czarne)
-        self.overlay.hide()
+        self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 160);")
 
     def start_background_analysis(self, pdf_path, config_path):
         self.analysis_thread = QThread()
@@ -134,7 +133,6 @@ class PDFReader(QMainWindow):
 
         self.pdf_view.commentAdded.connect(self.save_custom_comment)
 
-        #panel boczny
         self.right_panel = QWidget()
         self.right_panel.setFixedWidth(300)
         self.right_panel.setStyleSheet(styles.RIGHT_PANEL_STYLE)

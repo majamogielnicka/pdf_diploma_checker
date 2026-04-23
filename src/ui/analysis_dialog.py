@@ -225,20 +225,34 @@ class AnalysisDialog(QDialog):
 
         self.json_frame = ConfigDropFrame()
         self.json_frame.setStyleSheet(styles.JSON_FRAME_STYLE)
-        self.json_frame.setFixedHeight(180)
+        self.json_frame.setFixedHeight(260)
         json_inner_layout = QVBoxLayout(self.json_frame)
-        
+        json_inner_layout.setSpacing(8)
+
         self.json_icon = QLabel("{JSON}")
-        self.json_icon.setStyleSheet("color: #2196F3; font-weight: bold; font-size: 18px; border: none;")
+        self.json_icon.setFixedSize(70, 70)
+        self.json_icon.setAlignment(Qt.AlignCenter)
+        self.json_icon.setStyleSheet("""
+            QLabel {
+                background-color: #BDDCFF; 
+                color: #1E8CFA;            
+                font-weight: bold; 
+                font-size: 16px;           
+                border-radius: 35px;
+                border: none;
+            }
+        """)
         self.drop_label = QLabel("Przeciągnij tu plik konfiguracyjny", styleSheet="font-weight: bold; border: none;")
         self.add_json_btn = QPushButton("+ Dodaj plik konfiguracyjny")
         self.add_json_btn.setStyleSheet(styles.BLUE_BUTTON_STYLE)
         self.add_json_btn.setCursor(Qt.PointingHandCursor)
 
+        json_inner_layout.addStretch()
         json_inner_layout.addWidget(self.json_icon, alignment=Qt.AlignCenter)
         json_inner_layout.addWidget(self.drop_label, alignment=Qt.AlignCenter)
         json_inner_layout.addWidget(QLabel("albo", styleSheet="border:none;"), alignment=Qt.AlignCenter)
         json_inner_layout.addWidget(self.add_json_btn, alignment=Qt.AlignCenter)
+        json_inner_layout.addStretch()
         config_layout.addWidget(self.json_frame)
 
         self.badge_container = QWidget()
@@ -291,7 +305,7 @@ class AnalysisDialog(QDialog):
         while self.badge_layout.count():
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
-        
+        self.json_frame.setFixedHeight(190)
         badge = FileBadge(os.path.basename(path))
         badge.removed.connect(self._remove_config_file)
         self.badge_layout.addWidget(badge)
@@ -303,6 +317,7 @@ class AnalysisDialog(QDialog):
         while self.badge_layout.count():
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
+        self.json_frame.setFixedHeight(260)
 
     def _start_analysis(self):
         if not self.config_file_path:
