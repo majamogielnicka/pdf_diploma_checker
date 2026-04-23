@@ -78,9 +78,9 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                     if (page, word.bbox[1], word.bbox[0]) < (acronym_page, acronym_bbox[1], acronym_bbox[0]):
                         if clean_text not in reported_acronyms:
                             reported_acronyms.add(clean_text)
-                            matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], (word.bbox[2], word.bbox[3]), category, message))
+                            matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))
                 else:
                     if clean_text not in reported_acronyms:
                         reported_acronyms.add(clean_text)
-                        matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], (word.bbox[2], word.bbox[3]), category, message))
+                        matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))
     return matches

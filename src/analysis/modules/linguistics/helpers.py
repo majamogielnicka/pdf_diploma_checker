@@ -5,6 +5,7 @@ import morfeusz2
 from lingua import Language, LanguageDetectorBuilder
 from src.analysis.extraction.schema import *
 from .linguistics_types import Block_context, Error_type
+from collections import defaultdict
 
 morf = morfeusz2.Morfeusz()
 languages = [Language.ENGLISH, Language.POLISH]
@@ -39,24 +40,35 @@ def get_match_info(block, offset, length):
         start_page (int): Page number of the beginning of the match
         end_page (int): Page number of the end of the match
         word_index (list): List of word indexes in the match
+        error_coordinate(list): List of dicts with error coordinates
     '''
     end_offset = offset + length
     word_idxs = []
     start_page = None
     end_page = None
-    last_word = None
+    lines = defaultdict(list)
     for word in block.words:
         if word.start_char < end_offset and word.end_char > offset:
             word_idxs.append(word.word_index)
-            last_word = word
+            lines[(word.page_number, word.line)].append(word)
             if start_page is None:
                 start_page = word.page_number
             end_page = word.page_number
-        if last_word is not None:
-            error_coordinate = (last_word.bbox[2], last_word.bbox[3])
-        else:
-            error_coordinate = (0, 0)
-        #print(f"{word.text} {word.page_number} {word.start_char} {end_offset} {word.end_char} {end_offset}")
+
+    error_coordinate = []
+    for (page, line), words in sorted(lines.items()):
+        error_coordinate.append({
+            "page": page,
+            "coordinates": [
+                min(w.bbox[0] for w in words),
+                min(w.bbox[1] for w in words),
+                max(w.bbox[2] for w in words),
+                max(w.bbox[3] for w in words),
+            ]
+        })
+    if not error_coordinate:
+        error_coordinate = [{"page": -1, "coordinates": [0, 0, 0, 0]}]
+
     return start_page, end_page, word_idxs, error_coordinate
 
 def extract_errors_to_json(matches, name):

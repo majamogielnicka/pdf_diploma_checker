@@ -95,5 +95,5 @@ def check_first_definition(blocks, proper_names):
                 new_acronyms.extend(paragraph_def_first_lower.findall(text))
                 for new_acronym in new_acronyms:
                     acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions, proper)
-    print(f'\n acronyms_with_definitions: \n' + '\n'.join([f'{acronym}: {acronyms_with_definitions[acronym][0]}' for acronym in acronyms_with_definitions]))
+    # print(f'\n acronyms_with_definitions: \n' + '\n'.join([f'{acronym}: {acronyms_with_definitions[acronym][0]}' for acronym in acronyms_with_definitions]))
     return acronyms_with_definitions
