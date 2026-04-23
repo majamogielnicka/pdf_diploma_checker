@@ -4,17 +4,75 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
     QPushButton, QFrame, QProgressBar, QWidget, QFileDialog
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QThread
+from PySide6.QtCore import Qt, QTimer, Signal, QThread, QSize
+from PySide6.QtGui import QPixmap, QIcon
 import styles
 
-current_file_path = os.path.abspath(__file__)
-project_root = os.path.dirname(os.path.dirname(current_file_path))
-redaction_path = os.path.join(project_root, "analysis", "modules", "redaction")
+class FileBadge(QFrame):
+    removed = Signal()
 
-if 'runall_configuration_check' in sys.modules:
-    del sys.modules['runall_configuration_check']
+    def __init__(self, filename, parent=None):
+        super().__init__(parent)
+        self.setStyleSheet("""
+            QFrame {
+                border: 1px solid #C4C4C4;
+                border-radius: 8px;
+                background-color: #FFFFFF;
+            }
+        """)
+        self.setFixedHeight(70)
+        
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(15, 10, 15, 10)
+        layout.setSpacing(15)
 
-sys.path.insert(0, redaction_path)
+        self.icon_label = QLabel()
+        icon_path = os.path.join("src", "assets", "file_json.svg")
+        if os.path.exists(icon_path):
+            pixmap = QPixmap(icon_path).scaled(35, 35, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.icon_label.setPixmap(pixmap)
+        else:
+            self.icon_label.setText("📄")
+            self.icon_label.setStyleSheet("font-size: 24px; border: none;")
+        self.icon_label.setFixedSize(40, 40)
+        self.icon_label.setStyleSheet("border: none;")
+
+        text_container = QWidget()
+        text_container.setStyleSheet("border: none;")
+        text_layout = QVBoxLayout(text_container)
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.setSpacing(2)
+
+        self.name_label = QLabel(filename)
+        self.name_label.setStyleSheet("font-weight: bold; font-size: 14px; color: #000; border: none;")
+        
+        self.info_label = QLabel("Plik konfiguracyjny JSON")
+        self.info_label.setStyleSheet("color: #666; font-size: 12px; border: none;")
+        
+        text_layout.addWidget(self.name_label)
+        text_layout.addWidget(self.info_label)
+
+        self.del_btn = QPushButton()
+        self.del_btn.setFixedSize(30, 30)
+        trash_path = os.path.join("src", "assets", "trash.svg")
+        if os.path.exists(trash_path):
+            self.del_btn.setIcon(QIcon(trash_path))
+            self.del_btn.setIconSize(QSize(20, 20))
+        else:
+            self.del_btn.setText("usun")
+        
+        self.del_btn.setCursor(Qt.PointingHandCursor)
+        self.del_btn.setStyleSheet("""
+            QPushButton { border: none; background: transparent; }
+            QPushButton:hover { background-color: #f0f0f0; border-radius: 4px; }
+        """)
+        self.del_btn.clicked.connect(self.removed.emit)
+
+        layout.addWidget(self.icon_label)
+        layout.addWidget(text_container)
+        layout.addStretch()
+        layout.addWidget(self.del_btn)
+
 
 class ConfigDropFrame(QFrame):
     fileDropped = Signal(str)
@@ -24,7 +82,6 @@ class ConfigDropFrame(QFrame):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
-        #sprawdzamy czy przeciągany jest plik z rozszerzeniem .json
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
             if urls and urls[0].toLocalFile().lower().endswith('.json'):
@@ -52,7 +109,6 @@ class PipelineWorker(QThread):
     def run(self):
         try:
             from app.entry import run_analysis_for_pdf
-            
             raport_koncowy = run_analysis_for_pdf(
                 pdf_path=self.pdf_path, 
                 config_path=self.config_path,
@@ -61,7 +117,6 @@ class PipelineWorker(QThread):
             )
             
             raport_z_obiektami = getattr(raport_koncowy, "linguistics_errors", [])
-            
             ui_report = []
             for blad in raport_z_obiektami:
                 
@@ -143,12 +198,12 @@ class AnalysisDialog(QDialog):
         self.setStyleSheet(styles.DIALOG_STYLE)
         
         self.config_file_path = None 
-        
         self.setup_ui()
 
     def setup_ui(self):
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(30, 20, 30, 30)
+        self.main_layout.setSpacing(15)
 
         header = QHBoxLayout()
         self.title_label = QLabel("Przeanalizuj dokument")
@@ -163,31 +218,35 @@ class AnalysisDialog(QDialog):
         self.main_layout.addLayout(header)
 
         self.config_widget = QWidget()
+        self.config_widget.setStyleSheet("border: none;")
         config_layout = QVBoxLayout(self.config_widget)
         config_layout.setContentsMargins(0, 0, 0, 0)
+        config_layout.setSpacing(15)
 
         self.json_frame = ConfigDropFrame()
         self.json_frame.setStyleSheet(styles.JSON_FRAME_STYLE)
-        json_layout = QVBoxLayout(self.json_frame)
+        self.json_frame.setFixedHeight(180)
+        json_inner_layout = QVBoxLayout(self.json_frame)
         
         self.json_icon = QLabel("{JSON}")
         self.json_icon.setStyleSheet("color: #2196F3; font-weight: bold; font-size: 18px; border: none;")
-        json_layout.addWidget(self.json_icon, alignment=Qt.AlignCenter)
-        
         self.drop_label = QLabel("Przeciągnij tu plik konfiguracyjny", styleSheet="font-weight: bold; border: none;")
-        json_layout.addWidget(self.drop_label, alignment=Qt.AlignCenter)
-        
-        self.or_label = QLabel("albo", styleSheet="border:none;")
-        json_layout.addWidget(self.or_label, alignment=Qt.AlignCenter)
-        
         self.add_json_btn = QPushButton("+ Dodaj plik konfiguracyjny")
         self.add_json_btn.setStyleSheet(styles.BLUE_BUTTON_STYLE)
         self.add_json_btn.setCursor(Qt.PointingHandCursor)
-        json_layout.addWidget(self.add_json_btn, alignment=Qt.AlignCenter)
+
+        json_inner_layout.addWidget(self.json_icon, alignment=Qt.AlignCenter)
+        json_inner_layout.addWidget(self.drop_label, alignment=Qt.AlignCenter)
+        json_inner_layout.addWidget(QLabel("albo", styleSheet="border:none;"), alignment=Qt.AlignCenter)
+        json_inner_layout.addWidget(self.add_json_btn, alignment=Qt.AlignCenter)
         config_layout.addWidget(self.json_frame)
 
-        self.add_json_btn.clicked.connect(self._open_file_dialog)
-        self.json_frame.fileDropped.connect(self._set_config_file)
+        self.badge_container = QWidget()
+        self.badge_container.setStyleSheet("border: none;")
+        self.badge_layout = QVBoxLayout(self.badge_container)
+        self.badge_layout.setContentsMargins(0, 0, 0, 0)
+        self.badge_container.setVisible(False)
+        config_layout.addWidget(self.badge_container)
 
         modes_layout = QHBoxLayout()
         self.btn_szybki = QPushButton("Tryb szybki")
@@ -205,90 +264,61 @@ class AnalysisDialog(QDialog):
 
         self.main_layout.addWidget(self.config_widget)
 
-        
         self.progress_widget = QWidget()
         self.progress_widget.setVisible(False)
         progress_layout = QVBoxLayout(self.progress_widget)
-        
-        self.progress_label = QLabel("Przygotowywanie do analizy...")
-        self.progress_label.setAlignment(Qt.AlignCenter)
-        
         self.pbar = QProgressBar()
         self.pbar.setStyleSheet(styles.PROGRESS_BAR_STYLE)
-        self.pbar.setRange(0, 100)
-        self.pbar.setValue(0)
-        
-        self.cancel_btn = QPushButton("Anuluj")
-        self.cancel_btn.setStyleSheet(styles.DELETE_BTN_STYLE)
-        self.cancel_btn.clicked.connect(self._cancel_analysis)
-        
-        progress_layout.addStretch()
-        progress_layout.addWidget(self.progress_label)
+        progress_layout.addWidget(QLabel("Analizowanie dokumentu...", alignment=Qt.AlignCenter))
         progress_layout.addWidget(self.pbar)
-        progress_layout.addWidget(self.cancel_btn, alignment=Qt.AlignCenter)
-        progress_layout.addStretch()
-        
         self.main_layout.addWidget(self.progress_widget)
 
         self.analyze_btn = QPushButton("Analizuj")
         self.analyze_btn.setStyleSheet(styles.ANALIZA_BTN_STYLE)
-        self.analyze_btn.setCursor(Qt.PointingHandCursor)
         self.analyze_btn.clicked.connect(self._start_analysis)
         self.main_layout.addWidget(self.analyze_btn)
 
+        self.add_json_btn.clicked.connect(self._open_file_dialog)
+        self.json_frame.fileDropped.connect(self._set_config_file)
+
     def _open_file_dialog(self):
         path, _ = QFileDialog.getOpenFileName(self, "Wybierz plik konfiguracyjny", "", "JSON Files (*.json)")
-        if path:
-            self._set_config_file(path)
+        if path: self._set_config_file(path)
 
     def _set_config_file(self, path):
         self.config_file_path = path
-        nazwa = os.path.basename(path)
         
-        self.drop_label.setText(f"Załadowano: {nazwa}")
-        self.drop_label.setStyleSheet("font-weight: bold; border: none; color: #4CAF50;") 
-        self.or_label.setVisible(False)
-        self.add_json_btn.setText("Zmień plik")
+        while self.badge_layout.count():
+            item = self.badge_layout.takeAt(0)
+            if item.widget(): item.widget().deleteLater()
+        
+        badge = FileBadge(os.path.basename(path))
+        badge.removed.connect(self._remove_config_file)
+        self.badge_layout.addWidget(badge)
+        self.badge_container.setVisible(True)
+
+    def _remove_config_file(self):
+        self.config_file_path = None
+        self.badge_container.setVisible(False)
+        while self.badge_layout.count():
+            item = self.badge_layout.takeAt(0)
+            if item.widget(): item.widget().deleteLater()
 
     def _start_analysis(self):
+        if not self.config_file_path:
+            pass
         self.config_widget.setVisible(False)
         self.analyze_btn.setVisible(False)
-        self.close_btn.setEnabled(False)
         self.progress_widget.setVisible(True)
         self.title_label.setText("Analizowanie...")
-        self.pbar.setValue(0)
         
         czy_dokladny = self.btn_dokladny.isChecked()
-        
         self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=czy_dokladny)
-        
-        self.worker.progress_update.connect(self._update_progress)
+        self.worker.progress_update.connect(lambda v, t: self.pbar.setValue(v))
         self.worker.finished_success.connect(self._on_analysis_success)
-        self.worker.finished_error.connect(self._on_analysis_error)
+        self.worker.finished_error.connect(lambda msg: self.reject())
         self.worker.start()
-
-    def _update_progress(self, value, text):
-        self.pbar.setValue(value)
-        self.progress_label.setText(text)
 
     def _on_analysis_success(self, final_report):
         self.final_report = final_report
         self.accept()
-
-    def _on_analysis_error(self, error_message):
-        self._reset_ui_state()
-
-    def _cancel_analysis(self):
-        if hasattr(self, 'worker') and self.worker.isRunning():
-            self.worker.terminate()
-            self.worker.wait()
-        self._reset_ui_state()
-
-    def _reset_ui_state(self):
-        self.pbar.setValue(0)
-        self.progress_label.setText("Przygotowywanie do analizy...")
-        self.progress_widget.setVisible(False)
-        self.config_widget.setVisible(True)
-        self.analyze_btn.setVisible(True)
-        self.close_btn.setEnabled(True)
-        self.title_label.setText("Przeanalizuj dokument")

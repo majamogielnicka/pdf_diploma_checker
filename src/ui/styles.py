@@ -157,3 +157,24 @@ PROGRESS_BAR_STYLE = """
         width: 10px;
     }
 """
+
+
+FILE_BADGE_FRAME = """
+    QFrame {
+        border: 1px solid #C4C4C4;
+        border-radius: 8px;
+        background-color: #FFFFFF;
+        padding: 10px;
+    }
+"""
+
+ICON_BUTTON_STYLE = """
+    QPushButton {
+        border: none;
+        background: transparent;
+    }
+    QPushButton:hover {
+        background-color: #f0f0f0;
+        border-radius: 4px;
+    }
+"""

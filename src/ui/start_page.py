@@ -1,8 +1,11 @@
+import os
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
     QPushButton, QFrame, QLineEdit
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtSvgWidgets import QSvgWidget
 import styles
 
 class StartPage(QWidget):
@@ -42,13 +45,32 @@ class StartPage(QWidget):
 
         self.upload_frame = QFrame()
         self.upload_frame.setStyleSheet(styles.UPLOAD_ZONE_STYLE)
-        self.upload_frame.setFixedHeight(200)
+        self.upload_frame.setFixedHeight(250)
         
         up_layout = QVBoxLayout(self.upload_frame)
-        up_layout.setSpacing(5)
+        up_layout.setSpacing(10)
         
-        pdf_icon = QLabel("📄")
-        pdf_icon.setStyleSheet("font-size: 40px; color: #478CD1; border: none;")
+        self.pdf_icon = QLabel()
+        icon_path = os.path.join("src", "assets", "pdf_file.svg")
+        
+        if os.path.exists(icon_path):
+            from PySide6.QtGui import QIcon
+            pixmap = QIcon(icon_path).pixmap(QSize(50, 50))
+            self.pdf_icon.setPixmap(pixmap)
+        else:
+            self.pdf_icon.setText("📄")
+            
+        self.pdf_icon.setFixedSize(70, 70)
+        
+        self.pdf_icon.setAlignment(Qt.AlignCenter)
+        
+        self.pdf_icon.setStyleSheet("""
+            QLabel {
+                background-color: #BDDCFF; /* Jasnoniebieskie tło (dopasuj odcień jeśli potrzebujesz) */
+                border-radius: 35px;       /* 50px to dokładnie połowa ze 100px = idealne kółko */
+                border: none;
+            }
+        """)
         
         txt_drag = QLabel("Przeciągnij tu plik")
         txt_drag.setStyleSheet("font-weight: bold; font-size: 14px; border: none;")
@@ -57,10 +79,13 @@ class StartPage(QWidget):
         self.add_btn.setStyleSheet(styles.BLUE_BUTTON_STYLE)
         self.add_btn.setCursor(Qt.PointingHandCursor)
 
-        up_layout.addWidget(pdf_icon, alignment=Qt.AlignCenter)
+        up_layout.addStretch()
+        up_layout.addWidget(self.pdf_icon, alignment=Qt.AlignCenter)
         up_layout.addWidget(txt_drag, alignment=Qt.AlignCenter)
-        up_layout.addWidget(QLabel("albo", styleSheet="border:none;"), alignment=Qt.AlignCenter)
+        up_layout.addWidget(QLabel("albo", styleSheet="border:none; background: transparent;"), alignment=Qt.AlignCenter)
         up_layout.addWidget(self.add_btn, alignment=Qt.AlignCenter)
+        up_layout.addStretch()
+        
         main_layout.addWidget(self.upload_frame)
 
         search_section = QHBoxLayout()
@@ -163,7 +188,18 @@ class StartPage(QWidget):
         del_btn.setCursor(Qt.PointingHandCursor)
         del_btn.clicked.connect(lambda _, p=path: self.deleteRequested.emit(p))
 
-        row_l.addWidget(QLabel("📄", styleSheet="font-size: 18px; border:none;"), 0)
+        icon_path = os.path.join("src", "assets", "pdf_file.svg")
+        
+        if os.path.exists(icon_path):
+            icon_widget = QSvgWidget(icon_path)
+            icon_widget.setFixedSize(20, 24)
+            icon_widget.setStyleSheet("background: transparent;")
+        else:
+            icon_widget = QLabel("📄")
+            icon_widget.setFixedSize(24, 24)
+            icon_widget.setStyleSheet("font-size: 18px; border: none; background: transparent;")
+
+        row_l.addWidget(icon_widget, 0)
         row_l.addWidget(name_btn, 4)
         row_l.addWidget(status, 2, alignment=Qt.AlignLeft)
         row_l.addWidget(date_lbl, 1)
