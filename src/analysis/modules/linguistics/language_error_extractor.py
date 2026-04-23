@@ -15,7 +15,6 @@ def language_tool_analisys(blocks):
         list: A list of matches.
     """
     polish_messages = {
-        'CASING': "Błąd enkapsulacji.",
         'COLLOCATIONS': "Błąd kolokacji.",
         'COMPOUNDING': "Błąd łączenia słów.",
         'GRAMMAR': "Błąd gramatyczny.",
@@ -43,6 +42,11 @@ def language_tool_analisys(blocks):
     tool_en.disabled_categories.add('SEMATICS')
     tool_en.disabled_categories.add('STYLE')
     tool_en.disabled_categories.add('MISC')
+    tool_en.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
+    tool_en.disabled_rules.add('WHITESPACE_RULE')
+    tool_en.disabled_categories.add('CONSECUTIVE_SPACES')
+    tool_en._disabled_categories.add('CASING')
+
     tool_pl = language_tool_python.LanguageTool('pl-PL')
     tool_pl.disabled_rules.add('NIETYPOWA_KOMBINACJA_DUZYCH_I_MALYCH_LITER')
     tool_pl.disabled_rules.add('PL_UNPAIRED_BRACKETS')
@@ -52,8 +56,11 @@ def language_tool_analisys(blocks):
     tool_pl.disabled_rules.add('SPACJA_ZA_PRZECINKIEM_DZIESITNYM')
     tool_pl.disabled_rules.add('ZDANIE_PODRZEDNE_Z_KTORY_LUB_JAKI')
     tool_pl.disabled_categories.add('MISC')
-    #tool_pl.disabled_categories.add('TYPOS')
-        
+    tool_pl.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
+    tool_pl.disabled_rules.add('WHITESPACE_RULE')
+    tool_pl.disabled_rules.add('BRAK_SPACJI_NAWIAS')
+    tool_pl.disabled_rules.add('PRZEDROSTKI')
+    tool_pl.disabled_rules.add('ZBIEG_NAWIASOW')
     detector = language_detector
 
     errors = []
@@ -66,6 +73,7 @@ def language_tool_analisys(blocks):
             new_matches = []
             for match in matches:
                 if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
+                    #print(f'{match.category} {match.rule_id} {match.matched_text} {text_language}')
                     if block.block.type != "paragraph":
                         continue
                     elif not any(letter.isalpha() for letter in match.matched_text):
@@ -82,24 +90,24 @@ def language_tool_analisys(blocks):
                         continue
                 new_matches.append(match)
 
-        for m in new_matches:
-            start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, m.offset, m.error_length)
-            if text_language == 'en':
-                message = polish_messages[m.category]
-            else:
-                message = m.message
-            errors.append(Error_type(
-                content=contents[m.offset:m.offset + m.error_length],
-                category=m.category,
-                message=message,
-                offset=m.offset,
-                error_length=m.error_length,
-                block_id = block.block.block_id,
-                page_start = start_page,
-                page_end = end_page,
-                word_idxs = word_idxs,
-                error_coordinate= error_coordinate,
-            ))
+            for m in new_matches:
+                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, m.offset, m.error_length)
+                if text_language == 'en':
+                    message = polish_messages[m.category]
+                else:
+                    message = m.message
+                errors.append(Error_type(
+                    content=contents[m.offset:m.offset + m.error_length],
+                    category=m.category,
+                    message=message,
+                    offset=m.offset,
+                    error_length=m.error_length,
+                    block_id = block.block.block_id,
+                    page_start = start_page,
+                    page_end = end_page,
+                    word_idxs = word_idxs,
+                    error_coordinate= error_coordinate,
+                ))
   
     return errors, whitespace_counter
 
