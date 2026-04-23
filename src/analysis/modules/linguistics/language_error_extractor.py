@@ -1,8 +1,7 @@
 import language_tool_python
-from lingua import Language, LanguageDetectorBuilder
 from .linguistics_types import Error_type
 from src.analysis.extraction.schema import *
-from .helpers import get_match_info, language_detector
+from .helpers import get_match_info
 
 def language_tool_analisys(blocks):
     """
@@ -24,7 +23,7 @@ def language_tool_analisys(blocks):
         'TYPOS': "Możliwa literówka.",
         'PROPER_NOUNS': 'Zła pisownia nazwy własnej.',
         'PUNCTUATION': "Błąd interpunkcyjny.",
-        'TYPOGRAPHY': "Błąd typograficzny."
+        'TYPOGRAPHY': "Błąd typograficzny.",
     }
 
     whitespace_counter = 0
@@ -61,7 +60,6 @@ def language_tool_analisys(blocks):
     tool_pl.disabled_rules.add('BRAK_SPACJI_NAWIAS')
     tool_pl.disabled_rules.add('PRZEDROSTKI')
     tool_pl.disabled_rules.add('ZBIEG_NAWIASOW')
-    detector = language_detector
 
     errors = []
     for block in blocks:
@@ -69,7 +67,6 @@ def language_tool_analisys(blocks):
             contents = block.contents
             text_language = block.language
             matches = tool_pl.check(contents) if text_language == "pl" else tool_en.check(contents)
-
             new_matches = []
             for match in matches:
                 if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
@@ -78,22 +75,30 @@ def language_tool_analisys(blocks):
                         continue
                     elif not any(letter.isalpha() for letter in match.matched_text):
                         continue
-                if match.category == "TYPOS" and text_language == "pl":
+                if match.category == "TYPOS":
                     word = contents[match.offset:match.offset + match.error_length]
-                    if detector.detect_language_of(word) == Language.ENGLISH:
+                    if text_language == 'pl':
                         en_matches = tool_en.check(word)
                         for en_match in en_matches:
                             en_match.sentence = match.sentence
                             en_match.offset += match.offset
-                            en_match.message = polish_messages[en_match.category]
+                            en_match.message = match.message
                         new_matches.extend(en_matches)
+                        continue
+                    else:
+                        pl_matches = tool_pl.check(word)
+                        for pl_match in pl_matches:
+                            pl_match.sentence = match.sentence
+                            pl_match.offset += match.offset
+                            pl_match.message = pl_match.message
+                        new_matches.extend(pl_matches)
                         continue
                 new_matches.append(match)
 
             for m in new_matches:
                 start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, m.offset, m.error_length)
                 if text_language == 'en':
-                    message = polish_messages[m.category]
+                    message = polish_messages.get(m.category, m.message)
                 else:
                     message = m.message
                 errors.append(Error_type(

@@ -82,7 +82,7 @@ def sentence_check(blocks):
             match_list = []
             if block.block.type == "paragraph":
                 first_upper = None
-                if sum(1 for c in sentence.text if c.isalpha()) < 15:
+                if sum(1 for letter in sentence.text if letter.isalpha()) < 15:
                     continue
                 for letter in sentence.text:
                     if letter.isalpha():
@@ -90,7 +90,7 @@ def sentence_check(blocks):
                         break
                 if first_upper is None or not first_upper.isupper():
                     continue
-                if re.match(r'[^.\d]*\.[ .]{3,}', sentence.text):
+                if re.search(r'\.[ .]{4,}', block.contents):
                     continue
                 if not is_subject:
                     #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.

@@ -70,7 +70,7 @@ def check_decimal_matches(potential_matches, block, chapter_numbers):
         match_end = match.offset + match.error_length
         after_text = block.contents[match_end:].lstrip()
         before_text = block.contents[:match.offset].rstrip()
-        if re.match(r'[^.\d]*\.[ .]{3,}', after_text):
+        if re.match(r'[^.\d]*\.[ .]{4,}', after_text):
             chapter_numbers.add(match.content)
             continue 
         if match.content in chapter_numbers:
