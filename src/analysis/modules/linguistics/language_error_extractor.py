@@ -19,7 +19,6 @@ def language_tool_analisys(blocks):
         'COLLOCATIONS': "Błąd kolokacji.",
         'COMPOUNDING': "Błąd łączenia słów.",
         'GRAMMAR': "Błąd gramatyczny.",
-        'MISC': "Różna odmiana.",
         'NONSTANDARD_PHRASES': "Możliwe złe użycie stałego stwierdzenia.",
         'PLAIN_ENGLISH': "Możliwe złe użycie stałego stwierdzenia.",
         'MULTITOKEN_SPELLING': "Błąd pisowni.",
@@ -39,10 +38,11 @@ def language_tool_analisys(blocks):
     tool_en.disabled_rules.add('EN_UNPAIRED_QUOTES')
     tool_en.disabled_categories.add('TON_ACADEMIC')
     tool_en.disabled_categories.add('CONFUSED_WORDS')
-    tool_en._disabled_categories.add('CREATIVE_WRITING')
+    tool_en.disabled_categories.add('NONSTANDARD_PHRASES')
     tool_en.disabled_categories.add('REPETITIONS_STYLE')
     tool_en.disabled_categories.add('SEMATICS')
     tool_en.disabled_categories.add('STYLE')
+    tool_en.disabled_categories.add('MISC')
     tool_pl = language_tool_python.LanguageTool('pl-PL')
     tool_pl.disabled_rules.add('NIETYPOWA_KOMBINACJA_DUZYCH_I_MALYCH_LITER')
     tool_pl.disabled_rules.add('PL_UNPAIRED_BRACKETS')
@@ -52,7 +52,7 @@ def language_tool_analisys(blocks):
     tool_pl.disabled_rules.add('SPACJA_ZA_PRZECINKIEM_DZIESITNYM')
     tool_pl.disabled_rules.add('ZDANIE_PODRZEDNE_Z_KTORY_LUB_JAKI')
     tool_pl.disabled_categories.add('MISC')
-
+    #tool_pl.disabled_categories.add('TYPOS')
         
     detector = language_detector
 
@@ -68,7 +68,7 @@ def language_tool_analisys(blocks):
                 if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
                     if block.block.type != "paragraph":
                         continue
-                    elif not any(match.matched_text.isalpha() for _ in match.matched_text):
+                    elif not any(letter.isalpha() for letter in match.matched_text):
                         continue
                 if match.category == "TYPOS" and text_language == "pl":
                     word = contents[match.offset:match.offset + match.error_length]

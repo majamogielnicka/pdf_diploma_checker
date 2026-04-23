@@ -52,8 +52,11 @@ def check_first_definition(blocks, proper_names):
     """
 
     acronyms_with_definitions = {}
+    bibliography_re = re.compile(r"^\[\d+\]")
     list_acronyms = re.compile(r'^[A-Z]{2,}\s+[\u2013\u2014\-\u2212:]\s|^((\S+\s){1,4})[\u2013\u2014\-\u2212:]\s')
-    paragraph_def_first = re.compile(r'([A-Z\u00c0-\u017d][a-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c\w\s]+)\s*\(([A-Z]{2,})\)')
+    paragraph_def_first = re.compile(r'(?<![A-Za-z\u0104\u0106\u0118\u0141\u0143\u00d3\u015a\u0179\u017b\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c])([A-Z\u0104\u0106\u0118\u0141\u0143\u00d3\u015a\u0179\u017b][a-zA-Z\u0104-\u017e\s\-]{2,}?)\s*\(([A-Z]{2,})\)(?=[,\s\.\)\;]|$)',re.UNICODE)
+    paragraph_def_first_lower = re.compile(r'(?<![A-Za-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c])([a-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c][a-zA-Z\u0104-\u017e\s\-]{2,}?)\s*\(([A-Z]{2,})\)(?=[,\s\.\)\;]|$)',re.UNICODE)
+    paragraph_def_with_comma = re.compile(r'(?<![A-Za-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c])([a-zA-Z\u0104-\u017e][a-zA-Z\u0104-\u017e\s\-]{2,}?)\s*\(([A-Z]{2,})[,\s]',re.UNICODE)
     paragraph_acr_first = re.compile(r'\(([A-Z]{2,})\)\s([A-Z\u00c0-\u017d][a-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c\w\s]+)')
     paragraph_acr_then_expansion = re.compile(r'\b([A-Z]{2,})\s*\(([A-Z][a-zA-ZÀ-Ž][a-zA-ZÀ-Žąćęłńóśźż\s\-]{2,})\)')
     split = re.compile(r"\s[-\u2013\u2014]\s")
@@ -61,6 +64,8 @@ def check_first_definition(blocks, proper_names):
     for block in blocks:
         block = block.block
         words = block.words
+        if bibliography_re.search(block.content):
+            continue
         if block.type == "acronyms":
             list_of_acronyms = block.content.split("\n")
             for item in list_of_acronyms:
@@ -82,9 +87,13 @@ def check_first_definition(blocks, proper_names):
                 text = block.content
                 new_acronyms = paragraph_acr_first.findall(text)
                 new_acronyms.extend(paragraph_acr_then_expansion.findall(text))
+                
                 for new_acronym in new_acronyms:
                     acronyms_with_definitions = check_position_if_new(new_acronym[0], new_acronym[1], words, block.block_id, acronyms_with_definitions, proper)
                 new_acronyms = paragraph_def_first.findall(text)
+                new_acronyms.extend(paragraph_def_with_comma.findall(text))
+                new_acronyms.extend(paragraph_def_first_lower.findall(text))
                 for new_acronym in new_acronyms:
                     acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions, proper)
+    # print(f'\n acronyms_with_definitions: \n' + '\n'.join([f'{acronym}: {acronyms_with_definitions[acronym][0]}' for acronym in acronyms_with_definitions]))
     return acronyms_with_definitions

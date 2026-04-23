@@ -1,4 +1,5 @@
 from .helpers import add_match
+import re
 
 def potential_acronym(text):
 
@@ -8,8 +9,9 @@ def potential_acronym(text):
     "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS",
     "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA",
     }
-
     clean_text = text.strip("():;,.!?[]\n\t \"„”«»“‟‘’")
+    if re.match(r'^([A-Z]\.){1,}[A-Z]?$', clean_text):
+        return False
     if len(clean_text) < 2 or len(clean_text) > 10:
         return False
     if clean_text.islower():
@@ -76,9 +78,9 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                     if (page, word.bbox[1], word.bbox[0]) < (acronym_page, acronym_bbox[1], acronym_bbox[0]):
                         if clean_text not in reported_acronyms:
                             reported_acronyms.add(clean_text)
-                            matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], (word.bbox[2], word.bbox[3]), category, message))
+                            matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))
                 else:
                     if clean_text not in reported_acronyms:
                         reported_acronyms.add(clean_text)
-                        matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], (word.bbox[2], word.bbox[3]), category, message))
+                        matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))
     return matches

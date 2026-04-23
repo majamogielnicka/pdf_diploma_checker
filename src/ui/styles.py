@@ -1,6 +1,6 @@
 
 MAIN_BG = "background-color: #FFFFFF;"
-START_PAGE_BG = "background-color: #f3f3f3;"
+START_PAGE_BG = "background-color: #ffffff;"
 
 HEADER_TEXT = "font-size: 24px; font-weight: bold; color: #000000; border: none;"
 SECTION_TITLE = "font-size: 18px; font-weight: 500; color: #000000; border: none;"
@@ -92,19 +92,69 @@ CHECKBOX_STYLE = """
     }
 """
 
-TOOLBAR_STYLE = "background-color: white; border-bottom: 1px solid #E0E0E0;"
+TOOLBAR_STYLE = "background-color: white;"
 
-NORMAL_LABEL_STYLE = "font-size: 15px; font-weight: 500; color: #2c3e50; padding-left: 10px; border: none;"
+NORMAL_LABEL_STYLE = "font-size: 16px; font-weight: bold; color: #000; padding-left: 10px; border: none;"
 
 SEPARATOR_STYLE = "color: #aaa; font-weight: bold; border: none;"
 
 LANG_BTN_STYLE = "font-weight: bold; color: #555; margin-right: 15px; border: none;"
 
-RIGHT_PANEL_STYLE = "background-color: #F8F9FA; border-left: 1px solid #E0E0E0;"
+RIGHT_PANEL_STYLE = "background-color: #f3f3f3;"
 
-VERIFY_TITLE_STYLE = "font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; border: none;"
+VERIFY_TITLE_STYLE = "font-size: 18px; font-weight: normal; color: #000; margin-top: 16px; margin-bottom: 10px; border: none;"
 
-PDF_VIEW_STYLE = "QPdfView { background-color: #F0F0F0; border: none; }"
+PDF_VIEW_STYLE = """
+    /* Ewentualne tło i ramka samej przeglądarki PDF */
+    QPdfView {
+        background-color: #E0E0E0;
+        border: none;
+    }
+
+    /* --- PIONOWY PASEK (Góra/Dół) --- */
+    QScrollBar:vertical {
+        border: none;
+        background: transparent; 
+        width: 12px; 
+        margin: 0px; 
+    }
+    QScrollBar::handle:vertical {
+        background: #C4C4C4; 
+        min-height: 30px; 
+        border-radius: 6px; 
+    }
+    QScrollBar::handle:vertical:hover {
+        background: #A0A0A0; 
+    }
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+        height: 0px; 
+    }
+    QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+        background: none; 
+    }
+
+    /* --- POZIOMY PASEK (Lewo/Prawo - po zrobieniu Zoom In) --- */
+    QScrollBar:horizontal {
+        border: none;
+        background: transparent; 
+        height: 12px; /* Grubość paska poziomego (height zamiast width) */
+        margin: 0px; 
+    }
+    QScrollBar::handle:horizontal {
+        background: #C4C4C4; 
+        min-width: 30px; /* Szerokość uchwytu (min-width zamiast min-height) */
+        border-radius: 6px; 
+    }
+    QScrollBar::handle:horizontal:hover {
+        background: #A0A0A0; 
+    }
+    QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+        width: 0px; 
+    }
+    QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+        background: none; 
+    }
+"""
 
 DIALOG_STYLE = "background-color: white; border-radius: 12px;"
 
@@ -146,14 +196,34 @@ ANALIZA_BTN_STYLE = """
 
 PROGRESS_BAR_STYLE = """
     QProgressBar {
-        border: 1,5px solid #C4C4C4;
         border-radius: 5px;
         text-align: center;
         background-color: #f0f0f0;
         height: 25px;
     }
     QProgressBar::chunk {
+        border-radius: 5px;
         background-color: #2196F3;
-        width: 10px;
+    }
+"""
+
+
+FILE_BADGE_FRAME = """
+    QFrame {
+        border: 1px solid #C4C4C4;
+        border-radius: 8px;
+        background-color: #FFFFFF;
+        padding: 10px;
+    }
+"""
+
+ICON_BUTTON_STYLE = """
+    QPushButton {
+        border: none;
+        background: transparent;
+    }
+    QPushButton:hover {
+        background-color: #f0f0f0;
+        border-radius: 4px;
     }
 """

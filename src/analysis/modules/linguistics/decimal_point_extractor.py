@@ -18,7 +18,6 @@ def decimal_check(blocks):
     """
     counter = 0
     checked_matches = []
-
     for block in blocks:
         if block.block.type == 'paragraph':
             if block.language == 'pl':
@@ -29,6 +28,7 @@ def decimal_check(blocks):
             text = block.contents
             regexes = list(re.finditer(regex, text))
             for reg in regexes:
+                
                 start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
                 potential_matches.append(Error_type(
                     content=text[reg.start():reg.end()],
@@ -63,11 +63,18 @@ def check_decimal_matches(potential_matches, block):
     black_list = {"%", "$", "€", "£", "zł", "usd", "eur", "gbp", "°"}
     #for now set with declensions, it's faster than using spacy.
     #once all headers and footers will be extracted, list of chapters and attachments
-    white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "tabela", "tabeli", "tabelom", "wykres", "wykresu", "wykresom", "wykresowi", "wykresie", "wykresach", "rozdziale", "rozdział", "rozdziały", "rozdziałów"}
+    white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "wykres", "wykresu", "wykresom", "wykresowi", "wykresie", "wykresach", "rozdziale", "rozdział", "rozdziały", "rozdziałów"}
     checked_matches = []
+    chapter_numbers = set()
     for match in potential_matches: 
         is_error = 1 #zero for excluded, 1 for supposed but can not be fully certain, 2 for certain mistake.
         match_end = match.offset + match.error_length
+        after_text = block.contents[match_end:].lstrip()
+        if re.match(r'[^.\d]*\.[ .]{3,}', after_text):
+            chapter_numbers.add(match.content)
+            continue 
+        if match.content in chapter_numbers:
+            continue
         end_check_idx = min(match_end+30, len(block.contents))
         following_text = re.findall(r'[^.()\[\]{}:,;\s]+',block.contents[match_end:end_check_idx].lower())
         begin_check_idx = max(match.offset-30, 0)
