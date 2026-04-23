@@ -113,12 +113,22 @@ class PDFMapper:
         # Pętla zapisująca zawartość bufora
         for i, data in enumerate(paragraph_buffer):
             content = data['content']
+            separator = ""
+            removed_hyphen = False
 
             separator = ""
             if is_acronym_block and i > 0:
                 separator = "\n"
-            elif i > 0 and not combined_content.rstrip().endswith('-'):
-                separator = " "
+            elif i > 0:
+                if combined_content.rstrip().endswith('-'):
+                    separator = ""
+                    removed_hyphen = True
+                else:
+                    separator = " "
+
+                if removed_hyphen:
+                    combined_content = combined_content.rstrip()[:-1]
+                    current_offset = len(combined_content)
 
             for word in data['words']:
                 shift = current_offset + len(separator)
@@ -143,13 +153,17 @@ class PDFMapper:
             last_word = data['words'][-1]
             if combined_words and len(combined_words) >= 10:
                 last_word = combined_words[-1]
-                second_to_last_word = combined_words[-2]    
-                if last_word.line != second_to_last_word.line:
-                    is_widow = 1
-                elif len(combined_words) >= 3:
-                    third_to_last_word = combined_words[-3]
-                    if second_to_last_word.line != third_to_last_word.line:
-                        is_widow = 2
+                second_to_last_word = combined_words[-2] 
+                word_text = getattr(last_word, 'text', str(last_word))
+                if (last_word.page_number < 8 and last_word.page_number > 2):
+                    continue 
+                elif word_text.count(' ') <= 1:
+                    if last_word.line != second_to_last_word.line:
+                        is_widow = 1
+                    elif len(combined_words) >= 3:
+                        third_to_last_word = combined_words[-3]
+                        if second_to_last_word.line != third_to_last_word.line:
+                            is_widow = 2
 
             # Detekcja bękartów
             if combined_words:

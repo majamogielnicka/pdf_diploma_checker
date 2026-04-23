@@ -38,6 +38,7 @@ def language_tool_analisys(blocks):
     tool_en.disabled_categories.add('TON_ACADEMIC')
     tool_en.disabled_categories.add('CONFUSED_WORDS')
     tool_en.disabled_categories.add('NONSTANDARD_PHRASES')
+    tool_en.disabled_categories.add('NONSTANDARD_PHRASES')
     tool_en.disabled_categories.add('REPETITIONS_STYLE')
     tool_en.disabled_categories.add('SEMATICS')
     tool_en.disabled_categories.add('STYLE')
@@ -76,6 +77,7 @@ def language_tool_analisys(blocks):
                     #print(f'{match.category} {match.rule_id} {match.matched_text} {text_language}')
                     if block.block.type != "paragraph":
                         continue
+                    elif not any(letter.isalpha() for letter in match.matched_text):
                     elif not any(letter.isalpha() for letter in match.matched_text):
                         continue
                 if match.category == "TYPOS" and text_language == "pl":
