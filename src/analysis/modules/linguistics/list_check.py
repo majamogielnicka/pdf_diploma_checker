@@ -52,9 +52,15 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
     #symbols = set(r"""`~!@#$%^&*()_-+={[}}|\:;"'<,>.?/""")
     quote_marks = {'"', '„', '”', '«', '»', '('}
     definition_search = re.compile(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s')
-
+    current_heading = ""
     for b in blocks:
         block = b.block
+        if block.type == "heading":
+            current_heading = block.content.upper()
+            continue
+            
+        if any(h in current_heading for h in ["LISTA SKRÓTÓW", "WYKAZ SKRÓTÓW", "SPIS TREŚCI", "SPIS RYSUNKÓW", "SPIS TABEL", "BIBLIOGRAFIA"]):
+            continue
         language = b.language
         if block.type == "list":            
             casing_error_ids = []

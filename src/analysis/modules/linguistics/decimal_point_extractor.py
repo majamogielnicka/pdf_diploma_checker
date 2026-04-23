@@ -18,6 +18,7 @@ def decimal_check(blocks):
     """
     counter = 0
     checked_matches = []
+    chapter_numbers = set()
     for block in blocks:
         if block.block.type == 'paragraph':
             if block.language == 'pl':
@@ -28,7 +29,6 @@ def decimal_check(blocks):
             text = block.contents
             regexes = list(re.finditer(regex, text))
             for reg in regexes:
-                
                 start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
                 potential_matches.append(Error_type(
                     content=text[reg.start():reg.end()],
@@ -42,12 +42,12 @@ def decimal_check(blocks):
                     word_idxs = word_idxs,
                     error_coordinate= error_coordinate,
                 ))
-            checked_match, decimal_counter = check_decimal_matches(potential_matches, block)
+            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers)
             checked_matches.extend(checked_match)
             counter += decimal_counter
     return checked_matches, counter
 
-def check_decimal_matches(potential_matches, block):
+def check_decimal_matches(potential_matches, block, chapter_numbers):
 
     """
     Checks potentially wrongly used decimal point with criteria.
@@ -65,15 +65,17 @@ def check_decimal_matches(potential_matches, block):
     #once all headers and footers will be extracted, list of chapters and attachments
     white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "wykres", "wykresu", "wykresom", "wykresowi", "wykresie", "wykresach", "rozdziale", "rozdział", "rozdziały", "rozdziałów"}
     checked_matches = []
-    chapter_numbers = set()
     for match in potential_matches: 
         is_error = 1 #zero for excluded, 1 for supposed but can not be fully certain, 2 for certain mistake.
         match_end = match.offset + match.error_length
         after_text = block.contents[match_end:].lstrip()
+        before_text = block.contents[:match.offset].rstrip()
         if re.match(r'[^.\d]*\.[ .]{3,}', after_text):
             chapter_numbers.add(match.content)
             continue 
         if match.content in chapter_numbers:
+            continue
+        if (before_text.endswith('[') or before_text.endswith('(')) and (after_text.startswith(']') or after_text.startswith(')')):
             continue
         end_check_idx = min(match_end+30, len(block.contents))
         following_text = re.findall(r'[^.()\[\]{}:,;\s]+',block.contents[match_end:end_check_idx].lower())
@@ -82,14 +84,15 @@ def check_decimal_matches(potential_matches, block):
         if check_quotes(match, block.contents):
             is_error = 0
         elif check_if_proper(block.block, match, is_diff= True):
-            print(match.content)
             is_error = 0
         elif following_text and len(set(black_list).intersection(following_text)) > 0:
             is_error = 2
         elif previous_text and len(set(white_list_pl).intersection(previous_text)) > 0:
             is_error = 0
+            chapter_numbers.add(match.content)
         elif following_text and len(set(white_list_pl).intersection(following_text)) > 0:
             is_error = 0 
+            chapter_numbers.add(match.content)
         elif block.block.type == "heading" and match.word_idxs and (match.word_idxs[0] == 0 or match.word_idxs[0] == 1):
             is_error = 0
 

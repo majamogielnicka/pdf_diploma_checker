@@ -5,6 +5,7 @@ from .exeptions_check import check_quotes
 from .helpers import get_match_info, morf, language
 from .linguistics_types import Error_type, Analisys_type
 from .proper_check import check_if_proper
+import re
 
 def sentence_check(blocks):
     '''
@@ -40,7 +41,9 @@ def sentence_check(blocks):
                         to_add = True
                         if block.language == 'pl':
                             to_add = morfeusz_check(token.text)
-                        if token.idx > 0 and text[token.idx - 1] == '-':
+                        if token.idx > 0 and (text[token.idx - 1] == '-'):
+                            to_add = False
+                        elif (token.idx + len(token) + 1) < len(text) and (text[token.idx + len(token)] == '-'):
                             to_add = False
                         if to_add:
                             start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, token.idx, len(token))
@@ -58,7 +61,7 @@ def sentence_check(blocks):
                             )   
                             if not check_quotes(match, text) and not check_if_proper(block.block, match, is_diff = True):
                                 checked_matches.append(match)
-                if token.dep_ in {'nsubj', 'nsubj:pass'}:
+                if token.dep_ in {'nsubj', 'nsubj:pass', 'nsubjpass', 'attr'}:
                     is_subject = True
                 if token.pos_ in {'VERB', 'AUX'}:
                     is_verb = True    
@@ -78,15 +81,24 @@ def sentence_check(blocks):
                             impersonal_count +=1
             match_list = []
             if block.block.type == "paragraph":
-                if not any(letter.isalpha() for letter in sentence.text):
-                        continue
+                first_upper = None
+                if sum(1 for c in sentence.text if c.isalpha()) < 15:
+                    continue
+                for letter in sentence.text:
+                    if letter.isalpha():
+                        first_upper = letter
+                        break
+                if first_upper is None or not first_upper.isupper():
+                    continue
+                if re.match(r'[^.\d]*\.[ .]{3,}', sentence.text):
+                    continue
                 if not is_subject:
                     #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.
                     match_list.append(("NO_SUBJECT", "Brak podmiotu w zdaniu."))
                 if not is_verb:
                     match_list.append(("NO_VERB", "Brak orzeczenia w zdaniu."))
             for category, message in match_list:
-                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, sentence[0].idx, len(sentence))
+                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, sentence[0].idx, len(sentence.text))
                 match = Error_type(
                 content= text[sentence[0].idx:(sentence[0].idx+len(sentence.text))],
                 category=  category,

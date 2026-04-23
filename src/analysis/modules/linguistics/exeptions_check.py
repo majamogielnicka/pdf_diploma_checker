@@ -37,8 +37,15 @@ def check_exeptions(matches, blocks, proper_names):
                 inside_quotes = check_quotes(match, text)
                 if not inside_quotes:
                     if match.category == 'TYPOS':
-                        if any(letter == '-' for letter in match.content):
-                            continue
+                        try:
+                            if any(letter == '-' for letter in match.content):
+                                continue
+                            elif match.offset > 0 and text[match.offset - 1] == '-':
+                                continue
+                            elif match.offset + len(match.content) < len(text) and text[match.offset + len(match.content)] == '-':
+                                continue
+                        except:
+                            print(f'błędne koordynaty: {match.content} {match.offset}')
                         lemma, is_found = lemmatization(word, block.language)
                         if check_if_proper(block.block, match, proper_names, lemma):
                             continue
