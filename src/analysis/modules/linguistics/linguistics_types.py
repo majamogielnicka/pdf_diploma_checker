@@ -12,7 +12,7 @@ class Error_type:
     page_start: int
     page_end: int
     word_idxs: list[int]
-    error_coordinate: tuple
+    error_coordinate: list[dict]
 
 @dataclass
 class Analisys_type:

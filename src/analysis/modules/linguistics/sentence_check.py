@@ -40,6 +40,8 @@ def sentence_check(blocks):
                         to_add = True
                         if block.language == 'pl':
                             to_add = morfeusz_check(token.text)
+                        if token.idx > 0 and text[token.idx - 1] == '-':
+                            to_add = False
                         if to_add:
                             start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, token.idx, len(token))
                             match = Error_type(
@@ -76,6 +78,8 @@ def sentence_check(blocks):
                             impersonal_count +=1
             match_list = []
             if block.block.type == "paragraph":
+                if not any(letter.isalpha() for letter in sentence.text):
+                        continue
                 if not is_subject:
                     #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.
                     match_list.append(("NO_SUBJECT", "Brak podmiotu w zdaniu."))

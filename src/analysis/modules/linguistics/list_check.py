@@ -15,7 +15,7 @@ def add_list_error(items_by_id, num, block_id, category):
     word_idxs = [word.word_index for word in item.words]
     page_start = item.words[0].page_number
     page_end = item.words[-1].page_number
-    error_coordinate = (item.words[-1].bbox[2], item.words[-1].bbox[3])
+    error_coordinate = [{"page": item.words[-1].page_number, "coordinates": list(item.words[-1].bbox)}]
     return add_match(item.text, block_id, page_start, page_end, word_idxs, error_coordinate, category, Category_and_message[category])
 
 def is_short_definition(text, text_language):

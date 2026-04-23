@@ -37,13 +37,14 @@ def check_exeptions(matches, blocks, proper_names):
                 inside_quotes = check_quotes(match, text)
                 if not inside_quotes:
                     if match.category == 'TYPOS':
+                        if any(letter == '-' for letter in match.content):
+                            continue
                         lemma, is_found = lemmatization(word, block.language)
                         if check_if_proper(block.block, match, proper_names, lemma):
                             continue
                         potential_exeptions[lemma].append(match)
                         potential_exeption = True
                     if match.category == "CASING" and match.offset == 0:
-                    # if match.category == "CASING" and block.type == "heading" and match.offset == 0:
                         continue
                 if not inside_quotes and not potential_exeption:
                     valid_errors.append(match)
