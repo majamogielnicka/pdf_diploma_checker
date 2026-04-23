@@ -29,7 +29,6 @@ def decimal_check(blocks):
             text = block.contents
             regexes = list(re.finditer(regex, text))
             for reg in regexes:
-                
                 start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
                 potential_matches.append(Error_type(
                     content=text[reg.start():reg.end()],
@@ -65,9 +64,7 @@ def check_decimal_matches(potential_matches, block, chapter_numbers):
     #for now set with declensions, it's faster than using spacy.
     #once all headers and footers will be extracted, list of chapters and attachments
     white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "wykres", "wykresu", "wykresom", "wykresowi", "wykresie", "wykresach", "rozdziale", "rozdział", "rozdziały", "rozdziałów"}
-    white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "wykres", "wykresu", "wykresom", "wykresowi", "wykresie", "wykresach", "rozdziale", "rozdział", "rozdziały", "rozdziałów"}
     checked_matches = []
-    chapter_numbers = set()
     for match in potential_matches: 
         is_error = 1 #zero for excluded, 1 for supposed but can not be fully certain, 2 for certain mistake.
         match_end = match.offset + match.error_length
