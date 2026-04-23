@@ -10,15 +10,16 @@ class ErrorMarker(QPushButton):
     def __init__(self, error_data, parent=None):
         super().__init__(parent)
         self.data = error_data
-        self.setFixedSize(10, 10)
+        self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet("""
             QPushButton {
                 background-color: rgba(255, 0, 0, 180);
                 border: 2px solid white;
-                border-radius: 10px;
+                border-radius: 8px;
                 color: white;
                 font-weight: bold;
+                padding: 0px;
             }
             QPushButton:hover { background-color: red; }
         """)
@@ -42,13 +43,13 @@ class CommentMarker(QPushButton):
     def __init__(self, comment_data, parent=None):
         super().__init__(parent)
         self.data = comment_data
-        self.setFixedSize(20, 20)
+        self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet("""
             QPushButton {
                 background-color: rgba(0, 120, 255, 180);
                 border: 2px solid white;
-                border-radius: 10px;
+                border-radius: 8px;
                 color: white;
                 font-weight: bold;
             }
@@ -108,9 +109,27 @@ class SelectablePdfView(QPdfView):
 
     def add_errors(self, errors_list):
         self.clear_markers()
+        
+        for b in self.highlight_boxes:
+            b.deleteLater()
+        self.highlight_boxes.clear()
+
         for err in errors_list:
             marker = ErrorMarker(err, self.viewport())
             self.markers.append(marker)
+            
+            w = err.get("wspolrzedne", {}).get("w", 0)
+            h = err.get("wspolrzedne", {}).get("h", 0)
+            
+            if w > 0 and h > 0:
+                box = HighlightBox(err, self.viewport())
+                box.setStyleSheet("""
+                    QFrame {
+                        background-color: rgba(255, 0, 0, 60); 
+                    }
+                """)
+                self.highlight_boxes.append(box)
+
         self.update_markers_pos()
 
     def update_markers_pos(self):
@@ -130,17 +149,29 @@ class SelectablePdfView(QPdfView):
             target_page_y_px = self.documentMargins().top()
             for i in range(page_idx):
                 size_pt = doc.pagePointSize(i)
-                target_page_y_px += (size_pt.height() * zoom * (dpi_y / 72.0)) + self.pageSpacing()
+                page_h_px = round(size_pt.height() * zoom * (dpi_y / 72.0))
+                target_page_y_px += page_h_px + self.pageSpacing()
 
             size_pt = doc.pagePointSize(page_idx)
             page_w_px = size_pt.width() * zoom * (dpi_x / 72.0)
             viewport_w = self.viewport().width()
             x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
 
-            px_x = x_start_px + (coords["x"] * zoom * (dpi_x / 72.0)) - self.horizontalScrollBar().value()
-            px_y = target_page_y_px + (coords["y"] * zoom * (dpi_y / 72.0)) - self.verticalScrollBar().value()
-
-            marker.move(int(px_x - 10), int(px_y - 10))
+            px_x = x_start_px + (coords.get("x", 0) * zoom * (dpi_x / 72.0)) - self.horizontalScrollBar().value()
+            px_y = target_page_y_px + (coords.get("y", 0) * zoom * (dpi_y / 72.0)) - self.verticalScrollBar().value()
+            
+            px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
+            
+            odstep_od_gory = -12 
+            
+            if px_w > 0:
+                marker_x = px_x + (px_w / 2) - 8 
+            else:
+                marker_x = px_x - 8
+                
+            marker_y = px_y - odstep_od_gory
+            
+            marker.move(int(marker_x), int(marker_y))
             marker.show()
         for box in self.highlight_boxes:
             data = box.data

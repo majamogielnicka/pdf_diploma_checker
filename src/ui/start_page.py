@@ -6,6 +6,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtSvgWidgets import QSvgWidget
+from PySide6.QtWidgets import QGraphicsDropShadowEffect 
+from PySide6.QtGui import QColor
 import styles
 
 class StartPage(QWidget):
@@ -16,6 +18,7 @@ class StartPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAcceptDrops(True)
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self.setStyleSheet(styles.START_PAGE_BG)
         
         self.sort_newest = True
@@ -36,12 +39,33 @@ class StartPage(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(30, 20, 30, 30)
-        main_layout.setSpacing(20)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        self.header_frame = QFrame()
+        self.header_frame.setFixedHeight(70)
+        self.header_frame.setStyleSheet("background-color: #FFFFFF; border: none;")
+
+        header_layout = QHBoxLayout(self.header_frame)
+        header_layout.setContentsMargins(30, 0, 30, 0)
 
         title = QLabel("Dokumenty")
-        title.setStyleSheet(styles.HEADER_TEXT)
-        main_layout.addWidget(title)
+        title.setStyleSheet(styles.HEADER_TEXT + " background: transparent;")
+        header_layout.addWidget(title)
+        header_layout.addStretch()
+
+        shadow = QGraphicsDropShadowEffect(self.header_frame)
+        shadow.setBlurRadius(15)
+        shadow.setColor(QColor(0, 0, 0, 30))
+        shadow.setOffset(0, 4)
+        self.header_frame.setGraphicsEffect(shadow)
+        main_layout.addWidget(self.header_frame)
+
+        self.content_widget = QWidget()
+        self.content_widget.setStyleSheet("background: transparent;")
+        content_layout = QVBoxLayout(self.content_widget)
+        content_layout.setContentsMargins(30, 30, 30, 30)
+        content_layout.setSpacing(20)
 
         self.upload_frame = QFrame()
         self.upload_frame.setStyleSheet(styles.UPLOAD_ZONE_STYLE)
@@ -54,9 +78,7 @@ class StartPage(QWidget):
         icon_path = os.path.join("src", "assets", "pdf_file.svg")
         
         if os.path.exists(icon_path):
-            from PySide6.QtGui import QIcon
-            pixmap = QIcon(icon_path).pixmap(QSize(50, 50))
-            self.pdf_icon.setPixmap(pixmap)
+            self.pdf_icon.setPixmap(QIcon(icon_path).pixmap(QSize(50, 50)))
         else:
             self.pdf_icon.setText("📄")
             
@@ -64,14 +86,14 @@ class StartPage(QWidget):
         self.pdf_icon.setAlignment(Qt.AlignCenter)
         self.pdf_icon.setStyleSheet("""
             QLabel {
-                background-color: #BDDCFF; /* Jasnoniebieskie tło (dopasuj odcień jeśli potrzebujesz) */
-                border-radius: 35px;       /* 50px to dokładnie połowa ze 100px = idealne kółko */
+                background-color: #BDDCFF;
+                border-radius: 35px;
                 border: none;
             }
         """)
         
         txt_drag = QLabel("Przeciągnij tu plik")
-        txt_drag.setStyleSheet("font-weight: bold; font-size: 14px; border: none;")
+        txt_drag.setStyleSheet("font-weight: bold; font-size: 14px; border: none; background: transparent;")
         
         self.add_btn = QPushButton("+ Dodaj plik")
         self.add_btn.setStyleSheet(styles.BLUE_BUTTON_STYLE)
@@ -84,7 +106,7 @@ class StartPage(QWidget):
         up_layout.addWidget(self.add_btn, alignment=Qt.AlignCenter)
         up_layout.addStretch()
         
-        main_layout.addWidget(self.upload_frame)
+        content_layout.addWidget(self.upload_frame)
 
         self.docs_card = QFrame()
         self.docs_card.setObjectName("DocsCard")
@@ -120,7 +142,6 @@ class StartPage(QWidget):
         search_section.addStretch()
         search_section.addWidget(self.search_input)
         search_section.addWidget(self.sort_btn)
-        
         card_layout.addLayout(search_section)
 
         self.table_container = QWidget()
@@ -132,7 +153,9 @@ class StartPage(QWidget):
         card_layout.addWidget(self.table_container)
         card_layout.addStretch()
 
-        main_layout.addWidget(self.docs_card)
+        content_layout.addWidget(self.docs_card)
+        main_layout.addWidget(self.content_widget)
+        self.header_frame.raise_()
 
     def on_search(self, text):
         self.search_text = text.lower()
@@ -335,6 +358,8 @@ class StartPage(QWidget):
             }
             QPushButton:hover { text-decoration: underline; }
         """)
+        del_btn.setCursor(Qt.PointingHandCursor)
+        del_btn.clicked.connect(lambda checked=False, p=path: self.deleteRequested.emit(p))
         status_container.setFixedWidth(200)
         date_lbl.setFixedWidth(100)
         del_btn.setFixedWidth(50)

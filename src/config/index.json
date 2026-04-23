@@ -1,36 +1,43 @@
 {
     "prace": [
         {
-            "nazwa_pliku": "StronaTytulowa_197585-3.pdf",
-            "sciezka_lokalna": "/home/m/Downloads/StronaTytulowa_197585-3.pdf",
-            "typ": "inzynierska",
-            "data_dodania": "2026-03-16"
-        },
-        {
-            "nazwa_pliku": "bosh.pdf",
-            "sciezka_lokalna": "/home/m/uni/sem6/zsd/data/bosh.pdf",
-            "typ": "inzynierska",
-            "data_dodania": "2026-03-16"
-        },
-        {
-            "nazwa_pliku": "jost.pdf",
-            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jost.pdf",
+            "nazwa_pliku": "jost2.pdf",
+            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jost2.pdf",
             "typ": "PDF",
-            "data_dodania": "2026-04-22",
-            "komentarze": []
-        },
-        {
-            "nazwa_pliku": "zusz.pdf",
-            "sciezka_lokalna": "C:/Users/48570/Desktop/ZSD/pdf_diploma_checker/data/zusz.pdf",
-            "typ": "PDF",
-            "data_dodania": "2026-04-22",
+            "data_dodania": "2026-04-23",
             "komentarze": []
         },
         {
             "nazwa_pliku": "ch.pdf",
-            "sciezka_lokalna": "C:/Users/48570/Desktop/ZSD/pdf_diploma_checker/data/ch.pdf",
+            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/ch.pdf",
             "typ": "PDF",
-            "data_dodania": "2026-04-22",
+            "data_dodania": "2026-04-23",
+            "komentarze": []
+        },
+        {
+            "nazwa_pliku": "jago.pdf",
+            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jago.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-04-23",
+            "komentarze": [
+                {
+                    "strona": 3,
+                    "tekst_komentarza": "a",
+                    "wspolrzedne": {
+                        "h": 9.015777610818986,
+                        "w": 110.44327573253187,
+                        "x": 134.1096919609316,
+                        "y": 344.20644703670825
+                    },
+                    "znaleziony_tekst": "3.1.4 Sieć piramidy cech"
+                }
+            ]
+        },
+        {
+            "nazwa_pliku": "jabi.pdf",
+            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jabi.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-04-23",
             "komentarze": []
         }
     ],

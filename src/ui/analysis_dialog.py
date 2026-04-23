@@ -146,12 +146,18 @@ class PipelineWorker(QThread):
                 
                 x, y, w, h = 50.0, 50.0, 20.0, 20.0 
                 
-                if err_coord and isinstance(err_coord, (list, tuple)) and len(err_coord) >= 2:
-                    x, y = float(err_coord[0]), float(err_coord[1])
-                    w, h = 20.0, 20.0
-                elif pojedyncze_x is not None and pojedyncze_y is not None:
-                    x, y = float(pojedyncze_x), float(pojedyncze_y)
-                    w, h = 20.0, 20.0
+                if err_coord and isinstance(err_coord, list) and len(err_coord) > 0:
+                    first_coord = err_coord[0]
+                    if isinstance(first_coord, dict) and "coordinates" in first_coord:
+                        bbox_list = first_coord["coordinates"]
+                        if len(bbox_list) >= 4:
+                            x1, y1, x2, y2 = bbox_list[:4]
+                            x, y = float(x1), float(y1)
+                            w, h = float(x2 - x1), float(y2 - y1)
+                        
+                        if first_coord.get("page", -1) != -1:
+                            numer_strony = first_coord["page"]
+                            
                 elif isinstance(bbox, (list, tuple)):
                     if len(bbox) == 4:
                         x1, y1, x2, y2 = bbox
@@ -159,7 +165,9 @@ class PipelineWorker(QThread):
                         w, h = float(x2 - x1), float(y2 - y1)
                     elif len(bbox) == 2:
                         x, y = float(bbox[0]), float(bbox[1])
-                        w, h = 20.0, 20.0
+                        
+                elif pojedyncze_x is not None and pojedyncze_y is not None:
+                    x, y = float(pojedyncze_x), float(pojedyncze_y)
                 
                 if w <= 0: w = 20.0
                 if h <= 0: h = 20.0
@@ -281,10 +289,27 @@ class AnalysisDialog(QDialog):
         self.progress_widget = QWidget()
         self.progress_widget.setVisible(False)
         progress_layout = QVBoxLayout(self.progress_widget)
+        progress_layout.setSpacing(25)
+        
+        self.progress_label = QLabel("Przygotowywanie do analizy...")
+        self.progress_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        
         self.pbar = QProgressBar()
         self.pbar.setStyleSheet(styles.PROGRESS_BAR_STYLE)
-        progress_layout.addWidget(QLabel("Analizowanie dokumentu...", alignment=Qt.AlignCenter))
+        self.pbar.setRange(0, 100)
+        self.pbar.setValue(0)
+        self.pbar.setTextVisible(False)
+        
+        self.cancel_btn = QPushButton("Anuluj")
+        self.cancel_btn.setStyleSheet(styles.DELETE_BTN_STYLE)
+        self.cancel_btn.clicked.connect(self._cancel_analysis)
+        
+        progress_layout.addStretch()
+        progress_layout.addWidget(self.progress_label)
         progress_layout.addWidget(self.pbar)
+        progress_layout.addWidget(self.cancel_btn, alignment=Qt.AlignCenter)
+        progress_layout.addStretch()
+
         self.main_layout.addWidget(self.progress_widget)
 
         self.analyze_btn = QPushButton("Analizuj")
@@ -329,7 +354,7 @@ class AnalysisDialog(QDialog):
         
         czy_dokladny = self.btn_dokladny.isChecked()
         self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=czy_dokladny)
-        self.worker.progress_update.connect(lambda v, t: self.pbar.setValue(v))
+        self.worker.progress_update.connect(self._update_progress)
         self.worker.finished_success.connect(self._on_analysis_success)
         self.worker.finished_error.connect(lambda msg: self.reject())
         self.worker.start()
@@ -337,3 +362,22 @@ class AnalysisDialog(QDialog):
     def _on_analysis_success(self, final_report):
         self.final_report = final_report
         self.accept()
+
+    def _cancel_analysis(self):
+        if hasattr(self, 'worker') and self.worker.isRunning():
+            self.worker.terminate()
+            self.worker.wait()
+        self._reset_ui_state()
+
+    def _reset_ui_state(self):
+        self.pbar.setValue(0)
+        self.progress_label.setText("Przygotowywanie do analizy...")
+        self.progress_widget.setVisible(False)
+        self.config_widget.setVisible(True)
+        self.analyze_btn.setVisible(True)
+        self.close_btn.setEnabled(True)
+        self.title_label.setText("Przeanalizuj dokument")
+
+    def _update_progress(self, value, text):
+        self.pbar.setValue(value)
+        self.progress_label.setText(text)
