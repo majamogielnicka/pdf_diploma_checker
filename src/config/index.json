@@ -8,13 +8,6 @@
             "komentarze": []
         },
         {
-            "nazwa_pliku": "ch.pdf",
-            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/ch.pdf",
-            "typ": "PDF",
-            "data_dodania": "2026-04-23",
-            "komentarze": []
-        },
-        {
             "nazwa_pliku": "jago.pdf",
             "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jago.pdf",
             "typ": "PDF",
@@ -30,6 +23,37 @@
                         "y": 344.20644703670825
                     },
                     "znaleziony_tekst": "3.1.4 Sieć piramidy cech"
+                },
+                {
+                    "strona": 1,
+                    "tekst_komentarza": "a",
+                    "wspolrzedne": {
+                        "h": 19.5,
+                        "w": 429.0,
+                        "x": 95.625,
+                        "y": 206.25
+                    },
+                    "znaleziony_tekst": "oraz autorskiej syjamskiej sieci neuronowej. Sieć ta została wytrenowana na zbiorze danych CelebA oraz autorskiej syjamskiej sieci neuronowej. Sieć ta została wytrenowana na zbiorze danych CelebA. Natomiast w celu wykrywania emocji zaproponowano sieć neuronową wytrenowaną na zbiorze danych"
+                },
+                {
+                    "strona": 1,
+                    "tekst_komentarza": "b",
+                    "wspolrzedne": {
+                        "h": 6.75,
+                        "w": 193.5,
+                        "x": 133.125,
+                        "y": 282.75
+                    },
+                    "znaleziony_tekst": "Oba modele uzyskały satysfakcjonujące wyniki"
+                },
+                {
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "x": 496.0130004882812,
+                        "y": 274.5
+                    },
+                    "tekst_komentarza": "a",
+                    "znaleziony_tekst": "(Komentarz dodany w pustym miejscu)"
                 }
             ]
         },
@@ -38,6 +62,13 @@
             "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jabi.pdf",
             "typ": "PDF",
             "data_dodania": "2026-04-23",
+            "komentarze": []
+        },
+        {
+            "nazwa_pliku": "bosh.pdf",
+            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/bosh.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-04-25",
             "komentarze": []
         }
     ],
