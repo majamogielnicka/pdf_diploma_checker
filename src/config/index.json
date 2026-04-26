@@ -39,6 +39,13 @@
             "typ": "PDF",
             "data_dodania": "2026-04-23",
             "komentarze": []
+        },
+        {
+            "nazwa_pliku": "bosh.pdf",
+            "sciezka_lokalna": "/home/m/uni/sem6/zsd/data/bosh.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-04-26",
+            "komentarze": []
         }
     ],
     "konfiguracje_regul": []
