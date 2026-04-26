@@ -62,11 +62,11 @@ class AnalysisPipeline:
             try:
                 from run_sota import get_final_sota_report
 
-                plain_txt_purpose = get_plain_text(pdf_path)
+                plain_txt = get_plain_text(pdf_path)
                 txt_for_llm = extractPDF_llm(pdf_path)
 
                 language = "pl"
-                purpose = get_purpose(plain_txt_purpose, language)
+                purpose = get_purpose(plain_txt, language)
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
