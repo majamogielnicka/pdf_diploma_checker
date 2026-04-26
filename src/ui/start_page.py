@@ -75,7 +75,9 @@ class StartPage(QWidget):
         up_layout.setSpacing(10)
         
         self.pdf_icon = QLabel()
-        icon_path = os.path.join("src", "assets", "pdf_file.svg")
+        
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        icon_path = os.path.join(current_dir, "assets", "pdf_file.svg")
         
         if os.path.exists(icon_path):
             self.pdf_icon.setPixmap(QIcon(icon_path).pixmap(QSize(50, 50)))
@@ -224,7 +226,8 @@ class StartPage(QWidget):
         row_l = QHBoxLayout(row)
         row_l.setContentsMargins(5, 10, 5, 10)
         
-        icon_path = os.path.join("src", "assets", "pdf_file.svg")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        icon_path = os.path.join(current_dir, "assets", "pdf_file.svg")
         if os.path.exists(icon_path):
             icon_widget = QSvgWidget(icon_path)
             icon_widget.setFixedSize(30, 36) 
@@ -283,7 +286,8 @@ class StartPage(QWidget):
             icon_circle.setAlignment(Qt.AlignCenter)
             icon_circle.setFixedSize(20, 20)
             
-            tick_path = os.path.join("src", "assets", "tick.svg")
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            tick_path = os.path.join(current_dir, "assets", "tick.svg")
             if os.path.exists(tick_path):
                 from PySide6.QtGui import QIcon
                 icon_circle.setPixmap(QIcon(tick_path).pixmap(QSize(12, 12)))
@@ -318,7 +322,8 @@ class StartPage(QWidget):
             icon_circle.setAlignment(Qt.AlignCenter)
             icon_circle.setFixedSize(20, 20)
             
-            cross_path = os.path.join("src", "assets", "cross.svg")
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            cross_path = os.path.join(current_dir, "assets", "cross.svg")
             if os.path.exists(cross_path):
                 from PySide6.QtGui import QIcon
                 icon_circle.setPixmap(QIcon(cross_path).pixmap(QSize(10, 10)))

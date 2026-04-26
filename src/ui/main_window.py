@@ -177,8 +177,8 @@ class PDFReader(QMainWindow):
         l = QHBoxLayout(toolbar)
         
         self.back_btn = QPushButton()
-        
-        back_icon_path = os.path.join("src", "assets", "back.svg")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        back_icon_path = os.path.join(current_dir, "assets", "back.svg")
         if os.path.exists(back_icon_path):
             self.back_btn.setIcon(QIcon(back_icon_path))
             self.back_btn.setIconSize(QSize(24, 40))
@@ -350,7 +350,9 @@ class PDFReader(QMainWindow):
             
             target_page_y_px = self.pdf_view.documentMargins().top()
             for i in range(aktualna_strona):
-                target_page_y_px += (doc.pagePointSize(i).height() * zoom * (dpi_y / 72.0)) + self.pdf_view.pageSpacing()
+                page_size = doc.pagePointSize(i)
+                page_h_px = int((page_size.height() * zoom * (dpi_y / 72.0)) + 0.5)
+                target_page_y_px += page_h_px + self.pdf_view.pageSpacing()
 
             pdf_x = ((pos.x() + scroll_x - x_start_px) / zoom) * (72.0 / dpi_x)
             pdf_y = ((pos.y() + scroll_y - target_page_y_px) / zoom) * (72.0 / dpi_y)
@@ -445,7 +447,9 @@ class PDFReader(QMainWindow):
 
             if is_met:
                 badge.setStyleSheet("QFrame { background-color: #D1EEDC; border-radius: 13px; border: none; }")
-                tick_path = os.path.join("src", "assets", "tick.svg")
+                
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                tick_path = os.path.join(current_dir, "assets", "tick.svg")
                 if os.path.exists(tick_path):
                     icon_circle.setPixmap(QIcon(tick_path).pixmap(QSize(12, 12)))
                 else:
@@ -456,7 +460,9 @@ class PDFReader(QMainWindow):
                 text_lbl.setStyleSheet("color: #000; font-weight: bold; font-size: 12px; border: none; background: transparent;")
             else:
                 badge.setStyleSheet("QFrame { background-color: #F8D7DA; border-radius: 13px; border: none; }")
-                cross_path = os.path.join("src", "assets", "cross.svg")
+                
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                cross_path = os.path.join(current_dir, "assets", "cross.svg")
                 if os.path.exists(cross_path):
                     icon_circle.setPixmap(QIcon(cross_path).pixmap(QSize(10, 10)))
                 else:
