@@ -11,10 +11,8 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-
-
-from src.analysis.extraction.helper_llm.extraction_json_llm import extractPDF
-from src.analysis.extraction.helper_llm.converter_linguistics_llm import PDFMapper
+from src.analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
+from src.analysis.extraction.helper_llm.converter_linguistics_llm import PDFMapper_llm
 
 file_path = PROJECT_ROOT / "data" / "kana.pdf"
 
@@ -88,9 +86,8 @@ def get_level(number: str) -> int:
     return number.count(".") + 1
 
 
-def load_logical_blocks_from_pdf(pdf_path: Path):
-    raw_doc = extractPDF(str(pdf_path))
-    mapped_doc = PDFMapper.map_to_schema(raw_doc)
+def load_logical_blocks_from_pdf(raw_doc):
+    mapped_doc = PDFMapper_llm.map_to_schema(raw_doc)
     return mapped_doc.logical_blocks
 
 
@@ -190,8 +187,8 @@ def find_real_numbered_headings(logical_blocks):
     return sorted(latest_by_key.values(), key=lambda x: x["index"])
 
 
-def extract_subtitles_from_pdf(pdf_path: Path):
-    logical_blocks = load_logical_blocks_from_pdf(pdf_path)
+def extract_subtitles_from_pdf(raw_doc):
+    logical_blocks = load_logical_blocks_from_pdf(raw_doc)
     headings = find_real_numbered_headings(logical_blocks)
 
     subtitles = []
@@ -234,8 +231,8 @@ def print_subtitles(subtitles, max_chars: int = 250):
         print("-" * 80)
 
 
-def get_subtitles(pdf_path: Path, txt_path: Path | None = None):
-    subtitles = extract_subtitles_from_pdf(pdf_path)
+def get_subtitles(raw_doc, txt_path: Path | None = None):
+    subtitles = extract_subtitles_from_pdf(raw_doc)
 
     if txt_path is not None:
         export_subtitles_to_txt(subtitles, txt_path)
@@ -247,7 +244,9 @@ def main():
     pdf_path = Path(file_path)
     txt_path = Path("src/llm/wyniki/subtitles.txt")
 
-    subtitles = get_subtitles(pdf_path, txt_path)
+    raw_doc = extractPDF_llm(str(pdf_path))
+
+    subtitles = get_subtitles(raw_doc)
     print_subtitles(subtitles)
 
 

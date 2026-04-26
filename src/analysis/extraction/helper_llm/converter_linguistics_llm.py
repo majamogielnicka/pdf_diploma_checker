@@ -11,11 +11,11 @@ from .schema_llm import (
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
-from .extraction_json_llm import DocumentData, extractPDF, calculate_margins
+from .extraction_json_llm import DocumentData, extractPDF_llm, calculate_margins
 from .schema_llm import PageArtifact 
 
 #### wersja temporary, jutro sprawdz 
-class PDFMapper:
+class PDFMapper_llm:
     
     # Sprawdznie, czyy kolejny blok należy do danego podpunktu listy
     @staticmethod
@@ -199,12 +199,12 @@ class PDFMapper:
                         vertical_gap = current_y0 - last_y1
                         line_height = current_y1 - current_y0
                         if vertical_gap > line_height * 1.5:
-                            PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                            PDFMapper_llm.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
                     
                     last_y1 = current_y1
                     
                     if paragraph_buffer and (line_x0 > x0_margin + margin_indent_thresh):
-                        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                        PDFMapper_llm.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
 
                     # Wyliczenie mediany przerw dla bieżącej linii (do wykrycia podwójnych spacji)
                     line_gaps = []
@@ -274,8 +274,8 @@ class PDFMapper:
                     current_type = "img_decription"
 
                 if current_type:
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
-                    PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+                    PDFMapper_llm.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper_llm.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     
                     new_doc.logical_blocks.append(ParagraphBlock(
                         block_id=block.block_id,
@@ -285,9 +285,9 @@ class PDFMapper:
                     ))
                     continue
                 
-                if PDFMapper.is_header(words_info):
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
-                    PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+                if PDFMapper_llm.is_header(words_info):
+                    PDFMapper_llm.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper_llm.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     
                     new_doc.logical_blocks.append(ParagraphBlock(
                         block_id=block.block_id,
@@ -300,7 +300,7 @@ class PDFMapper:
                 block_type, marker_type = classify_block_content(full_text)
 
                 if block_type == "list":
-                    PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+                    PDFMapper_llm.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
                     cleaned_text = strip_list_marker(full_text, marker_type)
                     list_buffer.append({
                         'item': ListItem(
@@ -315,7 +315,7 @@ class PDFMapper:
                         'bbox': list(block.bbox),
                         'original_text': full_text
                     })
-                elif list_buffer and PDFMapper.is_continuation(list_buffer[-1]['bbox'], list(block.bbox)):
+                elif list_buffer and PDFMapper_llm.is_continuation(list_buffer[-1]['bbox'], list(block.bbox)):
                     last_item_data = list_buffer[-1]
                     connector = "" if last_item_data['item'].text.rstrip().endswith('-') else " "
                     last_item_data['item'].text += connector + full_text
@@ -331,7 +331,7 @@ class PDFMapper:
                     # Synchronizacja bbox w słowniku bufora
                     last_item_data['bbox'] = last_item_data['item'].bbox
                 else:
-                    PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+                    PDFMapper_llm.empty_list_buffer(new_doc.logical_blocks, list_buffer)
                     paragraph_buffer.append({
                         'content': full_text,
                         'words': words_info,
@@ -351,8 +351,8 @@ class PDFMapper:
                 new_doc.floating_elements.visual_elements.append(ve)
 
         # Opróżnianie buforów dopiero po przetworzeniu wszystkich stron, by uniknąć urywania akapitów
-        PDFMapper.empty_list_buffer(new_doc.logical_blocks, list_buffer)
-        PDFMapper.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
+        PDFMapper_llm.empty_list_buffer(new_doc.logical_blocks, list_buffer)
+        PDFMapper_llm.empty_paragraph_buffer(new_doc.logical_blocks, paragraph_buffer)
 
         return new_doc
 
@@ -366,8 +366,8 @@ def clean_ws(text: str) -> str:
 
 
 def get_plain_text(pdf_path):
-    raw_doc = extractPDF(str(pdf_path))
-    mapped_doc = PDFMapper.map_to_schema(raw_doc)
+    raw_doc = extractPDF_llm(str(pdf_path))
+    mapped_doc = PDFMapper_llm.map_to_schema(raw_doc)
 
     parts = []
 
