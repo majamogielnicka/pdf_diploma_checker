@@ -149,16 +149,21 @@ class SelectablePdfView(QPdfView):
             target_page_y_px = self.documentMargins().top()
             for i in range(page_idx):
                 size_pt = doc.pagePointSize(i)
-                page_h_px = round(size_pt.height() * zoom * (dpi_y / 72.0))
+                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
                 target_page_y_px += page_h_px + self.pageSpacing()
 
             size_pt = doc.pagePointSize(page_idx)
-            page_w_px = size_pt.width() * zoom * (dpi_x / 72.0)
+            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
             viewport_w = self.viewport().width()
             x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
 
-            px_x = x_start_px + (coords.get("x", 0) * zoom * (dpi_x / 72.0)) - self.horizontalScrollBar().value()
-            px_y = target_page_y_px + (coords.get("y", 0) * zoom * (dpi_y / 72.0)) - self.verticalScrollBar().value()
+            local_x_px = int((coords.get("x", 0) * zoom * (dpi_x / 72.0)) + 0.5)
+            local_y_px = int((coords.get("y", 0) * zoom * (dpi_y / 72.0)) + 0.5)
+            px_w = int((coords.get("w", 0) * zoom * (dpi_x / 72.0)) + 0.5)
+            px_h = int((coords.get("h", 0) * zoom * (dpi_y / 72.0)) + 0.5)
+
+            px_x = x_start_px + local_x_px - self.horizontalScrollBar().value()
+            px_y = target_page_y_px + local_y_px - self.verticalScrollBar().value()
             
             px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
             
@@ -179,19 +184,24 @@ class SelectablePdfView(QPdfView):
             coords = data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0})
             
             target_page_y_px = self.documentMargins().top()
+            
             for i in range(page_idx):
                 size_pt = doc.pagePointSize(i)
-                target_page_y_px += (size_pt.height() * zoom * (dpi_y / 72.0)) + self.pageSpacing()
+                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
+                target_page_y_px += page_h_px + self.pageSpacing()
 
             size_pt = doc.pagePointSize(page_idx)
-            page_w_px = size_pt.width() * zoom * (dpi_x / 72.0)
+            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
             viewport_w = self.viewport().width()
             x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
 
-            px_x = x_start_px + (coords["x"] * zoom * (dpi_x / 72.0)) - self.horizontalScrollBar().value()
-            px_y = target_page_y_px + (coords["y"] * zoom * (dpi_y / 72.0)) - self.verticalScrollBar().value()
+            local_x_px = coords.get("x", 0) * zoom * (dpi_x / 72.0)
+            local_y_px = coords.get("y", 0) * zoom * (dpi_y / 72.0)
             px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
             px_h = coords.get("h", 0) * zoom * (dpi_y / 72.0)
+
+            px_x = x_start_px + local_x_px - self.horizontalScrollBar().value()
+            px_y = target_page_y_px + local_y_px - self.verticalScrollBar().value()
 
             if px_w > 0 and px_h > 0:
                 box.setGeometry(int(px_x), int(px_y), int(px_w), int(px_h))
@@ -288,10 +298,12 @@ class SelectablePdfView(QPdfView):
 
         current_y_px = self.documentMargins().top()
         
+        current_y_px = self.documentMargins().top()
+        
         for i in range(doc.pageCount()):
             size_pt = doc.pagePointSize(i)
-            page_w_px = size_pt.width() * self.zoomFactor() * (dpi_x / 72.0)
-            page_h_px = size_pt.height() * self.zoomFactor() * (dpi_y / 72.0)
+            page_w_px = int((size_pt.width() * self.zoomFactor() * (dpi_x / 72.0)) + 0.5)
+            page_h_px = int((size_pt.height() * self.zoomFactor() * (dpi_y / 72.0)) + 0.5)
             
             center_y_px = rect.center().y() + v_val
             

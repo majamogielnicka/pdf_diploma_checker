@@ -39,8 +39,14 @@ class AnalysisPipeline:
         
         from analysis.extraction.extraction_json import extractPDF
         from analysis.extraction.converter_linguistics import PDFMapper
+        from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
+        from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
+        from analysis.modules.llm.get_grade import get_content_grade
+        from analysis.modules.llm.get_purpose import get_purpose
+        from analysis.modules.llm.get_summary import get_summaries
+        from analysis.modules.llm.get_subtitles import get_subtitles
 
-        doc_obj = extractPDF(pdf_path) 
+        doc_obj = extractPDF(pdf_path)
 
         doc_dict = doc_obj._to_dict()
 
@@ -52,9 +58,20 @@ class AnalysisPipeline:
         )
         
         if use_llm:
-            report_progress(35, "Trwa analiza SOTA...")
+            report_progress(20, "Rozpoczynam analizę merytoryki...")
             try:
                 from run_sota import get_final_sota_report
+
+                plain_txt_purpose = get_plain_text(pdf_path)
+                txt_for_llm = extractPDF_llm(pdf_path)
+
+                language = "pl"
+                purpose = get_purpose(plain_txt_purpose, language)
+                subtitles = get_subtitles(txt_for_llm)
+                summaries = get_summaries(subtitles, language)
+
+                score = get_content_grade(purpose, summaries)
+                print(score)
                 
                 s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(pdf_path)
                 
@@ -66,7 +83,8 @@ class AnalysisPipeline:
                     "cytowania": s_cites,
                     "r1": r1,
                     "r2": r2,
-                    "r3": r3
+                    "r3": r3,
+                    "score: ": score
                 }
                 report_progress(75, "Szukanie błędów językowych...")
 
