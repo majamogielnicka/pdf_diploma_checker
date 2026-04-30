@@ -39,9 +39,8 @@ class AnalysisPipeline:
         
         from analysis.extraction.extraction_json import extractPDF
         from analysis.extraction.converter_linguistics import PDFMapper
-
-        doc_obj = extractPDF(pdf_path) 
-
+        
+        doc_obj = extractPDF(pdf_path)
         doc_dict = doc_obj._to_dict()
 
         extraction_result = ModuleResult(
@@ -51,14 +50,34 @@ class AnalysisPipeline:
             details={"page_count": doc_obj.get_page_count()}
         )
         
-        if use_llm:
-            report_progress(35, "Trwa analiza SOTA...")
+
+        def task_llm():
+            if not use_llm:
+                return None, "Tryb Szybki."
+            
             try:
+                from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
+                from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
+                from analysis.modules.llm.get_grade import get_content_grade
+                from analysis.modules.llm.get_purpose import get_purpose
+                from analysis.modules.llm.get_summary import get_summaries
+                from analysis.modules.llm.get_subtitles import get_subtitles
                 from run_sota import get_final_sota_report
+
+                plain_txt_purpose = get_plain_text(pdf_path)
+                txt_for_llm = extractPDF_llm(pdf_path)
+
+                language = "pl"
+                purpose = get_purpose(plain_txt_purpose, language)
+                subtitles = get_subtitles(txt_for_llm)
+                summaries = get_summaries(subtitles, language)
+
+                score = get_content_grade(purpose, summaries)
+                print(score)
                 
                 s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(pdf_path)
                 
-                llm_result = {
+                result = {
                     "id": s_id,
                     "tytul": s_title,
                     "ocena": s_score,
@@ -68,62 +87,71 @@ class AnalysisPipeline:
                     "r2": r2,
                     "r3": r3
                 }
-                report_progress(75, "Szukanie błędów językowych...")
-
-                llm_summary_text = f"Analiza SOTA wykonana (Wynik: {s_score}%)."
+                return result, f"Analiza SOTA wykonana (Wynik: {s_score}%)."
             except Exception as e:
                 print(f"[PIPELINE] Błąd skryptu SOTA: {e}")
-                llm_result = None
-                llm_summary_text = "Błąd analizy SOTA."
-        else:
-            llm_result = None
-            report_progress(40, "Tryb Szybki - pominięto analizę SOTA...")
-            llm_summary_text = "Analiza SOTA została POMINIĘTA (Tryb Szybki)."
+                return None, "Błąd analizy SOTA."
 
-            report_progress(75, "Szukanie błędów językowych...")
-        try:
-            import importlib.util
-            ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
-            spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
-            ling_module = importlib.util.module_from_spec(spec)
-            ling_module.__package__ = "analysis.modules.linguistics"
-            sys.modules["analysis.modules.linguistics.run_mock_data"] = ling_module
-            spec.loader.exec_module(ling_module)
-            from analysis.extraction.converter_linguistics import PDFMapper
-            raw_blocks = PDFMapper.map_to_schema(doc_obj)
-            
-            ling_matches = ling_module.run_linguistics(raw_blocks)
-            print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
-            
-        except Exception as e:
-            print(f"[PIPELINE] Błąd nowej lingwistyki: {e}")
-            import traceback
-            traceback.print_exc()
-            ling_matches = []
-        report_progress(85, "Trwa sprawdzanie błędów redakcyjnych...")
-        try:
-            from analysis.modules.redaction.redaction_validator import RedactionValidator
-            
-            class DummyLinguistics:
-                def __init__(self): self.logical_blocks = []
-            
-            validator = RedactionValidator(
-                document_data=doc_obj, 
-                document_data_linguistics=PDFMapper.map_to_schema(doc_obj), 
-                config_path=config_path
-            )
-            
-            font_usage = doc_obj.get_font_size_usage()
-            doc_obj.get_most_common_font_size = lambda: max(font_usage, key=font_usage.get, default=12) if font_usage else 12
-            
-            redaction_errors = validator.validate()
-            print(f"[PIPELINE] Znaleziono {len(redaction_errors)} błędów redakcyjnych.")
-            
-        except Exception as e:
-            print(f"[PIPELINE] Błąd analizy redakcyjnej: {e}")
-            import traceback
-            traceback.print_exc()
-            redaction_errors = []
+        def task_linguistics():
+            try:
+                import importlib.util
+                ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
+                spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
+                ling_module = importlib.util.module_from_spec(spec)
+                ling_module.__package__ = "analysis.modules.linguistics"
+                sys.modules["analysis.modules.linguistics.run_mock_data"] = ling_module
+                spec.loader.exec_module(ling_module)
+                
+                raw_blocks = PDFMapper.map_to_schema(doc_obj)
+                ling_matches = ling_module.run_linguistics(raw_blocks)
+                print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
+                return ling_matches
+            except Exception as e:
+                print(f"[PIPELINE] Błąd lingwistyki: {e}")
+                import traceback
+                traceback.print_exc()
+                return []
+
+        def task_redaction():
+            try:
+                from analysis.modules.redaction.redaction_validator import RedactionValidator
+                
+                validator = RedactionValidator(
+                    document_data=doc_obj, 
+                    document_data_linguistics=PDFMapper.map_to_schema(doc_obj), 
+                    config_path=config_path
+                )
+                
+                font_usage = doc_obj.get_font_size_usage()
+                doc_obj.get_most_common_font_size = lambda: max(font_usage, key=font_usage.get, default=12) if font_usage else 12
+                
+                redaction_errors = validator.validate()
+                print(f"[PIPELINE] Znaleziono {len(redaction_errors)} błędów redakcyjnych.")
+                return redaction_errors
+            except Exception as e:
+                print(f"[PIPELINE] Błąd analizy redakcyjnej: {e}")
+                import traceback
+                traceback.print_exc()
+                return []
+        report_progress(30, "Rozpoczynam analizy...")
+        
+        workers_count = 3 if use_llm else 2
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers_count) as executor:
+            future_ling = executor.submit(task_linguistics)
+            future_redaction = executor.submit(task_redaction)
+
+            if use_llm:
+                future_llm = executor.submit(task_llm)
+
+            ling_matches = future_ling.result()
+            redaction_errors = future_redaction.result()
+
+            if use_llm:
+                llm_result, llm_summary_text = future_llm.result()
+            else:
+                llm_result = None
+                llm_summary_text = "Analiza LLM została pomienieta."
 
         report_progress(100, "Generowanie raportu końcowego...")
         
