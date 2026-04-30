@@ -1,0 +1,258 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\kana.pdf
+Wygenerowano: 2026-04-11T14:31:02.159264
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.866759
+
+CEL PRACY
+Ewaluacja dwóch funkcjionalnie identycznych aplikacji, jednej zastosowanej przy użyciu technologii Blazor, a drugiej zastosowanej przy użyciu frameworka Vue.js, w celu oceny korzyści i ograniczeń technologii Blazor w realizacji aplikacji typu PWA
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Context of the study
+SUMMARY:
+W ciągu ostatniego dziesięciolecia, dzięki technologii PWAs, firmy takie jak Flipkart i Twitter odnotowały znaczne wzrosty w konwersji, zaangażowaniu użytkowników i czasie spędzonym na stronie, co przyczyniło się do szybszego rozwoju startupów.
+COSINE_SIMILARITY: 0.843127
+
+--------------------------------------------------------------------------------
+
+1.2 Goals of the Study
+SUMMARY:
+Badanie ma na celu ocenę możliwości wykorzystania technologii Blazor do tworzenia aplikacji progresywnych internetowych, porównując ją z Vue.js.
+COSINE_SIMILARITY: 0.943280
+
+--------------------------------------------------------------------------------
+
+1.3 Outline of the thesis
+SUMMARY:
+Badania porównały Blazor z Angular i Vue.js, wskazując na wyższy próg uczenia się Blazora, większy rozmiar aplikacji oraz gorszą wydajność w różnych aspektach, takich jak czas ładowania i obsługa żądań HTTP.
+COSINE_SIMILARITY: 0.913096
+
+--------------------------------------------------------------------------------
+
+3.1 Core technologies
+SUMMARY:
+Prawdziwe aplikacje PWA wymagają trzech kluczowych technologii.
+COSINE_SIMILARITY: 0.857496
+
+--------------------------------------------------------------------------------
+
+3.2 Web Application Manifest
+SUMMARY:
+Plik manifest JSON definiuje metadane webowej aplikacji i umożliwia jej instalację na urządzeniach użytkowników poprzez tag `<link>` w sekcji `<head>` dokumentu HTML.
+COSINE_SIMILARITY: 0.817149
+
+--------------------------------------------------------------------------------
+
+3.3 Service Workers
+SUMMARY:
+Service workers to działają jako pośrednicy między aplikacją internetową, przeglądarką i siecią, umożliwiając dostęp offline, przechwytywanie żądań sieciowych i buforowanie zasobów.
+COSINE_SIMILARITY: 0.814714
+
+--------------------------------------------------------------------------------
+
+3.3.1 Lifecycle of service workers
+SUMMARY:
+Aby skutecznie wdrożyć service worker w PWA, należy zrozumieć jego cykl życia, który obejmuje rejestrację, instalację i stan aktywacji, a także automatyczne przechodzenie w stan nieaktywny po wykonaniu zadań.
+COSINE_SIMILARITY: 0.818205
+
+--------------------------------------------------------------------------------
+
+3.3.2 Caching and offline functionality
+SUMMARY:
+Caching w aplikacjach PWA, dzięki service workerom, umożliwia szybkie ładowanie interfejsu użytkownika i zapewnienie działania offline poprzez lokalne przechowywanie zasobów, takich jak HTML, CSS, obrazy i skrypty, oraz strony offline.
+COSINE_SIMILARITY: 0.832607
+
+--------------------------------------------------------------------------------
+
+3.3.3 Push notifications
+SUMMARY:
+Usługi robocze w aplikacjach PWA umożliwiają wysyłanie powiadomień push, które angażują użytkowników i dostarczają nowe treści, wykorzystując Push API i Notifications API.
+COSINE_SIMILARITY: 0.839314
+
+--------------------------------------------------------------------------------
+
+3.3.4 Background sync
+SUMMARY:
+Background Sync w PWA umożliwia automatyczne ponawianie zadań, takich jak wysyłanie wiadomości, po odzyskaniu połączenia internetowego po jego przerwaniu.
+COSINE_SIMILARITY: 0.824224
+
+--------------------------------------------------------------------------------
+
+4.1 WebAssembly
+SUMMARY:
+WebAssembly to kod, który działa w nowoczesnych przeglądarkach, oferując znaczne ulepszenia wydajności, umożliwiając tworzenie zaawansowanych aplikacji internetowych, takich jak gry 3D i aplikacje wirtualnej rzeczywistości, dzięki swojej platformowej niezależności i bezpieczonemu środowisku działania.
+COSINE_SIMILARITY: 0.814157
+
+--------------------------------------------------------------------------------
+
+4.2 Blazor WebAssembly
+SUMMARY:
+Blazor WebAssembly aplikacja uruchamia się w przeglądarce, zaczynając od pobrania i uruchomienia skryptu blazor.webassembly.js, który ładuje konfigurację i .NET runtime (dotnet.wasm) do wykonania aktualizacji interfejsu użytkownika.
+COSINE_SIMILARITY: 0.820667
+
+--------------------------------------------------------------------------------
+
+4.2.1 Project Startup
+SUMMARY:
+Blazor WebAssembly aplikacja rozpoczyna działanie po pobraniu konfiguracji i niezbędnych zasobów, takich jak .NET runtime w formacie WebAssembly, co umożliwia jej pełne wykonanie w przeglądarce.
+COSINE_SIMILARITY: 0.839480
+
+--------------------------------------------------------------------------------
+
+4.2.2 User interface updates
+SUMMARY:
+Blazor.webassembly.js odzyskuje i aktualizuje DOM, a także zapewnia interfejs API dla scenariuszy wymagających interoperacyjności z JavaScript, ze względu na ograniczenia WebAssembly.
+COSINE_SIMILARITY: 0.848988
+
+--------------------------------------------------------------------------------
+
+5.1 Overview
+SUMMARY:
+Badano zostało Vue.js, framework open-source z 2014 roku, aby zbadać różnice między nim a Blazorem w kontekście rozwoju, wydajności i możliwości aplikacji internetowych.
+COSINE_SIMILARITY: 0.928903
+
+--------------------------------------------------------------------------------
+
+5.2 Rendering mechanism
+SUMMARY:
+Vue.js wykorzystuje wirtualny DOM do efektywnego aktualizowania interfejsu użytkownika poprzez porównywanie i minimalizowanie zmian w rzeczywistym DOM.
+COSINE_SIMILARITY: 0.866842
+
+--------------------------------------------------------------------------------
+
+5.3 Build tools
+SUMMARY:
+Vue.js wykorzystuje Vite jako domyślne narzędzie do budowania, które optymalizuje proces tworzenia i wydajność aplikacji poprzez wykorzystanie modułów ESM i technik takich jak pre-bundlowanie zależności oraz minimalizację przetwarzania.
+COSINE_SIMILARITY: 0.845844
+
+--------------------------------------------------------------------------------
+
+6.1 PWA Features
+SUMMARY:
+W aplikacji DartPointTracker zaimplementowano pewne cechy PWA w celu wsparcia oceny procesu tworzenia PWA.
+COSINE_SIMILARITY: 0.873087
+
+--------------------------------------------------------------------------------
+
+6.2 Responsive design
+SUMMARY:
+Aplikacje wykorzystują szablon Blazor Progressive Web Application, aby zapewnić responsywny układ, który dostosowuje się do różnych rozmiarów ekranu, prezentując dwukolumnowy układ na dużych ekranach i jednokolumnowy na mniejszych.
+COSINE_SIMILARITY: 0.878964
+
+--------------------------------------------------------------------------------
+
+6.3 Project Setup
+SUMMARY:
+Tworzenie projektu Blazor WebAssembly z obsługą PWA można wykonać za pomocą .NET CLI, określając nazwę folderu, w którym mają zostać zapisane pliki projektu.
+COSINE_SIMILARITY: 0.843677
+
+--------------------------------------------------------------------------------
+
+6.4 Manifest
+SUMMARY:
+Manifesty aplikacji DartPointTracker, zarówno w Vue+Vite, jak i Blazor, zawierają identyczne pola, w tym ustawienie "display" na "standalone" oraz ikony o różnych rozmiarach i przeznaczeniu, umożliwiające instalację aplikacji.
+COSINE_SIMILARITY: 0.866642
+
+--------------------------------------------------------------------------------
+
+6.5 Service Worker
+SUMMARY:
+Biblioteka Workbox została wykorzystana do uproszczenia implementacji strategii buforowania, synchronizacji w tle i możliwości działania offline w Vue i Blazor, a konkretnie w DartPointTracker.
+COSINE_SIMILARITY: 0.846610
+
+--------------------------------------------------------------------------------
+
+6.5.1 Workbox integration
+SUMMARY:
+Biblioteka Workbox została wykorzystana do uproszczenia implementacji strategii buforowania, synchronizacji w tle i możliwości działania offline w Vue DartPointTrackerze oraz Blazorze, a konfiguracja obejmuje pre-cache'owanie plików takich jak HTML, manifest i zasoby multimedialne.
+COSINE_SIMILARITY: 0.839603
+
+--------------------------------------------------------------------------------
+
+6.5.2 Service worker implementation
+SUMMARY:
+Obie aplikacje wykorzystują wspólne funkcjonalności w swoich service workerach, ale implementacja różni się w sposobie ładowania biblioteki Workbox i zarządzania aktualizacjami oraz precachingiem zasobów.
+COSINE_SIMILARITY: 0.858503
+
+--------------------------------------------------------------------------------
+
+6.6 Hosting
+SUMMARY:
+W celu porównania implementacji aplikacji PWA, dwa wersje aplikacji DartPointTracker zostały wdrożone w środowisku produkcyjnym przy użyciu Firebase, a następnie oceniono różnice w wydajności, doświadczeniu użytkownika i funkcjonalności offline.
+COSINE_SIMILARITY: 0.881164
+
+--------------------------------------------------------------------------------
+
+7.1 Lighthouse performance test
+SUMMARY:
+Ocena wydajności przy użyciu Google Lighthouse ujawniła istotne różnice między Blazor WebAssembly a Vue.js PWAs w zakresie metryk ładowania wstępnego.
+COSINE_SIMILARITY: 0.907039
+
+--------------------------------------------------------------------------------
+
+7.2 Application Size
+SUMMARY:
+Porównanie rozmiarów pamięci podręcznej Blazor PWA i Vue PWA wykazało, że Blazor PWA, dzięki .NET runtime i większej ilości pre-cached assets, ma znacznie większą pamięć podręczną niż Vue PWA, która wykorzystuje natywny silnik JavaScript i optymalizacje budowania.
+COSINE_SIMILARITY: 0.892088
+
+--------------------------------------------------------------------------------
+
+7.3 Rendering performance
+SUMMARY:
+Badanie porównało wydajność renderowania Blazora i Vue, mierząc czas wyświetlania elementów UI na stronie rankingowej, wskazując, że Vue jest znacznie szybsze w obsłudze żądań API, szczególnie przy większej liczbie graczy, a różnice w czasie sortowania i diffingu stają się bardziej widoczne przy większych zbiorach
+COSINE_SIMILARITY: 0.904635
+
+--------------------------------------------------------------------------------
+
+7.4 Volume of code
+SUMMARY:
+Przeprowadzono analizę porównawczą Blazor i Vue w tworzeniu aplikacji PWA, mierząc linie kodu w różnych komponentach, w tym w części HTML i logiki komponentów, aby ocenić różnice w ich zwięzłości.
+COSINE_SIMILARITY: 0.933021
+
+--------------------------------------------------------------------------------
+
+7.4.1 Presentation Layer
+SUMMARY:
+Przeprowadzono analizę LOC w komponentach Blazor i Vue, aby porównać ich zwięzłość w implementacji PWAs, a sekcje HTML wykazały podobieństwo w liczbie linii kodu, z różnicami rzędu jednego do dwóch linii.
+COSINE_SIMILARITY: 0.909614
+
+--------------------------------------------------------------------------------
+
+7.4.2 Infrastructure Layer
+SUMMARY:
+Przeprowadzone pomiary LOC wykazały, że kod infrastruktury Vue wymaga więcej linii kodu niż Blazor, głównie ze względu na konieczność ręcznej konfiguracji API URL i nagłówków w Vue, w przeciwieństwie do automatycznej konfiguracji w Blazor.
+COSINE_SIMILARITY: 0.877113
+
+--------------------------------------------------------------------------------
+
+7.4.3 Domain Layer
+SUMMARY:
+Analiza wykazała, że implementacja Blazor (C#) wymaga mniej linii kodu niż implementacja Vue (TypeScript), a różnice w liczbie znaków na linię sugerują większą objętość kodu w wersji TypeScript.
+COSINE_SIMILARITY: 0.897344
+
+--------------------------------------------------------------------------------
+
+7.4.4 Application Startup
+SUMMARY:
+Porównanie kodu uruchamiania Blazor i Vue wykazało, że plik Program.cs w Blazor zawiera więcej linii kodu i odpowiada za konfigurację hosta, dependency injection oraz definicję komponentów, podczas gdy plik main.ts w Vue koncentruje się na konfiguracji routingu, store'a i integracji z DOM.
+COSINE_SIMILARITY: 0.869451
+
+--------------------------------------------------------------------------------
+
+7.4.5 Overall Code Volume Analysis
+SUMMARY:
+Porównanie Blazora i Vue w tworzeniu PWA wykazało, że Vue wymaga około 20-30% więcej linii kodu w warstwach prezentacji, infrastruktury i domeny, w porównaniu z Blazorem, który wykorzystuje C# i oferuje bardziej zwięzłe kodowanie.
+COSINE_SIMILARITY: 0.904675
+
+--------------------------------------------------------------------------------
+
+7.5 Development server startup time
+SUMMARY:
+Badanie porównało czas uruchamiania serwerów deweloperskich Blazor i Vue, wykorzystując skrypt Bash do pomiaru czasu uruchamiania i wykazało, że Vue uruchamia się znacznie szybciej, średnio w 2,08 sekundy, w porównaniu do 10,16 sekundy w Blazor.
+COSINE_SIMILARITY: 0.885230
+
+--------------------------------------------------------------------------------

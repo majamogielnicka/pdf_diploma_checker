@@ -4,7 +4,7 @@ from src.analysis.extraction.schema import ParagraphBlock, WordInfo
 from .linguistics_types import Error_type
 
 
-def check_if_proper(block, match, proper_names, lemma, text_language):
+def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
     """
     Evaluates whether a particular matched word should be considered a valid exception 
     
@@ -13,48 +13,48 @@ def check_if_proper(block, match, proper_names, lemma, text_language):
         match (Error_type): The error match object containing the reported typo.
         proper_names (set): A collection of known proper names in the document.
         lemma (str): The lemmatized version of the matched word.
-        text_language (str): pl for Polish or en for English.
-        
+        is_diff (bool): Whether the word is in a different font than the main font.
     Returns:
         bool: True if the word is deemed a proper name/exception, False otherwise.
     """
-    
-    regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
-    block_words = block.words
-    words = []
-    if any(char.isdigit() for char in lemma):
-        return True
-    elif regex.search(lemma) != None:
-        return True
-    elif lemma.isupper():
-        return True
-    elif lemma.isascii() == True:
-        return True
+    target_words_ids = set(match.word_idxs) if isinstance(match.word_idxs, list) else {match.word_idxs}
+    matched_words = [word for word in block.words if word.word_index in target_words_ids]
+    if is_diff:
+        if all((word.italic) for word in matched_words):
+            return True
+        else: 
+            return False
+    ACADEMIC_TITLES = {"prof.", "dr", "dr hab.", "mgr", "inż.", "lic.", "doc."}
+    BRITISH_ABBREVIATIONS = {"Dr", "Mr", "Mrs", "Ms", "Jr", "Sr", "St"}
+    #regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
+
+    is_digit = re.compile(r'\d')
+    if lemma:
+        text = lemma.strip("():;,.!?[]\n\t ")
     else:
-        for word in block_words:    
-            for word_id in match.word_idxs:
-                if word.word_index == word_id:
-                    words.append(word)
-        for word in words:
-            for proper in proper_names:
-                proper_lemma, is_found = lemmatization(proper, text_language)
-                if word.text == proper:
-                    return True
-                if lemma == proper_lemma:
-                    return True
-            if word.italic:
+        text = match.content.strip("():;,.!?[]\n\t ")
+    if is_digit.search(text):
+        return True
+    #elif regex.search(text) != None:
+    #    return True
+    if text in ACADEMIC_TITLES or text in BRITISH_ABBREVIATIONS:
+        return True
+    if text.isupper():
+        return True
+
+
+    
+    if proper_names is not None:
+        proper = [p[0] for p in proper_names]
+        proper_lemmas = [p[1] for p in proper_names]
+        for word in matched_words:
+            if word.text in proper:
                 return True
-            elif word.bold:
+            if lemma and text in proper_lemmas:
                 return True
+
+    if matched_words:
+        if all((word.italic) for word in matched_words):
+            return True
 
     return False
-    
-
-
-
-
-
-
-
-
-

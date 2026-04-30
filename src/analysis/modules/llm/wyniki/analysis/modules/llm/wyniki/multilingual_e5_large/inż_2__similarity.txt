@@ -1,0 +1,181 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\inż_2_.pdf
+Wygenerowano: 2026-04-11T14:08:37.227096
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.857175
+
+CEL PRACY
+Opracowanie rozwińania autonomicznej nawigacji dronów w środowiskach o ograniczonej dostępności sygnału GPS za pomocą segmentacji semantycznej obrazów i map referencyjnych
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+2.1 Zdj˛ecia satelitarne, dronowe i mapy topograﬁczne
+SUMMARY:
+Systemy wizyjnej lokalizacji dronów wykorzystują zdjecia satelitarne, z dronów oraz mapy topograficzne, które różnią się rozdzielczością, aktualnością i zakresem spektralnym, a także obszarem pokrycia i kosztem dostępu.
+COSINE_SIMILARITY: 0.872349
+
+--------------------------------------------------------------------------------
+
+2.2 Wst˛epne przetwarzanie danych satelitarnych
+SUMMARY:
+Pre-processing danych satelitarnych, w tym adaptacyjne wyrównanie histogramu z ograniczeniem kontrastu, korekcja gamma i unsharp masking, poprawia spójność wizualną i wartość informacyjną obrazów, co przekłada się na dokładność segmentacji semantycznej.
+COSINE_SIMILARITY: 0.843357
+
+--------------------------------------------------------------------------------
+
+2.3 Wst˛epne przetwarzanie obrazów dronowych
+SUMMARY:
+Wczesne przetwarzanie obrazów z dronów wymaga korekcji zniekształceń obiektywu, winietowania oraz usuwania odblasków, co poprawia jednolitość i dokładność obrazu.
+COSINE_SIMILARITY: 0.857680
+
+--------------------------------------------------------------------------------
+
+2.4 Segmentacja semantyczna
+SUMMARY:
+Segmentacja semantyczna to technika przetwarzania obrazu, która przypisuje klasy pikselom w obrazach, umożliwiając identyfikację i klasyfikację elementów krajobrazu, a współczesne architektury osiągają ponad 90% dokładności.
+COSINE_SIMILARITY: 0.845262
+
+--------------------------------------------------------------------------------
+
+2.5 Post-processing masek segmentacyjnych
+SUMMARY:
+Dokładność segmentacji zdjęć satelitarnych zależy od jakości danych wejściowych, a operacje morfologiczne oraz warunkowe pola losowe służą do poprawy jakości obrazu i precyzji wyznaczania konturów.
+COSINE_SIMILARITY: 0.849423
+
+--------------------------------------------------------------------------------
+
+2.6 Metody przekształcania perspektywy z obrazów dronowych na satelitarne
+SUMMARY:
+Przekształcenie perspektywy między obrazami z drona a satelitarnymi wymaga zastosowania metod rejestracji geometrycznej i transformacji perspektywicznej ze względu na różnice w kącie widzenia, wysokości lotu i rozdzielczości.
+COSINE_SIMILARITY: 0.863975
+
+--------------------------------------------------------------------------------
+
+2.7 Georeferencja i korekcja bł˛edów geometrycznych
+SUMMARY:
+Georeferencja obrazów dronowych polega na przypisaniu im współrzędnych geograficznych, co umożliwia ich dokładne nakładanie na mapy i dalszą analizę przestrzenną.
+COSINE_SIMILARITY: 0.874656
+
+--------------------------------------------------------------------------------
+
+2.8 Rozszerzony ﬁltr Kalmana
+SUMMARY:
+Filtr Kalmana jest algorytmem estymacji stanu, który minimalizuje średni błąd kwadratowy poprzez predykcję stanu i korekcję z wykorzystaniem nowych pomiarów, a rozszerzony filtr Kalmana pozwala na zastosowanie go w systemach nieliniowych poprzez linearyzację funkcji.
+COSINE_SIMILARITY: 0.806264
+
+--------------------------------------------------------------------------------
+
+2.9 Przetwarzanie na urz ˛adzeniach wbudowanych
+SUMMARY:
+Implementacja systemów segmentacji obrazów dronowych na urządzeniach wbudowanych wymaga optymalizacji modeli sieci neuronowych i wykorzystania zoptymalizowanych frameworków, aby zminimalizować zużycie zasobów i czas przetwarzania.
+COSINE_SIMILARITY: 0.894463
+
+--------------------------------------------------------------------------------
+
+2.10 Metody optymalizacji sieci neuronowych
+SUMMARY:
+Optymalizacja sieci neuronowych dla systemów o ograniczonych zasobach wykorzystuje kwantyzację, przycinanie, destylację wiedzy, dzielenie wag i automatyczne wyszukiwanie architektury w celu zmniejszenia zużycia pamięci i przyspieszenia obliczeń.
+COSINE_SIMILARITY: 0.845727
+
+--------------------------------------------------------------------------------
+
+3.1 Rozwi ˛azania oparte na danych z kamery dla lokalizacji dronów
+SUMMARY:
+Metody autonomicznej lokalizacji dronów wykorzystują techniki widzenia komputerowego, takie jak odometria wizyjna i SLAM, do estymacji pozycji drona na podstawie analizy obrazów, z różnicami między podejściami względnymi a bezwzględnymi, oraz problemem akumulacji błędów w lokalizacji względnej.
+COSINE_SIMILARITY: 0.878810
+
+--------------------------------------------------------------------------------
+
+3.2 Podsumowanie przegł ˛adu systemów lokalizacji
+SUMMARY:
+Metody lokalizacji UAV bez GPS, takie jak wizyjna lokalizacja (RVL) i bezwzglęдна wizyjna (AVL), różnią się dokładnością i odpornością na dryf, z RVL charakteryzującą się akumulacją błędów prowadzącą do dryfu pozycji, a AVL będącą odporną na dryf, ale ogranicz
+COSINE_SIMILARITY: 0.831915
+
+--------------------------------------------------------------------------------
+
+3.3 Analiza dost˛epnych zbiorów danych
+SUMMARY:
+Praca wymaga zbioru danych zawierającego zdjęcia lotów dronami, zdjęcia satelitarne i fragmenty map topograficznych, a ze względu na brak odpowiedniego zbioru, zastosowano kilka datasetów do wytrenowania poszczególnych podsystemów, które następnie połączono w jeden system testowy.
+COSINE_SIMILARITY: 0.871298
+
+--------------------------------------------------------------------------------
+
+3.4 Podział projektu dla datasetów
+SUMMARY:
+Planowany system wykorzysta zdjecia satelitarne do stworzenia mapy referencyjnej, zawierającej informacje o ukształtowaniu terenu, pokryciu terenu, budynkach i innych punktach charakterystycznych.
+COSINE_SIMILARITY: 0.859429
+
+--------------------------------------------------------------------------------
+
+3.5 Wybór datasetów dla zdj˛eć satelitarnych
+SUMMARY:
+W celu wytrenowania modelu sieci neuronowej do segmentacji semantycznej obrazów satelitarnych, wybrano LandCover.ai jako podstawowy zbiór treningowy ze względu na jego zgodność geograficzną, wysoką rozdzielczość przestrzenną i reprezentatywność morfologiczną terenu, a także dostępność wysokiej jakości masek segmentacyjnych.
+COSINE_SIMILARITY: 0.857068
+
+--------------------------------------------------------------------------------
+
+3.6 Przegl ˛ad dost˛epnych zbiorów danych z obrazami z dronów
+SUMMARY:
+Praca przedstawia przegląd zbiorów danych z dronów i zdjęć satelitarnych, w tym UAV-VisLoc, zawierających 6742 zdjęć z Chin, wykorzystywanych do zadań lokalizacji przestrzennej i dopasowywania obrazów z różnych perspektyw.
+COSINE_SIMILARITY: 0.851943
+
+--------------------------------------------------------------------------------
+
+4.1 Trenowanie modeli segmentacji semantycznej
+SUMMARY:
+Skuteczność systemu lokalizacji zależy od jakości segmentacji semantycznej obrazów satelitarnych i dronowych, a do jej poprawy stosuje się kombinację funkcji straty Dice i Focal Loss z równymi wagami, co prowadzi do wysokiej dokładności dla klasy lasów i trudniejszych klas takich jak drogi oraz budynki.
+COSINE_SIMILARITY: 0.870114
+
+--------------------------------------------------------------------------------
+
+4.2 Tworzenie mapy referencyjnej
+SUMMARY:
+System lokalizacji bezwzględnej wykorzystuje przygotowaną mapę referencyjną, tworzoną przez fuzję danych segmentacji semantycznej i map topograficznych, aby dopasowywać obserwacje z drona.
+COSINE_SIMILARITY: 0.889138
+
+--------------------------------------------------------------------------------
+
+4.3 Fuzja danych i tworzenie mapy referencyjnej
+SUMMARY:
+Finalna mapa referencyjna powstaje poprzez fuzję maski segmentacyjnej i maski topograficznej, uwzględniając hierarchię zaufania do źródeł danych i charakterystykę obiektów, z budynkami jako najbardziej dynamiczną klasą.
+COSINE_SIMILARITY: 0.829123
+
+--------------------------------------------------------------------------------
+
+4.4 Lokalizacja wzgl˛edna z wykorzystaniem ORB VO
+SUMMARY:
+Algorytm ORB został wybrany do lokalizacji względnej, wykorzystując metrykę Hamminga i dostępność w OpenCV, a jego skuteczność może być poprawiona poprzez integrację z innymi systemami korygującymi błędy.
+COSINE_SIMILARITY: 0.838120
+
+--------------------------------------------------------------------------------
+
+4.5 Wyniki lokalizacji wzgl˛ednej
+SUMMARY:
+System został przetestowany na zbiorze danych UAV-VisLoc, osiągając dokładność względną wynoszącą 0,22% dla całkowitej odległości 73 km, przy końcowym błędzie lokalizacji wynoszącym 158,1 m.
+COSINE_SIMILARITY: 0.828846
+
+--------------------------------------------------------------------------------
+
+4.6 Lokalizacja bezwzgl˛edna z wykorzystaniem segmentacji semantycznej
+SUMMARY:
+System segmentacji obrazów z perspektywy oblique wykorzystuje transformację perspektywiczną z sieci neuronowych do dopasowania maski segmentacyjnej do mapy referencyjnej, aby skorygować zniekształcenia spowodowane różnicą perspektyw.
+COSINE_SIMILARITY: 0.842204
+
+--------------------------------------------------------------------------------
+
+5.1 Osi ˛agni˛ete wyniki
+SUMMARY:
+Zaprojektowano i przetestowano modułowy system lokalizacji dronów, który, po rozwiązaniu problemów z dostępnością danych, potwierdza wykonalność wizyjnej lokalizacji opartej na segmentacji semantycznej.
+COSINE_SIMILARITY: 0.909513
+
+--------------------------------------------------------------------------------
+
+5.2 Ograniczenia i kierunki przyszłych prac
+SUMMARY:
+Brak odpowiedniego zbioru danych, obejmującego synchroniczne obrazy z różnych źródeł oraz zróżnicowane trajektorie lotu, ograniczał realizację i walidację systemu hybrydowego, a także jakość modelu segmentacji semantycznej.
+COSINE_SIMILARITY: 0.861515
+
+--------------------------------------------------------------------------------

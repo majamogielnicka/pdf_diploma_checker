@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
-import requests
+
+from llama_cpp import Llama
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
@@ -11,27 +12,37 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-try:
-    from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
-except Exception:
-    from get_subtitles import extract_subtitles_from_pdf
+from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
+from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
 
-PDF_PATH = PROJECT_ROOT / "data" / "doro.pdf"
+PDF_PATH = PROJECT_ROOT / "data" / "inż_2_.pdf"
 
-MODEL_NAME = "gemma3local"
+MODEL_PATH = Path.home() / "models" / "gemma2" / "gemma-2-9b-it-Q4_K_M.gguf"
+
+MAX_FRAGMENT_CHARS = 1600
+MAX_NEW_TOKENS = 96
+N_CTX = 4096
+N_THREADS = None
+N_GPU_LAYERS = 0
 
 PROMPT_PL = (
-    "Na podstawie wyłącznie podanego tekstu napisz jedno zdanie streszczenia po polsku. "
-    "Nie dodawaj żadnych informacji spoza tekstu. "
-    "Nie używaj ogólników. "
-    "Nie łącz wielu niezależnych definicji w jedno sztuczne zdanie. "
-    "Jeśli tekst jest urwany lub niejednoznaczny, streść tylko to, co pewne."
-    "Zwróć tylko i wylacznie zdanie wynikowe bez swojego wstepu\n"
+    "Na podstawie wyłącznie podanego fragmentu napisz jedno zdanie po polsku streszczające jego główną treść. "
+    "Zdanie ma odnosić się tylko do informacji zawartych w tym fragmencie, bez odwołań do innych części pracy. "
+    "Użyj stylu rzeczowego i możliwie bezosobowego. "
+    "Nie dodawaj informacji spoza tekstu."
 )
-PROMPT_EN = "Summarize the given fragment in one sentence in English:\n"
 
-MAX_FRAGMENT_CHARS = 2200
-REQUEST_TIMEOUT = 120
+PROMPT_EN = (
+    "Write one sentence in English expressing the main content of the fragment. "
+    "Use an impersonal, content-focused style. "
+    "Do not use phrases such as 'the section describes', 'the text presents', "
+    "'the author discusses', or 'the paper explains'. "
+    "Do not summarize the structure of the text; summarize its substantive content. "
+    "Include the most important mechanism, property, goal, or result if present. "
+    "Do not add any information not present in the text."
+)
+
+_LLM = None
 
 
 def normalize_text(text):
@@ -42,6 +53,7 @@ def normalize_text(text):
 
 def prepare_fragment(fragment):
     text = normalize_text(fragment)
+
     if not text:
         return ""
 
@@ -51,10 +63,12 @@ def prepare_fragment(fragment):
     cut = text[:MAX_FRAGMENT_CHARS]
 
     last_dot = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
+
     if last_dot > int(MAX_FRAGMENT_CHARS * 0.6):
         return cut[: last_dot + 1].strip()
 
     last_space = cut.rfind(" ")
+
     if last_space > 0:
         return cut[:last_space].strip()
 
@@ -64,43 +78,62 @@ def prepare_fragment(fragment):
 def get_prompt(language):
     if language == "pl":
         return PROMPT_PL
+
     if language == "en":
         return PROMPT_EN
+
     raise ValueError("Nieobsługiwany język")
+
+
+def get_llm():
+    global _LLM
+
+    if _LLM is None:
+        _LLM = Llama(
+            model_path=str(MODEL_PATH),
+            n_ctx=N_CTX,
+            n_threads=N_THREADS,
+            n_gpu_layers=N_GPU_LAYERS,
+            verbose=False,
+        )
+
+    return _LLM
+
+
+def build_prompt(fragment, language):
+    prompt = get_prompt(language)
+
+    if language == "pl":
+        return f"{prompt}\nTEKST:\n{fragment}\n\nWYNIK:\n"
+
+    return f"{prompt}\nTEXT:\n{fragment}\n\nRESULT:\n"
 
 
 def get_summary(fragment, language):
     fragment = prepare_fragment(fragment)
+
     if not fragment:
         return "[PUSTY FRAGMENT]"
 
-    prompt = get_prompt(language)
-    full_prompt = prompt + fragment
+    llm = get_llm()
+    full_prompt = build_prompt(fragment, language)
 
-    resp = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": MODEL_NAME,
-            "prompt": full_prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.0,
-                "top_p": 0.2,
-                "num_predict": 80,
-                "num_ctx": 1024,
-                "repeat_penalty": 1.1
-            }
-        },
-        timeout=REQUEST_TIMEOUT
+    output = llm(
+        full_prompt,
+        max_tokens=MAX_NEW_TOKENS,
+        temperature=0.0,
+        top_p=0.1,
+        repeat_penalty=1.12,
+        stop=["\n\n", "TEKST:", "TEXT:", "WYNIK:", "RESULT:"],
+        echo=False,
     )
 
-    if not resp.ok:
-        raise RuntimeError(f"Ollama {resp.status_code}: {resp.text}")
+    text = output["choices"][0]["text"].strip()
 
-    return resp.json()["response"].strip()
+    return text or "[BRAK ODPOWIEDZI MODELU]"
 
 
-def get_summaries(subtitles, language):
+def get_summaries(subtitles, language, verbose=False):
     summaries = []
 
     for i, sub in enumerate(subtitles, start=1):
@@ -119,9 +152,15 @@ def get_summaries(subtitles, language):
                 "title": title,
                 "display": display,
                 "content": content,
-                "summary": "[BRAK TREŚCI W SEKCJI]"
+                "summary": "[BRAK TREŚCI W SEKCJI]",
             })
-            print(f"{i}/{len(subtitles)} - {display} -> BRAK TREŚCI")
+
+            if verbose:
+                print(f"{i}/{len(subtitles)} - {display} -> BRAK TREŚCI")
+                print("SUMMARY:")
+                print("[BRAK TREŚCI W SEKCJI]")
+                print("-" * 80)
+
             continue
 
         try:
@@ -135,21 +174,23 @@ def get_summaries(subtitles, language):
             "title": title,
             "display": display,
             "content": content,
-            "summary": summary
+            "summary": summary,
         })
 
-        print(f"{i}/{len(subtitles)} - {display}")
+        if verbose:
+            print(f"{i}/{len(subtitles)} - {display}")
+            print("SUMMARY:")
+            print(summary)
+            print("-" * 80)
 
     return summaries
 
 
-def summarize_subtitles(pdf_path, subtitles=None, language="pl"):
-    pdf_path = Path(pdf_path)
-
+def summarize_subtitles(raw_doc, subtitles=None, language="pl"):
     if subtitles is None:
-        subtitles = extract_subtitles_from_pdf(pdf_path)
+        subtitles = extract_subtitles_from_pdf(raw_doc)
 
-    return get_summaries(subtitles, language)
+    return get_summaries(subtitles, language, verbose=False)
 
 
 generate_summaries = summarize_subtitles
@@ -176,7 +217,17 @@ def main():
         print(f"Błąd: plik nie istnieje: {selected_pdf_path}")
         return
 
-    subtitles = extract_subtitles_from_pdf(selected_pdf_path)
+    if not MODEL_PATH.exists():
+        print(f"Błąd: model nie istnieje: {MODEL_PATH}")
+        return
+
+    raw_doc = extractPDF_llm(str(selected_pdf_path.resolve()))
+
+    if raw_doc is None:
+        print("Błąd: ekstrakcja PDF zwróciła None.")
+        return
+
+    subtitles = extract_subtitles_from_pdf(raw_doc)
 
     if not subtitles:
         print("Nie udało się wyciągnąć nagłówków / fragmentów z PDF.")
@@ -184,9 +235,7 @@ def main():
 
     print(f"Wykryto nagłówków: {len(subtitles)}")
 
-    summaries = get_summaries(subtitles, language)
-
-    print()
+    summaries = get_summaries(subtitles, language, verbose=True)
     print_summaries(summaries)
 
 

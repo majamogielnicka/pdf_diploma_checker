@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import requests
+from llama_cpp import Llama
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
@@ -11,120 +12,133 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-from analysis.extraction.converter_linguistics import get_plain_text
+from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
 
 FILE_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
 LANGUAGE = "pl"
 
-FIND_MODEL = "qwen2.5:latest"
-REWRITE_MODEL = "qwen2.5:latest"
+MODEL_PATH = Path.home() / "models" / "gemma2" / "gemma-2-9b-it-Q4_K_M.gguf"
+MODEL_NAME = str(MODEL_PATH)
 
-OUTPUT_DIR = BASE_DIR / "wyniki"
-REQUEST_TIMEOUT = 600
-
-CHUNK_SIZE = 2200
-CHUNK_OVERLAP = 900
-MAX_CHUNKS = 60
+CHUNK_SIZE = 1400
+CHUNK_OVERLAP = 200
+MAX_CHUNKS = 45
 
 PROMPTS = {
     "pl": {
-        "find": """
-Przeczytaj fragment pracy i sprawdź, czy autor jawnie opisuje w nim główny zamiar całej pracy.
+        "find_clean": """
+Przeczytaj fragment pracy i sprawdź, czy autor jawnie deklaruje cel tej konkretnej pracy dyplomowej.
 
 Zasady:
 - odpowiedź tylko po polsku
-- jeśli fragment zawiera zdanie autora opisujące główny cel całej pracy, zwróć tylko to jedno zdanie
-- preferuj polską wersję, jeśli w tekście występuje także wersja angielska
-- wybierz cel główny całej pracy, a nie sam etap badania, metodę, wynik ani cel szczegółowy
-- możesz minimalnie uporządkować połamane spacje i łamania wierszy, ale nie zmieniaj sensu
-- nie streszczaj
-- nie dopowiadaj
-- jeśli nie masz pewności albo w fragmencie nie ma takiego zdania, zwróć dokładnie: BRAK
+- zwróć wynik tylko wtedy, gdy autor wprost deklaruje cel tej pracy
+- chodzi wyłącznie o jawnie zadeklarowany cel pracy autora, a nie o tematykę, motywację, znaczenie dziedziny, przewagi materiału, tło teoretyczne, opis problemu, metodę, wynik ani wniosek
+- nie wybieraj zdań ogólnych typu: że coś jest ważne, stanowi alternatywę, budzi zainteresowanie, ma szerokie zastosowanie, jest perspektywiczne, pozostaje istotne, pozwala lepiej zrozumieć itp.
+- jeśli w fragmencie jest jawnie zadeklarowany cel pracy, zwróć go od razu w czystej, bezosobowej formie
+- zachowaj dokładnie znaczenie
+- nie dodawaj nowych informacji
+- nie skracaj celu, jeśli zawiera kilka ważnych elementów
+- usuń formy typu "Celem pracy jest", "Celem niniejszej pracy była", ale zachowaj sens
+- nie kończ kropką
+- jeśli nie ma wprost zadeklarowanego celu tej pracy, zwróć dokładnie: BRAK
 
 Fragment:
 {content}
 """.strip(),
-        "rewrite": """
-Przeredaguj poniższe zdanie autora do czystej, bezosobowej formy samego celu pracy.
+        "select_best": """
+Poniżej znajduje się lista kandydatów na cel pracy dyplomowej.
 
 Zasady:
-- odpowiedź tylko po polsku
-- zwróć tylko sam cel
-- zachowaj dokładnie znaczenie zdania autora
-- nie usuwaj istotnych informacji
-- nie skracaj celu, jeśli zawiera kilka ważnych elementów
-- nie dodawaj nowych informacji
-- zmień formę tak, aby zniknęła forma osobowa typu "Celem pracy jest", ale sens pozostał identyczny
-- wynik ma być zwartą frazą dobrą do porównywania embeddingów
+- wybierz tylko jeden, który jest rzeczywistym celem całej pracy autora
+- odrzuć zdania ogólne opisujące znaczenie tematu, motywację badań lub cele ogólne dziedziny
+- odrzuć zdania opisujące co "warto zbadać", "lepiej zrozumieć", "istotne jest", "stanowi alternatywę", "jest perspektywiczne"
+- wybierz kandydat, który odnosi się bezpośrednio do tej konkretnej pracy autora
+- preferuj kandydat zawierający informację o badanym materiale/obiekcie i czynności badawczej, np. synteza, charakterystyka, analiza, ocena, badanie
+- zwróć wynik w formie bezosobowej
+- nie dodawaj nic od siebie
 - nie kończ kropką
+- jeśli żaden kandydat nie jest rzeczywistym celem pracy, zwróć dokładnie: BRAK
 
-Zdanie autora:
-{goal}
+Kandydaci:
+{candidates}
 """.strip(),
     },
     "en": {
-        "find": """
-Read the thesis fragment and determine whether the author explicitly states the main overall purpose of the thesis.
+        "find_clean": """
+Read the thesis fragment and determine whether the author explicitly states the purpose of this specific thesis.
 
 Rules:
 - answer only in English
-- if the fragment contains an author sentence describing the main overall thesis purpose, return only that one sentence
-- choose the overall thesis purpose, not just a sub-goal, method, or result
-- you may minimally clean broken spacing and line breaks, but do not change the meaning
-- do not summarize
-- do not add information
-- if you are not sure or there is no such sentence, return exactly: NONE
+- return a result only if the author explicitly states the purpose of this thesis
+- look only for the explicitly declared thesis purpose, not for topic importance, motivation, background, material advantages, methods, results, or conclusions
+- do not choose general sentences saying something is important, promising, widely used, attractive, functional, or helps better understand a phenomenon
+- if the fragment contains an explicitly declared thesis purpose, return it directly in a clean impersonal form
+- preserve the exact meaning
+- do not add new information
+- do not shorten the purpose if it contains several important elements
+- remove phrases like "The purpose of this thesis is" while preserving meaning
+- do not end with a period
+- if there is no explicitly declared thesis purpose, return exactly: NONE
 
 Fragment:
 {content}
 """.strip(),
-        "rewrite": """
-Rewrite the sentence below into a clean impersonal form containing only the thesis purpose.
+        "select_best": """
+Below is a list of candidates for the purpose of a thesis.
 
 Rules:
-- answer only in English
-- return only the purpose itself
-- preserve the exact meaning
-- do not remove essential information
-- do not shorten the purpose if it contains several important parts
-- do not add new information
-- rewrite it so that personal wording like "The purpose of this thesis is" disappears while the meaning stays identical
-- make it a compact phrase suitable for embedding comparison
+- choose only one that is the real overall purpose of the author's thesis
+- reject general statements about topic importance, research motivation, or broad field-level goals
+- reject statements like "it is important", "it helps better understand", "it is a functional alternative", "it is promising"
+- choose the candidate that refers directly to this specific thesis
+- prefer a candidate that contains the studied material/object and the research action, e.g. synthesis, characterization, analysis, evaluation, investigation
+- return the result in impersonal form
+- do not add anything
 - do not end with a period
+- if none of the candidates is the real thesis purpose, return exactly: NONE
 
-Author sentence:
-{goal}
+Candidates:
+{candidates}
 """.strip(),
     },
 }
 
+_LLAMA_MODELS = {}
 
-def ask_ollama(model_name, prompt, num_predict=120):
-    resp = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": model_name,
-            "prompt": prompt,
-            "stream": False,
-            "keep_alive": "15m",
-            "options": {
-                "temperature": 0.0,
-                "top_p": 0.2,
-                "num_predict": num_predict,
-                "num_ctx": 4096,
-                "repeat_penalty": 1.05,
-            },
-        },
-        timeout=REQUEST_TIMEOUT,
-    )
 
-    if not resp.ok:
-        raise requests.exceptions.HTTPError(
-            f"{resp.status_code}: {resp.text}",
-            response=resp,
+def ask_model(model_name, prompt, num_predict=120):
+    if model_name not in _LLAMA_MODELS:
+        _LLAMA_MODELS[model_name] = Llama(
+            model_path=model_name,
+            n_ctx=4096,
+            chat_format="gemma",
+            verbose=False,
         )
 
-    return resp.json().get("response", "").strip()
+    llm = _LLAMA_MODELS[model_name]
+
+    resp = llm.create_chat_completion(
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Jesteś precyzyjnym asystentem ekstrakcji informacji z prac dyplomowych. "
+                    "Zwracasz wyłącznie odpowiedź zgodną z poleceniem. "
+                    "Nie streszczasz, nie dopowiadasz i nie zgadujesz."
+                ),
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ],
+        max_tokens=num_predict,
+        temperature=0.0,
+        top_p=0.2,
+        repeat_penalty=1.05,
+    )
+
+    return resp["choices"][0]["message"]["content"].strip()
 
 
 def normalize_text(text):
@@ -141,6 +155,7 @@ def normalize_output(text):
 
     while text.startswith("-"):
         text = text[1:].strip()
+
     while text.startswith("•"):
         text = text[1:].strip()
 
@@ -149,6 +164,9 @@ def normalize_output(text):
 
     if text.startswith("'") and text.endswith("'") and len(text) > 1:
         text = text[1:-1].strip()
+
+    if text.endswith("."):
+        text = text[:-1].strip()
 
     return text
 
@@ -162,19 +180,9 @@ def is_negative_answer(text, language):
     return text == ("BRAK" if language == "pl" else "NONE")
 
 
-def prepare_text(path, save_plain_text=False):
-    raw_text = get_plain_text(path)
-    plain_text = normalize_text(raw_text)
-
-    if save_plain_text:
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        (OUTPUT_DIR / f"{path.stem}_plain_text.txt").write_text(plain_text, encoding="utf-8")
-
-    return plain_text
-
-
 def split_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP, max_chunks=MAX_CHUNKS):
-    text = text.strip()
+    text = normalize_text(text)
+
     if not text:
         return []
 
@@ -196,6 +204,7 @@ def split_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP, max_ch
                 end = start + boundary + 1
 
         chunk = normalize_text(chunk)
+
         if chunk:
             chunks.append(chunk)
 
@@ -207,62 +216,46 @@ def split_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP, max_ch
     return chunks
 
 
-def find_first_goal_sentence(full_text, language):
+def collect_goal_candidates(full_text, language):
     chunks = split_into_chunks(full_text)
+    candidates = []
 
     for chunk in chunks:
-        prompt = build_prompt("find", language, content=chunk)
-        result = normalize_output(ask_ollama(FIND_MODEL, prompt, num_predict=100))
+        prompt = build_prompt("find_clean", language, content=chunk)
+        result = normalize_output(ask_model(MODEL_NAME, prompt, num_predict=120))
 
         if is_negative_answer(result, language):
             continue
 
-        return result
+        if result not in candidates:
+            candidates.append(result)
 
-    return ""
+    return candidates
 
 
-def rewrite_goal(goal_sentence, language):
-    if not goal_sentence:
+def select_best_goal(candidates, language):
+    if not candidates:
         return ""
 
-    prompt = build_prompt("rewrite", language, goal=goal_sentence)
-    result = normalize_output(ask_ollama(REWRITE_MODEL, prompt, num_predict=120))
+    joined = "\n".join(f"- {candidate}" for candidate in candidates)
+    prompt = build_prompt("select_best", language, candidates=joined)
+    result = normalize_output(ask_model(MODEL_NAME, prompt, num_predict=120))
 
     if is_negative_answer(result, language):
         return ""
 
-    if result.endswith("."):
-        result = result[:-1].strip()
-
     return result
 
 
-def get_purpose(path, language="pl", save_artifacts=False):
-    path = Path(path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Nie znaleziono pliku: {path}")
-
-    full_text = prepare_text(path, save_plain_text=save_artifacts)
+def get_purpose(full_text, language="pl"):
+    full_text = normalize_text(full_text)
 
     if not full_text:
         return "Błąd: nie udało się odczytać treści pracy." if language == "pl" else "Error: could not read thesis text."
 
     try:
-        explicit_goal = find_first_goal_sentence(full_text, language)
-        clean_goal = rewrite_goal(explicit_goal, language)
-
-        if save_artifacts:
-            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-            (OUTPUT_DIR / f"{path.stem}_goal_explicit.txt").write_text(
-                explicit_goal if explicit_goal else "[BRAK CELU JAWNEGO]",
-                encoding="utf-8",
-            )
-            (OUTPUT_DIR / f"{path.stem}_goal_clean.txt").write_text(
-                clean_goal if clean_goal else "[BRAK CELU CZYSTEGO]",
-                encoding="utf-8",
-            )
+        candidates = collect_goal_candidates(full_text, language)
+        clean_goal = select_best_goal(candidates, language)
 
         if not clean_goal:
             return "Brak jasno określonego celu pracy." if language == "pl" else "No clearly defined thesis purpose found."
@@ -271,17 +264,21 @@ def get_purpose(path, language="pl", save_artifacts=False):
 
     except requests.exceptions.ReadTimeout:
         return "Błąd: model nie odpowiedział na czas." if language == "pl" else "Error: model response timed out."
+
     except requests.exceptions.ConnectionError:
-        return "Błąd: nie udało się połączyć z Ollamą." if language == "pl" else "Error: could not connect to Ollama."
+        return "Błąd: nie udało się połączyć z modelem." if language == "pl" else "Error: could not connect to model."
+
     except requests.exceptions.HTTPError as e:
         details = e.response.text if e.response is not None else ""
         return f"Błąd HTTP: {e}. Szczegóły: {details}" if language == "pl" else f"HTTP error: {e}. Details: {details}"
+
     except Exception as e:
         return f"Błąd: {e}" if language == "pl" else f"Error: {e}"
 
 
 def main():
-    result = get_purpose(FILE_PATH, LANGUAGE, save_artifacts=True)
+    full_text = get_plain_text(FILE_PATH)
+    result = get_purpose(full_text, LANGUAGE)
     print(result)
 
 

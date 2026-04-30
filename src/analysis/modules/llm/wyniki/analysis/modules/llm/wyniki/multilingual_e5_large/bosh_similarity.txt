@@ -1,0 +1,188 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\bosh.pdf
+Wygenerowano: 2026-04-11T13:50:05.391359
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.803844
+
+CEL PRACY
+Błąd HTTP: 500: {"error":"llama runner process has terminated: %!w(\u003cnil\u003e)"}. Szczegóły: {"error":"llama runner process has terminated: %!w(\u003cnil\u003e)"}
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Inżynieria tkankowa i medycyna regeneracyjna
+SUMMARY:
+Inżynieria tkankowa rozwija nowe biomateriały, wykorzystując komórki, rusztowania i sygnały kierujące, aby trwale odtworzyć funkcję uszkodzonych tkanek i narządów.
+COSINE_SIMILARITY: 0.811145
+
+--------------------------------------------------------------------------------
+
+1.2 Biomateriały definicja i zastosowania
+SUMMARY:
+Nowoczesne materiały, w szczególności biomateriały, przyczyniają się do poprawy jakości życia i wydłużenia życia pacjentów dzięki nowym możliwościom w diagnostyce i terapii.
+COSINE_SIMILARITY: 0.818984
+
+--------------------------------------------------------------------------------
+
+1.3 . Biomateriały ceramiczne
+SUMMARY:
+Bioceramika, składająca się z materiałów ceramicznych takich jak fosforan trójwapniowy i hydroksyapatyt, jest wykorzystywana w medycynie do zastępowania lub wspomagania regeneracji uszkodzonych struktur kostnych, a jej właściwości zależą od stopnia bioaktywności i resorbowalności.
+COSINE_SIMILARITY: 0.785528
+
+--------------------------------------------------------------------------------
+
+1.3.1 Właściwości i klasyfikacja biomateriałów ceramicznych
+SUMMARY:
+Bioceramika dzieli się na bioinertną, bioaktywną i resorbowalną, różniącą się właściwościami chemicznymi, reakcją na tkanki żywe oraz zdolnością do tworzenia połączeń z kością lub stopniowego zastępowania przez tkankę pacjenta.
+COSINE_SIMILARITY: 0.785969
+
+--------------------------------------------------------------------------------
+
+1.3.2 Hydroksyapatyt
+SUMMARY:
+Hydroksyapatyt, syntetyczny fosforan wapnia, jest wykorzystywany w zastosowaniach biomedycznych ze względu na jego właściwości, takie jak gęstość, twardość i możliwość regulacji bioaktywności.
+COSINE_SIMILARITY: 0.788643
+
+--------------------------------------------------------------------------------
+
+1.3.3 Bioaktywne szkła
+SUMMARY:
+Szkła bioaktywne, oparte na tlenku szkłotwórczym krzemu i modyfikatorach, wiążą się trwale z uwapnioną tkanką kostną i oferują szerokie spektrum działania biologicznego, w tym stymulację osteogenezy i angiogenezy.
+COSINE_SIMILARITY: 0.791785
+
+--------------------------------------------------------------------------------
+
+1.4 Mechanizm bioaktywności bioszkieł
+SUMMARY:
+Kontakt bioszkła z płynami ustrojowymi prowadzi do wymiany jonów, hydrolizy sieci krzemianowej i krystalizacji hydroksyapatytu, tworząc warstwę integrującą materiał z tkanką kostną.
+COSINE_SIMILARITY: 0.798200
+
+--------------------------------------------------------------------------------
+
+1.5 Struktura szkieł boranowo-krzemianowych
+SUMMARY:
+Proces rozpuszczania bioszkieł zależy od ich struktury krzemianowej i stopnia usieciowania, a zmiany w składzie i konfiguracji sieci tlenkowej mogą wpływać na ich bioaktywność i kinetykę degradacji.
+COSINE_SIMILARITY: 0.813675
+
+--------------------------------------------------------------------------------
+
+1.6 Tantal jako modyfikator biomateriałów
+SUMMARY:
+Tantal charakteryzuje się wysoką biokompatybilnością i bioobojętnością, a jego tlenek, 2 O 5, wspiera proliferację komórek i stabilność strukturalną bioszkła.
+COSINE_SIMILARITY: 0.799950
+
+--------------------------------------------------------------------------------
+
+1.7 Nanokompozyty szklane
+SUMMARY:
+Nanokompozyty szklane pozwalają na kontrolowanie składu chemicznego osnowy szklanej i udziału faz krystalicznych, umożliwiając regulację właściwości materiału poprzez sterowanie kinetyką nukleacji i wzrostu krystalitów.
+COSINE_SIMILARITY: 0.786169
+
+--------------------------------------------------------------------------------
+
+3.1 Materiały
+SUMMARY:
+Badacze przygotowali próbki o różnym składzie tlenkowym, zawierającym tlenek tantalu(V), tlenek krzemu, tlenek glinu, tlenek fosforu, tlenek wapnia i tlenek sodu, uwzględniając reakcje termiczne prekursorów i rozkład soli.
+COSINE_SIMILARITY: 0.814148
+
+--------------------------------------------------------------------------------
+
+3.2 Synteza nanokompozytów metodą topienia i szybkiego chłodzenia
+SUMMARY:
+Synteza czterech próbek Ta₂O₅ została przeprowadzona poprzez odważenie i zmieszanie odczynników w moździerzu, aż uzyskano jednorodny proszek.
+COSINE_SIMILARITY: 0.808670
+
+--------------------------------------------------------------------------------
+
+3.3 Charakterystyka fizykochemiczna
+SUMMARY:
+Charakterystyka fizykochemiczna materiału, przeprowadzona za pomocą dyfrakcji rentgenowskiej, pozwala na określenie jego składu, struktury i powierzchni, a także na analizę parametrów takich jak parametry sieciowe, grupa przestrzenną i skład chemiczny.
+COSINE_SIMILARITY: 0.808315
+
+--------------------------------------------------------------------------------
+
+3.3.1 Dyfraktometria rentgenowska
+SUMMARY:
+Dyfrakcja rentgenowska analizuje strukturę krystaliczną materiałów poprzez pomiar położenia i intensywności refleksów, co pozwala na określenie parametrów sieciowych, składu chemicznego i innych właściwości.
+COSINE_SIMILARITY: 0.786509
+
+--------------------------------------------------------------------------------
+
+3.3.2 Skaningowa Mikroskopia Elektronowa
+SUMMARY:
+Skaningowa mikroskopia elektronowa (SEM) obrazuje powierzchnie próbek za pomocą wiązki elektronów, rejestrując sygnały emisji elektronów, co pozwala na uzyskanie szczegółowych obrazów o rozdzielczości kilku nanometrów, służących do analizy morfologii, topografii i składu materiałów.
+COSINE_SIMILARITY: 0.793962
+
+--------------------------------------------------------------------------------
+
+3.3.3 Spektroskopia w podczerwieni
+SUMMARY:
+Analiza FTIR wykorzystująca pastylki z mieszanek próbek i KBr pozwala na identyfikację grup funkcyjnych, ocenę zmian strukturalnych i degradacji materiałów poprzez skanowanie w zakresie 400-4000 cm⁻¹ z rozdzielczością 4 cm⁻¹.
+COSINE_SIMILARITY: 0.811384
+
+--------------------------------------------------------------------------------
+
+3.3.4 In vitro rozpuszczalność w PBS
+SUMMARY:
+Badanie rozpuszczalności in vitro polegało na inkubacji sproszkowanego szkła w buforze fosforanowym PBS, w celu zbadania zmian pH i stężenia jonów w warunkach zbliżonych do środowiska fizjologicznego.
+COSINE_SIMILARITY: 0.800966
+
+--------------------------------------------------------------------------------
+
+4.1 Charakterystyka próbek po wytopie
+SUMMARY:
+Próbki nanokompozytów domieszkowane tlenkiem tantalu, wytapiane do wody, otrzymano w postaci drobnych kawałków i proszku o zróżnicowanej wielkości i kształcie, charakteryzujących się białym kolorem i delikatnym połyskiem.
+COSINE_SIMILARITY: 0.797213
+
+--------------------------------------------------------------------------------
+
+4.2 Badania rozpuszczalności in vitro
+SUMMARY:
+Zmiany pH roztworu PBS w czasie zanurzenia nanokompozytów wykazywały wzrost, osiągając najwyższą wartość około 8,9 dla próbki 1Ta, a następnie stabilizację w zakresie 8,6–8,9, przy czym tlenek boru miał większy wpływ na pH niż tlenek glinu.
+COSINE_SIMILARITY: 0.809923
+
+--------------------------------------------------------------------------------
+
+4.2.1 Zmiana pH
+SUMMARY:
+Zmiany pH roztworu PBS w czasie zanurzenia nanokompozytów wykazywały wzrost, osiągając najwyższą wartość około 8,9 dla próbki 1Ta, a następnie stabilizację w zakresie 8,6–8,9, przy czym tlenek boru miał większy wpływ na pH niż tlenek glinu.
+COSINE_SIMILARITY: 0.809923
+
+--------------------------------------------------------------------------------
+
+4.3 Badania po rozpuszczalności in vitro
+SUMMARY:
+Po inkubacji próbek w roztworze PBS, na powierzchni materiału utworzyła się nowa warstwa o iglistej strukturze, typowej dla krystalitów hydroksyapatytu, a jej wygląd zmieniał się w zależności od powiększenia i czasu zanurzenia.
+COSINE_SIMILARITY: 0.807935
+
+--------------------------------------------------------------------------------
+
+4.3.1 SEM
+SUMMARY:
+Po 5 i 10 dniach zanurzenia w roztworze PBS, na powierzchni materiału obserwowano formowanie się iglistej warstwy, przypominającej krystality hydroksyapatytu, z wyraźnymi spękaniami, które powstały w wyniku suszenia próbek.
+COSINE_SIMILARITY: 0.815342
+
+--------------------------------------------------------------------------------
+
+4.3.2 XRD
+SUMMARY:
+Po ponownych pomiarach dyfrakcji rentgenowskiej, analiza zmian strukturalnych w próbkach po zanurzeniu w roztworze PBS wykazała rozpuszczanie się sodowo-wapniowego ortofosforanu i obecność hydroksyapatytu, przy czym przypisanie konkretnych refleksów do faz jest utrudnione ze względu na pos
+COSINE_SIMILARITY: 0.813025
+
+--------------------------------------------------------------------------------
+
+4.3.3 FTIR
+SUMMARY:
+Analiza widm FTIR próbek 01Ta, 04Ta, 07Ta i 1Ta po kontakcie z PBS ujawniła zmiany w pasmach absorpcyjnych, w tym zmniejszenie intensywności pasm boranowych, przesunięcie głównego pasma w kierunku wyższych liczb falowych oraz pojawienie się pasma
+COSINE_SIMILARITY: 0.812435
+
+--------------------------------------------------------------------------------
+
+4.3.4 EDX
+SUMMARY:
+Rozumiem, że przedstawiłeś dane dotyczące analizy składu chemicznego kompozytów, a konkretnie zmian w zawartości fosforu, wapnia, sodu i krzemu w kompozytach z oznaczeniami "Ta" (prawdopodobnie "Titanate") po 5 i 10 dniach zanurzenia w PBS. Pod
+COSINE_SIMILARITY: 0.826293
+
+--------------------------------------------------------------------------------

@@ -17,7 +17,11 @@ from src.analysis.extraction.converter_linguistics import PDFMapper
 
 def main():
     #  Ścieżki do plików
+<<<<<<< HEAD
     pdf_path = PROJECT_ROOT / "data" / "zusz.pdf"
+=======
+    pdf_path = PROJECT_ROOT / "data" / "ch.pdf"
+>>>>>>> origin/main
     config_path = PROJECT_ROOT / "src" / "config" / "wymagania_inz.json"
 
     if not Path(pdf_path).exists():
@@ -63,7 +67,7 @@ def main():
         else:
             print(f"Znaleziono {len(found_errors)} błędów:")
             for error in found_errors:
-                print(f"[{error.id}] Typ: {error.category}, Strona: {error.page_nr}, Bbox: {error.bounding_box}, Text: {error.text}")
+                print(f"[{error.id}] Typ: {error.category}, Strona: {error.page_number}, Bbox: {error.bounding_box}, Text: {error.text}")
                 print(f"  -> Komentarz: {error.comments}")
                 print("-" * 40)
 

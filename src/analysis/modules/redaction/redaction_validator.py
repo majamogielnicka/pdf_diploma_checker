@@ -106,7 +106,7 @@ class RedactionValidator:
             self.check_margins(self.document_data)
             self.check_orientation(self.document_data)
             self.check_fonts(self.document_data)
-            self.check_justification(self.document_data)
+            #self.check_justification(self.document_data)
             self.check_format(self.document_data)
 
         #--------------------basic redaction check
@@ -116,10 +116,11 @@ class RedactionValidator:
         #--------------------advanced redaction check
         if advanced_redaction_check:
             self.check_orphans()
-            self.check_widows()
-            self.check_bekarts()
-            self.check_szewce()
-            self.check_korytarze()
+            #self.check_widows()
+            #self.check_bekarts()
+            #self.check_szewce()
+            #self.check_korytarze()
+            self.check_from_converter()
 
         '''
         if not is_toc:
@@ -127,7 +128,7 @@ class RedactionValidator:
                 id = self._get_next_id(),
                 module=self.module,
                 category = "TOC_lack",
-                page_nr = 1,
+                page_number = 1,
                 bounding_box = (self.document_data.pages[0].width - 60, 10, self.document_data.pages[0].width - 10, 60), 
                 text = None,
                 comments = f"Wykryto brak spisu treści."
@@ -139,7 +140,7 @@ class RedactionValidator:
                     id = self._get_next_id(),
                     module = self.module,
                     category = "TOC_mismatch",
-                    page_nr = entry.page,
+                    page_number = entry.page,
                     bounding_box = entry.bbox,
                     text = entry.title,
                     comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
@@ -152,7 +153,7 @@ class RedactionValidator:
                 id = self._get_next_id(),
                 module = self.module,
                 category = "Footer_on_1st_page",
-                page_nr = 1,
+                page_number = 1,
                 bounding_box = page_1_footer_bbox, 
                 text = "1",
                 comments = "Wykryto numerację na pierwszej stronie, która nie powinna się tam znaleźć."
@@ -164,7 +165,7 @@ class RedactionValidator:
                 id = self._get_next_id(),
                 module = self.module,
                 category = "No_footer",
-                page_nr = number,
+                page_number = number,
                 bounding_box = (self.document_data.pages[number - 1].width/2 - 20, 
                                 self.document_data.pages[number - 1].height - 40, 
                                 self.document_data.pages[number - 1].width/2 + 20, 
@@ -216,7 +217,7 @@ class RedactionValidator:
                             id = self._get_next_id(),
                             module = self.module,
                             category = "orphan_span",
-                            page_nr = page.number,
+                            page_number = page.number,
                             bounding_box = last_span.bbox,
                             text = last_span.text,
                             comments = "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji."
@@ -226,18 +227,25 @@ class RedactionValidator:
     def check_korytarze(self):
         korytarze = []
         for page in self.document_data.pages:
+            if page.number < 3:
+                continue
             for block in page.text_blocks:
-                if block.lines is None or len(block.lines) == 1:
+                if block.lines is None or len(block.lines) <= 1:
                     continue
-                if len(block.lines[0].spans) < 2 or block.lines[0].spans is None:
-                    continue
-
+                
                 paths_to_check = []
-                for span in block.lines[0].spans[-2:]:
-                    next_span = block.lines[0].spans[block.lines[0].spans.index(span) + 1]
-                    paths_to_check.append((span.bbox[2], next_span.bbox[0]))
+                first_line = block.lines[0]
+            
+                if first_line.spans and len(first_line.spans) >= 2:
+                    for i in range(len(first_line.spans) - 1):
+                        span = first_line.spans[i]
+                        next_span = first_line.spans[i + 1]
+                        paths_to_check.append((span.bbox[2], next_span.bbox[0]))
                 
                 for line in block.lines[1:]:
+                    if not line.spans:
+                        continue
+                        
                     for span in line.spans:
                         for (x1, x2) in paths_to_check:
                             if (span.bbox[0] > x1 and span.bbox[0] < x2) or (span.bbox[2] > x1 and span.bbox[2] < x2):
@@ -246,17 +254,19 @@ class RedactionValidator:
                                     id = self._get_next_id(),
                                     module = self.module,
                                     category = "korytarz",
-                                    page_nr = page.number,
+                                    page_number = page.number,
                                     bounding_box = (x1, span.bbox[1] - 15, x2, span.bbox[3]),
                                     text = None,
-                                    comments = "Wykryto korytarz."
+                                    comments = "Wykryto korytarz (nakładające się przerwy między wyrazami w sąsiednich liniach)."
                                 ))
+                    
                     paths_to_check = []
-                    if line.spans is None or len(line.spans) < 2:
-                        continue
-                    for span in line.spans[-2:]:
-                        next_span = line.spans[line.spans.index(span) + 1]
-                        paths_to_check.append((span.bbox[2], next_span.bbox[0]))
+                    if len(line.spans) >= 2:
+                        for i in range(len(line.spans) - 1):
+                            s = line.spans[i]
+                            ns = line.spans[i + 1]
+                            paths_to_check.append((s.bbox[2], ns.bbox[0]))
+                            
         return korytarze
 
     def check_blank_page(self):
@@ -268,7 +278,7 @@ class RedactionValidator:
                     id = self._get_next_id(),
                     module = self.module,
                     category = "blank_page",
-                    page_nr = page.number,
+                    page_number = page.number,
                     bounding_box = (0,0,0,0),
                     text = "",
                     comments = "Pusta strona"
@@ -287,18 +297,23 @@ class RedactionValidator:
                     error = self.handle_widow(block, widow_which)
                     if error:
                         converter_errors.append(error)
+                        self.errors.append(error)
                 # Flaga: bękarty
                 bekart_which = getattr(block, "is_bekart", 0)
                 if bekart_which != 0:
                     error = self.handle_bekart(block, bekart_which)
                     if error:
                         converter_errors.append(error)
+                        self.errors.append(error)
+
                 # Flaga: szewce
                 szewc_which = getattr(block, "is_szewc", 0)
                 if szewc_which != 0:
                     error = self.handle_szewc(block, szewc_which)
                     if error:
                         converter_errors.append(error)
+                        self.errors.append(error)
+
 
 
         return converter_errors
@@ -326,7 +341,7 @@ class RedactionValidator:
             id=self._get_next_id(), 
             module=self.module,
             category="widow", 
-            page_nr=last_word.page_number,
+            page_number=last_word.page_number,
             bounding_box=widow_bbox, 
             text=found_text,
             comments="Wykryto wdowę"
@@ -355,7 +370,7 @@ class RedactionValidator:
             id=self._get_next_id(), 
             module=self.module,
             category="bekart", 
-            page_nr=last_word.page_number,
+            page_number=last_word.page_number,
             bounding_box=bekart_bbox, 
             text=found_text,
             comments="Wykryto bękarta"
@@ -384,7 +399,7 @@ class RedactionValidator:
             id=self._get_next_id(), 
             module=self.module,
             category="szewc", 
-            page_nr=first_word.page_number - 1,
+            page_number=first_word.page_number - 1,
             bounding_box=bekart_bbox, 
             text=found_text,
             comments="Wykryto szewc"
@@ -453,7 +468,7 @@ class RedactionValidator:
                 id = self._get_next_id(),
                 module = self.module,
                 category = "config_file",
-                page_nr = None,
+                page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
                 comments = f"Używana interlinia ({line_spacing}) jest niezgodna z wymaganą interlinią ({self.config.interlinia})."
@@ -469,7 +484,7 @@ class RedactionValidator:
                 id = self._get_next_id(),
                 module = self.module,
                 category = "config_file",
-                page_nr = None,
+                page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
                 comments = f"Dokument ma {page_count} stron, mniej niż minimalna liczba {self.config.min_stron}"
@@ -480,7 +495,7 @@ class RedactionValidator:
                 id = self._get_next_id(),
                 module = self.module,
                 category = "config_file",
-                page_nr = None,
+                page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
                 comments = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.min_stron}."
@@ -499,7 +514,7 @@ class RedactionValidator:
                 id = self._get_next_id(),
                 module = self.module,
                 category = "config_file",
-                page_nr = None,
+                page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
                 comments = f"Używany rozmiar czcionki ({most_used_font_size}) jest niezgodny z wymaganym rozmiarem czcionki ({self.config.font_size})."
@@ -525,7 +540,7 @@ class RedactionValidator:
                             id = self._get_next_id(),
                             module = self.module,
                             category = "config_file",
-                            page_nr = page_num,
+                            page_number = page_num,
                             bounding_box = (0,0,0,0),
                             text = None,
                             comments = f"Oczekiwany większy margines po lewej stronie stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
@@ -537,7 +552,7 @@ class RedactionValidator:
                             id = self._get_next_id(),
                             module = self.module,
                             category = "config_file",
-                            page_nr = page_num,
+                            page_number = page_num,
                             bounding_box = (0,0,0,0),
                             text = None,
                             comments = f"Oczekiwany większy margines po prawej stronie stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
@@ -552,7 +567,7 @@ class RedactionValidator:
                         id = self._get_next_id(),
                         module = self.module,
                         category = "config_file",
-                        page_nr = page_num,
+                        page_number = page_num,
                         bounding_box = (0,0,0,0),
                         text = None,
                         comments = f"Margines na tej stronie różni się od marginesów na pozostałych stronach: {margin} vs {org_margin}."
@@ -579,7 +594,7 @@ class RedactionValidator:
                     id = self._get_next_id(),
                     module = self.module,
                     category = "config_file",
-                    page_nr = page_num,
+                    page_number = page_num,
                     bounding_box = (0,0,0,0),
                     text = None,
                     comments = f"Używany format strony (wymiary: {width}x{height})jest niezgodny z wymaganiami {formats[self.config.format].upper()}"
@@ -596,7 +611,7 @@ class RedactionValidator:
                     id = self._get_next_id(),
                     module = self.module,
                     category = "config_file",
-                    page_nr = page_num,
+                    page_number = page_num,
                     bounding_box = (0,0,0,0),
                     text = None,
                     comments = f"Orientacja strony ({width}x{height}) niezgodna z wymaganiami (pionowa)."
@@ -607,7 +622,7 @@ class RedactionValidator:
                     id = self._get_next_id(),
                     module = self.module,
                     category = "config_file",
-                    page_nr = page_num,
+                    page_number = page_num,
                     bounding_box = (0,0,0,0),
                     text = None,
                     comments = f"Orientacja strony ({width}x{height}) niezgodna z wymaganiami (pozioma)."
@@ -627,7 +642,7 @@ class RedactionValidator:
                     id = self._get_next_id(),
                     module = self.module,
                     category = "config_file",
-                    page_nr = None,
+                    page_number = None,
                     bounding_box = (0,0,0,0),
                     text = None,
                     comments = f"Używana czcionka ({font}) jest niezgodna z wymaganą czcionką."   
@@ -661,7 +676,7 @@ class RedactionValidator:
                             id = self._get_next_id(),
                             module = self.module,
                             category = "config_file",
-                            page_nr = page.number,
+                            page_number = page.number,
                             bounding_box = line.bbox,
                             text = None,
                             comments = f"Wykryto brak justowania w akapicie (linia {i+1})"
@@ -673,7 +688,7 @@ class RedactionValidator:
                             id = self._get_next_id(),
                             module = self.module,
                             category = "config_file",
-                            page_nr = page.number,
+                            page_number = page.number,
                             bounding_box = line.bbox,
                             text = None,
                             comments = f"Wykryto niepoprawne justowanie w akapicie (linia {i+1})"

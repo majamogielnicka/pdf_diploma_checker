@@ -113,12 +113,22 @@ class PDFMapper:
         # Pętla zapisująca zawartość bufora
         for i, data in enumerate(paragraph_buffer):
             content = data['content']
+            separator = ""
+            removed_hyphen = False
 
             separator = ""
             if is_acronym_block and i > 0:
                 separator = "\n"
-            elif i > 0 and not combined_content.rstrip().endswith('-'):
-                separator = " "
+            elif i > 0:
+                if combined_content.rstrip().endswith('-'):
+                    separator = ""
+                    removed_hyphen = True
+                else:
+                    separator = " "
+
+                if removed_hyphen:
+                    combined_content = combined_content.rstrip()[:-1]
+                    current_offset = len(combined_content)
 
             for word in data['words']:
                 shift = current_offset + len(separator)

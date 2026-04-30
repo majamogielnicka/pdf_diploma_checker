@@ -1,0 +1,286 @@
+Plik: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\jabi.pdf
+Wygenerowano: 2026-04-11T14:19:53.193110
+
+MODEL EMBEDDINGÓW
+intfloat/multilingual-e5-large
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO
+0.846571
+
+CEL PRACY
+Analiza i porównanie wytrenowanych modeli do detekcji emocji z sygnałów dźwiękowych
+
+PODOBIEŃSTWO DLA STRESZCZEŃ
+
+1.1 Cel i zakres pracy
+SUMMARY:
+Praca ma na celu stworzenie modułu wykorzystującego sieci neuronowe, w tym CNN, LSTM i MFCC, do identyfikacji emocji w sygnale dźwiękowym z mikrofonu lub pliku audio dla czterech modeli.
+COSINE_SIMILARITY: 0.882894
+
+--------------------------------------------------------------------------------
+
+1.2 Układ pracy
+SUMMARY:
+Emocje, kodowane przez prozodię mowy, takie jak wysokość, czas trwania i intensywność, odzwierciedlają osobiste znaczenie i stan uczuć, a podstawowe emocje, wrodzone i uniwersalne, są zdefiniowane przez specyficzne cechy i mogą łączyć się, tworząc nowe odczucia.
+COSINE_SIMILARITY: 0.833527
+
+--------------------------------------------------------------------------------
+
+3.1 Elementarne cechy dźwięku
+SUMMARY:
+Wysokość tonu, amplituda, barwa dźwięku i trwałość są cechami dźwięku, które wpływają na jego rozpoznawalność i charakterystykę.
+COSINE_SIMILARITY: 0.837561
+
+--------------------------------------------------------------------------------
+
+3.2 Podstawowe cechy głosu
+SUMMARY:
+Analiza dźwiękowa uwzględnia intonację, tempo mowy i natężenie głosu, które mogą wskazywać na emocje, takie jak radość, smutek czy wściekłość, oraz wpływać na wnioski dotyczące wieku, płci i stanu zdrowia osoby mówiącej.
+COSINE_SIMILARITY: 0.879093
+
+--------------------------------------------------------------------------------
+
+3.3 Metody ekstrakcji cech z próbki głosowej
+SUMMARY:
+RMSE jest miarą średniej mocy sygnału, często używaną w produkcji muzycznej i filmowej, a także w detekcji emocji, w połączeniu z techniką ramkowania do analizy niestacjonarnych sygnałów mowy.
+COSINE_SIMILARITY: 0.842437
+
+--------------------------------------------------------------------------------
+
+3.3.1 Dyskretna transformata falkowa
+SUMMARY:
+DWT to narzędzie do analizy sygnałów, które wykorzystuje funkcje falkowe i zmienia ich skalę i przesunięcie w czasie, aby badać zmiany w różnych skalach częstotliwości, co znajduje zastosowanie w kompresji obrazów, analizie sygnałów biomedycznych i usuwaniu szumów.
+COSINE_SIMILARITY: 0.820272
+
+--------------------------------------------------------------------------------
+
+3.3.2 LPC
+SUMMARY:
+Linear Predictive Coding jest techniką analizy sygnału dźwiękowego, która wykorzystuje poprzednie próbki do przybliżenia dźwięku i pozwala na identyfikację formantów, które określają barwę głosu oraz umożliwiają klasyfikację stanów emocjonalnych.
+COSINE_SIMILARITY: 0.841251
+
+--------------------------------------------------------------------------------
+
+3.3.3 PLP
+SUMMARY:
+Perceptual Linear Prediction wykorzystuje skale melowe i krytyczne pasma słuchowe, kwantyzując sygnał i stosując filtr Barka oraz preemfazę, aby odtworzyć sposób percepcji dźwięku przez ludzkie ucho.
+COSINE_SIMILARITY: 0.824453
+
+--------------------------------------------------------------------------------
+
+3.3.4 MFCC
+SUMMARY:
+Mel-Frequency Cepstral Coefficients są metodą ekstrakcji cech dźwiękowych, wykorzystującą preemfazę, okna Hamminga, szybką transformatę Fouriera, bank filtry melowych i logarytmowanie, aby uzyskać zestaw współczynników używanych do rozpoznawania dźwięków i rozróżniania różnych źródeł dźwięku
+COSINE_SIMILARITY: 0.815353
+
+--------------------------------------------------------------------------------
+
+3.4 Porównanie przedstawionych metod
+SUMMARY:
+Metody ekstrakcji cech, takie jak LPC, MFCC i PLP, różnią się zaletami i wadami, w tym skutecznością reprezentacji sygnałów mowy, odpornością na szumy i zdolnością do rozróżniania różnych sygnałów.
+COSINE_SIMILARITY: 0.845808
+
+--------------------------------------------------------------------------------
+
+4.2 Konwolucyjne sieci neuronowe
+SUMMARY:
+Konwolucyjne sieci neuronowe wywodzą się z eksperymentów dotyczących reakcji neuronów w mózgu kota na obrazy, a ich rozwój zawdzięczają odkryciom Hubela i Wiesela oraz późniejszym pracom LeCuna, który wykorzystał propagację wsteczną do modyfikacji jądra splotu i połączenia lokal
+COSINE_SIMILARITY: 0.790695
+
+--------------------------------------------------------------------------------
+
+4.3 Rekurencyjne sieci neuronowe
+SUMMARY:
+Sieci RNN wykorzystują rekurencyjne połączenia między neuronami, aby przetwarzać dane sekwencyjne, choć ich działanie może być ograniczone przez problemy z gradientem i wymagają modyfikacji, takich jak LSTM i GRU.
+COSINE_SIMILARITY: 0.809026
+
+--------------------------------------------------------------------------------
+
+4.4 Long Short-Therm Memory
+SUMMARY:
+LSTM to modyfikacja rekurencyjnych sieci neuronowych, która wykorzystuje komórkę pamięci z bramkami wejściową, zapominającą i wyjściową do radzenia sobie z długotrwałymi zależnościami i problemem zanikania gradientu.
+COSINE_SIMILARITY: 0.792956
+
+--------------------------------------------------------------------------------
+
+4.5 Model oparty o Transformer (Jakub Bieńkowski)
+SUMMARY:
+Model Transformer, opracowany przez Google Brain, wykorzystuje mechanizm multi-head attention do przetwarzania obrazów, dźwięku i języka, opierając się na warstwach encoder i decoder z połączeniem rezydualnym i maskowaną warstwą samo uwagi.
+COSINE_SIMILARITY: 0.819116
+
+--------------------------------------------------------------------------------
+
+5.1 Podział emocji (Jakub Makowski)
+SUMMARY:
+Rozwiązania problemu SER emocji często dzielą emocje na złość, wstręt, strach, szczęście, smucie oraz emocję neutralną, wykorzystując różne zbiory danych z różnymi zestawami emocji.
+COSINE_SIMILARITY: 0.832034
+
+--------------------------------------------------------------------------------
+
+5.2 Przegląd datasetów (Jakub Makowski)
+SUMMARY:
+Badacze Zhao, Mao i Chen wykorzystali zbiory danych Berlin EmoDB, IEMOCAP, RAVDESS i SAVEE do analizy i klasyfikacji emocji w nagraniach głosowych i wideo, obejmujące siedem emocji, w tym gniew, smutek i zaskoczenie.
+COSINE_SIMILARITY: 0.848274
+
+--------------------------------------------------------------------------------
+
+5.3 Preprocessing danych (Jakub Bieńkowski)
+SUMMARY:
+Artykuł [49] opisuje system do rozpoznawania emocji z głosu, wykorzystujący współczynniki MFCC, ZCR, HNR i TEO, które są przetwarzane przez SVM i autoenkoder, a cały proces opiera się na datasetcie RML zawierającym próbki emocji takich jak gniew, wstręt, strach, smut
+COSINE_SIMILARITY: 0.861738
+
+--------------------------------------------------------------------------------
+
+5.4 Modele wykrywania emocji
+SUMMARY:
+Model oparty na sieciach konwolucyjnych, wytrenowany na zbiorze danych SAVEE, osiągnął 83,61% dokładności w wykrywaniu stanu emocjonalnego mówcy, wykorzystując warstwy splotowe z różnymi filtrami i warstwy głębokie oraz optymalizator Adam.
+COSINE_SIMILARITY: 0.857726
+
+--------------------------------------------------------------------------------
+
+5.5 Podsumowanie
+SUMMARY:
+W pracy porównano cztery modele detekcji emocji z głosu, w tym trzy gotowe modele oraz autorski model oparty na architekturze transformer, wykorzystując dobrane zbiory danych i metody preprocessingu.
+COSINE_SIMILARITY: 0.902735
+
+--------------------------------------------------------------------------------
+
+6.1 Użyte zbiory danych
+SUMMARY:
+Badanie wykorzystało cztery zbiory danych audio-wizualnych: RAVDESS, TESS, CREMA-D i SAVEE, zawierające nagrania aktorów wyrażających różne emocje w różnych intensywnościach.
+COSINE_SIMILARITY: 0.852328
+
+--------------------------------------------------------------------------------
+
+6.2 Model oparty o CNN
+SUMMARY:
+Model oparty o CNN, opracowany przez Hamidę, osiągnął 97% dokładności na zbiorze testowym, wykorzystując połączoną bazę danych RAVDESS, TESS, CREMA-D i SAVEE, po której przeprowadzono preprocesing, tworzenie DataFrame’ów i augmentację danych za pomocą funkcji DIO.
+COSINE_SIMILARITY: 0.822270
+
+--------------------------------------------------------------------------------
+
+6.2.1 Dane uczące
+SUMMARY:
+Baza danych do trenowania modelu została utworzona poprzez połączenie i przetworzenie datasetów RAVDESS, TESS, CREMA-D i SAVEE, w wyniku czego powstał jeden wielki DataFrame zawierający etykiety emocji i ścieżki do plików audio, a także przeprowadzono augmentację danych w celu zapobieżenia przetrenowaniu.
+COSINE_SIMILARITY: 0.847410
+
+--------------------------------------------------------------------------------
+
+6.2.2 Opis działania
+SUMMARY:
+Model został wytrenowany przy użyciu optymalizatora Adam i funkcji categorical_crossentropy, wykorzystując dane audio z pierwszych 2,5 sekund pliku, aby przewidzieć prawdopodobieństwo przynależności do klas emocji.
+COSINE_SIMILARITY: 0.877803
+
+--------------------------------------------------------------------------------
+
+6.3 Model oparty o LSTM
+SUMMARY:
+Model "oparty o LSTM" stworzony przez użytkownika Gem wykorzystał dane treningowe składające się z 11510 nagrań audio, w tym nagrań żeńskich, po preprocesingu i ekstrakcji cech takich jak ZCR, RMS i MFCC, aby osiągnąć wyniki na danych testowych oscylujące w granicach 90%.
+COSINE_SIMILARITY: 0.850663
+
+--------------------------------------------------------------------------------
+
+6.3.1 Dane uczące
+SUMMARY:
+Zbiór danych dla modelu składa się z 11510 nagrań audio, w tym nagrań żeńskich, po preprocesingu, ekstrakcji cech (ZCR, RMS, MFCC) i podziale na zbiory uczące, walidacyjne i testowe.
+COSINE_SIMILARITY: 0.845091
+
+--------------------------------------------------------------------------------
+
+6.3.2 Opis działania
+SUMMARY:
+Model LSTM, składający się z dwóch warstw LSTM i warstwy gęstej, przewiduje emocje na podstawie cech ekstrahowanych z pierwszych 2,5 sekund pliku audio, a następnie wybiera prawdopodobnie najbardziej prawdopodobną emocję.
+COSINE_SIMILARITY: 0.850115
+
+--------------------------------------------------------------------------------
+
+6.4 Model oparty o MFCC
+SUMMARY:
+Model "oparty o MFCC" wykorzystuje sieć konwolucyjną do analizy danych audio, które zostały zebrane z datasetów RAVDESS, TESS, CREMA-D i SAVEE, a następnie poddane augmentacji i podziałowi na zbiory treningowe i walidacyjne.
+COSINE_SIMILARITY: 0.844073
+
+--------------------------------------------------------------------------------
+
+6.4.1 Dane uczące
+SUMMARY:
+Zbiór trenowania dla sieci CNN został utworzony poprzez połączenie datasetów RAVDESS, TESS, CREMA-D i SAVEE, a następnie został powiększony o augmentację danych i podzielony na zbiór treningowy (80%) i walidacyjny (20%).
+COSINE_SIMILARITY: 0.808007
+
+--------------------------------------------------------------------------------
+
+6.4.2 Opis działania
+SUMMARY:
+Model głębokiej sieci konwolucyjnej został zaprojektowany do analizy cech audio, a następnie przewidywania emocji i płci, wykorzystując pięć warstw konwolucyjnych, warstwy Flatten, dwie warstwy Dense oraz funkcję softmax.
+COSINE_SIMILARITY: 0.861910
+
+--------------------------------------------------------------------------------
+
+6.5 Model oparty o transformer (Jakub Bieńkowski)
+SUMMARY:
+Proponowany model oparty o transformer osiągnął 86% dokładności w detekcji emocji, wykorzystując wstępnie przetrenowany model Wav2Vec2 do ekstrakcji cech z nieprzetworzonego sygnału dźwiękowego z danych treningowych i testowych.
+COSINE_SIMILARITY: 0.868602
+
+--------------------------------------------------------------------------------
+
+6.5.1 Dane uczące
+SUMMARY:
+W procesie uczenia maszynowego wykorzystano identyczne zbiory danych dla modeli transformer i CNN, które zostały załadowane z Kaggle, przetworzone i podzielone na zbiór treningowy oraz testowy, a cechy zostały wyekstrahowane przy użyciu wstępnie przetrenowanego modelu Wav2Vec2FeautreExtracor.
+COSINE_SIMILARITY: 0.838467
+
+--------------------------------------------------------------------------------
+
+6.5.2 Opis działania
+SUMMARY:
+Do wykrywania emocji z próbki dźwiękowej wykorzystywany jest model superb/hubert-large-superb-er, oparty na architekturze HuBERT, który redukuje wymiarowość danych i wydobywa istotne cechy poprzez konwolucyjne warstwy, normalizację, funkcję aktywacji GELU oraz bloki Feature Zadanie,
+COSINE_SIMILARITY: 0.874622
+
+--------------------------------------------------------------------------------
+
+6.6 Aplikacja webowa
+SUMMARY:
+Aplikacja EMODET, wykorzystująca modele uczenia maszynowego, analizuje nagrania głosu w celu wykrywania emocji, a jej front-end został zbudowany przy użyciu Next.js i React.js.
+COSINE_SIMILARITY: 0.853761
+
+--------------------------------------------------------------------------------
+
+7.1 Trenowanie modeli
+SUMMARY:
+Modele CNN, LSTM i MFCC wykazywały różne tempo uczenia się, z modelami CNN i LSTM osiągając wysoką dokładność i niskie straty po 15 i 250 epokach, a model MFCC trenowany przez 46 epok osiągał niskie straty już po 25 epokach.
+COSINE_SIMILARITY: 0.831871
+
+--------------------------------------------------------------------------------
+
+7.2 Test dokładności
+SUMMARY:
+Modele CNN, MFCC i Transformer osiągnęły wysoką dokładność w wykrywaniu emocji, podczas gdy model LSTM wykazał się najniższą skutecznością, szczególnie w rozpoznawaniu emocji neutralnych i smutku.
+COSINE_SIMILARITY: 0.863062
+
+--------------------------------------------------------------------------------
+
+7.3 Podsumowanie
+SUMMARY:
+Porównanie modeli uczenia maszynowego, w tym MFCC, CNN, LSTM i Transformer, wykazało, że model oparty o CNN osiągnął najwyższą dokładność (98,22%) w rozpoznawaniu emocji na zbiorze testowym, podczas gdy model oparty o LSTM miał problemy z rozpoznawaniem emocji neutralnej i smutku.
+COSINE_SIMILARITY: 0.859293
+
+--------------------------------------------------------------------------------
+
+8.1 Ograniczenia i problemy
+SUMMARY:
+Trenowanie modeli uczenia maszynowego napotkało problemy związane z ograniczoną mocą obliczeniową, szczególnie przy obsłudze dużych zbiorów danych dźwiękowych oraz ograniczenia funkcjonalności do wykrywania emocji w języku angielskim.
+COSINE_SIMILARITY: 0.873965
+
+--------------------------------------------------------------------------------
+
+8.2 Zastosowania
+SUMMARY:
+Przedstawione rozwiązanie może być wykorzystywane w badaniach nad autyzmem, systemach HCI, takich jak asystenci głosowi oraz grach wideo, do wykrywania i reagowania na emocje użytkowników.
+COSINE_SIMILARITY: 0.879954
+
+--------------------------------------------------------------------------------
+
+8.3 Możliwy dalszy rozwój
+SUMMARY:
+Aplikacja wymaga stworzenia modelu detekcji emocji dla krótszych okresów czasu, rozszerzenia zbioru danych o inne języki oraz dostosowania do nagrywania w słabej jakości.
+COSINE_SIMILARITY: 0.876033
+
+--------------------------------------------------------------------------------
