@@ -20,18 +20,18 @@ numpy==2.3.4
 scikit-learn==1.7.2
 
 # --- External Requirements ---
-# Ollama nie jest już wymagana.
+# Ollama nie jest wymagana.
 # Projekt korzysta z lokalnego modelu GGUF uruchamianego przez llama-cpp-python.
 
-# --- Required Local Model ---
+# --- Required Local LLM Model ---
 # Model GGUF pobierzesz lokalnie poza repozytorium komendą:
 # python src\analysis\modules\llm\support_scripts\download_model.py
 #
 # Skrypt zapisze model do:
-# C:\Users\<NAZWA_UZYTKOWNIKA>\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf
+# C:\Users\<NAZWA_UZYTKOWNIKA>\models\gemma3_12b\google_gemma-3-12b-it-Q4_K_M.gguf
 #
 # W pliku src\analysis\modules\llm\config.py ustaw:
-# MODEL_PATH = Path.home() / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
+# MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
 
 # --- Required Embedding Model ---
 # Model embeddingowy zostanie pobrany automatycznie przez sentence-transformers:

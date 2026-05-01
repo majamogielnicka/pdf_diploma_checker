@@ -13,83 +13,81 @@ for p in (PROJECT_ROOT, SRC_DIR):
         sys.path.insert(0, p_str)
 
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
-from analysis.modules.llm.config import MODEL_PATH, THESIS_PATH
+from analysis.modules.llm.config import MODEL_PATH, LANGUAGE, THESIS_PATH
 
-
-FILE_PATH = THESIS_PATH
-LANGUAGE = "pl"
 
 MODEL_NAME = str(MODEL_PATH)
 
-CHUNK_SIZE = 1800
+CHUNK_SIZE = 1400
 CHUNK_OVERLAP = 200
-MAX_CHUNKS = 20
+MAX_CHUNKS = 40
 
-GOAL_CONTEXT_CHARS = 5000
+N_CTX = 4096
+N_THREADS = 8
+N_GPU_LAYERS = -1
 
-_LLAMA_MODELS = {}
+_IS_MAIN_SCRIPT = __name__ == "__main__"
 
 
 PROMPTS = {
     "pl": {
-        "extract_from_goal_section": """
-Przeczytaj fragment pracy dyplomowej i wyciągnij główny cel pracy.
+        "find_clean": """
+Przeczytaj fragment pracy i znajdź pełne zdanie, w którym autor deklaruje cel tej konkretnej pracy dyplomowej.
 
-Najważniejsze zasady:
-- odpowiedz tylko po polsku
-- korzystaj wyłącznie z podanego fragmentu
-- fragment pochodzi z okolicy sekcji „Cel pracy”, więc szukaj celu właśnie tam
-- zwróć główny cel całej pracy autora
-- nie wybieraj definicji, opisu metody, tła teoretycznego ani opisu algorytmu
-- nie wybieraj celu metody AHP, rynku nieruchomości, Smart City ani innego rozdziału teoretycznego
-- jeśli jest zdanie typu „Niniejsza praca koncentruje się na...”, potraktuj je jako cel pracy
-- jeśli jest zdanie typu „Celem pracy jest...”, potraktuj je jako cel pracy
-- usuń początek typu „Celem pracy jest”, „Niniejsza praca koncentruje się na”
-- zachowaj sens celu
-- nie dopisuj niczego spoza fragmentu
-- nie streszczaj całej pracy
-- nie zwracaj listy
+Zasady:
+- odpowiedź tylko po polsku
+- zwróć tylko wtedy, gdy w fragmencie jest jawnie zadeklarowany cel tej pracy
+- zwróć pełne zdanie celu, nie sam fragment zdania
+- nie wycinaj samej końcówki zdania po słowach typu „umożliwiających”, „pozwalających”, „dotyczących”
+- jeśli cel zaczyna się od „Celem pracy jest...”, zwróć całe zdanie po tym sformułowaniu albo jego pełną treść
+- jeśli cel zaczyna się od „Niniejsza praca koncentruje się na...”, zwróć całe zdanie po tym sformułowaniu albo jego pełną treść
+- jeśli cel zawiera główny obiekt pracy, np. aplikację, system, wyszukiwarkę, metodę, model, układ, materiał lub algorytm, zachowaj ten obiekt
+- zachowaj dokładnie znaczenie celu
+- nie dodawaj nowych informacji
+- nie streszczaj
+- nie wybieraj tła teoretycznego, motywacji, opisu metody, wyniku ani wniosku
 - nie kończ kropką
-- jeśli wprost nie ma celu pracy, zwróć dokładnie: BRAK
+- jeśli nie ma jawnie zadeklarowanego celu tej pracy, zwróć dokładnie: BRAK
 
 Fragment:
 {content}
 """.strip(),
 
-        "extract_from_general_chunk": """
-Przeczytaj fragment pracy dyplomowej i sprawdź, czy autor jawnie deklaruje główny cel tej pracy.
+        "rewrite_impersonal": """
+Przeredaguj podany cel pracy do formy bezosobowej.
 
 Zasady:
-- odpowiedz tylko po polsku
-- zwróć wynik tylko wtedy, gdy w fragmencie autor jawnie deklaruje cel własnej pracy
-- nie wybieraj definicji, tła teoretycznego, opisu metody, opisu algorytmu, motywacji ani wniosku
-- nie wybieraj zdań o tym, co umożliwia algorytm lub metoda
-- szukaj zdań typu „Celem pracy jest...” albo „Niniejsza praca koncentruje się na...”
-- usuń początek typu „Celem pracy jest”, „Niniejsza praca koncentruje się na”
-- zachowaj sens celu
+- odpowiedź tylko po polsku
+- zachowaj dokładnie ten sam sens
+- zachowaj główny obiekt pracy, np. aplikację, system, wyszukiwarkę, metodę, model, układ, materiał lub algorytm
+- nie zamieniaj celu na ogólną korzyść typu „zapewnienie możliwości...”, jeśli w celu jest mowa o stworzeniu, opracowaniu, zaprojektowaniu lub analizie
 - nie dodawaj nowych informacji
-- nie zwracaj listy
+- nie usuwaj ważnych elementów celu
+- usuń tylko wstęp typu:
+  „Celem pracy jest”,
+  „Celem niniejszej pracy jest”,
+  „Niniejsza praca koncentruje się na”,
+  „Praca ma na celu”
+- zacznij od właściwego rzeczownika odczasownikowego, np. „stworzenie”, „opracowanie”, „zaprojektowanie”, „analiza”, „ocena”, „badanie”
 - nie kończ kropką
-- jeśli nie ma jawnego celu pracy, zwróć dokładnie: BRAK
+- zwróć wyłącznie przeredagowany cel
 
-Fragment:
-{content}
+Cel:
+{purpose}
 """.strip(),
 
         "select_best": """
 Poniżej znajduje się lista kandydatów na cel pracy dyplomowej.
 
-Wybierz jeden prawdziwy, główny cel pracy autora.
-
 Zasady:
-- odpowiedz tylko po polsku
-- wybierz cel dotyczący całej pracy, nie pojedynczego rozdziału
-- jeśli jeden kandydat mówi o stworzeniu aplikacji, systemu, wyszukiwarki lub narzędzia, wybierz go
-- nie wybieraj kandydata opisującego tylko metodę AHP, algorytm, teorię albo efekt działania metody
-- nie łącz kandydatów
-- nie dopisuj niczego od siebie
+- wybierz tylko jeden, który jest rzeczywistym celem całej pracy autora
+- wybierz kandydat zawierający główny obiekt pracy, np. aplikację, system, wyszukiwarkę, metodę, model, układ, materiał lub algorytm
+- odrzuć zdania ogólne opisujące znaczenie tematu, motywację badań lub cele ogólne dziedziny
+- odrzuć zdania opisujące wyłącznie korzyść, np. „zapewnienie możliwości...”, jeśli inny kandydat mówi o stworzeniu, opracowaniu, zaprojektowaniu lub analizie konkretnego obiektu
+- wybierz kandydat, który odnosi się bezpośrednio do tej konkretnej pracy autora
+- nie dodawaj nic od siebie
 - nie kończ kropką
-- jeśli żaden kandydat nie jest celem pracy, zwróć dokładnie: BRAK
+- jeśli żaden kandydat nie jest rzeczywistym celem pracy, zwróć dokładnie: BRAK
 
 Kandydaci:
 {candidates}
@@ -97,39 +95,21 @@ Kandydaci:
     },
 
     "en": {
-        "extract_from_goal_section": """
-Read the thesis fragment and extract the main purpose of the thesis.
+        "find_clean": """
+Read the thesis fragment and find the full sentence in which the author declares the purpose of this specific thesis.
 
 Rules:
 - answer only in English
-- use only the provided fragment
-- the fragment comes from the area around the thesis purpose section
-- return the main purpose of the whole thesis
-- do not choose definitions, theoretical background, method descriptions, algorithm descriptions, or conclusions
-- if there is a sentence like “This thesis focuses on...”, treat it as the thesis purpose
-- if there is a sentence like “The purpose of this thesis is...”, treat it as the thesis purpose
-- remove introductory phrases such as “The purpose of this thesis is” while preserving the meaning
-- do not add information
-- do not output a list
-- do not end with a period
-- if there is no explicit purpose, return exactly: NONE
-
-Fragment:
-{content}
-""".strip(),
-
-        "extract_from_general_chunk": """
-Read the thesis fragment and check whether the author explicitly declares the main purpose of this thesis.
-
-Rules:
-- answer only in English
-- return a result only if the fragment explicitly states the purpose of this thesis
-- do not choose definitions, theoretical background, method descriptions, algorithm descriptions, motivation, or conclusions
-- do not choose sentences about what an algorithm or method enables
-- look for sentences such as “The purpose of this thesis is...” or “This thesis focuses on...”
-- remove introductory phrases while preserving meaning
-- do not add information
-- do not output a list
+- return a result only if the fragment explicitly declares the purpose of this thesis
+- return the full purpose sentence, not only a sentence fragment
+- do not cut out only the ending after words such as “enabling”, “allowing”, or “concerning”
+- if the purpose starts with “The purpose of this thesis is...”, return the full meaning after that phrase
+- if the purpose starts with “This thesis focuses on...”, return the full meaning after that phrase
+- if the purpose contains the main object of the thesis, e.g. application, system, search engine, method, model, setup, material, or algorithm, preserve that object
+- preserve the exact meaning
+- do not add new information
+- do not summarize
+- do not choose theoretical background, motivation, method description, result, or conclusion
 - do not end with a period
 - if there is no explicit thesis purpose, return exactly: NONE
 
@@ -137,20 +117,40 @@ Fragment:
 {content}
 """.strip(),
 
-        "select_best": """
-Below is a list of candidates for the thesis purpose.
-
-Choose one true main purpose of the author's thesis.
+        "rewrite_impersonal": """
+Rewrite the given thesis purpose into an impersonal form.
 
 Rules:
 - answer only in English
-- choose the purpose of the whole thesis, not a single section
-- if one candidate mentions creating an application, system, search engine, or tool, choose it
-- do not choose a candidate describing only AHP, an algorithm, theory, or the effect of a method
-- do not combine candidates
+- preserve exactly the same meaning
+- preserve the main object of the thesis, e.g. application, system, search engine, method, model, setup, material, or algorithm
+- do not change the purpose into a general benefit such as “providing the possibility...” if the purpose is about creating, developing, designing, or analyzing something
+- do not add new information
+- do not remove important elements
+- remove only introductory phrases such as:
+  “The purpose of this thesis is”,
+  “This thesis focuses on”,
+  “This work aims to”
+- start with an appropriate noun phrase, e.g. “creation”, “development”, “design”, “analysis”, “evaluation”, or “investigation”
+- do not end with a period
+- return only the rewritten purpose
+
+Purpose:
+{purpose}
+""".strip(),
+
+        "select_best": """
+Below is a list of candidates for the purpose of a thesis.
+
+Rules:
+- choose only one that is the real overall purpose of the author's thesis
+- choose the candidate containing the main object of the thesis, e.g. application, system, search engine, method, model, setup, material, or algorithm
+- reject general statements about topic importance, research motivation, or broad field-level goals
+- reject candidates describing only a general benefit if another candidate describes creating, developing, designing, or analyzing a concrete object
+- choose the candidate that refers directly to this specific thesis
 - do not add anything
 - do not end with a period
-- if none is the real thesis purpose, return exactly: NONE
+- if none of the candidates is the real thesis purpose, return exactly: NONE
 
 Candidates:
 {candidates}
@@ -159,25 +159,35 @@ Candidates:
 }
 
 
-def ask_model(model_name, prompt, num_predict=140):
+_LLAMA_MODELS = {}
+
+
+def print_if_main(*args, **kwargs):
+    if _IS_MAIN_SCRIPT:
+        print(*args, **kwargs)
+
+
+def ask_model(model_name, prompt, num_predict=120):
     if model_name not in _LLAMA_MODELS:
         _LLAMA_MODELS[model_name] = Llama(
             model_path=model_name,
-            n_ctx=4096,
+            n_ctx=N_CTX,
+            n_threads=N_THREADS,
+            n_gpu_layers=N_GPU_LAYERS,
             chat_format="gemma",
             verbose=False,
         )
 
     llm = _LLAMA_MODELS[model_name]
 
-    response = llm.create_chat_completion(
+    resp = llm.create_chat_completion(
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "Jesteś precyzyjnym asystentem do ekstrakcji celu pracy dyplomowej. "
-                    "Masz wyciągnąć wyłącznie główny cel pracy autora. "
-                    "Nie zgadujesz, nie streszczasz i nie wybierasz teorii zamiast celu pracy."
+                    "Jesteś precyzyjnym asystentem ekstrakcji informacji z prac dyplomowych. "
+                    "Zwracasz wyłącznie odpowiedź zgodną z poleceniem. "
+                    "Nie streszczasz, nie dopowiadasz i nie zgadujesz."
                 ),
             },
             {
@@ -191,12 +201,13 @@ def ask_model(model_name, prompt, num_predict=140):
         repeat_penalty=1.05,
     )
 
-    return response["choices"][0]["message"]["content"].strip()
+    return resp["choices"][0]["message"]["content"].strip()
 
 
 def normalize_text(text):
     if not text:
         return ""
+
     return " ".join(str(text).replace("\xa0", " ").split()).strip()
 
 
@@ -224,91 +235,13 @@ def normalize_output(text):
     return text
 
 
-def is_negative_answer(text, language):
-    text = normalize_text(text).upper()
-    return text == ("BRAK" if language == "pl" else "NONE")
-
-
 def build_prompt(kind, language, **kwargs):
     return PROMPTS[language][kind].format(**kwargs).strip()
 
 
-def find_first_existing_marker(text_upper, markers):
-    best_index = -1
-    best_marker = ""
-
-    for marker in markers:
-        marker_upper = marker.upper()
-        index = text_upper.find(marker_upper)
-
-        if index != -1:
-            if best_index == -1 or index < best_index:
-                best_index = index
-                best_marker = marker
-
-    return best_index, best_marker
-
-
-def extract_goal_section_context(text, max_chars=GOAL_CONTEXT_CHARS):
-    text = normalize_text(text)
-
-    if not text:
-        return ""
-
-    text_upper = text.upper()
-
-    goal_markers = [
-        "CEL PRACY",
-        "WSTĘP I CEL PRACY",
-        "CEL I ZAKRES PRACY",
-        "CEL NINIEJSZEJ PRACY",
-        "CEL PROJEKTU",
-        "CEL BADAŃ",
-        "AIM OF THE THESIS",
-        "PURPOSE OF THE THESIS",
-        "THESIS PURPOSE",
-        "OBJECTIVE OF THE THESIS",
-        "AIM AND SCOPE",
-    ]
-
-    start_index, marker = find_first_existing_marker(text_upper, goal_markers)
-
-    if start_index == -1:
-        return ""
-
-    context_start = start_index
-
-    possible_next_markers = [
-        "1.2 ",
-        "1.3 ",
-        "2. ",
-        "2.1 ",
-        "ROZDZIAŁ 2",
-        "PRZEGLĄD LITERATURY",
-        "STRUKTURA PRACY",
-        "ZAKRES PRACY",
-        "MATERIAŁY I METODY",
-        "IMPLEMENTACJA",
-        "LITERATURE REVIEW",
-        "MATERIALS AND METHODS",
-    ]
-
-    search_from = start_index + len(marker)
-    best_end = -1
-
-    for next_marker in possible_next_markers:
-        next_index = text_upper.find(next_marker.upper(), search_from)
-
-        if next_index != -1:
-            if best_end == -1 or next_index < best_end:
-                best_end = next_index
-
-    if best_end != -1 and best_end > context_start:
-        context = text[context_start:best_end]
-    else:
-        context = text[context_start:context_start + max_chars]
-
-    return normalize_text(context)
+def is_negative_answer(text, language):
+    text = normalize_text(text).upper()
+    return text == ("BRAK" if language == "pl" else "NONE")
 
 
 def split_into_chunks(
@@ -331,9 +264,9 @@ def split_into_chunks(
 
         if end < len(text):
             last_dot = chunk.rfind(". ")
-            last_question = chunk.rfind("? ")
-            last_exclamation = chunk.rfind("! ")
-            boundary = max(last_dot, last_question, last_exclamation)
+            last_q = chunk.rfind("? ")
+            last_exc = chunk.rfind("! ")
+            boundary = max(last_dot, last_q, last_exc)
 
             if boundary > int(chunk_size * 0.45):
                 chunk = chunk[:boundary + 1]
@@ -352,44 +285,62 @@ def split_into_chunks(
     return chunks
 
 
+def rewrite_to_impersonal_form(purpose, language):
+    purpose = normalize_text(purpose)
+
+    if not purpose:
+        return ""
+
+    prompt = build_prompt(
+        "rewrite_impersonal",
+        language,
+        purpose=purpose,
+    )
+
+    result = normalize_output(
+        ask_model(
+            MODEL_NAME,
+            prompt,
+            num_predict=120,
+        )
+    )
+
+    if not result:
+        return purpose
+
+    if is_negative_answer(result, language):
+        return purpose
+
+    return result
+
+
 def collect_goal_candidates(full_text, language):
-    full_text = normalize_text(full_text)
+    chunks = split_into_chunks(full_text)
     candidates = []
 
-    goal_context = extract_goal_section_context(full_text)
-
-    if goal_context:
-        prompt = build_prompt(
-            "extract_from_goal_section",
-            language,
-            content=goal_context,
-        )
+    for chunk_index, chunk in enumerate(chunks, start=1):
+        prompt = build_prompt("find_clean", language, content=chunk)
 
         result = normalize_output(
-            ask_model(MODEL_NAME, prompt, num_predict=160)
+            ask_model(
+                MODEL_NAME,
+                prompt,
+                num_predict=120,
+            )
         )
 
-        if result and not is_negative_answer(result, language):
+        if is_negative_answer(result, language):
+            continue
+
+        if result:
             candidates.append(result)
 
-        return candidates
+            print_if_main()
+            print_if_main(f"ZNALEZIONY CEL W CHUNKU {chunk_index}:")
+            print_if_main(result)
+            print_if_main()
 
-    chunks = split_into_chunks(full_text)
-
-    for chunk in chunks:
-        prompt = build_prompt(
-            "extract_from_general_chunk",
-            language,
-            content=chunk,
-        )
-
-        result = normalize_output(
-            ask_model(MODEL_NAME, prompt, num_predict=140)
-        )
-
-        if result and not is_negative_answer(result, language):
-            if result not in candidates:
-                candidates.append(result)
+            break
 
     return candidates
 
@@ -399,31 +350,45 @@ def select_best_goal(candidates, language):
         return ""
 
     if len(candidates) == 1:
-        return candidates[0]
+        raw_purpose = candidates[0]
+
+        print_if_main("CEL PRZED REWRITE:")
+        print_if_main(raw_purpose)
+        print_if_main()
+
+        rewritten_purpose = rewrite_to_impersonal_form(raw_purpose, language)
+
+        print_if_main("CEL PO REWRITE:")
+        print_if_main(rewritten_purpose)
+        print_if_main()
+
+        return rewritten_purpose
 
     joined = "\n".join(f"- {candidate}" for candidate in candidates)
-
-    prompt = build_prompt(
-        "select_best",
-        language,
-        candidates=joined,
-    )
+    prompt = build_prompt("select_best", language, candidates=joined)
 
     result = normalize_output(
-        ask_model(MODEL_NAME, prompt, num_predict=100)
+        ask_model(
+            MODEL_NAME,
+            prompt,
+            num_predict=120,
+        )
     )
 
     if is_negative_answer(result, language):
         return ""
 
-    if result in candidates:
-        return result
+    print_if_main("CEL WYBRANY PRZED REWRITE:")
+    print_if_main(result)
+    print_if_main()
 
-    for candidate in candidates:
-        if candidate in result:
-            return candidate
+    rewritten_purpose = rewrite_to_impersonal_form(result, language)
 
-    return result
+    print_if_main("CEL PO REWRITE:")
+    print_if_main(rewritten_purpose)
+    print_if_main()
+
+    return rewritten_purpose
 
 
 def get_purpose(full_text, language="pl"):
@@ -436,14 +401,14 @@ def get_purpose(full_text, language="pl"):
 
     try:
         candidates = collect_goal_candidates(full_text, language)
-        purpose = select_best_goal(candidates, language)
+        clean_goal = select_best_goal(candidates, language)
 
-        if not purpose:
+        if not clean_goal:
             if language == "pl":
                 return "Brak jasno określonego celu pracy."
             return "No clearly defined thesis purpose found."
 
-        return purpose
+        return clean_goal
 
     except requests.exceptions.ReadTimeout:
         if language == "pl":
@@ -469,8 +434,10 @@ def get_purpose(full_text, language="pl"):
 
 
 def main():
-    full_text = get_plain_text(FILE_PATH)
+    full_text = get_plain_text(THESIS_PATH)
     result = get_purpose(full_text, LANGUAGE)
+
+    print("WYNIK KOŃCOWY:")
     print(result)
 
 

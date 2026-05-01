@@ -15,8 +15,7 @@ EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
 OUTPUT_DIR = PROJECT_ROOT / "src" / "analysis" / "modules" / "llm" / "wyniki"
 
 #JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
-MODEL_PATH = Path(r"C:\Users\Wiktor\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf")
-#MODEL_PATH = Path.home() / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
+MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
 THESIS_PATH = PROJECT_ROOT / "data" / "most_important" / "ch.pdf"
 LANGUAGE = "pl" #LUB "en"
 

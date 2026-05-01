@@ -13,9 +13,6 @@ Wyniki zapisuje do plików result_nazwa.txt w folderze wyniki/test_DATA.
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# Ten plik znajduje się w:
-# src/analysis/modules/llm/support_scripts
-# więc PROJECT_ROOT jest 4 poziomy wyżej.
 PROJECT_ROOT = BASE_DIR.parents[4]
 SRC_DIR = PROJECT_ROOT / "src"
 DATA_DIR = PROJECT_ROOT / "data" / "most_important"

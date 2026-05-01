@@ -22,7 +22,7 @@ from analysis.modules.llm.goal_realization import get_purpose_grade
 from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, LANGUAGE
 
 
-threshold = 0.5
+threshold = 0.785
 
 
 def calculate_embedding_grade(purpose, summaries):
