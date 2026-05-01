@@ -112,8 +112,8 @@ class RedactionValidator:
         #--------------------basic redaction check
         if basic_redaction_check:
             self.check_blank_page()
-            self.check_toc()
             self.check_footers()
+            self.check_toc()
 
 
         #--------------------advanced redaction check
@@ -125,6 +125,8 @@ class RedactionValidator:
             #self.check_korytarze()
             self.check_from_converter()
 
+        self.replace_global_errors()
+
         return self.errors
     
     def last_errors_to_json(self):
@@ -133,6 +135,24 @@ class RedactionValidator:
     def last_errors_to_file(self, path):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(self.last_errors_to_json())
+
+    def replace_global_errors(self):
+        # Funkcja zapobiegawcza - zapobiega wizualnemu nakładaniu się błędów
+        for page in self.document_data.pages:
+            errors_on_page = []
+            for error in self.errors:
+                if error.bounding_box == (0,0,0,0):
+                    if error.page_number == page.number or (page.number ==1 and error.page_number is None):
+                        errors_on_page.append(error)
+
+            num_errors = len(errors_on_page)
+            if num_errors > 0:
+                slot_width = page.width/num_errors
+
+                for i, error in enumerate(errors_on_page):
+                    new_x1 = i*slot_width + 5
+                    new_x2 = (i+1)*slot_width-5
+                    error.bounding_box = (round(new_x1, 2), 5, round(new_x2, 2), 45)
 
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
@@ -359,13 +379,31 @@ class RedactionValidator:
                 module=self.module,
                 category = "lack_of_TOC",
                 page_number = 1,
-                bounding_box = (self.document_data.pages[0].width - 60, 10, self.document_data.pages[0].width - 10, 60), 
+                bounding_box = (0,0,0,0), 
                 text = None,
                 comments = f"Wykryto brak spisu treści."
             )
             self.errors.append(error)
             is_toc = False
             return None, is_toc
+
+        if is_toc:
+            is_ftr_error = False
+            for error in self.errors:
+                if error.category == "No_footer":
+                    is_ftr_error = True
+            if is_ftr_error:
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "TOC_invalid",
+                    page_number = 1,
+                    bounding_box = (0,0,0,0), 
+                    text = None,
+                    comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści."
+                ))
+                return wrong_entries, is_toc
+
 
         for entry in self.document_data.toc.entries:
             expected_page = entry.page
@@ -397,8 +435,8 @@ class RedactionValidator:
                     comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
                 ))
                 wrong_entries.append(entry)
-                    
-            return wrong_entries, is_toc
+
+        return wrong_entries, is_toc
         
     def check_footers(self):
         lack_of_footers = []
@@ -430,9 +468,9 @@ class RedactionValidator:
                         category = "No_footer",
                         page_number = page.number,
                         bounding_box = (self.document_data.pages[page.number - 1].width/2 - 20, 
-                                        self.document_data.pages[page.number - 1].height - 40, 
+                                        self.document_data.pages[page.number - 1].height - 60, 
                                         self.document_data.pages[page.number - 1].width/2 + 20, 
-                                        self.document_data.pages[page.number - 1].height - 10),
+                                        self.document_data.pages[page.number - 1].height - 30),
                         text = None,
                         comments = f"Wykryto brak numeracji lub niepoprawną numerację na stronie {page.number}"
                     ))
