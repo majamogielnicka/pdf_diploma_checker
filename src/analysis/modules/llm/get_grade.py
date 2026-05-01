@@ -100,10 +100,10 @@ def main():
 
     plain_text = get_plain_text(pdf_path)
 
-    purpose = get_purpose(plain_text, language=language)
+    purpose = get_purpose(plain_text, LANGUAGE)
 
     subtitles = get_subtitles(raw_doc)
-    summaries = get_summaries(subtitles, language=language)
+    summaries = get_summaries(subtitles, LANGUAGE)
 
     result = get_content_grade(
         purpose=purpose,

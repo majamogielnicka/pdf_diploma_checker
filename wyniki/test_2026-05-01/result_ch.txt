@@ -1,0 +1,585 @@
+====================================================================================================
+WYNIK ANALIZY PRACY DYPLOMOWEJ
+====================================================================================================
+
+Plik PDF: ch.pdf
+Ścieżka PDF: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\most_important\ch.pdf
+Wygenerowano: 2026-05-01T15:15:23
+Czas przetwarzania: 863.44 s
+
+====================================================================================================
+CEL PRACY
+====================================================================================================
+Implementacja algorytmu AHP (Analytic Hierarchy Process) umożliwia bardziej skuteczne dopasowanie ofert do indywidualnych preferencji użytkowników
+
+====================================================================================================
+WYNIK SIMILARITY
+====================================================================================================
+
+ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO:
+0.852211
+
+SZCZEGÓŁY DLA SEKCJI / STRESZCZEŃ:
+
+----------------------------------------------------------------------------------------------------
+1.1 Cel pracy
+
+SUMMARY:
+Wyszukiwarka nieruchomości integruje dane z serwisów internetowych i wykorzystuje algorytm AHP do personalizacji procesu wyboru mieszkania na podstawie preferencji użytkownika.
+
+COSINE_SIMILARITY: 0.915020
+
+----------------------------------------------------------------------------------------------------
+1.2 Struktura pracy
+
+SUMMARY:
+Realizacja pracy dyplomowej obejmowała opracowanie aplikacji do personalizacji wyboru nieruchomości, wykorzystującego metodę AHP oraz dane z serwisów Otodom i Google Maps.
+
+COSINE_SIMILARITY: 0.880387
+
+----------------------------------------------------------------------------------------------------
+2.1 Rynek nieruchomości
+
+SUMMARY:
+W Polsce dominują mieszkania własnościowe, a ich udział w rynku nieruchomości jest wyższy niż średnia Unii Europejskiej, co może wynikać z kulturowych i historycznych uwarunkowań oraz dostępności kredytów hipotecznych.
+
+COSINE_SIMILARITY: 0.799461
+
+----------------------------------------------------------------------------------------------------
+2.1.1 Forma własności nieruchomości
+
+SUMMARY:
+Udział Polaków zamieszkujących mieszkania własnościowe w 2021 roku, według Eurostatu, wyniósł aż 86,8%, a znaczną część stanowiły nieruchomości nabyte za pośrednictwem kredytów hipotecznych.
+
+COSINE_SIMILARITY: 0.775790
+
+----------------------------------------------------------------------------------------------------
+2.1.2 Powody zakupu własnej nieruchomości
+
+SUMMARY:
+W badaniu przeprowadzonym w 2016 roku, ponad 80% ankietowanych Polaków uważało zakup nieruchomości za lepszą decyzję niż wynajem.
+
+COSINE_SIMILARITY: 0.817075
+
+----------------------------------------------------------------------------------------------------
+2.1.3 Czynniki wpływające na wybór nieruchomości
+
+SUMMARY:
+W ankiecie przeprowadzonym wśród respondentów, lokalizacja i dostępność komunikacyjna nieruchomości okazały się najważniejszymi czynnikami przy wyborze mieszkania.
+
+COSINE_SIMILARITY: 0.827490
+
+----------------------------------------------------------------------------------------------------
+2.1.4 Cykl życia rodziny, a potrzeby mieszkaniowe
+
+SUMMARY:
+Zmieniające się potrzeby mieszkaniowe inwestorów, związane z etapem życia i zmieniającą się sytuacją rodzinną, prowadzą do dynamicznej modyfikacji preferencji dotyczących wielkości i charakteru nieruchomości.
+
+COSINE_SIMILARITY: 0.846420
+
+----------------------------------------------------------------------------------------------------
+2.2 Smart city
+
+SUMMARY:
+Inteligentne miasta, oparte na zaawansowanych technologiach informacyjnych i komunikacji, mają na celu poprawę efektywności funkcjonowania oraz jakości życia mieszkańców w odpowiedzi na wyzwania urbanizacji.
+
+COSINE_SIMILARITY: 0.839241
+
+----------------------------------------------------------------------------------------------------
+2.2.1 Zmiany w urbanizacji na przestrzeni lat
+
+SUMMARY:
+Urbanizacja światowej populacji dynamicznie wzrasta, osiągając w 2014 roku poziom 54% i prognozując się na 66% do 2050 roku, co wiąże się z poprawą warunków życia oraz potencjalnymi problemami, takimi jak zwiększone natężenie ruchu.
+
+COSINE_SIMILARITY: 0.805623
+
+----------------------------------------------------------------------------------------------------
+2.2.2 Miasto 15-minutowe
+
+SUMMARY:
+Koncepcja miasta 15-minutowego ma na celu stworzenie samowystarczalnych okręgów mieszkalnych, w których mieszkańcy mogą zaspokoić swoje potrzeby życiowe przy minimalizacji czasu podróży i redukcji ruchu samochodowego.
+
+COSINE_SIMILARITY: 0.817181
+
+----------------------------------------------------------------------------------------------------
+2.2.3 Wpływ implementacji Smart City na jakość życia mieszkańców
+
+SUMMARY:
+Planowanie i zarządzanie miastami, w ramach koncepcji Smart City, integrują nowoczesne technologie w celu zwiększenia efektywności transportu publicznego oraz poprawy jakości życia mieszkańców.
+
+COSINE_SIMILARITY: 0.849743
+
+----------------------------------------------------------------------------------------------------
+2.3 Algorytm AHP
+
+SUMMARY:
+Metoda Analitycznego Procesu Hierarchicznego, opracowana w 1977 roku przez Josepha Saaty'ego, jest narzędziem wspierającym procesy decyzyjne oparte na hierarchicznej strukturze i porównywaniu elementów.
+
+COSINE_SIMILARITY: 0.858020
+
+----------------------------------------------------------------------------------------------------
+2.3.1 Schemat blokowy algorytmu
+
+SUMMARY:
+Algorytm AHP umożliwia ocenę i wybór optymalnego rozwiązania poprzez zdefiniowanie problemu, określenie kryteriów oraz obliczenie wag i użyteczności badanych obiektów.
+
+COSINE_SIMILARITY: 0.906583
+
+----------------------------------------------------------------------------------------------------
+2.3.2 Struktura drzewa
+
+SUMMARY:
+Algorytm AHP wykorzystuje strukturę drzewa do ustrukturyzowania problemu wyboru, uwzględniając cele, kryteria, podkryteria oraz warianty kandydatów.
+
+COSINE_SIMILARITY: 0.903750
+
+----------------------------------------------------------------------------------------------------
+2.3.3 Skala ocen
+
+SUMMARY:
+Skala ocen w metodzie AHP opiera się na wartościach od 1 do 9, które wyrażają subiektywne preferencje decydenta podczas porównywania elementów.
+
+COSINE_SIMILARITY: 0.869303
+
+----------------------------------------------------------------------------------------------------
+2.3.4 Macierz porównań parami
+
+SUMMARY:
+Porównanie kryteriów parami, oparte na macierzy preferencji, jest kluczowym etapem algorytmu Analitycznego Procesu Hierarchicznego.
+
+COSINE_SIMILARITY: 0.891726
+
+----------------------------------------------------------------------------------------------------
+2.3.5 Obliczenie wag
+
+SUMMARY:
+W oparciu o macierz porównań i obliczenia średnich geometrycznych, możliwe jest określenie wag ważności kryteriów.
+
+COSINE_SIMILARITY: 0.837273
+
+----------------------------------------------------------------------------------------------------
+2.3.6 Dokonanie wyboru
+
+SUMMARY:
+Użyteczność elementów w procesie podejmowania decyzji jest określana poprzez przypisanie wartości liczbowych, odzwierciedlających ich korzyści, a im wyższa wartość, tym bardziej korzystna alternatywa.
+
+COSINE_SIMILARITY: 0.846701
+
+----------------------------------------------------------------------------------------------------
+2.4 Alteratywy dla AHP
+
+SUMMARY:
+W kontekście złożonych problemów decyzyjnych, metoda ANP stanowi rozszerzenie metody AHP i wykorzystuje sieciową strukturę do modelowania zależności między elementami.
+
+COSINE_SIMILARITY: 0.866259
+
+----------------------------------------------------------------------------------------------------
+2.4.1 ANP
+
+SUMMARY:
+Analytic Network Process (ANP) jest rozszerzeniem metody AHP, służącym do kompleksowego modelowania złożonych problemów decyzyjnych z uwzględnieniem zależności i sprzężeń zwrotnych.
+
+COSINE_SIMILARITY: 0.859394
+
+----------------------------------------------------------------------------------------------------
+2.4.2 PMA
+
+SUMMARY:
+Matryca Pugh umożliwia porównywanie alternatywnych rozwiązań na podstawie ustalonych kryteriów i pozwala na wyznaczenie obiektywnego rankingu.
+
+COSINE_SIMILARITY: 0.873647
+
+----------------------------------------------------------------------------------------------------
+2.4.3 TOPSIS
+
+SUMMARY:
+Metoda TOPSIS jest techniką wielokryterialnego podejmowania decyzji, która poprzez analizę macierzy decyzyjnej i obliczanie odległości od rozwiązań idealnych oraz negatywnych, pozwala na rangowanie alternatyw.
+
+COSINE_SIMILARITY: 0.828515
+
+----------------------------------------------------------------------------------------------------
+2.4.4 ELECTRE
+
+SUMMARY:
+Metoda ELECTRE jest techniką wielokryterialnego podejmowania decyzji, która opiera się na bezpośrednich porównaniach alternatyw i uwzględnia nieporównywalność między nimi.
+
+COSINE_SIMILARITY: 0.824990
+
+----------------------------------------------------------------------------------------------------
+2.4.5 Podsumowanie
+
+SUMMARY:
+Metoda AHP charakteryzuje się hierarchiczną strukturą, wykorzystaniem porównań parami oraz elastycznością i skalowalnością.
+
+COSINE_SIMILARITY: 0.899634
+
+----------------------------------------------------------------------------------------------------
+2.5 Przegląd rozwiązań w aspekcie personalizacji serwisów
+
+SUMMARY:
+Wykorzystanie algorytmów rekomendacyjnych, w tym filtrowania treści, przyczynia się do personalizacji dostarczanych treści i produktów w różnych dziedzinach.
+
+COSINE_SIMILARITY: 0.889639
+
+----------------------------------------------------------------------------------------------------
+2.5.1 Algorytmy rekomendacyjne
+
+SUMMARY:
+Algorytmy rekomendacyjne, wykorzystywane w różnych serwisach, personalizują treści dostarczane użytkownikom na podstawie ich preferencji.
+
+COSINE_SIMILARITY: 0.883496
+
+----------------------------------------------------------------------------------------------------
+2.5.2 Segmentacja użytkowników
+
+SUMMARY:
+Użytkownicy są segmentowani na różne grupy w oparciu o demografię, lokalizację, styl życia oraz inne cechy charakterystyczne.
+
+COSINE_SIMILARITY: 0.854537
+
+----------------------------------------------------------------------------------------------------
+2.5.3 Podsumowanie
+
+SUMMARY:
+Algorytmy rekomendacyjne pomagają w personalizacji treści poprzez segmentację użytkowników i selekcjonowanie nadmiaru informacji.
+
+COSINE_SIMILARITY: 0.875430
+
+----------------------------------------------------------------------------------------------------
+2.6 Przegląd metod optymalizacji wielokryterialnej
+
+SUMMARY:
+Przegląd tradycyjnych metod optymalizacji wielokryterialnej wskazuje na rosnącą popularność metod ewolucyjnych oraz metody ważonych kryteriów, które pozwalają sprowadzić problem wielokryterialny do postaci jednokryterialnej.
+
+COSINE_SIMILARITY: 0.848035
+
+----------------------------------------------------------------------------------------------------
+2.6.1 Metoda ważonych kryteriów
+
+SUMMARY:
+Metoda ważonych kryteriów przekształca problem optymalizacji wielokryterialnej w formę jednokryterialną poprzez zastosowanie kryterium zastępczego, które sumuje ważone składowe miary jakości decyzji.
+
+COSINE_SIMILARITY: 0.836564
+
+----------------------------------------------------------------------------------------------------
+2.6.2 Metoda optymalizacji hierarchicznej
+
+SUMMARY:
+Wielokryterialna optymalizacja jest realizowana poprzez stopniową optymalizację jedno-kryterialną, uwzględniającą wszystkie kryteria.
+
+COSINE_SIMILARITY: 0.858072
+
+----------------------------------------------------------------------------------------------------
+2.6.3 Metoda ograniczonych kryteriów
+
+SUMMARY:
+Metoda ograniczonych kryteriów minimalizuje funkcję celu względem wybranego kryterium, stosując ograniczenia dotyczące jego wartości oraz inne ograniczenia nierównościowe i równościowe.
+
+COSINE_SIMILARITY: 0.830141
+
+----------------------------------------------------------------------------------------------------
+2.6.4 Metoda kryterium globalnego
+
+SUMMARY:
+Metoda kryterium globalnego dąży do znalezienia najlepszego możliwego rozwiązania funkcji poprzez poszukiwanie globalnego ekstremum w całym obszarze dopuszczalnym.
+
+COSINE_SIMILARITY: 0.830462
+
+----------------------------------------------------------------------------------------------------
+2.6.5 Metody funkcji odległości
+
+SUMMARY:
+Metoda funkcji odległości minimalizuje dy-stans między rozwiązaniem przybliżonym a idealnym, uwzględniając wartości poszczególnych kryteriów.
+
+COSINE_SIMILARITY: 0.846531
+
+----------------------------------------------------------------------------------------------------
+2.6.6 Podsumowanie
+
+SUMMARY:
+W pracy dyplomowej opisano proces tworzenia wyszukiwarki nieruchomości, wykorzystującego dane z serwisu Otodom i Google Maps.
+
+COSINE_SIMILARITY: 0.839452
+
+----------------------------------------------------------------------------------------------------
+3.1 Zbieranie i przetwarzanie danych
+
+SUMMARY:
+Programiści wykorzystują web scraping do automatycznego pobierania danych o nieruchomościach z różnych stron internetowych, często ze względu na brak udostępniania API przez polskie firmy.
+
+COSINE_SIMILARITY: 0.830334
+
+----------------------------------------------------------------------------------------------------
+3.1.1 Schemat blokowy przygotowania danych
+
+SUMMARY:
+Algorytm gromadzi dane o nieruchomościach z Gdańska, usuwa niekompletne obiekty i konwertuje adresy na współrzędne geograficzne w celu sprawdzenia dostępności punktów w promieniu 500 metrów.
+
+COSINE_SIMILARITY: 0.850520
+
+----------------------------------------------------------------------------------------------------
+3.1.2 Zebranie danych z portalu Otodom
+
+SUMMARY:
+Z zebranych danych o nieruchomościach usunięto te, które nie zawierały niezbędnych informacji oraz dodano współrzędne geograficzne.
+
+COSINE_SIMILARITY: 0.848480
+
+----------------------------------------------------------------------------------------------------
+3.1.3 Zebranie danych z serwisu Google Maps
+
+SUMMARY:
+Program wykorzystuje gotowy scraper Google Maps do zbierania danych o punktach codziennego użytku z określonego obszaru geograficznego, zapisując je w plikach CSV.
+
+COSINE_SIMILARITY: 0.816145
+
+----------------------------------------------------------------------------------------------------
+3.1.4 Przetworzenie danych z Google Maps
+
+SUMMARY:
+Stworzono uniwersalną listę obiektów, które mogą być istotne dla kupujących nieruchomości, po połączeniu i usunięciu niepotrzebnych datasety.
+
+COSINE_SIMILARITY: 0.831057
+
+----------------------------------------------------------------------------------------------------
+3.1.5 Obliczanie odległości pomiędzy punktami
+
+SUMMARY:
+Skrypt oblicza dystans między punktami w 20 kategoriach geograficznych, wykorzystując bibliotekę GeoPy i optymalizując proces sprawdzania nieruchomości.
+
+COSINE_SIMILARITY: 0.829557
+
+----------------------------------------------------------------------------------------------------
+3.2 Projekt aplikacji
+
+SUMMARY:
+W procesie tworzenia wyszukiwarki nieruchomości wybrano plik JSON jako bazę danych, ze względu na jego kompatybilność z językami programowania JavaScript i TypeScript oraz możliwość szybkiego przetwarzania danych.
+
+COSINE_SIMILARITY: 0.843444
+
+----------------------------------------------------------------------------------------------------
+3.2.1 Wybór technologii do przechowywania danych
+
+SUMMARY:
+Wybrano plik JSON jako bazę danych, ze względu na jego kompatybilność z językami JavaScript i Python oraz prostotę struktury, jednak należy wziąć pod uwagę potencjalne trudności związane z zarządzaniem dużymi ilościami danych.
+
+COSINE_SIMILARITY: 0.830684
+
+----------------------------------------------------------------------------------------------------
+3.2.2 Wybór technologii Frontendowej
+
+SUMMARY:
+W projekcie wykorzystano framework Angular do stworzenia interfejsu użytkownika, który opiera się na komponentach i jest kompatybilny z różnymi bibliotekami.
+
+COSINE_SIMILARITY: 0.848366
+
+----------------------------------------------------------------------------------------------------
+3.2.3 Wybór technologii Backendowej
+
+SUMMARY:
+W celu efektywnej obsługi zapytania użytkowników, zastosowano technologię NodeJS wraz z frameworkiem Angular i biblioteką GeoLib do obliczeń algorytmu AHP oraz dystansu pomiędzy punktami.
+
+COSINE_SIMILARITY: 0.877087
+
+----------------------------------------------------------------------------------------------------
+3.2.4 Struktura aplikacji
+
+SUMMARY:
+Diagram Rys. 3.2 przedstawia architekturę aplikacji, która wykorzystuje plik JSON do przechowywania danych pobranych z serwisów Otodom i Google Maps, a serwer NodeJS oraz interfejs Angular komunikują się za pomocą protokołu HTTP.
+
+COSINE_SIMILARITY: 0.803850
+
+----------------------------------------------------------------------------------------------------
+3.3 Interakcja użytkownika z aplikacją
+
+SUMMARY:
+Proces doboru nieruchomości w aplikacji polega na wprowadzeniu przez użytkownika danych dotyczących preferencji, takich jak lokalizacja, cena oraz metraż, a następnie otrzymaniu listy 10 najlepiej dopasowanych ofert.
+
+COSINE_SIMILARITY: 0.874293
+
+----------------------------------------------------------------------------------------------------
+3.3.1 Pobranie optymalnej lokalizacji
+
+SUMMARY:
+Aplikacja umożliwia użytkownikowi wybór nieruchomości na mapie, określając maksymalzną odległość od wybranego punktu.
+
+COSINE_SIMILARITY: 0.858716
+
+----------------------------------------------------------------------------------------------------
+3.3.2 Podstawowe filtry w aplikacji
+
+SUMMARY:
+Użytkownik definiuje parametry filtrów, takie jak minimalna i maksymalna cena oraz metraż lokalu, co pozwala na skrócenie czasu wyszukiwania nieruchomości.
+
+COSINE_SIMILARITY: 0.861829
+
+----------------------------------------------------------------------------------------------------
+3.3.3 Wybór punktów znajdujących się w okolicy nieruchomości
+
+SUMMARY:
+Użytkownik wybiera z zestawu kategorii punktów, które są dla niego niezbędne w odległości 500 metrów od lokalizacji nieruchomości.
+
+COSINE_SIMILARITY: 0.853683
+
+----------------------------------------------------------------------------------------------------
+3.3.4 Określenie wartości potrzebnych do obliczenia wag w metodzie AHP
+
+SUMMARY:
+W ankiecie użytkownik ocenia ważność cech nieruchomości w stosunku do siebie, odpowiadając na sześć pytań.
+
+COSINE_SIMILARITY: 0.831883
+
+----------------------------------------------------------------------------------------------------
+3.3.5 Przedstawienie wyników doboru nieruchomości
+
+SUMMARY:
+Serwer przetwarza dane i zwraca 10 najlepiej dopasowanych nieruchomości wraz z ich zdjęciami, lokalizacją i ceną.
+
+COSINE_SIMILARITY: 0.857466
+
+----------------------------------------------------------------------------------------------------
+3.4 Implementacja algorytmu AHP
+
+SUMMARY:
+Implementacja metody AHP pozwala na wybór 10 najlepiej dopasowanych nieruchomości, które zostały ocenione w oparciu o obliczone wagi kryteriów i wyniki użyteczności.
+
+COSINE_SIMILARITY: 0.904673
+
+----------------------------------------------------------------------------------------------------
+3.4.1 Schemat blokowy algorytmu
+
+SUMMARY:
+Serwer obliczeniowy uruchamia algorytm, który filtruje nieruchomości i na podstawie ich użyteczności oraz wag kryteriów, zwraca 10 najlepiej dopasowanych obiektów.
+
+COSINE_SIMILARITY: 0.868282
+
+----------------------------------------------------------------------------------------------------
+3.4.2 Obliczenie wag AHP
+
+SUMMARY:
+W algorytmie obliczane są wagi dla czynników wpływających na do-pasowanie nieruchomości poprzez przemnożenie wartości w rzędzie przez siebie, a następnie spierwiastkowanie tych wartości.
+
+COSINE_SIMILARITY: 0.853702
+
+----------------------------------------------------------------------------------------------------
+3.4.3 Filtracja ze względu na zakres parametrów
+
+SUMMARY:
+Funkcja filtrująca nieruchomości, oparta na zakresie cen i metrażu oraz posiadaniu współrzędnych geograficznych, została dodana do programu.
+
+COSINE_SIMILARITY: 0.864883
+
+----------------------------------------------------------------------------------------------------
+3.4.4 Filtracja ze względu na odległość
+
+SUMMARY:
+Wykorzystano metodę "filter" wraz z biblioteką geolib do filtrowania nieruchomości na podstawie ich odległości od wskazanego punktu.
+
+COSINE_SIMILARITY: 0.859343
+
+----------------------------------------------------------------------------------------------------
+3.4.5 Obliczanie wyniku w konkretnej kategorii
+
+SUMMARY:
+Obliczenie wyniku dopasowania nieruchomości polega na określeniu odległości i powierzchni, które są następnie porównywane z maksymalnymi dopuszczalnymi wartościami.
+
+COSINE_SIMILARITY: 0.828023
+
+----------------------------------------------------------------------------------------------------
+3.4.6 Obliczanie całkowitego wyniku dopasowania nieruchomości
+
+SUMMARY:
+Ostatni etap testowania aplikacji polegał na pobraniu i przemnożeniu zapisanych wcześniej wyników oraz wybraniu 10 nieruchomości o najwyższym dopasowaniu do potrzeb użytkownika.
+
+COSINE_SIMILARITY: 0.860800
+
+----------------------------------------------------------------------------------------------------
+4.1 Testy programistyczne
+
+SUMMARY:
+Przeprowadzono kompleksowe testy funkcjonalności wyszukiwarki nieruchomości, obejmujące zarówno testy manualne, jak i automatyczne, a także sprawdzanie działania filtrów, mapy oraz scraperów Google Maps i Otodom.
+
+COSINE_SIMILARITY: 0.850768
+
+----------------------------------------------------------------------------------------------------
+4.1.1 Testy manualne
+
+SUMMARY:
+Przeprowadzono testy funkcjonalności wyszukiwarki nieruchomości, interfejsu użytkownika oraz scraperów Google Maps i Otodom, w tym sprawdzano responsywność aplikacji na różnych urządzeniach.
+
+COSINE_SIMILARITY: 0.841570
+
+----------------------------------------------------------------------------------------------------
+4.1.2 Testy automatyczne
+
+SUMMARY:
+W ramach programu zaimplementowano testy automatyczne, w tym testy walidacyjne dotyczące zapisów danych, poprawności requestów do serwera oraz zgodności obliczeń metodą AHP.
+
+COSINE_SIMILARITY: 0.876865
+
+----------------------------------------------------------------------------------------------------
+4.2 Wyniki ankiety
+
+SUMMARY:
+Przeprowadzona ankieta wśród 53 osób w wieku 18-45 lat, z których większość stanowili mężczyźni, pozwoliła na ocenę użyteczności i funkcjonalności aplikacji, a także ogólnej satysfakcji użytkowników.
+
+COSINE_SIMILARITY: 0.839408
+
+----------------------------------------------------------------------------------------------------
+4.2.1 Ocena intuicyjności i łatwości obsługi
+
+SUMMARY:
+Użytkownicy pozytywnie ocenili intuicyjność i łatwość obsługi interfejsu aplikacji.
+
+COSINE_SIMILARITY: 0.854636
+
+----------------------------------------------------------------------------------------------------
+4.2.2 Funkcja wirtualnej mapy
+
+SUMMARY:
+Użytkownicy pozytywnie ocenili funkcję mapy, która ułatwia wybór nieruchomości i porównywanie ich pod względem lokalizacji.
+
+COSINE_SIMILARITY: 0.863915
+
+----------------------------------------------------------------------------------------------------
+4.2.3 Różnorodność i użyteczność filtrów
+
+SUMMARY:
+Użytkownicy pozytywnie ocenili aplikację ze względu na szeroki zakres dostępnych filtrów i łatwość nawigacji.
+
+COSINE_SIMILARITY: 0.865664
+
+----------------------------------------------------------------------------------------------------
+4.2.4 Podsumowanie wyników ankiety
+
+SUMMARY:
+W ramach pracy stworzono wyszukiwarkę nieruchomości, która integruje dane z internetu i wykorzystuje metodę AHP do dopasowywania ofert do potrzeb użytkowników.
+
+COSINE_SIMILARITY: 0.904414
+
+----------------------------------------------------------------------------------------------------
+5.1 Analiza etapów pracy
+
+SUMMARY:
+Dane potrzebne do pracy inżynierskiej, w tym informacje o nieruchomościach z Gdańska, zostały zebrane przy użyciu scrappera Google Maps oraz stworzonego autorskiego scrappera.
+
+COSINE_SIMILARITY: 0.830103
+
+----------------------------------------------------------------------------------------------------
+5.2 Możliwy dalszy rozwój aplikacji
+
+SUMMARY:
+Rozwój aplikacji wymaga rozszerzenia bazy danych ofert nieruchomości na inne miasta i regiony oraz automatyzacji pobierania danych w czasie rzeczywistym.
+
+COSINE_SIMILARITY: 0.856544
+
+====================================================================================================
+OCENA REALIZACJI CELU
+====================================================================================================
+
+{
+  "score": 50,
+  "label": "częściowo zrealizowany",
+  "reason": "Fragment pracy prezentuje działanie algorytmu sortowania nieruchomości na podstawie ich wyników, co jest kluczowym elementem celu. Jednak brak informacji o implementacji AHP, a także o dopasowaniu ofert do preferencji użytkowników.",
+  "evidence": "zakończeniem całej funkcji, która segreguje wyniki i zwraca do interfejsu użytkow- nika 10 najlepiej dopasowanych nieruchomości."
+}

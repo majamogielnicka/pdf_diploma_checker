@@ -2,7 +2,7 @@ from pathlib import Path
 
 """
 Skrypt zawiera wszystkie niezbędne konfiguracje ścieżek do modeli
-niezbędnych do analizy merytorycznej. Uruchamiany jako skrypt główny pozwala sprawdzić
+do analizy merytorycznej. Uruchamiany jako skrypt główny pozwala sprawdzić
 czy wszystko jest poprawnie skonfigurowane
 Skrypt powstał w celu jednego importu dla wszystkich skryptów i prostej konfiguracji w jednym pliku, 
 wraz ze sprawdzeniem poprawności ścieżek
@@ -15,9 +15,9 @@ EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
 OUTPUT_DIR = PROJECT_ROOT / "src" / "analysis" / "modules" / "llm" / "wyniki"
 
 #JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
-#MODEL_PATH = Path(r"C:\Users\Wiktor\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf")
-MODEL_PATH = Path.home() / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
-THESIS_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
+MODEL_PATH = Path(r"C:\Users\Wiktor\models\gemma3\gemma-3-4b-it-Q4_K_M.gguf")
+#MODEL_PATH = Path.home() / "models" / "gemma3" / "gemma-3-4b-it-Q4_K_M.gguf"
+THESIS_PATH = PROJECT_ROOT / "data" / "most_important" / "ch.pdf"
 LANGUAGE = "pl" #LUB "en"
 
 if __name__ == "__main__":
