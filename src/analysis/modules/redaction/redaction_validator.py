@@ -112,6 +112,9 @@ class RedactionValidator:
         #--------------------basic redaction check
         if basic_redaction_check:
             self.check_blank_page()
+            self.check_toc()
+            self.check_footers()
+
 
         #--------------------advanced redaction check
         if advanced_redaction_check:
@@ -122,65 +125,6 @@ class RedactionValidator:
             #self.check_korytarze()
             self.check_from_converter()
 
-        '''
-        if not is_toc:
-            error = Error(
-                id = self._get_next_id(),
-                module=self.module,
-                category = "TOC_lack",
-                page_number = 1,
-                bounding_box = (self.document_data.pages[0].width - 60, 10, self.document_data.pages[0].width - 10, 60), 
-                text = None,
-                comments = f"Wykryto brak spisu treści."
-            )
-            errors.append(error)
-        else:
-            for entry in wrong_toc_entries:
-                error = Error(
-                    id = self._get_next_id(),
-                    module = self.module,
-                    category = "TOC_mismatch",
-                    page_number = entry.page,
-                    bounding_box = entry.bbox,
-                    text = entry.title,
-                    comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
-                )
-                errors.append(error) 
-
-        page_1_footer_bbox, lack_of_footers = self.check_footers()
-        if page_1_footer_bbox:
-            error = Error(
-                id = self._get_next_id(),
-                module = self.module,
-                category = "Footer_on_1st_page",
-                page_number = 1,
-                bounding_box = page_1_footer_bbox, 
-                text = "1",
-                comments = "Wykryto numerację na pierwszej stronie, która nie powinna się tam znaleźć."
-            )
-            errors.append(error) 
-
-        for number in lack_of_footers:
-            error = Error(
-                id = self._get_next_id(),
-                module = self.module,
-                category = "No_footer",
-                page_number = number,
-                bounding_box = (self.document_data.pages[number - 1].width/2 - 20, 
-                                self.document_data.pages[number - 1].height - 40, 
-                                self.document_data.pages[number - 1].width/2 + 20, 
-                                self.document_data.pages[number - 1].height - 10),
-                text = None,
-                comments = f"Wykryto brak numeracji lub niepoprawną numerację na stronie {number}"
-            )
-            errors.append(error)
-
-
-
-
-        converter_errors = self.check_from_converter()
-        errors.extend(converter_errors)
-        '''
         return self.errors
     
     def last_errors_to_json(self):
@@ -281,7 +225,7 @@ class RedactionValidator:
                     page_number = page.number,
                     bounding_box = (0,0,0,0),
                     text = "",
-                    comments = "Pusta strona"
+                    comments = "Wykryto pustą stronę"
                 ))
 
         return blank_pages
@@ -402,7 +346,7 @@ class RedactionValidator:
             page_number=first_word.page_number - 1,
             bounding_box=bekart_bbox, 
             text=found_text,
-            comments="Wykryto szewc"
+            comments="Wykryto szewca"
         )
     
     def check_toc(self):
@@ -410,6 +354,16 @@ class RedactionValidator:
         is_toc = True
 
         if self.document_data.toc == None:
+            error = Error(
+                id = self._get_next_id(),
+                module=self.module,
+                category = "lack_of_TOC",
+                page_number = 1,
+                bounding_box = (self.document_data.pages[0].width - 60, 10, self.document_data.pages[0].width - 10, 60), 
+                text = None,
+                comments = f"Wykryto brak spisu treści."
+            )
+            self.errors.append(error)
             is_toc = False
             return None, is_toc
 
@@ -433,6 +387,15 @@ class RedactionValidator:
                         break
                 
             if not correct_page:
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "TOC_mismatch",
+                    page_number = entry.page,
+                    bounding_box = entry.bbox,
+                    text = entry.title,
+                    comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                ))
                 wrong_entries.append(entry)
                     
             return wrong_entries, is_toc
@@ -450,8 +413,29 @@ class RedactionValidator:
             if page.number == 1:
                 if footer_block:
                     page_1_footer_bbox = footer_block.bbox
+                    self.errors.append(Error(
+                        id = self._get_next_id(),
+                        module = self.module,
+                        category = "Footer_on_1st_page",
+                        page_number = 1,
+                        bounding_box = page_1_footer_bbox, 
+                        text = "1",
+                        comments = "Wykryto numerację na pierwszej stronie, która nie powinna się tam znaleźć."
+                    ))
             else: 
                 if not footer_block:
+                    self.errors.append(Error(
+                        id = self._get_next_id(),
+                        module = self.module,
+                        category = "No_footer",
+                        page_number = page.number,
+                        bounding_box = (self.document_data.pages[page.number - 1].width/2 - 20, 
+                                        self.document_data.pages[page.number - 1].height - 40, 
+                                        self.document_data.pages[page.number - 1].width/2 + 20, 
+                                        self.document_data.pages[page.number - 1].height - 10),
+                        text = None,
+                        comments = f"Wykryto brak numeracji lub niepoprawną numerację na stronie {page.number}"
+                    ))
                     lack_of_footers.append(page.number)
 
         return page_1_footer_bbox, lack_of_footers
