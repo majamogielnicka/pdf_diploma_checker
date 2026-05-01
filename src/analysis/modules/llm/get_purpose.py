@@ -13,11 +13,11 @@ for p in (PROJECT_ROOT, SRC_DIR):
         sys.path.insert(0, p_str)
 
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
+from analysis.modules.llm.config import MODEL_PATH, THESIS_PATH
 
-FILE_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
+FILE_PATH = THESIS_PATH
 LANGUAGE = "pl"
 
-MODEL_PATH = Path.home() / "models" / "gemma2" / "gemma-2-9b-it-Q4_K_M.gguf"
 MODEL_NAME = str(MODEL_PATH)
 
 CHUNK_SIZE = 1400
@@ -49,12 +49,16 @@ Fragment:
 Poniżej znajduje się lista kandydatów na cel pracy dyplomowej.
 
 Zasady:
-- wybierz tylko jeden, który jest rzeczywistym celem całej pracy autora
+- wybierz dokładnie jeden kandydat
+- nie łącz kilku kandydatów w jedną odpowiedź
+- nie wypisuj listy
+- nie dodawaj drugiego zdania
+- nie dopisuj metod, wyników, zakresu pracy ani charakterystyki materiału, jeśli nie są częścią jednego wybranego kandydata
+- wybierz kandydat, który najlepiej opisuje główny cel całej pracy autora
 - odrzuć zdania ogólne opisujące znaczenie tematu, motywację badań lub cele ogólne dziedziny
 - odrzuć zdania opisujące co "warto zbadać", "lepiej zrozumieć", "istotne jest", "stanowi alternatywę", "jest perspektywiczne"
-- wybierz kandydat, który odnosi się bezpośrednio do tej konkretnej pracy autora
 - preferuj kandydat zawierający informację o badanym materiale/obiekcie i czynności badawczej, np. synteza, charakterystyka, analiza, ocena, badanie
-- zwróć wynik w formie bezosobowej
+- zwróć wyłącznie tekst jednego wybranego kandydata
 - nie dodawaj nic od siebie
 - nie kończ kropką
 - jeśli żaden kandydat nie jest rzeczywistym celem pracy, zwróć dokładnie: BRAK
@@ -87,12 +91,17 @@ Fragment:
 Below is a list of candidates for the purpose of a thesis.
 
 Rules:
-- choose only one that is the real overall purpose of the author's thesis
+- choose exactly one candidate
+- do not combine multiple candidates into one answer
+- do not output a list
+- do not add a second sentence
+- do not add methods, results, scope, or material characterization unless they are part of the single selected candidate
+- choose the candidate that best describes the main purpose of the author's entire thesis
 - reject general statements about topic importance, research motivation, or broad field-level goals
 - reject statements like "it is important", "it helps better understand", "it is a functional alternative", "it is promising"
 - choose the candidate that refers directly to this specific thesis
 - prefer a candidate that contains the studied material/object and the research action, e.g. synthesis, characterization, analysis, evaluation, investigation
-- return the result in impersonal form
+- return only the text of one selected candidate
 - do not add anything
 - do not end with a period
 - if none of the candidates is the real thesis purpose, return exactly: NONE
@@ -144,6 +153,7 @@ def ask_model(model_name, prompt, num_predict=120):
 def normalize_text(text):
     if not text:
         return ""
+
     return " ".join(str(text).replace("\xa0", " ").split()).strip()
 
 
@@ -177,10 +187,16 @@ def build_prompt(kind, language, **kwargs):
 
 def is_negative_answer(text, language):
     text = normalize_text(text).upper()
+
     return text == ("BRAK" if language == "pl" else "NONE")
 
 
-def split_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP, max_chunks=MAX_CHUNKS):
+def split_into_chunks(
+    text,
+    chunk_size=CHUNK_SIZE,
+    overlap=CHUNK_OVERLAP,
+    max_chunks=MAX_CHUNKS,
+):
     text = normalize_text(text)
 
     if not text:
@@ -239,10 +255,17 @@ def select_best_goal(candidates, language):
 
     joined = "\n".join(f"- {candidate}" for candidate in candidates)
     prompt = build_prompt("select_best", language, candidates=joined)
-    result = normalize_output(ask_model(MODEL_NAME, prompt, num_predict=120))
+    result = normalize_output(ask_model(MODEL_NAME, prompt, num_predict=60))
 
     if is_negative_answer(result, language):
         return ""
+
+    if result in candidates:
+        return result
+
+    for candidate in candidates:
+        if candidate in result:
+            return candidate
 
     return result
 
@@ -251,29 +274,42 @@ def get_purpose(full_text, language="pl"):
     full_text = normalize_text(full_text)
 
     if not full_text:
-        return "Błąd: nie udało się odczytać treści pracy." if language == "pl" else "Error: could not read thesis text."
+        if language == "pl":
+            return "Błąd: nie udało się odczytać treści pracy."
+        return "Error: could not read thesis text."
 
     try:
         candidates = collect_goal_candidates(full_text, language)
         clean_goal = select_best_goal(candidates, language)
 
         if not clean_goal:
-            return "Brak jasno określonego celu pracy." if language == "pl" else "No clearly defined thesis purpose found."
+            if language == "pl":
+                return "Brak jasno określonego celu pracy."
+            return "No clearly defined thesis purpose found."
 
         return clean_goal
 
     except requests.exceptions.ReadTimeout:
-        return "Błąd: model nie odpowiedział na czas." if language == "pl" else "Error: model response timed out."
+        if language == "pl":
+            return "Błąd: model nie odpowiedział na czas."
+        return "Error: model response timed out."
 
     except requests.exceptions.ConnectionError:
-        return "Błąd: nie udało się połączyć z modelem." if language == "pl" else "Error: could not connect to model."
+        if language == "pl":
+            return "Błąd: nie udało się połączyć z modelem."
+        return "Error: could not connect to model."
 
     except requests.exceptions.HTTPError as e:
         details = e.response.text if e.response is not None else ""
-        return f"Błąd HTTP: {e}. Szczegóły: {details}" if language == "pl" else f"HTTP error: {e}. Details: {details}"
+
+        if language == "pl":
+            return f"Błąd HTTP: {e}. Szczegóły: {details}"
+        return f"HTTP error: {e}. Details: {details}"
 
     except Exception as e:
-        return f"Błąd: {e}" if language == "pl" else f"Error: {e}"
+        if language == "pl":
+            return f"Błąd: {e}"
+        return f"Error: {e}"
 
 
 def main():
