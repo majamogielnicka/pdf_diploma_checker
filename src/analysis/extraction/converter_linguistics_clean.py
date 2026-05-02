@@ -58,6 +58,26 @@ class PDFMapper:
         if full_text.lower().startswith(("słowa kluczowe", "keywords", "key words", "keywords:", "skróty")):
             return True
         return False
+
+    @staticmethod
+    def is_math(words: list[WordInfo]) -> bool:
+        if not words: return False
+
+        math_font_count = sum(1 for w in words if any(mf in w.font.lower() for mf in ['math', 'cmmi', 'cmr', 'cmsy', 'symbol']))
+        if len(words) > 0 and (math_font_count / len(words)) > 0.4:
+            return True
+        
+        full_text = "".join(w.text for w in words).replace(" ", "")
+        if not full_text: return False
+
+        math_chars_pattern = r'[0-9=\+\-\*/<>\∑\∫\∏\√\∞\≈\≠\≡\≤\≥\{\}\(\)\[\]\|\α-\ω\Α-\Ω]'
+        math_chars_count = len(re.findall(math_chars_pattern, full_text))
+        
+        single_letter_count = sum(1 for w in words if len(w.text) == 1 and w.text.isalpha())
+
+        ratio = (math_chars_count + single_letter_count) / len(full_text)
+        
+        return ratio > 0.35 
     
     @staticmethod
     def is_inside_table(block_bbox: list, table_bboxes: list) -> bool:
@@ -155,6 +175,8 @@ class PDFMapper:
                 block_type = "heading"
             elif PDFMapper.is_keywords(combined_words):
                 block_type = "keywords"
+            elif PDFMapper.is_math(combined_words):  
+                block_type = "math"
 
         # Przypisanie wdowy, szewca i bękarta tylko do bloku typu paragraf
         if block_type == "paragraph":
@@ -553,7 +575,7 @@ def get_plain_text(pdf_path):
         if not text:
             continue
 
-        if block_type in {"list", "table_description", "img_decription"}:
+        if block_type in {"list", "table_description", "img_decription", "math"}:
             continue
 
         parts.append(text)
