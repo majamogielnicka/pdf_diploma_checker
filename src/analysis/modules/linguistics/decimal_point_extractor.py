@@ -1,21 +1,13 @@
+'''
+Sprawdzanie poprawności zapisu dziesiętnego dla języka polskiego i angielskiego.
+'''
 import re
 from .linguistics_types import Error_type
-from src.analysis.extraction.schema import ParagraphBlock, ListBlock
 from .helpers import get_match_info
 from .exeptions_check import check_quotes
 from .proper_check import check_if_proper
 
 def decimal_check(blocks):
-    """
-    Reads a string and finds decimal numbers with potentially wrong use of decimal points, depending on the language standard.
-    Potential errors to be later analysed.
-    
-    Args:
-        blocks (list(Block_context)): List contaning Block_context objects.
-    
-    Returns:
-        list: The list of matches and the text content.
-    """
     counter = 0
     checked_matches = []
     chapter_numbers = set()
@@ -48,17 +40,6 @@ def decimal_check(blocks):
     return checked_matches, counter
 
 def check_decimal_matches(potential_matches, block, chapter_numbers):
-
-    """
-    Checks potentially wrongly used decimal point with criteria.
-
-    Args:
-        potential_matches (list): all matches found by initial decimal check.
-        text (str): The string of text to be analysed.
-    
-    Returns:
-        tuple[list, str]: A tuple containing the list of matches and the text content. 
-    """
     decimal_counter = 0
     black_list = {"%", "$", "€", "£", "zł", "usd", "eur", "gbp", "°"}
     #for now set with declensions, it's faster than using spacy.

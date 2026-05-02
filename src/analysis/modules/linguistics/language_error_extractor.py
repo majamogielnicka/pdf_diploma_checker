@@ -1,18 +1,13 @@
+'''
+Analiza tekstu pod względem gramatycznym, stylistycznym i typograficznym.
+'''
 import language_tool_python
 from .linguistics_types import Error_type
 from src.analysis.extraction.schema import *
 from .helpers import get_match_info
 
 def language_tool_analisys(blocks):
-    """
-    Performs an initial grammar and spelling check in the specified language. Detects double spaces and interpunction errors.
-    
-    Args:
-        blocks (list(Block_context)): List contaning Block_context objects.
-    
-    Returns:
-        list: A list of matches.
-    """
+
     polish_messages = {
         'COLLOCATIONS': "Błąd kolokacji.",
         'COMPOUNDING': "Błąd łączenia słów.",
@@ -113,7 +108,6 @@ def language_tool_analisys(blocks):
                     word_idxs = word_idxs,
                     error_coordinate= error_coordinate,
                 ))
-  
     return errors, whitespace_counter
 
     

@@ -1,21 +1,15 @@
-from .spacy_helpers import nlp_pl, nlp_en
+'''
+Analiza składni zdań, wydobywanie form osobowych oraz zdań w praragrafach niezawierających podmiotu lub orzeczenia.
+'''
 from spacy.symbols import VERB
 from src.analysis.extraction.schema import *
 from .exeptions_check import check_quotes
-from .helpers import get_match_info, morf, language
+from .helpers import get_match_info, morf, language, nlp_pl, nlp_en
 from .linguistics_types import Error_type, Analisys_type
 from .proper_check import check_if_proper
 import re
 
 def sentence_check(blocks):
-    '''
-    Marks usage of 1st personal form as an error. Creates statistics on passive and active forms of sentences.
-    Args:
-        blocks (list(Block_context)): List contaning Block_context objects.
-    Returns:
-        list: A list of matches.
-        analisys (Analisys_type): Statistics about sentence structures in the document.
-    '''
     sentence_count = 0
     passive_count = 0
     active_count = 0
@@ -136,13 +130,6 @@ def sentence_check(blocks):
     return checked_matches, analisys
 
 def morfeusz_check(text):
-    '''
-    Additionally checks matches found by initial personal form check.
-    Args:
-        text (str): Text content of found match.
-    Returns:
-        bool: True if personal form has been legitimatized.
-    '''
     personal_tags = {"pri", "sec", "ppron12"}
     analysis = morf.analyse(text)
     for interpretation in analysis:

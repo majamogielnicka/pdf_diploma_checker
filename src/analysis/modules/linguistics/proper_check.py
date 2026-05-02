@@ -3,7 +3,7 @@ Moduł weryfikujący, czy dane słowo jest nazwą własną, skrótem lub wyraże
 
 """
 import re
-from .spacy_helpers import lemmatization
+from .helpers import lemmatization
 from src.analysis.extraction.schema import ParagraphBlock, WordInfo
 from .linguistics_types import Error_type
 

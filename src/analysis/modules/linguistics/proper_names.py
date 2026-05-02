@@ -2,7 +2,7 @@
 Moduł ekstrakcji nazw własnych i słów kluczowych z dokumentu.
 
 """
-from .spacy_helpers import nlp_pl, nlp_en, lemmatization
+from .helpers import nlp_pl, nlp_en, lemmatization
 import re
 
 

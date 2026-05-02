@@ -1,3 +1,7 @@
+'''
+Uruchamianie analizy lingwistycznej funkcją run_linguistics.
+'''
+
 from .language_error_extractor import *
 from .decimal_point_extractor import decimal_check
 from .dash_check import dash_check
@@ -8,14 +12,10 @@ from .proper_names import get_proper_names
 from .helpers import extract_errors_to_json, get_context
 from .first_definition import check_first_definition
 from .check_acronym import check_if_was_defined
-from pathlib import PurePath
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.converter_linguistics import PDFMapper
-from pathlib import Path, PurePath
-import os
 
 def run_linguistics(raw_blocks):
-    text_language = 'pl'
     blocks = get_context(raw_blocks)
     extract_errors_to_json(blocks, "final_document.json")
     proper_names = get_proper_names(blocks)
@@ -30,9 +30,9 @@ def run_linguistics(raw_blocks):
     matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches
     return matches
 
-
+#plik pomocniczy do uruchamiania analizy bez GUI
 if __name__ == "__main__":
-    pdf_file = "data/doju1.pdf"
+    pdf_file = "data/doro.pdf"
     try:
         document = extractPDF(str(pdf_file))
         raw_blocks = PDFMapper.map_to_schema(document)

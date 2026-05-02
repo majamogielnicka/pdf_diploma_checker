@@ -5,8 +5,8 @@ Moduł zawierający funkcje pomocnicze do walidacji pojedynczych elementów list
 from . import spacy_helpers
 
 NLP_MODELS: dict = {
-    "pl": spacy_helpers.nlp_pl,
-    "en": spacy_helpers.nlp_en,
+    "pl": helpers.nlp_pl,
+    "en": helpers.nlp_en,
 }
 
 def get_nlp(language):
