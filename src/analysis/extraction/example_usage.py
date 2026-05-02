@@ -9,7 +9,7 @@ if str(BASE_DIR) not in sys.path:
 
 from extraction_json import extractPDF
 
-input_path = PROJECT_ROOT / "data" / "zusz.pdf"
+input_path = PROJECT_ROOT / "data" / "jago.pdf"
 output_path = PROJECT_ROOT / "src" / "output.json"
 
 # Tryb debugu:
@@ -17,7 +17,7 @@ output_path = PROJECT_ROOT / "src" / "output.json"
 # 1 - tryb debugowania, ułatwia pracę nad konkretną funkcjonalnością, korzysta z /redaction_debug
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
 # Format nazwy pdfa: <aspekt_do_sprawdzenia>_example.pdf
-debug_mode = 1
+debug_mode = 0
 debug_type = "toc" # zmiana trybu debugowania (wpisać interesujący nas aspekt)
 debug_path = str(PROJECT_ROOT / "src" / "analysis" / "extraction" / "redaction_debug" / "{debug_type}_example.pdf")
 
@@ -42,7 +42,9 @@ else:
 
 
 # -----------------------przykład dla converter_linguistics.py-----------------------
-from converter_linguistics import PDFMapper
+from converter_linguistics_clean import PDFMapper
+
+mapper = PDFMapper()
 
 output_path_linguistics = PROJECT_ROOT / "src" / "output_linguistics.json"
 doc_data_linguistics = doc_data # Domyślnie mapowany jest plik wygenerowany przez extraction_json.py
@@ -69,7 +71,7 @@ doc_data_linguistics = extractPDF(str(pdf_path_linguistics))
 '''
 
 if doc_data_linguistics is not None:
-    final_doc = PDFMapper.map_to_schema(doc_data)
+    final_doc = mapper.map_to_schema(doc_data_linguistics)
     final_doc.to_json(output_path_linguistics)
     print("[converter_linguistics] JSON wygenerowany")
 else:
