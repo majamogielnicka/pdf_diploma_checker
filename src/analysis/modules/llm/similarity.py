@@ -15,18 +15,14 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-try:
-    from analysis.modules.llm.get_purpose import get_purpose
-except Exception:
-    from get_purpose import get_purpose
+from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
+from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
 
-try:
-    from analysis.modules.llm.get_summary import summarize_subtitles
-except Exception:
-    from get_summary import summarize_subtitles
+from analysis.modules.llm.get_purpose import get_purpose
+from analysis.modules.llm.get_summary import summarize_subtitles
 
 
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "mock.pdf"
+DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
 
 EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
 
@@ -47,7 +43,7 @@ def get_summary_text_for_embedding(text):
     return f"search_document: {text}"
 
 
-def compute_similarity_for_summaries(purpose, summaries, embedding_model):
+def compute_similarity_for_summaries(purpose, summaries, embedding_model=EMBEDDING_MODEL):
     purpose = normalize_text(purpose)
     items = []
 
@@ -85,19 +81,19 @@ def compute_similarity_for_summaries(purpose, summaries, embedding_model):
 
     model = SentenceTransformer(
         embedding_model,
-        trust_remote_code=True
+        trust_remote_code=True,
     )
 
     purpose_embedding = model.encode(
         [get_purpose_text_for_embedding(purpose)],
         convert_to_numpy=True,
-        normalize_embeddings=True
+        normalize_embeddings=True,
     )
 
     text_embeddings = model.encode(
         texts,
         convert_to_numpy=True,
-        normalize_embeddings=True
+        normalize_embeddings=True,
     )
 
     scores = cosine_similarity(purpose_embedding, text_embeddings).flatten()
@@ -155,8 +151,17 @@ def main():
         print(f"Błąd: plik nie istnieje: {pdf_path}")
         return
 
-    purpose = get_purpose(pdf_path, language)
-    summaries = summarize_subtitles(pdf_path, language=language)
+    raw_doc = extractPDF_llm(str(pdf_path.resolve()))
+
+    if raw_doc is None:
+        print("Błąd: extractPDF_llm zwróciło None.")
+        return
+
+    plain_text = get_plain_text(pdf_path)
+
+    purpose = get_purpose(plain_text, language)
+    summaries = summarize_subtitles(raw_doc, language=language)
+
     result = compute_similarity_for_summaries(purpose, summaries)
     output_path = save_similarity_txt(pdf_path, result)
 

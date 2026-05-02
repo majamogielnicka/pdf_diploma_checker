@@ -12,16 +12,13 @@ for p in (PROJECT_ROOT, SRC_DIR):
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-from analysis.extraction.converter_linguistics import get_plain_text
+from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
 
 FILE_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
 LANGUAGE = "pl"
 
 MODEL_PATH = Path.home() / "models" / "gemma2" / "gemma-2-9b-it-Q4_K_M.gguf"
 MODEL_NAME = str(MODEL_PATH)
-
-OUTPUT_DIR = BASE_DIR / "wyniki"
-REQUEST_TIMEOUT = 600
 
 CHUNK_SIZE = 1400
 CHUNK_OVERLAP = 200
@@ -158,6 +155,7 @@ def normalize_output(text):
 
     while text.startswith("-"):
         text = text[1:].strip()
+
     while text.startswith("•"):
         text = text[1:].strip()
 
@@ -182,19 +180,9 @@ def is_negative_answer(text, language):
     return text == ("BRAK" if language == "pl" else "NONE")
 
 
-def prepare_text(path, save_plain_text=False):
-    raw_text = get_plain_text(path)
-    plain_text = normalize_text(raw_text)
-
-    if save_plain_text:
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        (OUTPUT_DIR / f"{path.stem}_plain_text.txt").write_text(plain_text, encoding="utf-8")
-
-    return plain_text
-
-
 def split_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP, max_chunks=MAX_CHUNKS):
-    text = text.strip()
+    text = normalize_text(text)
+
     if not text:
         return []
 
@@ -216,6 +204,7 @@ def split_into_chunks(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP, max_ch
                 end = start + boundary + 1
 
         chunk = normalize_text(chunk)
+
         if chunk:
             chunks.append(chunk)
 
@@ -258,13 +247,8 @@ def select_best_goal(candidates, language):
     return result
 
 
-def get_purpose(path, language="pl", save_artifacts=False):
-    path = Path(path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Nie znaleziono pliku: {path}")
-
-    full_text = prepare_text(path, save_plain_text=save_artifacts)
+def get_purpose(full_text, language="pl"):
+    full_text = normalize_text(full_text)
 
     if not full_text:
         return "Błąd: nie udało się odczytać treści pracy." if language == "pl" else "Error: could not read thesis text."
@@ -273,17 +257,6 @@ def get_purpose(path, language="pl", save_artifacts=False):
         candidates = collect_goal_candidates(full_text, language)
         clean_goal = select_best_goal(candidates, language)
 
-        if save_artifacts:
-            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-            (OUTPUT_DIR / f"{path.stem}_goal_candidates.txt").write_text(
-                "\n".join(candidates) if candidates else "[BRAK KANDYDATÓW]",
-                encoding="utf-8",
-            )
-            (OUTPUT_DIR / f"{path.stem}_goal_clean.txt").write_text(
-                clean_goal if clean_goal else "[BRAK CELU CZYSTEGO]",
-                encoding="utf-8",
-            )
-
         if not clean_goal:
             return "Brak jasno określonego celu pracy." if language == "pl" else "No clearly defined thesis purpose found."
 
@@ -291,17 +264,21 @@ def get_purpose(path, language="pl", save_artifacts=False):
 
     except requests.exceptions.ReadTimeout:
         return "Błąd: model nie odpowiedział na czas." if language == "pl" else "Error: model response timed out."
+
     except requests.exceptions.ConnectionError:
         return "Błąd: nie udało się połączyć z modelem." if language == "pl" else "Error: could not connect to model."
+
     except requests.exceptions.HTTPError as e:
         details = e.response.text if e.response is not None else ""
         return f"Błąd HTTP: {e}. Szczegóły: {details}" if language == "pl" else f"HTTP error: {e}. Details: {details}"
+
     except Exception as e:
         return f"Błąd: {e}" if language == "pl" else f"Error: {e}"
 
 
 def main():
-    result = get_purpose(FILE_PATH, LANGUAGE, save_artifacts=True)
+    full_text = get_plain_text(FILE_PATH)
+    result = get_purpose(full_text, LANGUAGE)
     print(result)
 
 
