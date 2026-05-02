@@ -26,6 +26,7 @@ class PDFMapper:
     ACRONYM_THRESH = 0.6
     LIST_CONT_MAX_X_DIFF = 10
     TABLE_INTERSECT_THRESH = 0.8
+    MIN_VERTICAL_GAP_LIST = 50
 
     def __init__(self):
         # Stan wewnętrzny
@@ -202,14 +203,14 @@ class PDFMapper:
         else:
             data = self.list_buffer[0]
             item = data['item']
-            if item.marker_type == "number_with_dot":
-                self.logical_blocks.append(ParagraphBlock(
-                    block_id=data['block_id'], content=item.text, words=item.words 
-                ))
-            else:
-                self.logical_blocks.append(ListBlock(
-                    block_id=f"list_{data['block_id']}", content=item.text, words=item.words, items=[item], bbox=item.bbox
-                ))
+            #if item.marker_type == "number_with_dot" or item.marker_type == "bullet":
+            self.logical_blocks.append(ParagraphBlock(
+                block_id=data['block_id'], content=item.text, words=item.words 
+            ))
+            #else:
+            #    self.logical_blocks.append(ListBlock(
+            #        block_id=f"list_{data['block_id']}", content=item.text, words=item.words, items=[item], bbox=item.bbox
+            #    ))
         self.list_buffer.clear()
 
     # Logika podziału i (wielokrotnych) spacji
@@ -355,10 +356,13 @@ class PDFMapper:
             # Filtr kontynuacji listy
             is_valid_list_cont = False
             if self.list_buffer:
+                raw_block_text = "".join(s.text for l in block.lines for s in l.spans).strip()
+                current_block_type, _ = classify_block_content(raw_block_text)
+                allowed_gap = self.MIN_VERTICAL_GAP_LIST if current_block_type == "list" else self.MIN_VERTICAL_GAP
                 last_item = self.list_buffer[-1]
                 if self.is_continuation(last_item['bbox'], list(block.bbox)):
                     is_valid_list_cont = True
-                    if self.last_y1 is not None and (y0 - self.last_y1) > self.MIN_VERTICAL_GAP: 
+                    if self.last_y1 is not None and (y0 - self.last_y1) > allowed_gap: 
                         is_valid_list_cont = False
                     
                     text_x0 = last_item['bbox'][0]
@@ -413,12 +417,25 @@ class PDFMapper:
                 # Detekcja nowego akapitu
                 is_new_paragraph, debug_reason = self._detect_paragraph_break(current_y0, current_y1, line_x0, x0_margin, full_text, is_valid_list_cont)
 
+                
+
                 if is_new_paragraph:
                     if full_text.strip():
-                        self.paragraph_buffer.append({'content': full_text.strip(), 'words': words_info.copy(), 'block_id': block.block_id})
+                        prev_type, prev_marker = classify_block_content(full_text)
+            
+                        if prev_type == "list":
+                            cleaned_text = strip_list_marker(full_text, prev_marker)
+                            self.list_buffer.append({
+                                'item': ListItem(item_id=block.block_id, marker_type=prev_marker, text=cleaned_text, bbox=list(block.bbox), words=words_info.copy()),
+                                'words': words_info.copy(), 'block_id': block.block_id, 'bbox': list(block.bbox), 'original_text': full_text
+                            })
+                        else:
+                            if self.list_buffer:
+                                self._empty_list_buffer()
+                            self.paragraph_buffer.append({'content': full_text.strip(), 'words': words_info.copy(), 'block_id': block.block_id})
+                
                         full_text, words_info = "", []
-                    
-                    if self.list_buffer: self._empty_list_buffer()
+        
                     if self.paragraph_buffer:
                         self._empty_paragraph_buffer(debug_reason)
                         self.curr_line = 0
