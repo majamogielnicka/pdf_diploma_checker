@@ -1,3 +1,7 @@
+"""
+Moduł weryfikujący, czy skróty użyte w dokumencie zostały wcześniej zdefiniowane.
+
+"""
 from .helpers import add_match
 import re
 
@@ -35,17 +39,6 @@ def potential_acronym(text):
 
 def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
 
-    """ 
-    Checks if the acronym was defined before the current block.
-    
-    Args:
-        blocks (list): List of blocks.
-        acronyms_with_definitions (dict): Dictionary of acronyms and their definitions.
-        proper_names (set): Set of valid proper names.
-    
-    Returns:
-        list: List of error objects.
-    """
     
     GLOBAL_ACRONYMS = {
         "USA", "EU", "UN", "NATO", "WHO", "UNESCO", "ONZ", "UE", "PL", "EN", 

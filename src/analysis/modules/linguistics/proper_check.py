@@ -1,3 +1,7 @@
+"""
+Moduł weryfikujący, czy dane słowo jest nazwą własną, skrótem lub wyrażeniem specjalnym.
+
+"""
 import re
 from .spacy_helpers import lemmatization
 from src.analysis.extraction.schema import ParagraphBlock, WordInfo
@@ -5,18 +9,6 @@ from .linguistics_types import Error_type
 
 
 def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
-    """
-    Evaluates whether a particular matched word should be considered a valid exception 
-    
-    Args:
-        block (ParagraphBlock): The block dictionary containing the word objects.
-        match (Error_type): The error match object containing the reported typo.
-        proper_names (set): A collection of known proper names in the document.
-        lemma (str): The lemmatized version of the matched word.
-        is_diff (bool): Whether the word is in a different font than the main font.
-    Returns:
-        bool: True if the word is deemed a proper name/exception, False otherwise.
-    """
     target_words_ids = set(match.word_idxs) if isinstance(match.word_idxs, list) else {match.word_idxs}
     matched_words = [word for word in block.words if word.word_index in target_words_ids]
     if is_diff:

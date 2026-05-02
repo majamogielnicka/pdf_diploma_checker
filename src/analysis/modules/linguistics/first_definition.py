@@ -1,3 +1,7 @@
+"""
+Moduł odpowiedzialny za ekstrakcję pierwszych definicji skrótów (akronimów) w dokumencie.
+
+"""
 import re
 from .check_acronym import potential_acronym
 
@@ -44,15 +48,6 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
     return acronyms_with_definitions
 
 def check_first_definition(blocks, proper_names):
-    """
-    Extracts the first definition of an acronym from the document.
-    
-    Args:
-        document (FinalDocument): Parsed JSON document.
-    
-    Returns:
-        list: A list of tuples containing acronyms and their definitions.
-    """
 
     acronyms_with_definitions = {}
     bibliography_re = re.compile(r"^\[\d+\]")
@@ -62,9 +57,11 @@ def check_first_definition(blocks, proper_names):
     paragraph_def_with_comma = re.compile(r'(?<![A-Za-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c])([a-zA-Z\u0104-\u017e][a-zA-Z\u0104-\u017e\s\-]{2,}?)\s*\(([A-Z]{2,})[,\s]',re.UNICODE)
     paragraph_acr_first = re.compile(r'\(([A-Z]{2,})\)\s([A-Z\u00c0-\u017d][a-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c\w\s]+)')
     paragraph_ang_pattern = re.compile(r'\b([A-Z]{2,})\s*\((?:ang\.|pol\.|fr\.|niem\.)\s+([^)]{3,}?)\s*\)', re.UNICODE)
+    paragraph_ang_pol_pattern = re.compile(r'\b([A-Z]{2,10})\s*\(\s*(?:ang\.|pol\.|niem\.|fr\.|łac\.)?\s*([A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\s\-]{3,}?)\s*(?:,|;|\s{2,})', re.UNICODE)
     paragraph_acr_then_expansion = re.compile(r'\b([A-Z]{2,})\s*\(([A-Z][a-zA-ZÀ-Ž][a-zA-ZÀ-Žąćęłńóśźż\s\-]{2,})\)')
     broken_parenthesis_ang = re.compile(r'\b([A-Z]{2,})\s*\(\s*(?:ang\.|pol\.|fr\.|niem\.)\s+([A-Za-z\u0104-\u017e\s\-]{3,}?)\s*(?:\)|,|$)', re.UNICODE)
     broken_parenthesis_acr_dash = re.compile(r'\(\s*([A-Z]{2,})\s*[\-\u2013\u2014:]\s*(?:ang\.|pol\.|fr\.|niem\.)?\s*([A-Za-z\u0104-\u017e\s\-]{3,}?)\s*(?:\)|,|$)', re.UNICODE)
+    parenthesis_def_dash_acr = re.compile(r'\(\s*(?:ang\.|pol\.|fr\.|niem\.|łac\.)?\s*([A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\s\-]{2,}?)\s*[\-\u2013\u2014]\s*([A-Z]{2,})\s*\)', re.UNICODE)
     broken_no_parenthesis_svm = re.compile(r'\b([A-Z]{2,})\s+([A-Z][a-z]+\s+[A-Z][a-z]+[\w\s\-]*)\s*\)', re.UNICODE)
     split = re.compile(r"\s[-\u2013\u2014]\s")
     for block in blocks:
@@ -95,6 +92,7 @@ def check_first_definition(blocks, proper_names):
                 new_acronyms = paragraph_acr_first.findall(text)
                 new_acronyms.extend(paragraph_acr_then_expansion.findall(text))
                 new_acronyms.extend(paragraph_ang_pattern.findall(text))
+                new_acronyms.extend(paragraph_ang_pol_pattern.findall(text))
                 new_acronyms.extend(broken_parenthesis_ang.findall(text))
                 new_acronyms.extend(broken_parenthesis_acr_dash.findall(text))
                 new_acronyms.extend(broken_no_parenthesis_svm.findall(text))
@@ -103,6 +101,7 @@ def check_first_definition(blocks, proper_names):
                 new_acronyms = paragraph_def_first.findall(text)
                 new_acronyms.extend(paragraph_def_with_comma.findall(text))
                 new_acronyms.extend(paragraph_def_first_lower.findall(text))
+                new_acronyms.extend(parenthesis_def_dash_acr.findall(text))
                 for new_acronym in new_acronyms:
                     acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions)
 

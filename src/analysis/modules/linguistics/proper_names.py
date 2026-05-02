@@ -1,18 +1,12 @@
+"""
+Moduł ekstrakcji nazw własnych i słów kluczowych z dokumentu.
+
+"""
 from .spacy_helpers import nlp_pl, nlp_en, lemmatization
 import re
 
 
 def get_proper_names(blocks):
-    """
-    Extracts proper names and recognized entities from the document using spaCy.
-    
-    Args:
-        document (FinalDocument): The document structure.
-        text_language (str): The language code of the text.
-        
-    Returns:
-        set: A set containing unique valid proper names extracted from the text.
-    """
 
 
     TITLE_PAGE_PHRASES = {

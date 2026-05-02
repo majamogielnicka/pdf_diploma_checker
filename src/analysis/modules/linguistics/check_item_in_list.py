@@ -1,3 +1,7 @@
+"""
+Moduł zawierający funkcje pomocnicze do walidacji pojedynczych elementów listy.
+
+"""
 from . import spacy_helpers
 
 NLP_MODELS: dict = {
@@ -17,20 +21,6 @@ def is_upper_and_dot(full_text):
 
 def check_item(full_text, last_item, second_to_last, text_language, sentence_style, dominant_ending, marker_type):
 
-    """
-    Checks and validates the punctuation correctness of a list item.
-    
-    Args:
-        full_text (str): List item text.
-        last_item (bool): True if the item is the last in the list.
-        second_to_last (bool): True if the item is the second to last in the list.
-        text_language (str): Language code: 'pl' for Polish or 'en' for English.
-        sentence_style (bool): True if the list uses uppercase.
-        dominant_ending (str): The dominant ending of the list items.
-        marker_type (str): The marker type of the list item.
-    Returns:
-        bool: True if the item is valid, False if it contains an error.
-    """
     STRIP_OPEN = '\u201e\u00ab\u201c\u2018"('
     STRIP_CLOSE = '\u201d\u00bb\u201d\u2019")'
     full_text = full_text.lstrip(STRIP_OPEN)
