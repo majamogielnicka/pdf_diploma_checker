@@ -119,9 +119,9 @@ class RedactionValidator:
         #--------------------advanced redaction check
         if advanced_redaction_check:
             self.check_orphans()
-            #self.check_widows()
-            #self.check_bekarts()
-            #self.check_szewce()
+            self.check_widows()
+            self.check_bekarts()
+            self.check_szewce()
             #self.check_korytarze()
             self.check_from_converter()
 
@@ -249,44 +249,18 @@ class RedactionValidator:
                 ))
 
         return blank_pages
-    
-    # Funkcja sprawdzająca błędy zapisane jako flagi przez converter_linguistics
-    def check_from_converter(self):
-        converter_errors = []
+
+    def check_widows(self):
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":    
                 # Flaga: wdowy
                 widow_which =  getattr(block, "is_widow", 0)
                 if widow_which > 0:    
-                    error = self.handle_widow(block, widow_which)
+                    error = self._handle_widow(block, widow_which)
                     if error:
-                        converter_errors.append(error)
                         self.errors.append(error)
-                # Flaga: bękarty
-                bekart_which = getattr(block, "is_bekart", 0)
-                if bekart_which != 0:
-                    error = self.handle_bekart(block, bekart_which)
-                    if error:
-                        converter_errors.append(error)
-                        self.errors.append(error)
-
-                # Flaga: szewce
-                szewc_which = getattr(block, "is_szewc", 0)
-                if szewc_which != 0:
-                    error = self.handle_szewc(block, szewc_which)
-                    if error:
-                        converter_errors.append(error)
-                        self.errors.append(error)
-
-
-
-        return converter_errors
-
-    def check_widows(self):
-        #TODO: przeniesc tu sprawdzanie wdów (musimy mieć opcje żeby nie robić zaawansowanej redakcji do trybu szybkiego)
-        pass
-
-    def handle_widow(self, block, widow_which):
+                
+    def _handle_widow(self, block, widow_which):
         if not block.words:
             return
 
@@ -312,10 +286,17 @@ class RedactionValidator:
         )
     
     def check_bekarts(self):
-        #TODO: to samo co wyżej
-        pass
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "type", "") == "paragraph":
+                # Flaga: bękarty
+                bekart_which = getattr(block, "is_bekart", 0)
+                if bekart_which != 0:
+                    error = self._handle_bekart(block, bekart_which)
+                    if error:
+                        self.errors.append(error)
 
-    def handle_bekart(self, block, bekart_which):
+
+    def _handle_bekart(self, block, bekart_which):
         if not block.words:
             return
 
@@ -341,10 +322,16 @@ class RedactionValidator:
         )
     
     def check_szewce(self):
-        #TODO: to samo co wyżej
-        pass
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "type", "") == "paragraph":
+                # Flaga: szewce
+                szewc_which = getattr(block, "is_szewc", 0)
+                if szewc_which != 0:
+                    error = self._handle_szewc(block, szewc_which)
+                    if error:
+                        self.errors.append(error)
 
-    def handle_szewc(self, block, szewc_which):
+    def _handle_szewc(self, block, szewc_which):
         if not block.words:
             return
 
