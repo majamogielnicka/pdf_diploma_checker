@@ -2,11 +2,11 @@
 Moduł zawierający funkcje pomocnicze do walidacji pojedynczych elementów listy.
 
 """
-from . import spacy_helpers
+from .helpers import nlp_pl, nlp_en
 
 NLP_MODELS: dict = {
-    "pl": helpers.nlp_pl,
-    "en": helpers.nlp_en,
+    "pl": nlp_pl,
+    "en": nlp_en,
 }
 
 def get_nlp(language):
