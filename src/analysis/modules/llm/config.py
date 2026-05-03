@@ -16,7 +16,7 @@ OUTPUT_DIR = PROJECT_ROOT / "src" / "analysis" / "modules" / "llm" / "wyniki"
 
 #JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
 MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
-THESIS_PATH = PROJECT_ROOT / "data" / "most_important" / "ch.pdf"
+THESIS_PATH = PROJECT_ROOT / "data" / "llm_mock" / "ch_mock.pdf"
 LANGUAGE = "pl" #LUB "en"
 
 if __name__ == "__main__":
