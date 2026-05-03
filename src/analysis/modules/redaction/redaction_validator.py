@@ -124,7 +124,6 @@ class RedactionValidator:
             self.check_bekarts()
             self.check_szewce()
             #self.check_korytarze()
-            self.check_from_converter()
 
         self.replace_global_errors()
 
