@@ -995,7 +995,7 @@ def extractPDF(file_path: str) -> DocumentData:
         blank_page = True
 
         cur_page = PageData(
-            number=page_index + 1,
+            number=page_index, # + 1 zostało usunięte, jako że strona tytułowa nie powinna być wliczana do numeracji
             width=p_width,
             height=p_height,
             margins=calculate_margins(raw_dict["blocks"], p_width, p_height),
@@ -1182,7 +1182,7 @@ def dominant_spacing(doc: fitz.Document) ->float:
     for page in doc:
         blocks = page.get_text("dict")
 
-def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: float = 0.88) -> bool:
+def is_footer(raw_block: dict, page_height: float, page_num: int) -> bool:
     bbox = raw_block["bbox"]
 
     if bbox[1]<(page_height)*0.88:
@@ -1193,14 +1193,16 @@ def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: flo
         for span in line.get("spans", []):
             text_content+= span.get("text","")
     
-    clean_text = text_content.lower().strip()#zmieniamy na male litery
+    clean_text = text_content.lower().strip()
     patterns = [
-        rf"^{page_num}$",
-        rf"strona\s+{page_num}$",
-        rf"str\.\s*{page_num}$",
-        rf"^{page_num}\s*/\s*\d+$",
-        rf"^{page_num}\s+z\s+\d+$",
-    ]
+        r"^\d+$",                        
+        r"strona\s+\d+",                 #strona x
+        r"str\.\s*\d+",                  #str. x
+        r"^\d+\s*/\s*\d+$",              #"X / y
+        r"^\d+\s+z\s+\d+$",              #x z y
+        r"page\s+\d+",                   #page x
+        rf".*?\b{page_num}\b.*?"]
+    
     for p in patterns:
         if re.search(p,clean_text):
             return True
@@ -1219,7 +1221,7 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
             entries.append(TocEntry(
                 level=lvl,
                 title=ttl.strip(),
-                page=page_num,
+                page=page_num-1,
                 bbox=(0, 0, 0, 0)  
             ))
         return TocData(page_num=-1,entries=entries, text="Wykryto z metadanych"

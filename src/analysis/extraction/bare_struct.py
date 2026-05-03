@@ -116,7 +116,7 @@ class DocumentData:
             print(f"blad zapisu do pliku json: {e}")
 
     def get_page_count(self) -> int:
-        return len(self.pages)
+        return len(self.pages) - 1 # -1, jako że strona tytułowa ma się nie zaliczać do licznika stron.
     
     #zwraca słownik z nazwami czcionek i ich ilością wystąpień
     def get_font_usage(self) -> Dict[str, int]: 

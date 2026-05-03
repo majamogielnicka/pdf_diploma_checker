@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import List
 import json
 import logging
+import re
 
 @dataclass
 class Configuration:
@@ -439,8 +440,6 @@ class RedactionValidator:
         return wrong_entries, is_toc
         
     def check_footers(self):
-        lack_of_footers = []
-        page_1_footer_bbox = None
 
         for page in self.document_data.pages:
             footer_block = None
@@ -448,35 +447,49 @@ class RedactionValidator:
             for block in page.text_blocks:
                 if block.block_type == "footer":
                     footer_block = block
-            if page.number == 1:
+                    
+            if page.number == 1 or page.number == 0:
                 if footer_block:
-                    page_1_footer_bbox = footer_block.bbox
                     self.errors.append(Error(
                         id = self._get_next_id(),
                         module = self.module,
                         category = "Footer_on_1st_page",
                         page_number = 1,
-                        bounding_box = page_1_footer_bbox, 
+                        bounding_box = footer_block.bbox, 
                         text = "1",
-                        comments = "Wykryto numerację na pierwszej stronie, która nie powinna się tam znaleźć."
+                        comments = "Wykryto numerację na stronie, która nie powinna się tam znaleźć."
                     ))
             else: 
-                if not footer_block:
+                if footer_block is None:
                     self.errors.append(Error(
                         id = self._get_next_id(),
                         module = self.module,
                         category = "No_footer",
                         page_number = page.number,
-                        bounding_box = (self.document_data.pages[page.number - 1].width/2 - 20, 
-                                        self.document_data.pages[page.number - 1].height - 60, 
-                                        self.document_data.pages[page.number - 1].width/2 + 20, 
-                                        self.document_data.pages[page.number - 1].height - 30),
+                        bounding_box = (self.document_data.pages[page.number].width/2 - 20, 
+                                        self.document_data.pages[page.number].height - 60, 
+                                        self.document_data.pages[page.number].width/2 + 20, 
+                                        self.document_data.pages[page.number].height - 30),
                         text = None,
-                        comments = f"Wykryto brak numeracji lub niepoprawną numerację na stronie {page.number}"
-                    ))
-                    lack_of_footers.append(page.number)
+                        comments = f"Wykryto brak numeracji na stronie {page.number}"   
+                    ))                 
+                else:
+                    raw_text = " ".join([" ".join([s.text for s in l.spans]) for l in footer_block.lines])
+                    match = re.search(r"(\d+)", raw_text)
 
-        return page_1_footer_bbox, lack_of_footers
+                    if match:
+                        detected_num = int(match.group(1))
+                        if detected_num != page.number:
+                            self.errors.append(Error(
+                                id=self._get_next_id(),
+                                module=self.module,
+                                category="Wrong_page_number",
+                                page_number=page.number,
+                                bounding_box=footer_block.bbox,
+                                text=raw_text,
+                                comments=f"Błędny numer strony. Wykryto: {detected_num}, oczekiwano: {page.number}."
+                            ))
+        return None
     
     #------------------config checks-----------------------
     #funckje w tym bloku zwracają True jeśli wszystko ok, False jeśli wykryto błąd
@@ -520,7 +533,7 @@ class RedactionValidator:
                 page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
-                comments = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.min_stron}."
+                comments = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.max_stron}."
             ))
             return False
         else:
