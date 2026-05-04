@@ -57,10 +57,11 @@ class TocEntry:
     title: str
     page: int
     bbox: tuple
+    src_page: int #Strona na ktorej znajduje sie czesc spisu tresci z odnosnikiem do tego naglowka
 
 @dataclass
 class TocData:
-    page_num: int
+    page_nums: List[int]
     entries: List[TocEntry]
     text: str
 

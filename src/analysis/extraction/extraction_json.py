@@ -1240,10 +1240,11 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
             entries.append(TocEntry(
                 level=lvl,
                 title=ttl.strip(),
-                page=page_num-1,
-                bbox=(0, 0, 0, 0)  
+                page=page_num,
+                bbox=(0, 0, 0, 0),
+                src_page = -1
             ))
-        return TocData(page_num=-1,entries=entries, text="Wykryto z metadanych"
+        return TocData(page_nums=-1,entries=entries, text="Wykryto z metadanych"
         )
 
     keywords = [
@@ -1251,7 +1252,7 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
         "table of contents", "contents", "toc"
     ]
     all_entries = []
-    first_page = None
+    toc_pages = []
     toc_started = False
     full_toc_text = ""
     base_x = None
@@ -1288,7 +1289,8 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
                         level=final_level, 
                         title=title_clean,
                         page=int(p_num),
-                        bbox=line.bbox
+                        bbox=line.bbox,
+                        src_page = page_obj.number
                     ))
 
         has_keyword = any(word in page_text.lower() for word in keywords)
@@ -1301,13 +1303,14 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
                 full_toc_text = page_text[:500]
         else:
             if len(page_entries) >= 1:
+                toc_pages.append(page_obj.number)
                 all_entries.extend(page_entries)
             else:
                 break
                 
     if all_entries:
         return TocData(
-            page_num=first_page,
+            page_nums=toc_pages,
             entries=all_entries,
             text=full_toc_text
         )

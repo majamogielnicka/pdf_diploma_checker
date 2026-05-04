@@ -416,7 +416,7 @@ class RedactionValidator:
                     id = self._get_next_id(),
                     module = self.module,
                     category = "TOC_mismatch",
-                    page_number = entry.page,
+                    page_number = entry.src_page,
                     bounding_box = entry.bbox,
                     text = entry.title,
                     comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
