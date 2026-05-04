@@ -70,6 +70,20 @@
             "typ": "PDF",
             "data_dodania": "2026-04-25",
             "komentarze": []
+        },
+        {
+            "nazwa_pliku": "jabi.pdf",
+            "sciezka_lokalna": "D:/ZSD/data/most_important/jabi.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-05-04",
+            "komentarze": []
+        },
+        {
+            "nazwa_pliku": "jago.pdf",
+            "sciezka_lokalna": "D:/ZSD/data/most_important/jago.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-05-05",
+            "komentarze": []
         }
     ],
     "konfiguracje_regul": []
