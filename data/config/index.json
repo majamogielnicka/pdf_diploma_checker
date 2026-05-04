@@ -70,6 +70,20 @@
             "typ": "PDF",
             "data_dodania": "2026-04-25",
             "komentarze": []
+        },
+        {
+            "nazwa_pliku": "agna.pdf",
+            "sciezka_lokalna": "C:/Users/Dorian/Desktop/FOLDERY/NAUKA/STUDIA/ZSD/pdf_diploma_checker/data/agna.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-05-04",
+            "komentarze": []
+        },
+        {
+            "nazwa_pliku": "doju1.pdf",
+            "sciezka_lokalna": "C:/Users/Dorian/Desktop/FOLDERY/NAUKA/STUDIA/ZSD/pdf_diploma_checker/data/other/doju1.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-05-04",
+            "komentarze": []
         }
     ],
     "konfiguracje_regul": []
