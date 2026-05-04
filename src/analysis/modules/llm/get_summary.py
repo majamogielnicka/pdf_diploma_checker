@@ -15,9 +15,7 @@ for p in (PROJECT_ROOT, SRC_DIR):
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
 from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
 
-PDF_PATH = PROJECT_ROOT / "data" / "inż_2_.pdf"
-
-MODEL_PATH = Path.home() / "models" / "gemma2" / "gemma-2-9b-it-Q4_K_M.gguf"
+from analysis.modules.llm.config import THESIS_PATH, MODEL_PATH, LANGUAGE
 
 MAX_FRAGMENT_CHARS = 1600
 MAX_NEW_TOKENS = 96
@@ -48,6 +46,7 @@ _LLM = None
 def normalize_text(text):
     if not text:
         return ""
+
     return " ".join(str(text).replace("\xa0", " ").split()).strip()
 
 
@@ -133,7 +132,7 @@ def get_summary(fragment, language):
     return text or "[BRAK ODPOWIEDZI MODELU]"
 
 
-def get_summaries(subtitles, language, verbose=False):
+def get_summaries(subtitles, language):
     summaries = []
 
     for i, sub in enumerate(subtitles, start=1):
@@ -154,13 +153,6 @@ def get_summaries(subtitles, language, verbose=False):
                 "content": content,
                 "summary": "[BRAK TREŚCI W SEKCJI]",
             })
-
-            if verbose:
-                print(f"{i}/{len(subtitles)} - {display} -> BRAK TREŚCI")
-                print("SUMMARY:")
-                print("[BRAK TREŚCI W SEKCJI]")
-                print("-" * 80)
-
             continue
 
         try:
@@ -177,20 +169,14 @@ def get_summaries(subtitles, language, verbose=False):
             "summary": summary,
         })
 
-        if verbose:
-            print(f"{i}/{len(subtitles)} - {display}")
-            print("SUMMARY:")
-            print(summary)
-            print("-" * 80)
-
     return summaries
 
 
-def summarize_subtitles(raw_doc, subtitles=None, language="pl"):
+def summarize_subtitles(raw_doc, subtitles, language):
     if subtitles is None:
         subtitles = extract_subtitles_from_pdf(raw_doc)
 
-    return get_summaries(subtitles, language, verbose=False)
+    return get_summaries(subtitles, language)
 
 
 generate_summaries = summarize_subtitles
@@ -210,18 +196,18 @@ def print_summaries(summaries):
 
 
 def main():
-    selected_pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else PDF_PATH
-    language = sys.argv[2] if len(sys.argv) > 2 else "pl"
+    pdf_path = THESIS_PATH
+    language = LANGUAGE
 
-    if not selected_pdf_path.exists():
-        print(f"Błąd: plik nie istnieje: {selected_pdf_path}")
+    if not pdf_path.exists():
+        print(f"Błąd: plik nie istnieje: {pdf_path}")
         return
 
     if not MODEL_PATH.exists():
         print(f"Błąd: model nie istnieje: {MODEL_PATH}")
         return
 
-    raw_doc = extractPDF_llm(str(selected_pdf_path.resolve()))
+    raw_doc = extractPDF_llm(str(pdf_path.resolve()))
 
     if raw_doc is None:
         print("Błąd: ekstrakcja PDF zwróciła None.")
@@ -235,7 +221,7 @@ def main():
 
     print(f"Wykryto nagłówków: {len(subtitles)}")
 
-    summaries = get_summaries(subtitles, language, verbose=True)
+    summaries = get_summaries(subtitles, language)
     print_summaries(summaries)
 
 
