@@ -1072,6 +1072,9 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
         if x[5] == raw_block["number"]:
             block_words.append(x)
 
+    #Lista użytych słów, żeby nie powielać słowa
+    used_words = set()
+
     for raw_line in raw_block["lines"]:
         spans = []
         max_font_size = 0.0 #Do znalezienia słowa o największej czcionce w linijce.
@@ -1087,10 +1090,26 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
                 max_font_size = raw_span["size"]
 
             for x in block_words:
+                if x in used_words:
+                    continue
+
+                #Zmienne przydatne do łatki na ucinanie słów przy nawiasach, cudzysłowach, itp.    
+                word_text = x[4]
+                m_left = 0.2
+                m_right = 0.2
+                punctuation = ('(', ')', '[', ']', '{', '}', '"', "'", '”', '„', '.', ',', ':', ';', '?', '!', '-')
+
+                if word_text and word_text[0] in punctuation:
+                    m_left = 15.0
+                    
+                if word_text and word_text[-1] in punctuation:
+                    m_right = 15.0
                 #Sprawdzanie czy dane słowo należy do spanu z małym marginesem błędu (0.2), w razie
                 #problemów można zwiększyć
-                if (x[0] >= s_bbox[0] - 0.2 and x[1]>= s_bbox[1]-0.2 and x[2]<=s_bbox[2]+0.2 and x[3]<=s_bbox[3]+0.2):
+                #Dodatkowo, jeśli słowo zaczyna się lub kończy interpunkcją, to zwiększamy margines, żeby zapobiec ucinaniu słów przy nawiasach, cudzysłowach, itp.
+                if (x[0] >= s_bbox[0] - m_left and x[1] >= s_bbox[1] - 1.0 and x[2] <= s_bbox[2] + m_right and x[3] <= s_bbox[3] + 1.0):
                     span_words.append(x)
+                    used_words.add(x)
 
             #obsluga flag
             flags = raw_span["flags"]
