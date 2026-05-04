@@ -2,14 +2,37 @@
 pdoc==16.0.0
 pip==24.0
 requests==2.32.5
-fitz==0.0.1.dev2
 
+# PDF extraction
+PyMuPDF==1.26.6
 
-# --- External Requirements (UV Lock Guard) ---
-# UWAGA: Ten projekt wymaga zainstalowanej usługi Ollama!
-# Pobierz z: https://ollama.com/
+# Local GGUF model inference
+llama-cpp-python==0.3.16
 
-# --- Required Models ---
-# Przed uruchomieniem pobierz modele komendami:
-# ollama pull SpeakLeash/bielik-7b-instruct-v0.1-gguf:latest
-# ollama pull qwen2.5:latest
+# Hugging Face model download
+huggingface-hub==0.36.0
+
+# Embeddings / semantic similarity
+sentence-transformers==5.1.2
+transformers==4.57.1
+torch==2.9.0
+numpy==2.3.4
+scikit-learn==1.7.2
+
+# --- External Requirements ---
+# Ollama nie jest wymagana.
+# Projekt korzysta z lokalnego modelu GGUF uruchamianego przez llama-cpp-python.
+
+# --- Required Local LLM Model ---
+# Model GGUF pobierzesz lokalnie poza repozytorium komendą:
+# python src\analysis\modules\llm\support_scripts\download_model.py
+#
+# Skrypt zapisze model do:
+# C:\Users\<NAZWA_UZYTKOWNIKA>\models\gemma3_12b\google_gemma-3-12b-it-Q4_K_M.gguf
+#
+# W pliku src\analysis\modules\llm\config.py ustaw:
+# MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
+
+# --- Required Embedding Model ---
+# Model embeddingowy zostanie pobrany automatycznie przez sentence-transformers:
+# intfloat/multilingual-e5-large

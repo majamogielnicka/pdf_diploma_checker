@@ -8,7 +8,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
-OUTPUT_DIR = BASE_DIR / "wyniki"
 
 for p in (PROJECT_ROOT, SRC_DIR):
     p_str = str(p)
@@ -18,13 +17,10 @@ for p in (PROJECT_ROOT, SRC_DIR):
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
 
+from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
 from analysis.modules.llm.get_purpose import get_purpose
 from analysis.modules.llm.get_summary import summarize_subtitles
-
-
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
-
-EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
+from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, OUTPUT_DIR, LANGUAGE
 
 
 def normalize_text(text):
@@ -144,8 +140,8 @@ def save_similarity_txt(pdf_path, result):
 
 
 def main():
-    pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PDF_PATH
-    language = sys.argv[2] if len(sys.argv) > 2 else "pl"
+    pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else THESIS_PATH
+    language = LANGUAGE
 
     if not pdf_path.exists():
         print(f"Błąd: plik nie istnieje: {pdf_path}")
@@ -159,8 +155,9 @@ def main():
 
     plain_text = get_plain_text(pdf_path)
 
-    purpose = get_purpose(plain_text, language)
-    summaries = summarize_subtitles(raw_doc, language=language)
+    subtitles = extract_subtitles_from_pdf(raw_doc)
+    purpose = get_purpose(plain_text, LANGUAGE)
+    summaries = summarize_subtitles(raw_doc, subtitles, LANGUAGE)
 
     result = compute_similarity_for_summaries(purpose, summaries)
     output_path = save_similarity_txt(pdf_path, result)

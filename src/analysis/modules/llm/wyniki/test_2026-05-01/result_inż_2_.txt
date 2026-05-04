@@ -1,0 +1,13 @@
+====================================================================================================
+BŁĄD PODCZAS ANALIZY PRACY
+====================================================================================================
+
+Plik PDF: inż_2_.pdf
+Ścieżka PDF: C:\Users\Wiktor\zsd\pdf_diploma_checker\data\inż_2_.pdf
+Wygenerowano: 2026-05-01T14:51:56
+
+TREŚĆ BŁĘDU:
+Traceback (most recent call last):
+  File "c:\Users\Wiktor\zsd\pdf_diploma_checker\src\analysis\modules\llm\support_scripts\run_similarity_and_purpose_for_all.py", line 144, in process_single_pdf
+    raise ValueError("extractPDF_llm zwróciło None.")
+ValueError: extractPDF_llm zwróciło None.

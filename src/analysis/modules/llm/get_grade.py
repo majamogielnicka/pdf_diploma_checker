@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import time
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
@@ -16,12 +17,12 @@ from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_t
 from analysis.modules.llm.get_purpose import get_purpose
 from analysis.modules.llm.get_subtitles import get_subtitles
 from analysis.modules.llm.get_summary import get_summaries
-from analysis.modules.llm.similarity import compute_similarity_for_summaries, EMBEDDING_MODEL
+from analysis.modules.llm.similarity import compute_similarity_for_summaries
+from analysis.modules.llm.goal_realization import get_purpose_grade
+from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, LANGUAGE
 
 
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "bosh.pdf"
-DEFAULT_LANGUAGE = "pl"
-threshold = 0.5
+threshold = 0.785
 
 
 def calculate_embedding_grade(purpose, summaries):
@@ -80,8 +81,8 @@ def get_content_grade(purpose, summaries):
 
 
 def main():
-    pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PDF_PATH
-    language = sys.argv[2] if len(sys.argv) > 2 else DEFAULT_LANGUAGE
+    pdf_path = THESIS_PATH
+    language = LANGUAGE
 
     print(f"PDF_PATH: {pdf_path}")
     print(f"PDF_EXISTS: {pdf_path.exists()}")
@@ -99,21 +100,24 @@ def main():
 
     plain_text = get_plain_text(pdf_path)
 
-    purpose = get_purpose(plain_text, language=language)
+    purpose = get_purpose(plain_text, LANGUAGE)
 
     subtitles = get_subtitles(raw_doc)
-    summaries = get_summaries(subtitles, language=language)
+    summaries = get_summaries(subtitles, LANGUAGE)
 
     result = get_content_grade(
         purpose=purpose,
         summaries=summaries
     )
 
+    purpose_grade = get_purpose_grade(plain_text, purpose, LANGUAGE)
+
     print("CEL PRACY:")
     print(purpose)
     print()
     print("OCENA EMBEDDINGOWA:")
     print(f"{result['grade']} / {result['max_grade']}")
+    print(f"OCENA REALIZACJI CELU: ", purpose_grade )
     print()
     print(f"S_emb: {result['s_emb']}")
     print(f"Próg: {result['threshold']}")
@@ -122,5 +126,9 @@ def main():
     print(f"P_off: {result['p_off']}%")
 
 
+
 if __name__ == "__main__":
+    start = time.perf_counter()
     main()
+    end = time.perf_counter()
+    print(f"Czas działania programu: {end - start:.2f} s")
