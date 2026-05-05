@@ -1,9 +1,9 @@
 '''
 Definicje dataclasses używanych w module lingwistycznym.
 '''
-from dataclasses import dataclass
-from src.analysis.extraction.schema import ParagraphBlock, ListBlock
-from typing import Union
+from dataclasses import dataclass, field
+from src.analysis.extraction.schema import ParagraphBlock, ListBlock, BibItem, Bibliography
+from typing import Union, List, Optional
 @dataclass
 class Error_type:
     content: str
@@ -32,3 +32,35 @@ class Block_context:
     language: str
     block: Union[ParagraphBlock, ListBlock]
 
+@dataclass 
+class Bib_item_context:
+    content: str
+    authors: str
+    date: str
+    title: str
+    is_title_italics: bool
+    book_title: Optional[str]
+    pages: Optional[str]
+    publisher: Optional[str]
+    doi: Optional[str]
+    volume: Optional[str]
+    access_date: Optional[str]
+    url: Optional[str]
+    online: Optional[bool]
+    journal: Optional[str]
+    issue: Optional[str]
+    entry_type: Optional[str]
+    other: Optional[str]
+    bibtex_type: Optional[str]
+    author_format: str
+    separator: str
+    item: BibItem
+
+@dataclass
+class Bibliography_context:
+    block_id: int
+    items: List[Bib_item_context] = field(default_factory=list)
+    dominant_separator: Optional[str] = None
+    dominant_author_format: Optional[str] = None
+    dominant_language: Optional[str] = None
+    dominant_marker_type: Optional[str] = None

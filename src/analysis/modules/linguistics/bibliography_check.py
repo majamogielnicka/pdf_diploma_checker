@@ -1,11 +1,13 @@
-from helpers import nlp_en
+from helpers import nlp_en, add_match, get_match_info
 import re
+from .iso_and_bibtex_check import check_bibtex, check_coherence_iso
+from .linguistics_types import Bibliography
 '''
 Skrypt sprawdzający kompletność bibliografii i sprawdzający jej zgodność z wybranym stylem bibliograficznym: 
 docelowo: (pn-iso 690:2012, APA 7, IEEE, Harvard 4)
 '''
 
-def check_bibliography(blocks):
+def check_bibliography(blocks, producer):
     matches = []
     '''TODO: wykrycie wszystkich typów cytowań i rozróżnienie co jest czym, 
         sprawdzenie spójności - iso
@@ -70,4 +72,10 @@ def check_bibliography(blocks):
     
     #check_quotes
     #check_illiadic
+    #check_title
+
+    matches.append(check_coherence_iso(blocks, matches, Bibliography))
+    if re.search(r'latex|tex', producer, re.IGNORECASE):
+        matches.extend(check_bibtex(blocks, Bibliography))
+    
     return matches
