@@ -80,7 +80,7 @@ def get_content_grade(purpose, summaries):
     )
 
 def get_overall_grade(purpose_grade, embedding_grade, sota_grade):
-    overall_grade = 0,2 * sota_grade + 0,2 * purpose_grade + 0,6 * embedding_grade
+    overall_grade = 0.2 * sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade
     return overall_grade
 
 
