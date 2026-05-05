@@ -1233,19 +1233,6 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
     Funkcja do ekstrakcji spisu treści. 
     Zwraca obiekt TocData jeśli znaleziono spis, w przeciwnym razie None.
     """
-    built_in_toc = doc.get_toc()
-    if built_in_toc:
-        entries = []
-        for lvl, ttl, page_num in built_in_toc:
-            entries.append(TocEntry(
-                level=lvl,
-                title=ttl.strip(),
-                page=page_num,
-                bbox=(0, 0, 0, 0),
-                src_page = -1
-            ))
-        return TocData(page_nums=-1,entries=entries, text="Wykryto z metadanych"
-        )
 
     keywords = [
         "spis treści", "spis tresci", 
@@ -1298,7 +1285,6 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
         if not toc_started:
             if has_keyword and len(page_entries) >= 2 or len(page_entries) >= 5:
                 toc_started = True
-                first_page = page_obj.number
                 all_entries.extend(page_entries)
                 full_toc_text = page_text[:500]
         else:
@@ -1314,5 +1300,19 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
             entries=all_entries,
             text=full_toc_text
         )
-        
+
+    built_in_toc = doc.get_toc()
+    if built_in_toc:
+        entries = []
+        for lvl, ttl, page_num in built_in_toc:
+            entries.append(TocEntry(
+                level=lvl,
+                title=ttl.strip(),
+                page=page_num,
+                bbox=(0, 0, 0, 0),
+                src_page = 2
+            ))
+        return TocData(page_nums=-1,entries=entries, text="Wykryto z metadanych"
+        )
+     
     return None
