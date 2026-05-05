@@ -38,16 +38,7 @@ class AnalysisPipeline:
         report_progress(10, "Rozpoczynam ekstrakcję tekstu z PDF...")
         
         from analysis.extraction.extraction_json import extractPDF
-        from analysis.extraction.converter_linguistics import PDFMapper
-        from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
-        from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
-        from analysis.modules.llm.get_grade import get_content_grade, get_overall_grade
-        from analysis.modules.llm.get_purpose import get_purpose
-        from analysis.modules.llm.get_summary import get_summaries
-        from analysis.modules.llm.get_subtitles import get_subtitles
-        from analysis.modules.llm.goal_realization import get_purpose_grade
 
-        
         doc_obj = extractPDF(pdf_path)
         doc_dict = doc_obj._to_dict()
 
@@ -82,18 +73,8 @@ class AnalysisPipeline:
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
-<<<<<<< get-grade
-                content_g = get_content_grade(purpose, summaries)
-                purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
-
-                score = get_overall_grade(purpose_g, content_g, 0) #zamiast 0 powinno byc sota grade
-                print("WYNIK KOŃCOWY", score, "/100")
-                
-                s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(pdf_path)
-=======
                 score = get_content_grade(purpose, summaries)
                 print("[PIPELINE] Score content_grade:", score)
->>>>>>> main
                 
                 extracted_blocks = get_content(pdf_path)
                 s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
