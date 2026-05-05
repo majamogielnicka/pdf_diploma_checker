@@ -125,6 +125,7 @@ class RedactionValidator:
             self.check_szewce()
             #self.check_korytarze()
 
+        self.remove_errors_from_title_page()
         self.replace_global_errors()
 
         return self.errors
@@ -153,6 +154,11 @@ class RedactionValidator:
                     new_x1 = i*slot_width + 5
                     new_x2 = (i+1)*slot_width-5
                     error.bounding_box = (round(new_x1, 2), 5, round(new_x2, 2), 45)
+
+    def remove_errors_from_title_page(self):
+        for error in self.errors:
+            if error.page_number == 0:
+                self.errors.remove(error)
 
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
@@ -377,7 +383,7 @@ class RedactionValidator:
         if is_toc:
             is_ftr_error = False
             for error in self.errors:
-                if error.category == "No_footer":
+                if error.category == "No_footer" or error.category == "Wrong_page_number":
                     is_ftr_error = True
             if is_ftr_error:
                 self.errors.append(Error(
