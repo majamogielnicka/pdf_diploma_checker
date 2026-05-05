@@ -76,3 +76,16 @@ class saving_files:
             if p['sciezka_lokalna'] == sciezka:
                 return p.get("komentarze", [])
         return []
+
+    def zapisz_bledy(self, sciezka, bledy):
+        for p in self.data["prace"]:
+            if p['sciezka_lokalna'] == sciezka:
+                p["bledy_analizy"] = bledy
+                self._save_to_disk(self.data)
+                return
+
+    def pobierz_bledy(self, sciezka):
+        for p in self.data["prace"]:
+            if p['sciezka_lokalna'] == sciezka:
+                return p.get("bledy_analizy", [])
+        return []

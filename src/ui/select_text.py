@@ -143,7 +143,7 @@ class SelectablePdfView(QPdfView):
 
         for marker in all_markers:
             data = marker.data
-            page_idx = data.get("strona", 1) - 1
+            page_idx = data.get("strona", 1)
             coords = data.get("wspolrzedne", {"x": 0, "y": 0})
             
             target_page_y_px = self.documentMargins().top()
@@ -180,7 +180,7 @@ class SelectablePdfView(QPdfView):
             marker.show()
         for box in self.highlight_boxes:
             data = box.data
-            page_idx = data.get("strona", 1) - 1
+            page_idx = data.get("strona", 1)
             coords = data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0})
             
             target_page_y_px = self.documentMargins().top()

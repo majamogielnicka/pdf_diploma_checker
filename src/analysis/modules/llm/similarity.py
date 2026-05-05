@@ -8,27 +8,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[3]
 SRC_DIR = PROJECT_ROOT / "src"
-OUTPUT_DIR = BASE_DIR / "wyniki"
 
 for p in (PROJECT_ROOT, SRC_DIR):
     p_str = str(p)
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
 
-try:
-    from analysis.modules.llm.get_purpose import get_purpose
-except Exception:
-    from get_purpose import get_purpose
+from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
+from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
 
-try:
-    from analysis.modules.llm.get_summary import summarize_subtitles
-except Exception:
-    from get_summary import summarize_subtitles
-
-
-DEFAULT_PDF_PATH = PROJECT_ROOT / "data" / "mock.pdf"
-
-EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
+from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
+from analysis.modules.llm.get_purpose import get_purpose
+from analysis.modules.llm.get_summary import summarize_subtitles
+from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, OUTPUT_DIR, LANGUAGE
 
 
 def normalize_text(text):
@@ -47,7 +39,7 @@ def get_summary_text_for_embedding(text):
     return f"search_document: {text}"
 
 
-def compute_similarity_for_summaries(purpose, summaries, embedding_model):
+def compute_similarity_for_summaries(purpose, summaries, embedding_model=EMBEDDING_MODEL):
     purpose = normalize_text(purpose)
     items = []
 
@@ -85,19 +77,19 @@ def compute_similarity_for_summaries(purpose, summaries, embedding_model):
 
     model = SentenceTransformer(
         embedding_model,
-        trust_remote_code=True
+        trust_remote_code=True,
     )
 
     purpose_embedding = model.encode(
         [get_purpose_text_for_embedding(purpose)],
         convert_to_numpy=True,
-        normalize_embeddings=True
+        normalize_embeddings=True,
     )
 
     text_embeddings = model.encode(
         texts,
         convert_to_numpy=True,
-        normalize_embeddings=True
+        normalize_embeddings=True,
     )
 
     scores = cosine_similarity(purpose_embedding, text_embeddings).flatten()
@@ -148,15 +140,25 @@ def save_similarity_txt(pdf_path, result):
 
 
 def main():
-    pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PDF_PATH
-    language = sys.argv[2] if len(sys.argv) > 2 else "pl"
+    pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else THESIS_PATH
+    language = LANGUAGE
 
     if not pdf_path.exists():
         print(f"Błąd: plik nie istnieje: {pdf_path}")
         return
 
-    purpose = get_purpose(pdf_path, language)
-    summaries = summarize_subtitles(pdf_path, language=language)
+    raw_doc = extractPDF_llm(str(pdf_path.resolve()))
+
+    if raw_doc is None:
+        print("Błąd: extractPDF_llm zwróciło None.")
+        return
+
+    plain_text = get_plain_text(pdf_path)
+
+    subtitles = extract_subtitles_from_pdf(raw_doc)
+    purpose = get_purpose(plain_text, LANGUAGE)
+    summaries = summarize_subtitles(raw_doc, subtitles, LANGUAGE)
+
     result = compute_similarity_for_summaries(purpose, summaries)
     output_path = save_similarity_txt(pdf_path, result)
 

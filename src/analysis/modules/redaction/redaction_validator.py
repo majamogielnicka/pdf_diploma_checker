@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import List
 import json
 import logging
+import re
 
 @dataclass
 class Configuration:
@@ -112,75 +113,20 @@ class RedactionValidator:
         #--------------------basic redaction check
         if basic_redaction_check:
             self.check_blank_page()
+            self.check_footers()
+            self.check_toc()
+
 
         #--------------------advanced redaction check
         if advanced_redaction_check:
             self.check_orphans()
-            #self.check_widows()
-            #self.check_bekarts()
-            #self.check_szewce()
+            self.check_widows()
+            self.check_bekarts()
+            self.check_szewce()
             #self.check_korytarze()
-            self.check_from_converter()
 
-        '''
-        if not is_toc:
-            error = Error(
-                id = self._get_next_id(),
-                module=self.module,
-                category = "TOC_lack",
-                page_number = 1,
-                bounding_box = (self.document_data.pages[0].width - 60, 10, self.document_data.pages[0].width - 10, 60), 
-                text = None,
-                comments = f"Wykryto brak spisu treści."
-            )
-            errors.append(error)
-        else:
-            for entry in wrong_toc_entries:
-                error = Error(
-                    id = self._get_next_id(),
-                    module = self.module,
-                    category = "TOC_mismatch",
-                    page_number = entry.page,
-                    bounding_box = entry.bbox,
-                    text = entry.title,
-                    comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
-                )
-                errors.append(error) 
+        self.replace_global_errors()
 
-        page_1_footer_bbox, lack_of_footers = self.check_footers()
-        if page_1_footer_bbox:
-            error = Error(
-                id = self._get_next_id(),
-                module = self.module,
-                category = "Footer_on_1st_page",
-                page_number = 1,
-                bounding_box = page_1_footer_bbox, 
-                text = "1",
-                comments = "Wykryto numerację na pierwszej stronie, która nie powinna się tam znaleźć."
-            )
-            errors.append(error) 
-
-        for number in lack_of_footers:
-            error = Error(
-                id = self._get_next_id(),
-                module = self.module,
-                category = "No_footer",
-                page_number = number,
-                bounding_box = (self.document_data.pages[number - 1].width/2 - 20, 
-                                self.document_data.pages[number - 1].height - 40, 
-                                self.document_data.pages[number - 1].width/2 + 20, 
-                                self.document_data.pages[number - 1].height - 10),
-                text = None,
-                comments = f"Wykryto brak numeracji lub niepoprawną numerację na stronie {number}"
-            )
-            errors.append(error)
-
-
-
-
-        converter_errors = self.check_from_converter()
-        errors.extend(converter_errors)
-        '''
         return self.errors
     
     def last_errors_to_json(self):
@@ -189,6 +135,24 @@ class RedactionValidator:
     def last_errors_to_file(self, path):
         with open(path, 'w', encoding='utf-8') as f:
             f.write(self.last_errors_to_json())
+
+    def replace_global_errors(self):
+        # Funkcja zapobiegawcza - zapobiega wizualnemu nakładaniu się błędów
+        for page in self.document_data.pages:
+            errors_on_page = []
+            for error in self.errors:
+                if error.bounding_box == (0,0,0,0):
+                    if error.page_number == page.number or (page.number ==1 and error.page_number is None):
+                        errors_on_page.append(error)
+
+            num_errors = len(errors_on_page)
+            if num_errors > 0:
+                slot_width = page.width/num_errors
+
+                for i, error in enumerate(errors_on_page):
+                    new_x1 = i*slot_width + 5
+                    new_x2 = (i+1)*slot_width-5
+                    error.bounding_box = (round(new_x1, 2), 5, round(new_x2, 2), 45)
 
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
@@ -281,48 +245,22 @@ class RedactionValidator:
                     page_number = page.number,
                     bounding_box = (0,0,0,0),
                     text = "",
-                    comments = "Pusta strona"
+                    comments = "Wykryto pustą stronę"
                 ))
 
         return blank_pages
-    
-    # Funkcja sprawdzająca błędy zapisane jako flagi przez converter_linguistics
-    def check_from_converter(self):
-        converter_errors = []
+
+    def check_widows(self):
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":    
                 # Flaga: wdowy
                 widow_which =  getattr(block, "is_widow", 0)
                 if widow_which > 0:    
-                    error = self.handle_widow(block, widow_which)
+                    error = self._handle_widow(block, widow_which)
                     if error:
-                        converter_errors.append(error)
                         self.errors.append(error)
-                # Flaga: bękarty
-                bekart_which = getattr(block, "is_bekart", 0)
-                if bekart_which != 0:
-                    error = self.handle_bekart(block, bekart_which)
-                    if error:
-                        converter_errors.append(error)
-                        self.errors.append(error)
-
-                # Flaga: szewce
-                szewc_which = getattr(block, "is_szewc", 0)
-                if szewc_which != 0:
-                    error = self.handle_szewc(block, szewc_which)
-                    if error:
-                        converter_errors.append(error)
-                        self.errors.append(error)
-
-
-
-        return converter_errors
-
-    def check_widows(self):
-        #TODO: przeniesc tu sprawdzanie wdów (musimy mieć opcje żeby nie robić zaawansowanej redakcji do trybu szybkiego)
-        pass
-
-    def handle_widow(self, block, widow_which):
+                
+    def _handle_widow(self, block, widow_which):
         if not block.words:
             return
 
@@ -348,10 +286,17 @@ class RedactionValidator:
         )
     
     def check_bekarts(self):
-        #TODO: to samo co wyżej
-        pass
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "type", "") == "paragraph":
+                # Flaga: bękarty
+                bekart_which = getattr(block, "is_bekart", 0)
+                if bekart_which != 0:
+                    error = self._handle_bekart(block, bekart_which)
+                    if error:
+                        self.errors.append(error)
 
-    def handle_bekart(self, block, bekart_which):
+
+    def _handle_bekart(self, block, bekart_which):
         if not block.words:
             return
 
@@ -377,10 +322,16 @@ class RedactionValidator:
         )
     
     def check_szewce(self):
-        #TODO: to samo co wyżej
-        pass
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "type", "") == "paragraph":
+                # Flaga: szewce
+                szewc_which = getattr(block, "is_szewc", 0)
+                if szewc_which != 0:
+                    error = self._handle_szewc(block, szewc_which)
+                    if error:
+                        self.errors.append(error)
 
-    def handle_szewc(self, block, szewc_which):
+    def _handle_szewc(self, block, szewc_which):
         if not block.words:
             return
 
@@ -402,7 +353,7 @@ class RedactionValidator:
             page_number=first_word.page_number - 1,
             bounding_box=bekart_bbox, 
             text=found_text,
-            comments="Wykryto szewc"
+            comments="Wykryto szewca"
         )
     
     def check_toc(self):
@@ -410,8 +361,36 @@ class RedactionValidator:
         is_toc = True
 
         if self.document_data.toc == None:
+            error = Error(
+                id = self._get_next_id(),
+                module=self.module,
+                category = "lack_of_TOC",
+                page_number = 1,
+                bounding_box = (0,0,0,0), 
+                text = None,
+                comments = f"Wykryto brak spisu treści."
+            )
+            self.errors.append(error)
             is_toc = False
             return None, is_toc
+
+        if is_toc:
+            is_ftr_error = False
+            for error in self.errors:
+                if error.category == "No_footer":
+                    is_ftr_error = True
+            if is_ftr_error:
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "TOC_invalid",
+                    page_number = 1,
+                    bounding_box = (0,0,0,0), 
+                    text = None,
+                    comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści."
+                ))
+                return wrong_entries, is_toc
+
 
         for entry in self.document_data.toc.entries:
             expected_page = entry.page
@@ -433,13 +412,20 @@ class RedactionValidator:
                         break
                 
             if not correct_page:
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "TOC_mismatch",
+                    page_number = entry.src_page,
+                    bounding_box = entry.bbox,
+                    text = entry.title,
+                    comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                ))
                 wrong_entries.append(entry)
-                    
-            return wrong_entries, is_toc
+
+        return wrong_entries, is_toc
         
     def check_footers(self):
-        lack_of_footers = []
-        page_1_footer_bbox = None
 
         for page in self.document_data.pages:
             footer_block = None
@@ -447,14 +433,49 @@ class RedactionValidator:
             for block in page.text_blocks:
                 if block.block_type == "footer":
                     footer_block = block
-            if page.number == 1:
+                    
+            if page.number == 1 or page.number == 0:
                 if footer_block:
-                    page_1_footer_bbox = footer_block.bbox
+                    self.errors.append(Error(
+                        id = self._get_next_id(),
+                        module = self.module,
+                        category = "Footer_on_1st_page",
+                        page_number = 1,
+                        bounding_box = footer_block.bbox, 
+                        text = "1",
+                        comments = "Wykryto numerację na stronie, która nie powinna się tam znaleźć."
+                    ))
             else: 
-                if not footer_block:
-                    lack_of_footers.append(page.number)
+                if footer_block is None:
+                    self.errors.append(Error(
+                        id = self._get_next_id(),
+                        module = self.module,
+                        category = "No_footer",
+                        page_number = page.number,
+                        bounding_box = (self.document_data.pages[page.number].width/2 - 20, 
+                                        self.document_data.pages[page.number].height - 60, 
+                                        self.document_data.pages[page.number].width/2 + 20, 
+                                        self.document_data.pages[page.number].height - 30),
+                        text = None,
+                        comments = f"Wykryto brak numeracji na stronie {page.number}"   
+                    ))                 
+                else:
+                    raw_text = " ".join([" ".join([s.text for s in l.spans]) for l in footer_block.lines])
+                    match = re.search(r"(\d+)", raw_text)
 
-        return page_1_footer_bbox, lack_of_footers
+                    if match:
+                        detected_num = int(match.group(1))
+                        if detected_num != page.number:
+                            self.errors.append(Error(
+                                id=self._get_next_id(),
+                                module=self.module,
+                                category="Wrong_page_number",
+                                page_number=page.number,
+                                bounding_box=footer_block.bbox,
+                                text=raw_text,
+                                comments=f"Błędny numer strony. Wykryto: {detected_num}, oczekiwano: {page.number}."
+                            ))
+        return None
     
     #------------------config checks-----------------------
     #funckje w tym bloku zwracają True jeśli wszystko ok, False jeśli wykryto błąd
@@ -498,7 +519,7 @@ class RedactionValidator:
                 page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
-                comments = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.min_stron}."
+                comments = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.max_stron}."
             ))
             return False
         else:

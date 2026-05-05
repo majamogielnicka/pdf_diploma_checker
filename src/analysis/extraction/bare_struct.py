@@ -57,10 +57,11 @@ class TocEntry:
     title: str
     page: int
     bbox: tuple
+    src_page: int #Strona na ktorej znajduje sie czesc spisu tresci z odnosnikiem do tego naglowka
 
 @dataclass
 class TocData:
-    page_num: int
+    page_nums: List[int]
     entries: List[TocEntry]
     text: str
 
@@ -116,7 +117,7 @@ class DocumentData:
             print(f"blad zapisu do pliku json: {e}")
 
     def get_page_count(self) -> int:
-        return len(self.pages)
+        return len(self.pages) - 1 # -1, jako że strona tytułowa ma się nie zaliczać do licznika stron.
     
     #zwraca słownik z nazwami czcionek i ich ilością wystąpień
     def get_font_usage(self) -> Dict[str, int]: 
@@ -138,6 +139,20 @@ class DocumentData:
                         font_usage[span.size] = font_usage.get(span.size, 0) + 1
         return font_usage
     
+    def get_most_common_font(self) -> str | None:
+        font_usage = self.get_font_usage()
+        if not font_usage:
+            return None
+        most_common_font = max(font_usage, key=font_usage.get)
+        return most_common_font
+
+    def get_most_common_font_size(self) -> float | None:
+        font_size_usage = self.get_font_size_usage()
+        if not font_size_usage:
+            return None
+        most_common_font_size = max(font_size_usage, key=font_size_usage.get)
+        return most_common_font_size
+
     def get_margins(self) -> Dict[str, float]:
         margins = {}
         for page in self.pages:

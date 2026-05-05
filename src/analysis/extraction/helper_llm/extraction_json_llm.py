@@ -504,7 +504,7 @@ def extract_vector_graphics(page: fitz.Page, drawings: list, page_index: int, ta
 
     return priority_side
 
-def extractPDF(file_path: str) -> DocumentData:
+def extractPDF_llm(file_path: str) -> DocumentData:
     current_span_id = 0
     if not os.path.exists(file_path):
         #TODO:tutaj jakis wyjatek

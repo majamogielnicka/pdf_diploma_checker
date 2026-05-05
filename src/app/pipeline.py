@@ -53,7 +53,7 @@ class AnalysisPipeline:
 
         def task_llm():
             if not use_llm:
-                return None, "Tryb Szybki."
+                return None, None, "Tryb Szybki."
             
             try:
                 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
@@ -63,6 +63,8 @@ class AnalysisPipeline:
                 from analysis.modules.llm.get_summary import get_summaries
                 from analysis.modules.llm.get_subtitles import get_subtitles
                 from run_sota import get_final_sota_report
+                from analysis.modules.llm.get_content import get_content
+                from analysis.modules.llm.config import THESIS_PATH, LANGUAGE
 
                 plain_txt_purpose = get_plain_text(pdf_path)
                 txt_for_llm = extractPDF_llm(pdf_path)
@@ -73,10 +75,10 @@ class AnalysisPipeline:
                 summaries = get_summaries(subtitles, language)
 
                 score = get_content_grade(purpose, summaries)
-                print(score)
+                print("[PIPELINE] Score content_grade:", score)
                 
-                s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(pdf_path)
-                
+                extracted_blocks = get_content(pdf_path)
+                s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
                 result = {
                     "id": s_id,
                     "tytul": s_title,
@@ -85,12 +87,15 @@ class AnalysisPipeline:
                     "cytowania": s_cites,
                     "r1": r1,
                     "r2": r2,
-                    "r3": r3
+                    "r3": r3,
+                    "content_grade": score
                 }
-                return result, f"Analiza SOTA wykonana (Wynik: {s_score}%)."
+                
+                return result, score, f"Analiza SOTA wykonana (Wynik: {s_score}%)."
+            
             except Exception as e:
-                print(f"[PIPELINE] Błąd skryptu SOTA: {e}")
-                return None, "Błąd analizy SOTA."
+                print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
+                return None, None, "Błąd analizy SOTA/LLM."
 
         def task_linguistics():
             try:
@@ -148,11 +153,11 @@ class AnalysisPipeline:
             redaction_errors = future_redaction.result()
 
             if use_llm:
-                llm_result, llm_summary_text = future_llm.result()
+                llm_result, content_grade_result, llm_summary_text = future_llm.result()
             else:
                 llm_result = None
-                llm_summary_text = "Analiza LLM została pomienieta."
-
+                content_grade_result = None
+                llm_summary_text = "Analiza LLM została pominięta."
         report_progress(100, "Generowanie raportu końcowego...")
         
         wszystkie_bledy = ling_matches + redaction_errors
