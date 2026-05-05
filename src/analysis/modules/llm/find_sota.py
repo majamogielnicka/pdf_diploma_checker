@@ -1,65 +1,17 @@
 import json
-from get_content import get_content
 from extract_citations import extract_citations
 from evaluate_sota import get_llm
 
-PROMPT_EVALUATE_PL = """Jesteś ekspertem analizującym strukturę prac naukowych. 
-Twoim zadaniem jest ocenić, czy podany rozdział stanowi SOTA (State of the Art / Przegląd literatury / Stan obecny).
+PROMPT_EVALUATE_PL = """Jesteś ekspertem analizującym strukturę prac naukowych... [treść promptu]"""
+PROMPT_EVALUATE_EN = """You are an expert analyzing the structure of academic papers... [treść promptu]"""
 
-Rozdział SOTA charakteryzuje się:
-1. Odwołaniami do literatury przedmiotu i innych badań (np. [1], [2], nazwiska autorów).
-2. Analizą i porównaniem istniejących na rynku lub w nauce rozwiązań, metod lub technologii.
-3. Wskazywaniem luk w obecnej wiedzy lub opisywaniem historii problemu.
-4. Jest to CIĄGŁY TEKST (narracja), a nie lista punktów, spis nagłówków czy bibliografia.
-
-CZEGO UNIKAĆ (To NIE JEST SOTA):
-- Rozdziały techniczne i organizacyjne (np. opis struktury pracy, podział ról w zespole, instrukcje obsługi, opis działania stworzonej aplikacji).
-- Słowniki pojęć, wykazy skrótów, spisy tabel.
-- Zwykłe wymienianie bibliografii bez narracji.
-
-Tytuł ocenianego rozdziału: {title}
-Fragment treści: {content}
-
-Zwróć wynik WYŁĄCZNIE w formacie JSON o następującej strukturze:
-{{
-  "czy_sota": true lub false,
-  "pewnosc_procentowa": liczba całkowita od 0 do 100,
-  "uzasadnienie": "Krótkie, jednozdaniowe uzasadnienie decyzji"
-}}
-"""
-
-PROMPT_EVALUATE_EN = """You are an expert analyzing the structure of academic papers.
-Your task is to evaluate whether the provided chapter represents the SOTA (State of the Art / Literature Review / Current State).
-
-A SOTA chapter is characterized by:
-1. References to literature and other research (e.g., [1], [2], authors' names).
-2. Analysis and comparison of existing solutions, methods, or technologies in the market or science.
-3. Pointing out gaps in current knowledge or describing the history of the problem.
-4. It is CONTINUOUS TEXT (narrative), not a bulleted list, table of contents, or bibliography.
-
-WHAT TO AVOID (This is NOT SOTA):
-- Technical and organizational chapters (e.g., description of thesis structure, division of roles, user manuals, application description).
-- Glossaries, list of abbreviations, list of tables.
-- Mere listing of bibliography without narrative.
-
-Title of the evaluated chapter: {title}
-Content snippet: {content}
-
-Return the result EXCLUSIVELY in JSON format with the following structure:
-{{
-  "czy_sota": true or false,
-  "pewnosc_procentowa": integer from 0 to 100,
-  "uzasadnienie": "Short, one-sentence justification for the decision"
-}}
-"""
-
-def get_sota_chapter(path: str, language: str = "pl"):
+# ZMIANA: Funkcja przyjmuje gotowe bloki tekstu
+def get_sota_chapter(blocks: list, language: str = "pl"):
     """
-    Skanuje pracę i zwraca tuple: (id, tytul, metoda_wyboru, liczba_cytowan).
+    Skanuje przekazane bloki i zwraca tuple: (id, tytul, metoda_wyboru, liczba_cytowan, WYEKSTRAKTOWANY_TEKST).
     """
-    blocks = get_content(path)
     if not blocks:
-        return None, None, "Brak tekstu", 0
+        return None, None, "Brak tekstu", 0, ""
 
     if language == "pl":
         BLACKLIST = ["spis treści", "bibliografia", "spis rysunków", "spis tabel", "streszczenie", "abstract", "lista skrótów", "załącznik", "literatura", "indeks", "opis dyplomu", "oświadczenie", "opis pracy", "cel pracy", "wstęp", "zakończenie", "podsumowanie"]
@@ -124,6 +76,7 @@ def get_sota_chapter(path: str, language: str = "pl"):
 
     if sota_chapter:
         unique_citations = len(set(extract_citations(sota_chapter.content)))
-        return str(sota_chapter.id), str(sota_chapter.title or "Bez tytułu"), metoda, unique_citations
+        # ZMIANA: Zwracamy dodatkowo zawartość tekstową rozdziału (sota_chapter.content)
+        return str(sota_chapter.id), str(sota_chapter.title or "Bez tytułu"), metoda, unique_citations, sota_chapter.content
     
-    return None, None, "Nie znaleziono", 0
+    return None, None, "Nie znaleziono", 0, ""

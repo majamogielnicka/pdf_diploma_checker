@@ -45,6 +45,8 @@ class AnalysisPipeline:
         from analysis.modules.llm.get_purpose import get_purpose
         from analysis.modules.llm.get_summary import get_summaries
         from analysis.modules.llm.get_subtitles import get_subtitles
+        from analysis.modules.llm.get_content import get_content
+        from analysis.modules.llm.config import THESIS_PATH, LANGUAGE
 
         doc_obj = extractPDF(pdf_path)
 
@@ -73,7 +75,8 @@ class AnalysisPipeline:
                 score = get_content_grade(purpose, summaries)
                 print(score)
                 
-                s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(pdf_path)
+                extracted_blocks = get_content(pdf_path)
+                s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
                 
                 llm_result = {
                     "id": s_id,
