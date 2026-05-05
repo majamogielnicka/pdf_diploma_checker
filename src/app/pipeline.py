@@ -77,6 +77,7 @@ class AnalysisPipeline:
                 
                 extracted_blocks = get_content(pdf_path)
                 s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
+                
                 score = get_overall_grade(purpose_g, content_g, s_score) 
                 result = {
                     "id": s_id,
