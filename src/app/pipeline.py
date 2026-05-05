@@ -17,6 +17,7 @@ from service import ExtractionService
 from linguistics_service import LinguisticsService
 from models import FinalReport, ModuleResult
 
+
 class AnalysisPipeline:
     def __init__(self):
         self.extraction_service = ExtractionService()
@@ -77,7 +78,7 @@ class AnalysisPipeline:
                 
                 extracted_blocks = get_content(pdf_path)
                 s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
-                
+
                 score = get_overall_grade(purpose_g, content_g, s_score) 
                 result = {
                     "id": s_id,
@@ -98,6 +99,8 @@ class AnalysisPipeline:
 
         def task_linguistics():
             try:
+                from analysis.extraction.extraction_json import extractPDF
+                from analysis.extraction.converter_linguistics import PDFMapper
                 import importlib.util
                 ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
                 spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
