@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 PROJECT_ROOT = BASE_DIR.parents[4]
 SRC_DIR = PROJECT_ROOT / "src"
-DATA_DIR = PROJECT_ROOT / "data" / "most_important"
+DATA_DIR = PROJECT_ROOT / "data" / "llm_mock"
 
 TODAY = datetime.now().strftime("%Y-%m-%d")
 RESULTS_DIR = PROJECT_ROOT / "wyniki" / f"test_{TODAY}"
