@@ -5,8 +5,9 @@ import datetime
 class saving_files:
     def __init__(self, index_path=None):
         if index_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            self.index_path = os.path.join(base_dir, "config", "index.json")
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(os.path.dirname(base_dir))
+            self.index_path = os.path.join(project_root, "data", "config", "index.json")
         else:
             self.index_path = index_path
         
@@ -75,4 +76,17 @@ class saving_files:
         for p in self.data["prace"]:
             if p['sciezka_lokalna'] == sciezka:
                 return p.get("komentarze", [])
+        return []
+
+    def zapisz_bledy(self, sciezka, bledy):
+        for p in self.data["prace"]:
+            if p['sciezka_lokalna'] == sciezka:
+                p["bledy_analizy"] = bledy
+                self._save_to_disk(self.data)
+                return
+
+    def pobierz_bledy(self, sciezka):
+        for p in self.data["prace"]:
+            if p['sciezka_lokalna'] == sciezka:
+                return p.get("bledy_analizy", [])
         return []

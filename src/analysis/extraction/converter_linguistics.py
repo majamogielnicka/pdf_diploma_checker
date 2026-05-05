@@ -14,7 +14,7 @@ from src.analysis.extraction.schema import (
     classify_block_content, strip_list_marker
 )
 from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
-from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description 
+from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
 # Klasa mapowania danych do formatu odpowiedniego dla lingwistyki
 class PDFMapper:
     
@@ -72,8 +72,6 @@ class PDFMapper:
     def empty_paragraph_buffer(logical_blocks, paragraph_buffer, debug_why_empty = ""):
         if not paragraph_buffer:
             return
-
-        import re
         
         # Detekcja akronimów:
         is_acronym_block = False
@@ -149,72 +147,7 @@ class PDFMapper:
             combined_content += separator + content
             current_offset = len(combined_content)
 
-            # Detekcja wdów (maksymalnie 2 samotne słowa na końcu akapitu)
-            last_word = data['words'][-1]
-            if combined_words and len(combined_words) >= 10:
-                last_word = combined_words[-1]
-                second_to_last_word = combined_words[-2] 
-                word_text = getattr(last_word, 'text', str(last_word))
-                if (last_word.page_number < 8 and last_word.page_number > 2):
-                    continue 
-                elif word_text.count(' ') <= 1:
-                    if last_word.line != second_to_last_word.line:
-                        is_widow = 1
-                    elif len(combined_words) >= 3:
-                        third_to_last_word = combined_words[-3]
-                        if second_to_last_word.line != third_to_last_word.line:
-                            is_widow = 2
-
-            # Detekcja bękartów
-            if combined_words:
-                first_page = combined_words[0].page_number
-                first_line = combined_words[0].line
-                page_lines_buf = 1  
-                has_page_break = False  
-                words_line_buf = 1
             
-                for word in combined_words:
-                    if word.page_number != first_page:
-                        first_page = word.page_number
-                        first_line = word.line
-                        page_lines_buf = 1  
-                        has_page_break = True  
-                        words_line_buf = 1           
-                    elif word.line != first_line:
-                        first_line = word.line
-                        page_lines_buf += 1
-                        words_line_buf = 1
-                    else:
-                        words_line_buf += 1
-            
-                if has_page_break and page_lines_buf <= 2:
-                    is_bekart = words_line_buf
-                else:
-                    is_bekart = 0
-
-            # Detekcja szewców
-            is_szewc = 0
-            if combined_words:
-                first_page = combined_words[0].page_number
-                first_line = combined_words[0].line
-                page_lines_buf = 1  
-                has_page_break = False  
-                words_first_line_buf = 1 
-                
-                for word in combined_words[1:]:
-                    if word.page_number != first_page:
-                        has_page_break = True
-                        break 
-                        
-                    elif word.line != first_line:
-                        first_line = word.line
-                        page_lines_buf += 1
-                        
-                    elif page_lines_buf == 1:
-                        words_first_line_buf += 1
-
-                if has_page_break and page_lines_buf == 1:
-                    is_szewc = words_first_line_buf
 
 
         block_type = "acronyms" if is_acronym_block else "paragraph"
@@ -225,21 +158,17 @@ class PDFMapper:
             elif PDFMapper.is_keywords(combined_words):
                 block_type = "keywords"
 
-        # Przypisanie wdowy tylko do bloku typu paragraf
-        if block_type == "paragraph" and is_widow != 0:
-            is_widow = is_widow
+        # Przypisanie wdowy, szewca i bękarta tylko do bloku typu paragraf
+        if block_type == "paragraph" and is_widow_func(combined_words) != 0:
+            is_widow = is_widow_func(combined_words)
         else:
             is_widow = 0
-
-        # Przypisanie bękarta tylko do bloku typu paragraf
-        if block_type == "paragraph" and is_bekart != 0:
-            is_bekart = is_bekart
+        if block_type == "paragraph" and is_bekart_func(combined_words) != 0:
+            is_bekart = is_bekart_func(combined_words)
         else:
             is_bekart = 0
-
-        # Przypisanie szewca tylko do bloku typu paragraf
-        if block_type == "paragraph" and is_szewc != 0:
-            is_szewc = is_szewc
+        if block_type == "paragraph" and is_szewc_func(combined_words) != 0:
+            is_szewc = is_szewc_func(combined_words)
         else:
             is_szewc = 0
 
@@ -326,7 +255,7 @@ class PDFMapper:
 
         for page in old_doc.pages:
             top_thresh = 50
-            bottom_thresh = page.height - 50
+            bottom_thresh = page.height - 75
 
             page_table_descs = {t.description for t in page.tables if t.description}
             page_img_descs = {img.description for img in page.images if img.description}

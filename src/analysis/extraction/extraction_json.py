@@ -995,7 +995,7 @@ def extractPDF(file_path: str) -> DocumentData:
         blank_page = True
 
         cur_page = PageData(
-            number=page_index + 1,
+            number=page_index, # + 1 zostało usunięte, jako że strona tytułowa nie powinna być wliczana do numeracji
             width=p_width,
             height=p_height,
             margins=calculate_margins(raw_dict["blocks"], p_width, p_height),
@@ -1072,6 +1072,9 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
         if x[5] == raw_block["number"]:
             block_words.append(x)
 
+    #Lista użytych słów, żeby nie powielać słowa
+    used_words = set()
+
     for raw_line in raw_block["lines"]:
         spans = []
         max_font_size = 0.0 #Do znalezienia słowa o największej czcionce w linijce.
@@ -1087,10 +1090,26 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
                 max_font_size = raw_span["size"]
 
             for x in block_words:
+                if x in used_words:
+                    continue
+
+                #Zmienne przydatne do łatki na ucinanie słów przy nawiasach, cudzysłowach, itp.    
+                word_text = x[4]
+                m_left = 0.2
+                m_right = 0.2
+                punctuation = ('(', ')', '[', ']', '{', '}', '"', "'", '”', '„', '.', ',', ':', ';', '?', '!', '-')
+
+                if word_text and word_text[0] in punctuation:
+                    m_left = 15.0
+                    
+                if word_text and word_text[-1] in punctuation:
+                    m_right = 15.0
                 #Sprawdzanie czy dane słowo należy do spanu z małym marginesem błędu (0.2), w razie
                 #problemów można zwiększyć
-                if (x[0] >= s_bbox[0] - 0.2 and x[1]>= s_bbox[1]-0.2 and x[2]<=s_bbox[2]+0.2 and x[3]<=s_bbox[3]+0.2):
+                #Dodatkowo, jeśli słowo zaczyna się lub kończy interpunkcją, to zwiększamy margines, żeby zapobiec ucinaniu słów przy nawiasach, cudzysłowach, itp.
+                if (x[0] >= s_bbox[0] - m_left and x[1] >= s_bbox[1] - 1.0 and x[2] <= s_bbox[2] + m_right and x[3] <= s_bbox[3] + 1.0):
                     span_words.append(x)
+                    used_words.add(x)
 
             #obsluga flag
             flags = raw_span["flags"]
@@ -1182,7 +1201,7 @@ def dominant_spacing(doc: fitz.Document) ->float:
     for page in doc:
         blocks = page.get_text("dict")
 
-def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: float = 0.88) -> bool:
+def is_footer(raw_block: dict, page_height: float, page_num: int) -> bool:
     bbox = raw_block["bbox"]
 
     if bbox[1]<(page_height)*0.88:
@@ -1193,14 +1212,16 @@ def is_footer(raw_block: dict, page_height: float, page_num: int, threshold: flo
         for span in line.get("spans", []):
             text_content+= span.get("text","")
     
-    clean_text = text_content.lower().strip()#zmieniamy na male litery
+    clean_text = text_content.lower().strip()
     patterns = [
-        rf"^{page_num}$",
-        rf"strona\s+{page_num}$",
-        rf"str\.\s*{page_num}$",
-        rf"^{page_num}\s*/\s*\d+$",
-        rf"^{page_num}\s+z\s+\d+$",
-    ]
+        r"^\d+$",                        
+        r"strona\s+\d+",                 #strona x
+        r"str\.\s*\d+",                  #str. x
+        r"^\d+\s*/\s*\d+$",              #"X / y
+        r"^\d+\s+z\s+\d+$",              #x z y
+        r"page\s+\d+",                   #page x
+        rf".*?\b{page_num}\b.*?"]
+    
     for p in patterns:
         if re.search(p,clean_text):
             return True
@@ -1212,25 +1233,13 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
     Funkcja do ekstrakcji spisu treści. 
     Zwraca obiekt TocData jeśli znaleziono spis, w przeciwnym razie None.
     """
-    built_in_toc = doc.get_toc()
-    if built_in_toc:
-        entries = []
-        for lvl, ttl, page_num in built_in_toc:
-            entries.append(TocEntry(
-                level=lvl,
-                title=ttl.strip(),
-                page=page_num,
-                bbox=(0, 0, 0, 0)  
-            ))
-        return TocData(page_num=-1,entries=entries, text="Wykryto z metadanych"
-        )
 
     keywords = [
         "spis treści", "spis tresci", 
         "table of contents", "contents", "toc"
     ]
     all_entries = []
-    first_page = None
+    toc_pages = []
     toc_started = False
     full_toc_text = ""
     base_x = None
@@ -1267,7 +1276,8 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
                         level=final_level, 
                         title=title_clean,
                         page=int(p_num),
-                        bbox=line.bbox
+                        bbox=line.bbox,
+                        src_page = page_obj.number
                     ))
 
         has_keyword = any(word in page_text.lower() for word in keywords)
@@ -1275,20 +1285,34 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
         if not toc_started:
             if has_keyword and len(page_entries) >= 2 or len(page_entries) >= 5:
                 toc_started = True
-                first_page = page_obj.number
                 all_entries.extend(page_entries)
                 full_toc_text = page_text[:500]
         else:
             if len(page_entries) >= 1:
+                toc_pages.append(page_obj.number)
                 all_entries.extend(page_entries)
             else:
                 break
                 
     if all_entries:
         return TocData(
-            page_num=first_page,
+            page_nums=toc_pages,
             entries=all_entries,
             text=full_toc_text
         )
-        
+
+    built_in_toc = doc.get_toc()
+    if built_in_toc:
+        entries = []
+        for lvl, ttl, page_num in built_in_toc:
+            entries.append(TocEntry(
+                level=lvl,
+                title=ttl.strip(),
+                page=page_num,
+                bbox=(0, 0, 0, 0),
+                src_page = 2
+            ))
+        return TocData(page_nums=-1,entries=entries, text="Wykryto z metadanych"
+        )
+     
     return None
