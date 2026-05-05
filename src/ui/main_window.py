@@ -253,9 +253,10 @@ class PDFReader(QMainWindow):
             if hasattr(dialog, 'final_report') and dialog.final_report:
                 bledy = dialog.final_report.get("bledy", [])
                 sota_data = dialog.final_report.get("sota", None)
-        
+
                 self.pdf_view.add_errors(bledy)
                 self.update_sota_panel(sota_data)
+                self.manager.zapisz_bledy(path, bledy)
                 
             self.stack.setCurrentIndex(1)
             print("Analiza zakończona, widok przełączony.")
@@ -300,14 +301,12 @@ class PDFReader(QMainWindow):
             self.load_custom_comments()
 
     def load_template_errors(self):
-        json_path = "errors_output3.json"
-        if not os.path.exists(json_path):
+        if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
             return
             
         try:
-            with open(json_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                bledy = data.get("wykryte_bledy", [])
+            bledy = self.manager.pobierz_bledy(self.current_pdf_path)
+            if bledy:
                 self.pdf_view.add_errors(bledy) 
         except Exception as e:
             print(f"Błąd podczas wczytywania błędów: {e}")
@@ -482,6 +481,30 @@ class PDFReader(QMainWindow):
         l.addWidget(create_badge_row("Ocena istniejących rozwiązań", sota_data.get('r1')))
         l.addWidget(create_badge_row("Wskazanie luki / problemu", sota_data.get('r2')))
         l.addWidget(create_badge_row("Synteza / porównanie metod", sota_data.get('r3')))
+
+        content_grade = sota_data.get('content_grade')
+        if content_grade:
+            sep = QFrame()
+            sep.setFrameShape(QFrame.HLine)
+            sep.setStyleSheet("background-color: #D3D3D3; margin-top: 15px; margin-bottom: 5px;")
+            l.addWidget(sep)
+
+            cg_lbl = QLabel("<b>Ocena realizacji celu</b>")
+            cg_lbl.setStyleSheet("color: #333; font-size: 13px; border: none;")
+            l.addWidget(cg_lbl)
+
+            grade = content_grade.get('grade', 0.0)
+            max_grade = content_grade.get('max_grade', 60.0)
+            p_off = content_grade.get('p_off', 0.0)
+            off_topic = content_grade.get('off_topic_sections', 0)
+
+            wynik_lbl = QLabel(f"Wynik punktowy: <span style='color: #2E7D32;'><b>{grade} / {max_grade}</b></span>")
+            wynik_lbl.setStyleSheet("color: #444; font-size: 13px; border: none;")
+            l.addWidget(wynik_lbl)
+
+            detale_lbl = QLabel(f"Podrozdziały poza tematem: <b>{off_topic}</b> ({p_off}%)")
+            detale_lbl.setStyleSheet("color: #777; font-size: 12px; border: none;")
+            l.addWidget(detale_lbl)
 
         self.right_panel.layout().addWidget(content)
         self.right_panel.layout().addStretch()
