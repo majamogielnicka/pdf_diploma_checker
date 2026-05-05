@@ -72,17 +72,17 @@
             "komentarze": []
         },
         {
-            "nazwa_pliku": "agna.pdf",
-            "sciezka_lokalna": "C:/Users/Dorian/Desktop/FOLDERY/NAUKA/STUDIA/ZSD/pdf_diploma_checker/data/agna.pdf",
+            "nazwa_pliku": "jabi.pdf",
+            "sciezka_lokalna": "D:/ZSD/data/most_important/jabi.pdf",
             "typ": "PDF",
             "data_dodania": "2026-05-04",
             "komentarze": []
         },
         {
-            "nazwa_pliku": "doju1.pdf",
-            "sciezka_lokalna": "C:/Users/Dorian/Desktop/FOLDERY/NAUKA/STUDIA/ZSD/pdf_diploma_checker/data/other/doju1.pdf",
+            "nazwa_pliku": "jago.pdf",
+            "sciezka_lokalna": "D:/ZSD/data/most_important/jago.pdf",
             "typ": "PDF",
-            "data_dodania": "2026-05-04",
+            "data_dodania": "2026-05-05",
             "komentarze": []
         }
     ],
