@@ -74,12 +74,10 @@ class AnalysisPipeline:
                 summaries = get_summaries(subtitles, language)
                 content_g = get_content_grade(purpose, summaries)
                 purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
-
-                score = get_overall_grade(purpose_g, content_g, 0) #zamiast 0 powinno byc sota grade
-                print("WYNIK KOŃCOWY", score, "/100")
                 
                 extracted_blocks = get_content(pdf_path)
                 s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
+                score = get_overall_grade(purpose_g, content_g, s_score) 
                 result = {
                     "id": s_id,
                     "tytul": s_title,
@@ -91,7 +89,6 @@ class AnalysisPipeline:
                     "r3": r3,
                     "content_grade": score
                 }
-                
                 return result, score, f"Analiza SOTA wykonana (Wynik: {s_score}%)."
             
             except Exception as e:
