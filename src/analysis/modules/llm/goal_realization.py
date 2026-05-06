@@ -325,7 +325,6 @@ def get_purpose_grade(text, purpose, language):
     if text is None:
         if not THESIS_PATH.exists():
             return 0
-
         text = get_plain_text(THESIS_PATH)
 
     if purpose is None:
@@ -337,10 +336,17 @@ def get_purpose_grade(text, purpose, language):
         language=language,
     )
 
+    score = result.get("score", 0)
+
     try:
-        return int(result.get("score", 0))
-    except Exception:
+        score = int(score)
+    except (ValueError, TypeError):
         return 0
+
+    if score not in {0, 50, 100}:
+        return 0
+
+    return score
 
 
 if __name__ == "__main__":

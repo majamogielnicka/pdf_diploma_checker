@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-    QPushButton, QFrame, QLineEdit
+    QPushButton, QFrame, QLineEdit, QScrollArea
 )
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QPixmap, QIcon
@@ -156,7 +156,17 @@ class StartPage(QWidget):
         card_layout.addStretch()
 
         content_layout.addWidget(self.docs_card)
-        main_layout.addWidget(self.content_widget)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(self.content_widget)
+        scroll_area.setStyleSheet("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { border: none; background: transparent; width: 10px; margin: 0px; }
+            QScrollBar::handle:vertical { background: #C4C4C4; min-height: 30px; border-radius: 5px; }
+            QScrollBar::handle:vertical:hover { background: #A0A0A0; }
+        """)
+        main_layout.addWidget(scroll_area)
         self.header_frame.raise_()
 
     def on_search(self, text):
