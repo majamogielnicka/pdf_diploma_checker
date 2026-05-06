@@ -7103,6 +7103,687 @@
                     "znaleziony_tekst": "postanowiono przedstawić tylko na poziomie całej Wspólnoty. Osiągnięte wartości zaprezentowano w tabeli nr 8."
                 }
             ]
+        },
+        {
+            "nazwa_pliku": "jost2.pdf",
+            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/other/jost2.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-05-06",
+            "komentarze": [],
+            "bledy_analizy": [
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Używana interlinia (1.1) jest niezgodna z wymaganą interlinią (1.5).",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 112.4,
+                        "x": 5.0,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Dokument ma 28 stron, mniej niż minimalna liczba 40",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 112.4,
+                        "x": 127.4,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Używany rozmiar czcionki (12.0) jest niezgodny z wymaganym rozmiarem czcionki (10).",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 112.39999999999998,
+                        "x": 249.8,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Używana czcionka (TimesNewRomanPS-BoldMT) jest niezgodna z wymaganą czcionką.",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 112.40000000000003,
+                        "x": 372.2,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "Footer_on_1st_page",
+                    "komentarz": "Wykryto numerację na stronie, która nie powinna się tam znaleźć.",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 11.10540771484375,
+                        "w": 275.8188781738281,
+                        "x": 289.7300109863281,
+                        "y": 732.4421997070312
+                    },
+                    "znaleziony_tekst": "1"
+                },
+                {
+                    "kategoria": "No_footer",
+                    "komentarz": "Wykryto brak numeracji na stronie 2",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 30.0,
+                        "w": 40.0,
+                        "x": 286.0,
+                        "y": 732.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 1, oczekiwano: 3.",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "1"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 2, oczekiwano: 4.",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "2"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 3, oczekiwano: 5.",
+                    "strona": 5,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "3"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 4, oczekiwano: 6.",
+                    "strona": 6,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "4"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 5, oczekiwano: 7.",
+                    "strona": 7,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "5"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 6, oczekiwano: 8.",
+                    "strona": 8,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "6"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 7, oczekiwano: 9.",
+                    "strona": 9,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "7"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 8, oczekiwano: 10.",
+                    "strona": 10,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "8"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 9, oczekiwano: 11.",
+                    "strona": 11,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 232.0810317993164,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "9"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 10, oczekiwano: 12.",
+                    "strona": 12,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "10"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 11, oczekiwano: 13.",
+                    "strona": 13,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "11"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 12, oczekiwano: 14.",
+                    "strona": 14,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "12"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 13, oczekiwano: 15.",
+                    "strona": 15,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "13"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 14, oczekiwano: 16.",
+                    "strona": 16,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "14"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 15, oczekiwano: 17.",
+                    "strona": 17,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "15"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 16, oczekiwano: 18.",
+                    "strona": 18,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "16"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 17, oczekiwano: 19.",
+                    "strona": 19,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "17"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 18, oczekiwano: 20.",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "18"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 19, oczekiwano: 21.",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "19"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 20, oczekiwano: 22.",
+                    "strona": 22,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "20"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 21, oczekiwano: 23.",
+                    "strona": 23,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "21"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 22, oczekiwano: 24.",
+                    "strona": 24,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "22"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 23, oczekiwano: 25.",
+                    "strona": 25,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "23"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 24, oczekiwano: 26.",
+                    "strona": 26,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "24"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 25, oczekiwano: 27.",
+                    "strona": 27,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "25"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 26, oczekiwano: 28.",
+                    "strona": 28,
+                    "wspolrzedne": {
+                        "h": 24.50408935546875,
+                        "w": 234.8410415649414,
+                        "x": 70.8239974975586,
+                        "y": 781.8959350585938
+                    },
+                    "znaleziony_tekst": "26"
+                },
+                {
+                    "kategoria": "lack_of_TOC",
+                    "komentarz": "Wykryto brak spisu treści.",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 112.39999999999998,
+                        "x": 494.6,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 12,
+                    "wspolrzedne": {
+                        "h": 13.28399658203125,
+                        "w": 5.3280029296875,
+                        "x": 518.7600708007812,
+                        "y": 452.4580078125
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 13,
+                    "wspolrzedne": {
+                        "h": 13.28399658203125,
+                        "w": 5.3280029296875,
+                        "x": 376.9440002441406,
+                        "y": 268.7179870605469
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 22,
+                    "wspolrzedne": {
+                        "h": 13.28399658203125,
+                        "w": 5.3280029296875,
+                        "x": 519.2260131835938,
+                        "y": 286.9579772949219
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 26,
+                    "wspolrzedne": {
+                        "h": 13.28399658203125,
+                        "w": 5.3280029296875,
+                        "x": 519.2080078125,
+                        "y": 277.7179870605469
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 27,
+                    "wspolrzedne": {
+                        "h": 13.28399658203125,
+                        "w": 5.3280029296875,
+                        "x": 519.1519775390625,
+                        "y": 436.37799072265625
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 28,
+                    "wspolrzedne": {
+                        "h": 13.28399658203125,
+                        "w": 5.3280029296875,
+                        "x": 518.9960327148438,
+                        "y": 690.3280029296875
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 11,
+                    "wspolrzedne": {
+                        "h": 13.280000000000001,
+                        "w": 119.14000000000001,
+                        "x": 70.82,
+                        "y": 195.73
+                    },
+                    "znaleziony_tekst": "specific immunotherapy."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 12,
+                    "wspolrzedne": {
+                        "h": 13.279999999999973,
+                        "w": 60.84,
+                        "x": 70.82,
+                        "y": 547.62
+                    },
+                    "znaleziony_tekst": "respectively."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 19,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 26.170000000000016,
+                        "x": 511.42,
+                        "y": 312.72
+                    },
+                    "znaleziony_tekst": "0.0463"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 75.47,
+                        "x": 58.56,
+                        "y": 301.8
+                    },
+                    "znaleziony_tekst": "neurotrophic factor."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 21.390000000000015,
+                        "x": 145.1,
+                        "y": 419.88
+                    },
+                    "znaleziony_tekst": "13,60"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 92.46000000000001,
+                        "x": 187.73,
+                        "y": 466.94
+                    },
+                    "znaleziony_tekst": "Cytoskeleton-associated"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 16.69999999999999,
+                        "x": 147.5,
+                        "y": 621.41
+                    },
+                    "znaleziony_tekst": "5,18"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 16.69999999999999,
+                        "x": 129.86,
+                        "y": 227.61
+                    },
+                    "znaleziony_tekst": "0,11"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 16.69999999999999,
+                        "x": 129.86,
+                        "y": 267.24
+                    },
+                    "znaleziony_tekst": "0,25"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 16.69999999999999,
+                        "x": 129.86,
+                        "y": 306.96
+                    },
+                    "znaleziony_tekst": "0,52"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 16.69999999999999,
+                        "x": 129.86,
+                        "y": 346.68
+                    },
+                    "znaleziony_tekst": "0,23"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 16.69999999999999,
+                        "x": 129.86,
+                        "y": 386.28
+                    },
+                    "znaleziony_tekst": "0,25"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 96.44,
+                        "x": 160.94,
+                        "y": 504.14
+                    },
+                    "znaleziony_tekst": "Probable ATP-dependent"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 16.69999999999999,
+                        "x": 129.86,
+                        "y": 516.98
+                    },
+                    "znaleziony_tekst": "0,41"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 27,
+                    "wspolrzedne": {
+                        "h": 13.289999999999964,
+                        "w": 63.0,
+                        "x": 106.82,
+                        "y": 737.84
+                    },
+                    "znaleziony_tekst": "2022.884837"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 28,
+                    "wspolrzedne": {
+                        "h": 13.279999999999973,
+                        "w": 60.0,
+                        "x": 106.82,
+                        "y": 722.01
+                    },
+                    "znaleziony_tekst": "2015.07.025"
+                },
+                {
+                    "kategoria": "bekart",
+                    "komentarz": "Wykryto bękarta",
+                    "strona": 8,
+                    "wspolrzedne": {
+                        "h": 10.5,
+                        "w": 386.11,
+                        "x": 58.56,
+                        "y": 89.61
+                    },
+                    "znaleziony_tekst": "glutathione; GPx - glutathione peroxidase; GST - glutathione-S-transferase; MPO - myeloperoxidase."
+                }
+            ]
         }
     ],
     "konfiguracje_regul": []

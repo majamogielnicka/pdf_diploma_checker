@@ -61,16 +61,7 @@ def calculate_embedding_grade(purpose, summaries):
     s_emb = 100.0 - p_off
     grade = 0.60 * s_emb
 
-    return {
-        "grade": round(grade, 2),
-        "max_grade": 60.0,
-        "s_emb": round(s_emb, 2),
-        "threshold": threshold,
-        "total_sections": total_sections,
-        "off_topic_sections": off_topic_sections,
-        "p_off": round(p_off, 2),
-        "items": items,
-    }
+    return round(grade, 2)
 
 
 def get_content_grade(purpose, summaries):
@@ -78,6 +69,10 @@ def get_content_grade(purpose, summaries):
         purpose=purpose,
         summaries=summaries
     )
+
+def get_overall_grade(purpose_grade, embedding_grade, sota_grade):
+    overall_grade = 0.2 * sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade
+    return overall_grade
 
 
 def main():

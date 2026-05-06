@@ -58,7 +58,7 @@ class AnalysisPipeline:
             try:
                 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
                 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
-                from analysis.modules.llm.get_grade import get_content_grade
+                from analysis.modules.llm.get_grade import get_overall_grade, get_content_grade, get_purpose_grade
                 from analysis.modules.llm.get_purpose import get_purpose
                 from analysis.modules.llm.get_summary import get_summaries
                 from analysis.modules.llm.get_subtitles import get_subtitles
@@ -74,24 +74,27 @@ class AnalysisPipeline:
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
-                score = get_content_grade(purpose, summaries)
-                print("[PIPELINE] Score content_grade:", score)
+                content_g = get_content_grade(purpose, summaries)
+                purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
                 
                 extracted_blocks = get_content(pdf_path)
-                s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
+                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
+        
+                score = get_overall_grade(purpose_g, content_g, res_score)
                 result = {
-                    "id": s_id,
-                    "tytul": s_title,
-                    "ocena": s_score,
-                    "podstawa": s_method,
-                    "cytowania": s_cites,
+                    "id": res_id,
+                    "tytul": res_title,
+                    "ocena": res_score,
+                    "podstawa": res_method,
+                    "cytowania": res_cites,
                     "r1": r1,
                     "r2": r2,
                     "r3": r3,
                     "content_grade": score
                 }
                 
-                return result, score, f"Analiza SOTA wykonana (Wynik: {s_score}%)."
+                
+                return result, score
             
             except Exception as e:
                 print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
