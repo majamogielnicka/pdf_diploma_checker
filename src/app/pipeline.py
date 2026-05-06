@@ -73,25 +73,28 @@ class AnalysisPipeline:
                 purpose = get_purpose(plain_txt_purpose, language)
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
+
                 content_g = get_content_grade(purpose, summaries)
                 purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
                 
                 extracted_blocks = get_content(pdf_path)
-                s_id, s_title, s_score, s_method, s_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
-
-                score = get_overall_grade(purpose_g, content_g, s_score) 
+                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
+        
+                score = get_overall_grade(purpose_g, content_g, res_score)
                 result = {
-                    "id": s_id,
-                    "tytul": s_title,
-                    "ocena": s_score,
-                    "podstawa": s_method,
-                    "cytowania": s_cites,
+                    "id": res_id,
+                    "tytul": res_title,
+                    "ocena": res_score,
+                    "podstawa": res_method,
+                    "cytowania": res_cites,
                     "r1": r1,
                     "r2": r2,
                     "r3": r3,
                     "content_grade": score
                 }
-                return result, score, f"Analiza SOTA wykonana (Wynik: {s_score}%)."
+                
+                
+                return result, score
             
             except Exception as e:
                 print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
