@@ -301,7 +301,6 @@ class RedactionValidator:
                     if error:
                         self.errors.append(error)
 
-
     def _handle_bekart(self, block, bekart_which):
         if not block.words:
             return
@@ -395,7 +394,7 @@ class RedactionValidator:
                     text = None,
                     comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści."
                 ))
-                return wrong_entries, is_toc
+                #return wrong_entries, is_toc
 
 
         for entry in self.document_data.toc.entries:
@@ -440,7 +439,7 @@ class RedactionValidator:
                 if block.block_type == "footer":
                     footer_block = block
                     
-            if page.number == 1 or page.number == 0:
+            if page.number == 1:
                 if footer_block:
                     self.errors.append(Error(
                         id = self._get_next_id(),
