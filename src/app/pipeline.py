@@ -17,6 +17,7 @@ from service import ExtractionService
 from linguistics_service import LinguisticsService
 from models import FinalReport, ModuleResult
 
+
 class AnalysisPipeline:
     def __init__(self):
         self.extraction_service = ExtractionService()
@@ -38,8 +39,7 @@ class AnalysisPipeline:
         report_progress(10, "Rozpoczynam ekstrakcję tekstu z PDF...")
         
         from analysis.extraction.extraction_json import extractPDF
-        from analysis.extraction.converter_linguistics import PDFMapper
-        
+
         doc_obj = extractPDF(pdf_path)
         doc_dict = doc_obj._to_dict()
 
@@ -102,6 +102,8 @@ class AnalysisPipeline:
 
         def task_linguistics():
             try:
+                from analysis.extraction.extraction_json import extractPDF
+                from analysis.extraction.converter_linguistics import PDFMapper
                 import importlib.util
                 ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
                 spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
