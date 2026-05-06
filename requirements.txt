@@ -19,6 +19,22 @@ torch==2.9.0
 numpy==2.3.4
 scikit-learn==1.7.2
 
+# Linguistics
+language-tool-python==3.2.2
+spacy==3.8.11
+lingua-language-detector==2.2.0
+morfeusz2==1.99.12
+
+# Spacy models
+# Komendy do ściągnięcia modeli:
+# - en_core_web_lg: python -m spacy download en_core_web_lg
+# - pl_core_news_lg: python -m spacy download pl_core_news_lg
+
+# Java
+# Do uruchomienia programu wymagana jest Java 17+
+# Zainstaluj javę z tego linku: https://adoptium.net/temurin/releases
+# Komenda do sprawdzenia wersji: java -version
+
 # --- External Requirements ---
 # Ollama nie jest wymagana.
 # Projekt korzysta z lokalnego modelu GGUF uruchamianego przez llama-cpp-python.
