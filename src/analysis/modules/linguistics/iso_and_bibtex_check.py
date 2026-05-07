@@ -1,4 +1,4 @@
-from helpers import nlp_en, add_match, get_match_info
+from .helpers import nlp_en, add_match, get_match_info
 import re
 from collections import Counter 
 
@@ -25,7 +25,7 @@ def check_iso(block, matches, item):
     separator = re.compile(r'[;,]')
     text = item.content.strip()
     if not text.endswith('.'):
-        p_start, p_end, word_idx, error_coordinate = get_match_info(block, len(item.content) - 1, 1)
+        p_start, p_end, word_idx, error_coordinate = get_match_info(block, 0, len(item.content))
         matches.append(add_match(text, block.block_id, p_start, p_end, word_idx, error_coordinate, "MISSING_FINAL_DOT", Category_and_message["MISSING_FINAL_DOT"]))
 
     separators = separator.findall(text)
@@ -35,7 +35,7 @@ def check_iso(block, matches, item):
     if dominant_separator != dominant_author_separator:
         item.separator = dominant_separator
     
-    matches.extend(check_order(block, matches, item))
+    check_order(block, matches, item)
 
     return matches
 
@@ -93,6 +93,7 @@ def check_item(block, matches, item):
     if item.journal and not item.pages:
         p_start, p_end, word_idx, error_coordinate = get_match_info(block, 0, len(item.content))
         matches.append(add_match(text, block.block_id, p_start, p_end, word_idx, error_coordinate, "MISSING_JOURNAL", Category_and_message["MISSING_JOURNAL"]))
+    
 
     return matches
 
@@ -101,25 +102,30 @@ def check_coherence_iso(blocks, matches, Bib_context):
     Category_and_message = {
         "SEPARATOR_COHERENCE": "Niespójna forma separatora we wpisach w bibliografii'.",
     }
-    blocks_by_id = {b.block_id: b for b in blocks}
+    blocks_by_id = {}
+    for b in blocks:
+        actual_block = b.block if hasattr(b, 'block') else b
+        block_id = getattr(actual_block, 'block_id', getattr(actual_block, 'item_id', None))
+        if block_id is not None:
+            blocks_by_id[block_id] = actual_block
     separators, author_formats = [], []
     for item in Bib_context.items:
         separators.append(item.separator)
         author_formats.append(item.author_format)
-        block = blocks_by_id.get(item.item.item_id)
-        matches.extend(check_item(block, matches, item))
-        matches.extend(check_iso(block, matches, item))
+        block = blocks_by_id.get(getattr(item.item, 'block_id', getattr(item.item, 'item_id', None)))
+        check_item(block, matches, item)
+        check_iso(block, matches, item)
 
     Bib_context.dominant_separator = Counter(separators).most_common()[0]
     Bib_context.dominant_author_format = Counter(author_formats).most_common()[0]
 
     for item in Bib_context.items:
         if item.separator!=Bib_context.dominant_separator:
-            block = blocks_by_id.get(item.item.item_id)
+            block = blocks_by_id.get(getattr(item.item, 'block_id', getattr(item.item, 'item_id', None)))
             p_start, p_end, word_idx, error_coordinate = get_match_info(block, 0, len(item.content))
             matches.append(add_match(item.content, block.block_id, p_start, p_end, word_idx, error_coordinate, "SEPARATOR_COHERENCE", Category_and_message["SEPARATOR_COHERENCE"]))
         if item.author_format!=Bib_context.dominant_author_format:
-            block = blocks_by_id.get(item.item.item_id)
+            block = blocks_by_id.get(getattr(item.item, 'block_id', getattr(item.item, 'item_id', None)))
             p_start, p_end, word_idx, error_coordinate = get_match_info(block, 0, len(item.content))
             matches.append(add_match(item.content, block.block_id, p_start, p_end, word_idx, error_coordinate, "SEPARATOR_COHERENCE", Category_and_message["SEPARATOR_COHERENCE"]))
     
