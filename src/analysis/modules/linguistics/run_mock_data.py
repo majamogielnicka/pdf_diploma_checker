@@ -10,9 +10,7 @@ from .first_definition import check_first_definition
 from .check_acronym import check_if_was_defined
 from pathlib import PurePath
 from src.analysis.extraction.extraction_json import extractPDF
-from src.analysis.extraction.converter_linguistics import PDFMapper
-from pathlib import Path, PurePath
-import os
+from src.analysis.extraction.converter_linguistics_clean import PDFMapper
 
 def run_linguistics(raw_blocks):
     text_language = 'pl'
@@ -27,15 +25,16 @@ def run_linguistics(raw_blocks):
     list_matches = check_coherence_in_list(blocks, proper_names, acronyms_with_definitions)
     checked_exeptions = check_exeptions(language_matches, blocks, proper_names)
     language_style_matches, sentence_analisys = sentence_check(blocks)
-    matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches
+    matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches 
     return matches
 
 
 if __name__ == "__main__":
-    pdf_file = "data/doju1.pdf"
+    pdf_file = "data/most_important/jago.pdf"
     try:
         document = extractPDF(str(pdf_file))
-        raw_blocks = PDFMapper.map_to_schema(document)
+        mapper = PDFMapper()
+        raw_blocks = mapper.map_to_schema(document)
     except AttributeError as e:
         print(f"Ekstrakcja zakończyła się niepowodzeniem.")
     else:

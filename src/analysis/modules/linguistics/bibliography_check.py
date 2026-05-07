@@ -1,7 +1,7 @@
-from helpers import nlp_en, add_match, get_match_info
+from .helpers import nlp_en, add_match, get_match_info
 import re
 from .iso_and_bibtex_check import check_bibtex, check_coherence_iso
-from .linguistics_types import Bibliography
+from .linguistics_types import Bibliography_context, Bib_item_context
 '''
 Skrypt sprawdzający kompletność bibliografii i sprawdzający jej zgodność z wybranym stylem bibliograficznym: 
 docelowo: (pn-iso 690:2012, APA 7, IEEE, Harvard 4)
@@ -73,9 +73,79 @@ def check_bibliography(blocks, producer):
     #check_quotes
     #check_illiadic
     #check_title
+   
 
-    matches.append(check_coherence_iso(blocks, matches, Bibliography))
-    if re.search(r'latex|tex', producer, re.IGNORECASE):
-        matches.extend(check_bibtex(blocks, Bibliography))
+    bib_context = Bibliography_context(block_id=0) 
+    
+    for block_ctx in blocks:
+        block = block_ctx.block if hasattr(block_ctx, 'block') else block_ctx
+        text = getattr(block, 'full_text', getattr(block, 'content', getattr(block_ctx, 'contents', '')))
+        
+        bib_item = Bib_item_context(
+            content=text,
+            authors=None,
+            date=None,
+            title=None,
+            is_title_italics=False,
+            book_title=None,
+            pages=None,
+            publisher=None,
+            doi=None,
+            volume=None,
+            access_date=None,
+            url=None,
+            online=False,
+            journal=None,
+            issue=None,
+            entry_type=None,
+            other=text,
+            bibtex_type=None,
+            author_format='',
+            separator='',
+            item=block
+        )
+
+        for pattern, fmt in date_patterns.items():
+            match = re.search(pattern, bib_item.other)
+            if match:
+                bib_item.date = match.group(0)
+                bib_item.other = bib_item.other.replace(bib_item.date, '').strip()
+                break
+
+        for pattern, fmt in author_patterns.items():
+            match = re.search(pattern, bib_item.other)
+            if match:
+                bib_item.authors = match.group(0)
+                bib_item.author_format = fmt
+                bib_item.other = bib_item.other.replace(bib_item.authors, '').strip()
+                break
+
+        for pattern, fmt in page_range_patterns.items():
+            match = re.search(pattern, bib_item.other)
+            if match:
+                bib_item.pages = match.group(0)
+                bib_item.other = bib_item.other.replace(bib_item.pages, '').strip()
+                break
+
+        for pattern, fmt in volume_patterns.items():
+            match = re.search(pattern, bib_item.other)
+            if match:
+                bib_item.volume = match.group(0)
+                bib_item.other = bib_item.other.replace(bib_item.volume, '').strip()
+                break
+
+        for pattern, fmt in access_date_pattern.items():
+            match = re.search(pattern, bib_item.other)
+            if match:
+                bib_item.access_date = match.group(0)
+                bib_item.online = True
+                bib_item.other = bib_item.other.replace(bib_item.access_date, '').strip()
+                break
+
+        bib_context.items.append(bib_item)
+
+    matches = check_coherence_iso(blocks, matches, bib_context)
+    if producer and re.search(r'latex|tex', producer, re.IGNORECASE):
+        matches = check_bibtex(blocks, matches, bib_context)
     
     return matches
