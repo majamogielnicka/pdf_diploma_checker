@@ -3,7 +3,6 @@ import re
 from typing import Dict, Any, List
 from llama_cpp import Llama
 
-# IMPORT Z CONFIGU
 from config import MODEL_PATH
 
 CHUNK_SIZE = 2500 
@@ -15,7 +14,7 @@ def get_llm():
     global _llm_instance
     if _llm_instance is None:
         _llm_instance = Llama(
-            model_path=str(MODEL_PATH), # Rzutowanie na string z obiektu Path
+            model_path=str(MODEL_PATH),
             n_ctx=4096,
             n_gpu_layers=-1,
             verbose=False
@@ -104,7 +103,6 @@ def calculate_sota_percentage(score: int) -> int:
     elif score == 1: return 50
     return 0
 
-# ZMIANA: Zamiast przyjmować id i pobierać tekst, przyjmuje czysty string tekstu (content)
 def analyze_sota_chapter(chapter_title: str, content: str) -> Dict[str, Any]:
     """Zwraca słownik z kompletną oceną rozdziału na podstawie podanego stringa tekstu."""
     if not content:

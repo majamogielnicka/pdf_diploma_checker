@@ -2,10 +2,8 @@ from get_content import get_content
 from find_sota import get_sota_chapter
 from evaluate_sota import analyze_sota_chapter
 
-# IMPORT Z CONFIGU
 from config import THESIS_PATH, LANGUAGE
 
-# ZMIANA: Przyjmuje wyekstraktowane "blocks", nie pobiera pdfa
 def get_final_sota_report(blocks: list, language: str = LANGUAGE):
     """
     ZWRACA 8 WARTOŚCI:
@@ -18,14 +16,13 @@ def get_final_sota_report(blocks: list, language: str = LANGUAGE):
     7) r2 (bool) - wskazanie luki/problemu
     8) r3 (bool) - synteza/porównanie metod
     """
-    # ZMIANA: Odbiera gotowy wyekstraktowany tekst do zmiennej s_content
+
     s_id, s_title, s_method, s_citations, s_content = get_sota_chapter(blocks, language)
     
     if not s_id:
         return None, None, 0, "Brak", 0, False, False, False
 
     try:
-        # ZMIANA: Przekazuje czysty tekst (string) bez ścieżki i id
         ocena_data = analyze_sota_chapter(s_title, s_content)
         
         s_score = int(ocena_data["procent"])
@@ -43,10 +40,8 @@ def get_final_sota_report(blocks: list, language: str = LANGUAGE):
 if __name__ == "__main__":
     print(f"Rozpoczynam analizę z konfiguracji: {THESIS_PATH}")
     
-    # KROK 1: JEDNORAZOWE wydobycie treści z pliku wyznaczonego w config.py
     extracted_blocks = get_content(THESIS_PATH)
 
-    # KROK 2: Uruchomienie głównego skryptu, przekazując gotowe bloki
     res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, LANGUAGE)
     
     print(f"\n--- WYNIKI ---")

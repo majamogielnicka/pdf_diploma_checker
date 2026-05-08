@@ -17,6 +17,8 @@ OUTPUT_DIR = PROJECT_ROOT / "src" / "analysis" / "modules" / "llm" / "wyniki"
 #JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
 # MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
 MODEL_PATH = SRC_DIR / "models" / "gemma-3-12b-it-Q4_K_M.gguf"
+LLAVA_MODEL_PATH = SRC_DIR / "models" / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
+LLAVA_MMPROJ_PATH = SRC_DIR / "models" / "mmproj-model-f16.gguf"
 THESIS_PATH = PROJECT_ROOT / "data" / "most_important" / "jabi.pdf"
 LANGUAGE = "pl" #LUB "en"
 

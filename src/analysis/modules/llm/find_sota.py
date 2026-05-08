@@ -5,7 +5,6 @@ from evaluate_sota import get_llm
 PROMPT_EVALUATE_PL = """Jesteś ekspertem analizującym strukturę prac naukowych... [treść promptu]"""
 PROMPT_EVALUATE_EN = """You are an expert analyzing the structure of academic papers... [treść promptu]"""
 
-# ZMIANA: Funkcja przyjmuje gotowe bloki tekstu
 def get_sota_chapter(blocks: list, language: str = "pl"):
     """
     Skanuje przekazane bloki i zwraca tuple: (id, tytul, metoda_wyboru, liczba_cytowan, WYEKSTRAKTOWANY_TEKST).
@@ -25,7 +24,6 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
     sota_chapter = None
     metoda = "Nie znaleziono"
     
-    # KROK 1: Tytuł
     for block in valid_blocks:
         title_lower = block.title.lower() if block.title else ""
         if any(kw in title_lower for kw in SOTA_KEYWORDS):
@@ -33,7 +31,6 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
             metoda = "KROK 1 (Słowa kluczowe w tytule)"
             break
 
-    # KROK 2: Analiza AI
     if not sota_chapter:
         llm = get_llm()
         llm_candidates = []
@@ -61,7 +58,6 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
                 sota_chapter = best["block"]
                 metoda = f"KROK 2 (Analiza AI - {best['score']}% + Cytowania)"
 
-    # KROK 3: Zliczanie ilości cytowań
     if not sota_chapter:
         best_block = None
         max_c = -1
@@ -76,7 +72,6 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
 
     if sota_chapter:
         unique_citations = len(set(extract_citations(sota_chapter.content)))
-        # ZMIANA: Zwracamy dodatkowo zawartość tekstową rozdziału (sota_chapter.content)
         return str(sota_chapter.id), str(sota_chapter.title or "Bez tytułu"), metoda, unique_citations, sota_chapter.content
     
     return None, None, "Nie znaleziono", 0, ""
