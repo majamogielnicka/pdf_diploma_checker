@@ -186,11 +186,11 @@ class RedactionValidator:
                         self.errors.append(Error(
                             id = self._get_next_id(),
                             module = self.module,
-                            category = "orphan_span",
+                            category = "orphan",
                             page_number = page.number,
                             bounding_box = last_span.bbox,
                             text = last_span.text,
-                            comments = "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji."
+                            comments = "Wykryto sierotę - spójnik na końcu linii."
                         ))
         return orphans
     
@@ -223,11 +223,11 @@ class RedactionValidator:
                                 self.errors.append(Error(
                                     id = self._get_next_id(),
                                     module = self.module,
-                                    category = "korytarz",
+                                    category = "corridor",
                                     page_number = page.number,
                                     bounding_box = (x1, span.bbox[1] - 15, x2, span.bbox[3]),
                                     text = None,
-                                    comments = "Wykryto korytarz (nakładające się przerwy między wyrazami w sąsiednich liniach)."
+                                    comments = "Wykryto korytarz - nakładające się przerwy między wyrazami w sąsiednich liniach."
                                 ))
                     
                     paths_to_check = []
@@ -288,7 +288,7 @@ class RedactionValidator:
             page_number=last_word.page_number,
             bounding_box=widow_bbox, 
             text=found_text,
-            comments="Wykryto wdowę"
+            comments="Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu."
         )
     
     def check_bekarts(self):
@@ -319,11 +319,11 @@ class RedactionValidator:
         return Error(
             id=self._get_next_id(), 
             module=self.module,
-            category="bekart", 
+            category="bastard", 
             page_number=last_word.page_number,
             bounding_box=bekart_bbox, 
             text=found_text,
-            comments="Wykryto bękarta"
+            comments="Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie."
         )
     
     def check_szewce(self):
@@ -354,11 +354,11 @@ class RedactionValidator:
         return Error(
             id=self._get_next_id(), 
             module=self.module,
-            category="szewc", 
+            category="shoemaker", 
             page_number=first_word.page_number - 1,
             bounding_box=bekart_bbox, 
             text=found_text,
-            comments="Wykryto szewca"
+            comments="Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie."
         )
     
     def check_toc(self):
