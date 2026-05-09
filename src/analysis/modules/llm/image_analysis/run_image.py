@@ -1,5 +1,11 @@
-import json
 import sys
+from pathlib import Path
+2
+current_dir = Path(__file__).resolve().parent
+sys.path.append(str(current_dir.parent))
+sys.path.append(str(current_dir.parents[4]))
+
+import json
 import config 
 from document_parser import DocumentParser
 from llava_engine import LlavaEngine
