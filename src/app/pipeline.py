@@ -94,7 +94,7 @@ class AnalysisPipeline:
                 }
                 
                 
-                return result, score
+                return result, score, "Analiza LLM zakończona pomyślnie."
             
             except Exception as e:
                 print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")

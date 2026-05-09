@@ -109,25 +109,21 @@ class SelectablePdfView(QPdfView):
 
     def add_errors(self, errors_list):
         self.clear_markers()
-        
-        for b in self.highlight_boxes:
-            b.deleteLater()
+        for box in self.highlight_boxes:
+            box.deleteLater()
         self.highlight_boxes.clear()
 
         for err in errors_list:
             marker = ErrorMarker(err, self.viewport())
             self.markers.append(marker)
             
-            w = err.get("wspolrzedne", {}).get("w", 0)
-            h = err.get("wspolrzedne", {}).get("h", 0)
+            coords = err.get("wspolrzedne", {})
+            w = coords.get("w", 0)
+            h = coords.get("h", 0)
             
-            if w > 0 and h > 0:
+            if w > 0:
                 box = HighlightBox(err, self.viewport())
-                box.setStyleSheet("""
-                    QFrame {
-                        background-color: rgba(255, 0, 0, 60); 
-                    }
-                """)
+                box.setStyleSheet("background-color: rgba(255, 0, 0, 60); border: none;")
                 self.highlight_boxes.append(box)
 
         self.update_markers_pos()
