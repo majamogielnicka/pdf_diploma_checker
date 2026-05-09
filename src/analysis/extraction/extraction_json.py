@@ -1229,90 +1229,86 @@ def is_footer(raw_block: dict, page_height: float, page_num: int) -> bool:
     return False
 
 def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
-    """
-    Funkcja do ekstrakcji spisu treści. 
-    Zwraca obiekt TocData jeśli znaleziono spis, w przeciwnym razie None.
-    """
-
-    keywords = [
-        "spis treści", "spis tresci", 
-        "table of contents", "contents", "toc"
-    ]
+    keywords = ["spis treści", "spis tresci", "table of contents", "contents", "toc"]
     all_entries = []
     toc_pages = []
-    toc_started = False
-    full_toc_text = ""
     base_x = None
 
     for page_obj in pages[:10]:
+        y_groups = {}
+        for block in page_obj.text_blocks:
+            for line in block.lines:
+                y_center = round(line.bbox[1] / 5) * 5
+                if y_center not in y_groups:
+                    y_groups[y_center] = []
+                y_groups[y_center].append(line)
+
         page_entries = []
         page_text = ""
         
-        for block in page_obj.text_blocks:
-            for line in block.lines:
-                line_text = " ".join([span.text for span in line.spans]).strip()
-                page_text += line_text + " "
-                
-                match = re.search(r"^\s*(.*?)\s*[\.\s·\-]{5,}\s*(\d+)\s*$", line_text)
-                
-                if match:
-                    title, p_num = match.groups()
-                    title_clean = title.strip()
-                    current_x = line.bbox[0]
-                    
-                    if base_x is None:
-                        base_x = current_x
-                    
-                    gap_level = 1 + int(max(0, current_x - base_x) / 12)
-                    num_match = re.match(r"^(\d+(?:\.\d+)*)\.?", title_clean)
-                    dotted_level = 1
-                    if num_match:
-                        num_part = num_match.group(1)
-                        dotted_level = num_part.count('.') + 1
+        for y in sorted(y_groups.keys()):
+            lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
+            
+            fragments = []
+            for l in lines_on_y:
+                for s in l.spans:
+                    txt = s.text.strip()
+                    if txt:
+                        fragments.append(txt)
+            
+            if not fragments:
+                continue
 
+            line_full_text = " ".join(fragments)
+            page_text += line_full_text + " "
+
+            match = re.search(r"^(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+
+            if match:
+                title_raw, p_num = match.groups()
+                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', title_raw).strip()
+                
+                if len(title_clean) < 3:
+                    continue
+
+                current_x = lines_on_y[0].bbox[0]
+                if base_x is None:
+                    base_x = current_x
+
+                gap_level = 1 + int(max(0, current_x - base_x) / 12)
+                
+                num_match = re.match(r"^(\d+(?:\.\d+)*)\.?", title_clean)
+                dotted_level = num_match.group(1).count('.') + 1 if num_match else 1
+                
+                is_bold = any("bold" in s.font.lower() for l in lines_on_y for s in l.spans)
+
+                if is_bold and gap_level == 1:
+                    final_level = 1
+                else:
                     final_level = max(gap_level, dotted_level)
 
-                    page_entries.append(TocEntry(
-                        level=final_level, 
-                        title=title_clean,
-                        page=int(p_num),
-                        bbox=line.bbox,
-                        src_page = page_obj.number
-                    ))
+                page_entries.append(TocEntry(
+                    level=final_level,
+                    title=title_clean,
+                    page=int(p_num),
+                    bbox=lines_on_y[0].bbox,
+                    src_page=page_obj.number
+                ))
 
-        has_keyword = any(word in page_text.lower() for word in keywords)
+        low_page_text = page_text.lower()
+        has_keyword = any(word in low_page_text for word in keywords)
         
-        if not toc_started:
-            if has_keyword and len(page_entries) >= 2 or len(page_entries) >= 5:
-                toc_started = True
-                all_entries.extend(page_entries)
-                full_toc_text = page_text[:500]
-        else:
-            if len(page_entries) >= 1:
+        if (has_keyword and len(page_entries) >= 2) or len(page_entries) >= 5:
+            all_entries.extend(page_entries)
+            if page_obj.number not in toc_pages:
                 toc_pages.append(page_obj.number)
-                all_entries.extend(page_entries)
-            else:
-                break
-                
+
     if all_entries:
-        return TocData(
-            page_nums=toc_pages,
-            entries=all_entries,
-            text=full_toc_text
-        )
+        return TocData(page_nums=toc_pages, entries=all_entries, text="Wykryto wizualnie (v2)")
 
     built_in_toc = doc.get_toc()
     if built_in_toc:
-        entries = []
-        for lvl, ttl, page_num in built_in_toc:
-            entries.append(TocEntry(
-                level=lvl,
-                title=ttl.strip(),
-                page=page_num,
-                bbox=(0, 0, 0, 0),
-                src_page = 2
-            ))
-        return TocData(page_nums=-1,entries=entries, text="Wykryto z metadanych"
-        )
-     
+        entries = [TocEntry(level=l, title=t.strip(), page=p, bbox=(0,0,0,0), src_page=-1) for l, t, p in built_in_toc]
+        return TocData(page_nums=[-1], entries=entries, text="Wykryto z metadanych")
+    
     return None
