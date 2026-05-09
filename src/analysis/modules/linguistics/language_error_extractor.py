@@ -4,7 +4,7 @@ Analiza tekstu pod względem gramatycznym, stylistycznym i typograficznym.
 import language_tool_python
 from .linguistics_types import Error_type
 from src.analysis.extraction.schema import *
-from .helpers import get_match_info
+from .helpers import get_match_info, morf
 
 def language_tool_analisys(blocks):
 
@@ -73,6 +73,8 @@ def language_tool_analisys(blocks):
                 if match.category == "TYPOS":
                     word = contents[match.offset:match.offset + match.error_length]
                     if text_language == 'pl':
+                        if pl_typo_check(word):
+                            continue
                         en_matches = tool_en.check(word)
                         for en_match in en_matches:
                             en_match.sentence = match.sentence
@@ -110,7 +112,13 @@ def language_tool_analisys(blocks):
                 ))
     return errors, whitespace_counter
 
-    
+def pl_typo_check(typo_text):
+    analysis = morf.analyse(typo_text)
+    for interpretation in analysis:
+        tag = interpretation[2][2]
+        if tag == "ign":
+            return False
+    return True
 
 
 
