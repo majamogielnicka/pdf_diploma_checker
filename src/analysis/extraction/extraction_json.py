@@ -15,7 +15,7 @@ PROJECT_ROOT = BASE_DIR.parents[2]
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, HeaderData, TocData, TocEntry
+from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
 
 
 # Tryb debugu:
@@ -1054,6 +1054,8 @@ def extractPDF(file_path: str) -> DocumentData:
         cur_page.is_blank = blank_page
         document_data.pages.append(cur_page)
     document_data.toc = extract_TOC(doc, document_data.pages)
+    document_data.tof = extract_TOF(document_data.pages, document_data.toc.page_nums if document_data.toc else [])
+    document_data.tot = extract_TOT(document_data.pages, document_data.toc.page_nums if document_data.toc else [])
     doc.close()
     return document_data
 
@@ -1229,6 +1231,7 @@ def is_footer(raw_block: dict, page_height: float, page_num: int) -> bool:
     return False
 
 def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
+    """ Funkcja wykrywająca spis treści"""
     keywords = ["spis treści", "spis tresci", "table of contents", "contents", "toc"]
     all_entries = []
     toc_pages = []
@@ -1304,11 +1307,146 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
                 toc_pages.append(page_obj.number)
 
     if all_entries:
-        return TocData(page_nums=toc_pages, entries=all_entries, text="Wykryto wizualnie (v2)")
+        return TocData(page_nums=toc_pages, entries=all_entries, text="Wykryto wizualnie ")
 
     built_in_toc = doc.get_toc()
     if built_in_toc:
         entries = [TocEntry(level=l, title=t.strip(), page=p, bbox=(0,0,0,0), src_page=-1) for l, t, p in built_in_toc]
         return TocData(page_nums=[-1], entries=entries, text="Wykryto z metadanych")
     
+    return None
+
+def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: #Table of Figures
+    """ Funkcja wykrywająca spisy rysunków """
+    keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
+                "list of figures", "table of figures", "tof"]
+    all_entries = []
+    tof_pages = []
+
+    for page_obj in pages:
+        if page_obj.number in toc_pages:
+            continue
+        page_text = ""
+        y_groups = {}
+
+        for block in page_obj.text_blocks:
+            for line in block.lines:
+                y_center = round(line.bbox[1] / 5) * 5
+                if y_center not in y_groups:
+                    y_groups[y_center] = []
+                y_groups[y_center].append(line)
+
+        page_entries = []
+        for y in sorted(y_groups.keys()):
+            lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
+            
+            fragments = []
+            for l in lines_on_y:
+                for s in l.spans:
+                    txt = s.text.strip()
+                    if txt:
+                        fragments.append(txt)
+            
+            if not fragments:
+                continue
+
+            line_full_text = " ".join(fragments)
+            page_text += line_full_text + " "
+
+            match = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+
+            if match:
+                obj_num, title_raw, p_num = match.groups()
+                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', title_raw).strip()
+
+                if len(title_clean) < 3:
+                    continue
+
+                page_entries.append(TofEntry( 
+                    number = obj_num,
+                    title=title_clean,
+                    page=int(p_num),
+                    bbox=lines_on_y[0].bbox,
+                    src_page=page_obj.number
+                ))
+
+        low_page_text = page_text.lower()
+        has_keyword = any(word in low_page_text for word in keywords)
+        
+        if has_keyword and len(page_entries) >= 2:
+            all_entries.extend(page_entries)
+            if page_obj.number not in tof_pages:
+                tof_pages.append(page_obj.number)
+
+    if all_entries:
+        return TofData(page_nums=tof_pages, entries=all_entries, text="Spis Rysunków")
+
+    return None
+
+
+def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Figures
+    """ Funkcja wykrywająca spisy rysunków """
+    keywords = ["spis tabel", 
+                "list of tables", "table of tables", "tot"]
+    all_entries = []
+    tot_pages = []
+
+    for page_obj in pages:
+        if page_obj.number in toc_pages:
+            continue
+        page_text = ""
+        y_groups = {}
+
+        for block in page_obj.text_blocks:
+            for line in block.lines:
+                y_center = round(line.bbox[1] / 5) * 5
+                if y_center not in y_groups:
+                    y_groups[y_center] = []
+                y_groups[y_center].append(line)
+
+        page_entries = []
+        for y in sorted(y_groups.keys()):
+            lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
+            
+            fragments = []
+            for l in lines_on_y:
+                for s in l.spans:
+                    txt = s.text.strip()
+                    if txt:
+                        fragments.append(txt)
+            
+            if not fragments:
+                continue
+
+            line_full_text = " ".join(fragments)
+            page_text += line_full_text + " "
+
+            match = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+
+            if match:
+                obj_num, title_raw, p_num = match.groups()
+                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', title_raw).strip()
+
+                if len(title_clean) < 3:
+                    continue
+
+                page_entries.append(TotEntry( 
+                    number = obj_num,
+                    title=title_clean,
+                    page=int(p_num),
+                    bbox=lines_on_y[0].bbox,
+                    src_page=page_obj.number
+                ))
+
+        low_page_text = page_text.lower()
+        has_keyword = any(word in low_page_text for word in keywords)
+        
+        if has_keyword and len(page_entries) >= 2:
+            all_entries.extend(page_entries)
+            if page_obj.number not in tot_pages:
+                tot_pages.append(page_obj.number)
+
+    if all_entries:
+        return TotData(page_nums=tot_pages, entries=all_entries, text="Spis Tabel")
+
     return None
