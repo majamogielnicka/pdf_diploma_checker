@@ -61,10 +61,10 @@ def get_proper_names(blocks):
                         previous = ent
                         continue
                     if previous is not None and (previous_check.findall(previous.text) or previous.label_ == "PERSON") and ent.label_ == "PERSON":
-                        previous = ent
                         ent_text = previous.text + " " + ent_text
                         if proper_names:
                             proper_names.pop(-1)
+                        previous = ent
                     ent_lemma, is_found = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))
                     previous = ent 

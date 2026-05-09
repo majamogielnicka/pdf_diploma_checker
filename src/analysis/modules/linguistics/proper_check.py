@@ -37,10 +37,13 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
 
     
     if proper_names is not None:
-        proper = [p[0] for p in proper_names]
-        proper_lemmas = [p[1] for p in proper_names]
+        proper = {p[0] for p in proper_names}
+        proper_lemmas = {p[1] for p in proper_names}
         for word in matched_words:
             if word.text in proper:
+                return True
+            word_lemma, _ = lemmatization(word.text, "pl")
+            if word_lemma in proper_lemmas:
                 return True
             if lemma and text in proper_lemmas:
                 return True

@@ -37,7 +37,7 @@ def potential_acronym(text):
             return True
     return False
 
-def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
+def check_if_was_defined(blocks, acronyms_with_definitions):
 
     
     GLOBAL_ACRONYMS = {
@@ -51,11 +51,10 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
     reported_acronyms = set()
     no_parenthesis = re.compile(r'\b([A-Z]{2,})\s*\((?:ang\.|pol\.|fr\.)\s+([^)]{3,}?)(?=[,;]|\s{2,}[A-Z]{2})', re.UNICODE)
     roman_numeral = re.compile(r'^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$')
-    #proper_names_clean = {p[0].strip("() \n\t.,;:") for p in proper_names if not p[0].strip("() \n\t.,;:").isupper()} if proper_names else set()
     
     for block in blocks:
         block = block.block
-        if block.type in {"paragraph", "list"}:
+        if block.type in {"paragraph", "list", "heading"}:
             for word in block.words:
                 text = word.text
                 clean_text = text.strip("|():;,.!?[]\n\t \"„”«»“‟‘’")
@@ -67,12 +66,12 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                     continue
                 if roman_numeral.match(clean_text):
                     continue
-                # if clean_text in proper_names_clean:
-                #     continue
+                if block.type == "heading" and len(text)>5:
+                    continue
                 if clean_text in GLOBAL_ACRONYMS:
                     continue
                 page = word.page_number
-                if no_parenthesis.search(block.content[word.start_char:word.start_char:]):
+                if no_parenthesis.search(block.content[word.start_char:]):
                     continue   
                 if clean_text in acronyms_with_definitions:
                     acronym = acronyms_with_definitions[clean_text]
