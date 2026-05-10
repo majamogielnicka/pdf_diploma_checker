@@ -2,15 +2,20 @@ import sys
 import os
 import datetime
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import sys
+import os
+from common.path import resource_path
+
+BASE_DIR = resource_path(".")
+
 APP_DIR = os.path.join(BASE_DIR, "app")
 COMMON_DIR = os.path.join(BASE_DIR, "common")
 
 if APP_DIR not in sys.path:
-    sys.path.append(APP_DIR)
+    sys.path.insert(0, APP_DIR)
 
 if COMMON_DIR not in sys.path:
-    sys.path.append(COMMON_DIR)
+    sys.path.insert(0, COMMON_DIR)
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -180,10 +185,7 @@ class PDFReader(QMainWindow):
         l = QHBoxLayout(toolbar)
         
         self.back_btn = QPushButton()
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-
-        back_icon_path = resource_path(os.path.join(current_dir, "assets", "back.svg"))
-        #back_icon_path = resource_path("ui/assets/back.svg")
+        back_icon_path = resource_path(os.path.join("ui", "assets", "back.svg"))
         if os.path.exists(back_icon_path):
             self.back_btn.setIcon(QIcon(back_icon_path))
             self.back_btn.setIconSize(QSize(24, 40))
@@ -510,8 +512,8 @@ class PDFReader(QMainWindow):
             current_dir = os.path.dirname(os.path.abspath(__file__))
             if is_met:
                 badge.setStyleSheet("QFrame { background-color: #D1EEDC; border-radius: 13px; border: none; }")
-                tick_path = os.path.join(current_dir, "assets", "tick.svg")
-                # tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
+                
+                tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
                 if os.path.exists(tick_path):
                     icon_circle.setPixmap(QIcon(tick_path).pixmap(QSize(12, 12)))
                 else:
@@ -520,8 +522,8 @@ class PDFReader(QMainWindow):
                 text_lbl = QLabel("Tak")
             else:
                 badge.setStyleSheet("QFrame { background-color: #F8D7DA; border-radius: 13px; border: none; }")
-                cross_path = os.path.join(current_dir, "assets", "cross.svg")
-                # cross_path = resource_path(os.path.join("ui", "assets", "cross.svg"))
+            
+                cross_path = resource_path(os.path.join("ui", "assets", "cross.svg"))
                 if os.path.exists(cross_path):
                     icon_circle.setPixmap(QIcon(cross_path).pixmap(QSize(10, 10)))
                 else:
@@ -695,9 +697,8 @@ class PDFReader(QMainWindow):
             report_pdf = fitz.open()
             page = report_pdf.new_page()
             
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            font_path = os.path.join(current_dir, "assets", "Roboto-Regular.ttf")
-            font_bold_path = os.path.join(current_dir, "assets", "Roboto-Bold.ttf")
+            font_path = resource_path(os.path.join("ui", "assets", "Roboto-Regular.ttf"))
+            font_bold_path = resource_path(os.path.join("ui", "assets", "Roboto-Bold.ttf"))
 
             if os.path.exists(font_path) and os.path.exists(font_bold_path):
                 f_main = "roboto"

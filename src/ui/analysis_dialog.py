@@ -8,6 +8,8 @@ from PySide6.QtCore import Qt, QTimer, Signal, QThread, QSize
 from PySide6.QtGui import QPixmap, QIcon
 import styles
 
+from common.path import resource_path
+
 class FileBadge(QFrame):
     removed = Signal()
 
@@ -27,8 +29,7 @@ class FileBadge(QFrame):
         layout.setSpacing(15)
 
         self.icon_label = QLabel()
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        icon_path = os.path.join(current_dir, "assets", "file_json.svg")
+        icon_path = resource_path(os.path.join("ui", "assets", "file_json.svg"))
         if os.path.exists(icon_path):
             pixmap = QPixmap(icon_path).scaled(35, 35, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.icon_label.setPixmap(pixmap)
@@ -56,8 +57,7 @@ class FileBadge(QFrame):
         self.del_btn = QPushButton()
         self.del_btn.setFixedSize(30, 30)
         
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        trash_path = os.path.join(current_dir, "assets", "trash.svg")
+        trash_path = resource_path(os.path.join("ui", "assets", "trash.svg"))
         if os.path.exists(trash_path):
             self.del_btn.setIcon(QIcon(trash_path))
             self.del_btn.setIconSize(QSize(20, 20))
