@@ -1337,6 +1337,8 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                 y_groups[y_center].append(line)
 
         page_entries = []
+        cut_obj_num = ""
+        cut_title = ""
         for y in sorted(y_groups.keys()):
             lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
             
@@ -1353,22 +1355,38 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
             line_full_text = " ".join(fragments)
             page_text += line_full_text + " "
 
-            match = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_full = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(\d+(?:\.\d+)*)\s+(.*)", line_full_text)
+            match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
-            if match:
-                obj_num, title_raw, p_num = match.groups()
-                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', title_raw).strip()
+            if match_full:
+                obj_num, title_raw, p_num = match_full.groups()
+                sep = "" if cut_title.endswith("-") else " "
+                base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
+                full_title = (base_title + sep + title_raw).strip()
+                
+                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
+                page_entries.append(TofEntry(number=obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
+                cut_obj_num = ""; cut_title = ""
 
-                if len(title_clean) < 3:
-                    continue
+            elif match_start:
+                cut_obj_num = match_start.group(1)
+                cut_title = match_start.group(2)
 
-                page_entries.append(TofEntry( 
-                    number = obj_num,
-                    title=title_clean,
-                    page=int(p_num),
-                    bbox=lines_on_y[0].bbox,
-                    src_page=page_obj.number
-                ))
+            elif match_end and cut_obj_num:
+                title_part, p_num = match_end.groups()
+                sep = "" if cut_title.endswith("-") else " "
+                base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
+                full_title = (base_title + sep + title_part).strip()
+                
+                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
+                page_entries.append(TofEntry(number=cut_obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
+                cut_obj_num = ""; cut_title = ""
+
+            elif cut_obj_num:
+                sep = "" if cut_title.endswith("-") else " "
+                base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
+                cut_title = base_title + sep + line_full_text
 
         low_page_text = page_text.lower()
         has_keyword = any(word in low_page_text for word in keywords)
@@ -1383,11 +1401,9 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
 
     return None
 
-
-def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Figures
-    """ Funkcja wykrywająca spisy rysunków """
-    keywords = ["spis tabel", 
-                "list of tables", "table of tables", "tot"]
+def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Tables
+    """ Funkcja wykrywająca spisy tabel """
+    keywords = ["spis tabel", "spis tablic", "list of tables", "tot"]
     all_entries = []
     tot_pages = []
 
@@ -1405,6 +1421,8 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
                 y_groups[y_center].append(line)
 
         page_entries = []
+        cut_obj_num = ""
+        cut_title = ""
         for y in sorted(y_groups.keys()):
             lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
             
@@ -1421,22 +1439,38 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
             line_full_text = " ".join(fragments)
             page_text += line_full_text + " "
 
-            match = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_full = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(\d+(?:\.\d+)*)\s+(.*)", line_full_text)
+            match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
-            if match:
-                obj_num, title_raw, p_num = match.groups()
-                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', title_raw).strip()
+            if match_full:
+                obj_num, title_raw, p_num = match_full.groups()
+                sep = "" if cut_title.endswith("-") else " "
+                base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
+                full_title = (base_title + sep + title_raw).strip()
+                
+                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
+                page_entries.append(TotEntry(number=obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
+                cut_obj_num = ""; cut_title = ""
 
-                if len(title_clean) < 3:
-                    continue
+            elif match_start:
+                cut_obj_num = match_start.group(1)
+                cut_title = match_start.group(2)
 
-                page_entries.append(TotEntry( 
-                    number = obj_num,
-                    title=title_clean,
-                    page=int(p_num),
-                    bbox=lines_on_y[0].bbox,
-                    src_page=page_obj.number
-                ))
+            elif match_end and cut_obj_num:
+                title_part, p_num = match_end.groups()
+                sep = "" if cut_title.endswith("-") else " "
+                base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
+                full_title = (base_title + sep + title_part).strip()
+                
+                title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
+                page_entries.append(TotEntry(number=cut_obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
+                cut_obj_num = ""; cut_title = ""
+
+            elif cut_obj_num:
+                sep = "" if cut_title.endswith("-") else " "
+                base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
+                cut_title = base_title + sep + line_full_text
 
         low_page_text = page_text.lower()
         has_keyword = any(word in low_page_text for word in keywords)
