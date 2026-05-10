@@ -8,13 +8,13 @@ import statistics
 import fitz  # PyMuPDF
 from typing import Dict
 
-from src.analysis.extraction.schema import (
+from analysis.extraction.schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
-from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
-from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
+from analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
+from analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
 
 class PDFMapper:
     
