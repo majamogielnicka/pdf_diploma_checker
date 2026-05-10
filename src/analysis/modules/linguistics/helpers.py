@@ -1,3 +1,6 @@
+'''
+Funkcje pomocnicze do analizy lingwistycznej.
+'''
 import os
 import dataclasses
 import json
@@ -6,21 +9,33 @@ from lingua import Language, LanguageDetectorBuilder
 from src.analysis.extraction.schema import *
 from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
+import functools
+import spacy
 
 morf = morfeusz2.Morfeusz()
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
-def language(text):
-    '''
-    Detects language of a block for further text analysis.
-    Args:
-        text (str): string of text to be analysed.
-        
-    Returns:
-        str: 'pl' for Polish and 'en' for English
+nlp_en = spacy.load('en_core_web_lg')
+nlp_pl = spacy.load('pl_core_news_lg')
 
-    '''
+@functools.cache
+def lemmatization(word_base, text_language):
+    word = word_base.lower()
+    if text_language == "pl":
+        nlp = nlp_pl
+    else:
+        nlp = nlp_en
+    nlp_word = nlp(word)
+    lemma = word
+    for token in nlp_word:
+        lemma = token.lemma_
+    is_found = True
+    if lemma == word:
+        is_found = False
+    return lemma, is_found
+
+def language(text):
     detected = language_detector.detect_language_of(text)
     if detected == Language.POLISH:
         return 'pl'
@@ -28,20 +43,7 @@ def language(text):
         return 'en'
 
 def get_match_info(block, offset, length):
-    '''
-    Extracts match data.
-    
-    Args:
-        offset (int): Number of beginning index of match in the string
-        length (int): Length of the match.
-        block (logical_block): contains string and metadata of each word
-    
-    Returns:
-        start_page (int): Page number of the beginning of the match
-        end_page (int): Page number of the end of the match
-        word_index (list): List of word indexes in the match
-        error_coordinate(list): List of dicts with error coordinates
-    '''
+
     end_offset = offset + length
     word_idxs = []
     start_page = None
@@ -73,15 +75,6 @@ def get_match_info(block, offset, length):
 
 def extract_errors_to_json(matches, name):
 
-    """
-    Extracts errors from the list of matches and writes them to a JSON file.
-    
-    Args:
-        matches (list): A list of errors to be extracted.
-
-    Returns:
-        None    
-    """
     if type(matches) is list:
         all_matches = []
         for match in matches:
@@ -95,15 +88,7 @@ def extract_errors_to_json(matches, name):
 
 
 def get_context(blocks):
-    """
-    Extracts block.content for analysis and its language.
-    
-    Args:
-        block (logical_block): contains string and metadata of each word.
 
-    Returns:
-        blocks (list(Block_context)): List contaning Block_context objects.
-    """
     blocks_info = []
     for block in blocks.logical_blocks:
         if block.words[-1].page_number != 1:
@@ -123,17 +108,7 @@ def get_context(blocks):
     return blocks_info
 
 def add_match(content, block_id, page_start, page_end, word_idxs, error_coordinate, category, message):
-
-    """
-    Creates an error object for a specific list item.
-
-    Args:
-        items_by_id (dict): Dictionary of items by ID.
-        num (int): Item ID.
-
-    Returns:
-        Error_type: Error type object.
-    """
+    
     return Error_type(
                 content = content,
                 category = category,
