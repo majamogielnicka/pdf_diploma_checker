@@ -19,6 +19,7 @@ language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 nlp_en = spacy.load('en_core_web_lg')
 nlp_pl = spacy.load('pl_core_news_lg')
 
+
 @functools.cache
 def lemmatization(word_base, text_language):
     word = word_base.lower()
@@ -49,13 +50,37 @@ def get_match_info(block, offset, length):
     start_page = None
     end_page = None
     lines = defaultdict(list)
-    for word in block.words:
-        if word.start_char < end_offset and word.end_char > offset:
-            word_idxs.append(word.word_index)
-            lines[(word.page_number, word.line)].append(word)
-            if start_page is None:
-                start_page = word.page_number
-            end_page = word.page_number
+
+    if block.type == "list":
+        item_offset = 0
+        for item in block.items:
+            item_text = item.text.lower()
+            search_from = 0
+            for word in item.words:
+                word_text = word.text.lower()
+                idx = item_text.find(word_text, search_from)
+                if idx == -1:
+                    global_start = item_offset + word.start_char
+                    global_end   = item_offset + word.end_char
+                else:
+                    global_start = item_offset + idx
+                    global_end   = item_offset + idx + len(word.text)
+                    search_from = idx + len(word.text)
+                if global_start < end_offset and global_end > offset:
+                    word_idxs.append(word.word_index)
+                    lines[(word.page_number, word.line)].append(word)
+                    if start_page is None:
+                        start_page = word.page_number
+                    end_page = word.page_number
+            item_offset += len(item.text) + 1
+    else:
+        for word in block.words:
+            if word.start_char < end_offset and word.end_char > offset:
+                word_idxs.append(word.word_index)
+                lines[(word.page_number, word.line)].append(word)
+                if start_page is None:
+                    start_page = word.page_number
+                end_page = word.page_number
 
     error_coordinate = []
     for (page, line), words in sorted(lines.items()):

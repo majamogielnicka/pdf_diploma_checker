@@ -11,6 +11,9 @@ def dash_check(blocks):
     dash_counter = 0
     
     for block in blocks:
+        if block.block.type == "list":
+            if block.block.is_bibliography:
+                continue
         # Przygotowujemy jednostki do sprawdzenia (tekst + obiekt)
         text = block.contents
         unit = block.block

@@ -39,7 +39,8 @@ def language_tool_analisys(blocks):
     tool_en.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
     tool_en.disabled_rules.add('WHITESPACE_RULE')
     tool_en.disabled_categories.add('CONSECUTIVE_SPACES')
-    tool_en._disabled_categories.add('CASING')
+    tool_en.disabled_categories.add('CASING')
+    tool_en.disabled_categories.add('DASH_RULE')
 
     tool_pl = language_tool_python.LanguageTool('pl-PL')
     tool_pl.disabled_rules.add('NIETYPOWA_KOMBINACJA_DUZYCH_I_MALYCH_LITER')
@@ -55,10 +56,15 @@ def language_tool_analisys(blocks):
     tool_pl.disabled_rules.add('BRAK_SPACJI_NAWIAS')
     tool_pl.disabled_rules.add('PRZEDROSTKI')
     tool_pl.disabled_rules.add('ZBIEG_NAWIASOW')
+    tool_pl.disabled_categories.add('CASING')
+    tool_pl.disabled_rules.add('DYWIZ')
 
     errors = []
     for block in blocks:
         if block.block.type not in {"acronym", "keywords"}:
+            if block.block.type == "list":
+                if block.block.is_bibliography == True:
+                    continue
             contents = block.contents
             text_language = block.language
             matches = tool_pl.check(contents) if text_language == "pl" else tool_en.check(contents)
