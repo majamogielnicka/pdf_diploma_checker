@@ -33,8 +33,6 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
         return True
     if text.isupper():
         return True
-
-
     
     if proper_names is not None:
         proper = {p[0] for p in proper_names}
