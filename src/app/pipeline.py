@@ -2,12 +2,18 @@ import os
 import sys
 import concurrent.futures
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import os
+import sys
+
+from common.path import resource_path
+
+BASE_DIR = resource_path(".") 
+
 EXTRACTION_DIR = os.path.join(BASE_DIR, "analysis", "extraction")
-COMMON_DIR = os.path.join(BASE_DIR, "common")
+COMMON_DIR     = os.path.join(BASE_DIR, "common")
 LINGUISTICS_DIR = os.path.join(BASE_DIR, "analysis", "modules", "linguistics")
-LLM_DIR = os.path.join(BASE_DIR, "analysis", "modules", "llm")
-REDACTION_DIR = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
+LLM_DIR         = os.path.join(BASE_DIR, "analysis", "modules", "llm")
+REDACTION_DIR   = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
 
 for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
     if path not in sys.path:

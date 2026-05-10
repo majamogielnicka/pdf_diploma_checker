@@ -1,7 +1,8 @@
 import sys
 import os
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+from common.path import resource_path
+BASE_DIR = resource_path(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 UI_DIR = os.path.join(BASE_DIR, "ui")
 APP_DIR = os.path.join(BASE_DIR, "app")
