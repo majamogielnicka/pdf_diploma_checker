@@ -5,7 +5,7 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 
 '''
 
-from src.analysis.extraction.bare_struct import DocumentData
+from src.analysis.extraction.bare_struct import DocumentData, TocData, TofData, TotData
 from src.analysis.extraction.schema import FinalDocument
 from src.common.errors.error_struct import Error, FileError, Module
 from dataclasses import dataclass
@@ -126,6 +126,7 @@ class RedactionValidator:
             #self.check_korytarze()
 
         self.remove_errors_from_title_page()
+        self.remove_errors_from_toc_tof_tot()
         self.replace_global_errors()
 
         return self.errors
@@ -159,6 +160,36 @@ class RedactionValidator:
         for error in self.errors:
             if error.page_number == 0:
                 self.errors.remove(error)
+
+    def remove_errors_from_toc_tof_tot(self):
+        if self.document_data.toc.page_nums:
+            toc_pages = self.document_data.toc.page_nums
+        else:
+            toc_pages = []
+
+        if self.document_data.tof.page_nums:
+            tof_pages = self.document_data.tof.page_nums
+        else:
+            tof_pages = []
+
+        if self.document_data.tot.page_nums:
+            tot_pages = self.document_data.tot.page_nums
+        else:
+            tot_pages = []
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "check_justification"]
+        errors_fixed = []
+        for error in self.errors:
+            is_in_toc = error.page_number in toc_pages
+            is_in_tof = error.page_number in tof_pages
+            is_in_tot = error.page_number in tot_pages
+            is_exluded = error.category in errors_excluded
+
+            if (is_in_toc or is_in_tof or is_in_tot) and is_exluded:
+                continue
+
+            errors_fixed.append(error)
+        self.errors = errors_fixed
 
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
@@ -379,24 +410,6 @@ class RedactionValidator:
             is_toc = False
             return None, is_toc
 
-        if is_toc:
-            is_ftr_error = False
-            for error in self.errors:
-                if error.category == "No_footer" or error.category == "Wrong_page_number":
-                    is_ftr_error = True
-            if is_ftr_error:
-                self.errors.append(Error(
-                    id = self._get_next_id(),
-                    module = self.module,
-                    category = "TOC_invalid",
-                    page_number = 1,
-                    bounding_box = (0,0,0,0), 
-                    text = None,
-                    comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści."
-                ))
-                #return wrong_entries, is_toc
-
-
         for entry in self.document_data.toc.entries:
             expected_page = entry.page
             expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
@@ -429,6 +442,8 @@ class RedactionValidator:
                 wrong_entries.append(entry)
 
         return wrong_entries, is_toc
+    
+
         
     def check_footers(self):
 
@@ -480,6 +495,22 @@ class RedactionValidator:
                                 text=raw_text,
                                 comments=f"Błędny numer strony. Wykryto: {detected_num}, oczekiwano: {page.number}."
                             ))
+
+        is_ftr_error = False
+        for error in self.errors:
+            if error.category == "No_footer" or error.category == "Wrong_page_number":
+                is_ftr_error = True
+        if is_ftr_error:
+            self.errors.append(Error(
+                id = self._get_next_id(),
+                module = self.module,
+                category = "numeration_invalid",
+                page_number = 1,
+                bounding_box = (0,0,0,0), 
+                text = None,
+                comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści, rysunków oraz tabel."
+            ))
+                #return wrong_entries, is_toc
         return None
     
     #------------------config checks-----------------------
