@@ -305,24 +305,19 @@ class PDFReader(QMainWindow):
             self.load_template_errors()
             self.load_ai_analysis()
             self.load_custom_comments()
-            for p in self.manager.data.get("prace", []):
-                if p['sciezka_lokalna'] == path:
-                    wynik_ai = p.get("wynik_sota")
-                    if wynik_ai:
-                        self.update_sota_panel(wynik_ai)
-                    break
 
     def load_ai_analysis(self):
         if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
             return
             
         try:
+            sota_data = None
             for p in self.manager.data.get("prace", []):
                 if p['sciezka_lokalna'] == self.current_pdf_path:
                     sota_data = p.get("wynik_sota") 
-                    if sota_data:
-                        self.update_sota_panel(sota_data)
                     break
+            self.update_sota_panel(sota_data)
+            
         except Exception as e:
             print(f"Błąd podczas wczytywania analizy AI: {e}")
 
