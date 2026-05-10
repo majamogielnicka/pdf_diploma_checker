@@ -16,7 +16,6 @@ def sentence_check(blocks):
     verbless_count = 0
     impersonal_count = 0
     checked_matches = []
-    impersonal_sentences = []
     for block in blocks:
         if block.block.type == "paragraph":
             if block.language == 'pl':
@@ -109,7 +108,7 @@ def sentence_check(blocks):
                     error_coordinate= error_coordinate
                     )
                     #sprawdzanie czy zdanie jest cytatem, aby nie uwzględniać ich jako błędów.
-                    if not check_quotes(match, text) and not check_if_proper(block.block, match):
+                    if not check_quotes(match, text) and not check_if_proper(block.block, match) and not definicion(block.block, word_idxs, text):
                         checked_matches.append(match)
                 if passive:
                     passive_count += 1
@@ -140,5 +139,15 @@ def morfeusz_check(text):
     for interpretation in analysis:
         tags = set(interpretation[2][2].split(":"))
         if len(set(personal_tags).intersection(tags)) > 0:
+            return True
+    return False
+
+def definicion(block, word_idxs, text):
+    pattern = r'\w\s*[:-–]'
+    is_colon = re.search(pattern, text)
+    if is_colon:
+        return True
+    else:
+        if block.words[word_idxs[0]].bold == True:
             return True
     return False
