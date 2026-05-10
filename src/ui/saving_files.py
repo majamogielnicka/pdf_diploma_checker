@@ -90,3 +90,10 @@ class saving_files:
             if p['sciezka_lokalna'] == sciezka:
                 return p.get("bledy_analizy", [])
         return []
+    
+    def zapisz_wynik_ai(self, sciezka, sota_data):
+        for p in self.data["prace"]:
+            if p['sciezka_lokalna'] == sciezka:
+                p["wynik_sota"] = sota_data
+                self._save_to_disk(self.data)
+                return

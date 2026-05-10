@@ -227,3 +227,16 @@ ICON_BUTTON_STYLE = """
         border-radius: 4px;
     }
 """
+RAPORT_BTN_STYLE = """
+    QPushButton {
+        background-color: #2196F3;
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    QPushButton:hover { 
+        background-color: #1976D2; 
+    }
+"""
