@@ -587,7 +587,7 @@ class PDFReader(QMainWindow):
 
             for err in bledy_do_zapisu:
                 try:
-                    page_num = int(err.get("strona", 1)) - 1
+                    page_num = int(err.get("strona", 1))
                     if 0 <= page_num < len(doc):
                         page = doc[page_num]
                         coords = err.get("wspolrzedne", {})
@@ -620,7 +620,7 @@ class PDFReader(QMainWindow):
                 for marker in self.pdf_view.comment_markers:
                     try:
                         notatka = marker.data
-                        page_idx = notatka["strona"] - 1
+                        page_idx = notatka["strona"]
                         if 0 <= page_idx < len(doc):
                             page = doc[page_idx]
                             coords = notatka["wspolrzedne"]

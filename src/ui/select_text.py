@@ -367,7 +367,7 @@ class SelectablePdfView(QPdfView):
         text, ok = QInputDialog.getText(self, "Dodaj komentarz", "Wpisz treść komentarza:")
         if ok and text:
             comment_data = {
-                "strona": self.selection_page_idx + 1, 
+                "strona": self.selection_page_idx, 
                 "wspolrzedne": {
                     "x": self.selection_pdf_rect.x(), 
                     "y": self.selection_pdf_rect.y(),
