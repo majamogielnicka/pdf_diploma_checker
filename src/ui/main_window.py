@@ -666,6 +666,7 @@ class PDFReader(QMainWindow):
             if coords.get("w", 0) > 0:
                 from select_text import HighlightBox
                 box = HighlightBox(c_data, self.pdf_view.viewport())
+                box.is_error = False # <--- ADD THIS LINE
                 box.setStyleSheet("background-color: rgba(0, 120, 255, 60); border: none;")
                 self.pdf_view.highlight_boxes.append(box)
 

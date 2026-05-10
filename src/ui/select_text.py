@@ -109,9 +109,14 @@ class SelectablePdfView(QPdfView):
 
     def add_errors(self, errors_list):
         self.clear_markers()
+        
+        new_boxes = []
         for box in self.highlight_boxes:
-            box.deleteLater()
-        self.highlight_boxes.clear()
+            if getattr(box, 'is_error', False):
+                box.deleteLater()
+            else:
+                new_boxes.append(box)
+        self.highlight_boxes = new_boxes
 
         for err in errors_list:
             marker = ErrorMarker(err, self.viewport())
@@ -123,10 +128,24 @@ class SelectablePdfView(QPdfView):
             
             if w > 0:
                 box = HighlightBox(err, self.viewport())
+                box.is_error = True
                 box.setStyleSheet("background-color: rgba(255, 0, 0, 60); border: none;")
                 self.highlight_boxes.append(box)
 
         self.update_markers_pos()
+
+    def clear_comments(self):
+        for m in self.comment_markers:
+            m.deleteLater()
+        self.comment_markers = []
+
+        new_boxes = []
+        for b in self.highlight_boxes:
+            if not getattr(b, 'is_error', False):
+                b.deleteLater()
+            else:
+                new_boxes.append(b)
+        self.highlight_boxes = new_boxes
 
     def update_markers_pos(self):
         doc = self.document()
@@ -367,7 +386,7 @@ class SelectablePdfView(QPdfView):
         text, ok = QInputDialog.getText(self, "Dodaj komentarz", "Wpisz treść komentarza:")
         if ok and text:
             comment_data = {
-                "strona": self.selection_page_idx, 
+                "strona": self.selection_page_idx + 1, 
                 "wspolrzedne": {
                     "x": self.selection_pdf_rect.x(), 
                     "y": self.selection_pdf_rect.y(),
@@ -379,6 +398,7 @@ class SelectablePdfView(QPdfView):
             }
             
             box = HighlightBox(comment_data, self.viewport())
+            box.is_error = False
             self.highlight_boxes.append(box)
 
             marker = CommentMarker(comment_data, self.viewport())
