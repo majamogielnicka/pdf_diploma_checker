@@ -5,9 +5,9 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 
 '''
 
-from src.analysis.extraction.bare_struct import DocumentData, TocData, TofData, TotData
-from src.analysis.extraction.schema import FinalDocument
-from src.common.errors.error_struct import Error, FileError, Module
+from analysis.extraction.bare_struct import DocumentData, TocData, TofData, TotData
+from analysis.extraction.schema import FinalDocument
+from common.errors.error_struct import Error, FileError, Module
 from dataclasses import dataclass
 from typing import List
 import json
