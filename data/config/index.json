@@ -6960,66 +6960,7 @@
             "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/other/jost2.pdf",
             "typ": "PDF",
             "data_dodania": "2026-05-10",
-            "komentarze": [
-                {
-                    "strona": 2,
-                    "tekst_komentarza": "a",
-                    "wspolrzedne": {
-                        "h": 4.5,
-                        "w": 39.0,
-                        "x": 296.625,
-                        "y": 163.5
-                    },
-                    "znaleziony_tekst": "a została została"
-                },
-                {
-                    "strona": 4,
-                    "wspolrzedne": {
-                        "x": 444.2850036621094,
-                        "y": 119.25
-                    },
-                    "tekst_komentarza": "a",
-                    "znaleziony_tekst": "(Komentarz dodany w pustym miejscu)"
-                },
-                {
-                    "strona": 1,
-                    "tekst_komentarza": "a",
-                    "wspolrzedne": {
-                        "h": 7.5,
-                        "w": 62.25,
-                        "x": 235.125,
-                        "y": 162.75
-                    },
-                    "znaleziony_tekst": "a dyplomowa"
-                },
-                {
-                    "strona": 3,
-                    "wspolrzedne": {
-                        "x": 283.125,
-                        "y": 219.75
-                    },
-                    "tekst_komentarza": "a",
-                    "znaleziony_tekst": "(Komentarz dodany w pustym miejscu)"
-                },
-                {
-                    "strona": 2,
-                    "wspolrzedne": {
-                        "x": 323.625,
-                        "y": 389.25
-                    },
-                    "tekst_komentarza": "a",
-                    "znaleziony_tekst": "(Komentarz dodany w pustym miejscu)"
-                },
-                {
-                    "strona": 2,
-                    "wspolrzedne": {
-                        "x": 424.875,
-                        "y": 227.25
-                    },
-                    "tekst_komentarza": "a",
-                    "znaleziony_tekst": "(Komentarz dodany w pustym miejscu)"
-                }
-            ],
+            "komentarze": [],
             "bledy_analizy": [
                 {
                     "kategoria": "config_file",
@@ -7550,7 +7491,17 @@
                     "znaleziony_tekst": "glutathione; GPx - glutathione peroxidase; GST - glutathione-S-transferase; MPO - myeloperoxidase."
                 }
             ],
-            "wynik_sota": null
+            "wynik_sota": {
+                "content_grade": 56.0,
+                "cytowania": 2,
+                "id": "1",
+                "ocena": 100,
+                "podstawa": "KROK 3 (Najwięcej cytowań)",
+                "r1": true,
+                "r2": true,
+                "r3": true,
+                "tytul": "BIOTECHNOLOGY"
+            }
         }
     ],
     "konfiguracje_regul": []

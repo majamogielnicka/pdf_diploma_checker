@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 APP_DIR = os.path.join(BASE_DIR, "app")
@@ -543,7 +544,7 @@ class PDFReader(QMainWindow):
         self.raport_btn = QPushButton("Pobierz dokładny raport")
         self.raport_btn.setCursor(Qt.PointingHandCursor)
         self.raport_btn.setStyleSheet(styles.RAPORT_BTN_STYLE)
-        # self.raport_btn.clicked.connect(self.generate_detailed_report)
+        self.raport_btn.clicked.connect(self.generate_detailed_report)
         l.addWidget(self.raport_btn)
 
         self.right_panel.layout().addWidget(content)
@@ -661,7 +662,7 @@ class PDFReader(QMainWindow):
             if coords.get("w", 0) > 0:
                 from select_text import HighlightBox
                 box = HighlightBox(c_data, self.pdf_view.viewport())
-                box.is_error = False # <--- ADD THIS LINE
+                box.is_error = False
                 box.setStyleSheet("background-color: rgba(0, 120, 255, 60); border: none;")
                 self.pdf_view.highlight_boxes.append(box)
 
@@ -670,3 +671,106 @@ class PDFReader(QMainWindow):
             self.pdf_view.comment_markers.append(marker)
 
         self.pdf_view.update_markers_pos()
+
+
+    def generate_detailed_report(self):
+        sota_data = None
+        if hasattr(self, 'current_pdf_path'):
+            for p in self.manager.data.get("prace", []):
+                if p['sciezka_lokalna'] == self.current_pdf_path:
+                    sota_data = p.get("wynik_sota")
+                    break
+
+        if not sota_data:
+            QMessageBox.warning(self, "Ostrzeżenie", "Brak danych szczegółowej analizy AI dla tego dokumentu.")
+            return
+
+        default_name = f"Raport_AI_{os.path.basename(self.current_pdf_path)}"
+        save_path, _ = QFileDialog.getSaveFileName(self, "Zapisz Raport Szczegółowy", default_name, "Pliki PDF (*.pdf)")
+        
+        if not save_path:
+            return
+
+        try:
+            report_pdf = fitz.open()
+            page = report_pdf.new_page()
+            
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            font_path = os.path.join(current_dir, "assets", "Roboto-Regular.ttf")
+            font_bold_path = os.path.join(current_dir, "assets", "Roboto-Bold.ttf")
+
+            if os.path.exists(font_path) and os.path.exists(font_bold_path):
+                f_main = "roboto"
+                f_bold = "roboto-bold"
+                page.insert_font(fontname=f_main, fontfile=font_path)
+                page.insert_font(fontname=f_bold, fontfile=font_bold_path)
+            else:
+                f_main = "helv"
+                f_bold = "hebo"
+                print("UWAGA: Nie znaleziono czcionek w assets. Użyto zamienników.")
+
+            pos_y = 50
+            margin = 50
+            
+            page.insert_text((margin, pos_y), "Szczegółowy Raport Analizy AI", 
+                             fontsize=22, fontname=f_bold, color=(0.13, 0.58, 0.95))
+            pos_y += 45
+            page.insert_text((margin, pos_y), f"Dokument: {os.path.basename(self.current_pdf_path)}", 
+                             fontsize=12, fontname=f_main, color=(0.2, 0.2, 0.2))
+            pos_y += 40
+            
+            content_grade = sota_data.get('content_grade', {})
+            if isinstance(content_grade, dict):
+                grade = content_grade.get('grade', 0)
+                max_g = content_grade.get('max_grade', 60)
+                page.insert_text((margin, pos_y), "1. Ogólna ocena merytoryczna", 
+                                 fontsize=14, fontname=f_bold)
+                pos_y += 25
+                page.insert_text((margin, pos_y), f"Wynik punktowy: {grade} / {max_g} pkt", 
+                                 fontsize=12, fontname=f_main)
+                pos_y += 20
+                page.insert_text((margin, pos_y), 
+                                 f"Podrozdziały poza tematem: {content_grade.get('off_topic_sections', 0)} ({content_grade.get('p_off', 0)}%)", 
+                                 fontsize=11, fontname=f_main)
+                pos_y += 45
+
+            page.insert_text((margin, pos_y), "2. Analiza rozdziału SOTA", 
+                             fontsize=14, fontname=f_bold)
+            pos_y += 25
+            
+            chapter_title = sota_data.get('tytul', 'Brak tytułu')
+            page.insert_text((margin, pos_y), f"Analizowany rozdział: {chapter_title}", 
+                             fontsize=12, fontname=f_main)
+            pos_y += 20
+            
+            score = sota_data.get('ocena', 0)
+            page.insert_text((margin, pos_y), f"Zgodność z wymogami SOTA: {score}%", 
+                             fontsize=12, fontname=f_main)
+            pos_y += 30
+
+            criteria = [
+                ("Ocena istniejących rozwiązań:", sota_data.get('r1')),
+                ("Wskazanie luki badawczej / problemu:", sota_data.get('r2')),
+                ("Synteza i porównanie metod:", sota_data.get('r3'))
+            ]
+
+            for label, met in criteria:
+                status = "TAK [X]" if met else "NIE [ ]"
+                color = (0.17, 0.62, 0.35) if met else (0.86, 0.2, 0.27)
+                page.insert_text((margin + 20, pos_y), f"{label} {status}", 
+                                 fontsize=11, fontname=f_main, color=color)
+                pos_y += 20
+
+
+            page.insert_text((margin, 800), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
+                             fontsize=9, fontname=f_main, color=(0.5, 0.5, 0.5))
+
+            report_pdf.save(save_path)
+            report_pdf.close()
+            
+            QMessageBox.information(self, "Sukces", f"Raport został zapisany pomyślnie:\n{save_path}")
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Błąd Eksportu", f"Błąd podczas generowania raportu:\n{str(e)}")
