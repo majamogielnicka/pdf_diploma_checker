@@ -1,3 +1,7 @@
+"""
+Moduł sprawdzający spójność i poprawność formatowania list wyliczeniowych.
+
+"""
 from .check_item_in_list import check_item, has_verb, is_upper_and_dot
 from .helpers import add_match
 import re
@@ -20,15 +24,6 @@ def add_list_error(items_by_id, num, block_id, category):
 
 def is_short_definition(text, text_language):
 
-    """
-    Checks if the text is a short definition.
-    
-    Args:
-        text (str): Text to check.
-        text_language (str): pl for Polish or en for English.
-    Returns:
-        bool: True if the text is a short definition, False otherwise.
-    """
     if re.match(r'^[A-Z]{2,}\s+[–—\-−:]\s', text):
         return True
     match = re.match(r'^((\S+\s){1,4})[–—\-−:]\s', text)
@@ -38,16 +33,6 @@ def is_short_definition(text, text_language):
     return False
 
 def check_coherence_in_list(blocks, proper_names, acronyms):
-    """
-    Checks for lack of coherence in a list of items.
-    
-    Args:
-        document (FinalDocument): Parsed JSON document.
-        text_language (str): pl for Polish or en for English.
-    
-    Returns:
-        list[Error_type]: List of detected errors.
-    """
     matches = []
     #symbols = set(r"""`~!@#$%^&*()_-+={[}}|\:;"'<,>.?/""")
     quote_marks = {'"', '„', '”', '«', '»', '('}

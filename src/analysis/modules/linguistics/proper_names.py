@@ -1,18 +1,12 @@
-from .spacy_helpers import nlp_pl, nlp_en, lemmatization
+"""
+Moduł ekstrakcji nazw własnych i słów kluczowych z dokumentu.
+
+"""
+from .helpers import nlp_pl, nlp_en, lemmatization
 import re
 
 
 def get_proper_names(blocks):
-    """
-    Extracts proper names and recognized entities from the document using spaCy.
-    
-    Args:
-        document (FinalDocument): The document structure.
-        text_language (str): The language code of the text.
-        
-    Returns:
-        set: A set containing unique valid proper names extracted from the text.
-    """
 
 
     TITLE_PAGE_PHRASES = {
@@ -47,6 +41,7 @@ def get_proper_names(blocks):
                 for ent in text.ents:
                     ent_text = ent.text.strip("(),.:;[]\n\t ")
                     if not ent.label_ or ent.label_ in SKIP_LABEL_PL or len(ent_text) < 2:
+                        previous = ent
                         continue
                     if previous is not None and (previous_check.findall(previous.text) or previous.label_ == "PERSON") and ent.label_ == "PERSON":
                         previous = ent
@@ -54,7 +49,8 @@ def get_proper_names(blocks):
                         if proper_names:
                             proper_names.pop(-1)
                     ent_lemma, is_found = lemmatization(ent_text, block.language)
-                    proper_names.append((ent_text, ent_lemma))  
+                    proper_names.append((ent_text, ent_lemma))
+                    previous = ent  
 
             elif block.language == "en":
                 nlp = nlp_en
@@ -62,14 +58,16 @@ def get_proper_names(blocks):
                 for ent in text.ents:
                     ent_text = ent.text.strip("(),.:;[]\n\t ")   
                     if not ent.label_ or ent.label_ in SKIP_LABELS_EN or len(ent_text) < 2:
+                        previous = ent
                         continue
                     if previous is not None and (previous_check.findall(previous.text) or previous.label_ == "PERSON") and ent.label_ == "PERSON":
-                        previous = ent
                         ent_text = previous.text + " " + ent_text
                         if proper_names:
                             proper_names.pop(-1)
+                        previous = ent
                     ent_lemma, is_found = lemmatization(ent_text, block.language)
-                    proper_names.append((ent_text, ent_lemma))    
+                    proper_names.append((ent_text, ent_lemma))
+                    previous = ent 
 
         if block.block.type in ("keywords", "paragraph"):
             keyword_match = search_keywords.search(block.contents)

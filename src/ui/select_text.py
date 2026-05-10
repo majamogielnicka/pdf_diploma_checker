@@ -110,27 +110,42 @@ class SelectablePdfView(QPdfView):
     def add_errors(self, errors_list):
         self.clear_markers()
         
-        for b in self.highlight_boxes:
-            b.deleteLater()
-        self.highlight_boxes.clear()
+        new_boxes = []
+        for box in self.highlight_boxes:
+            if getattr(box, 'is_error', False):
+                box.deleteLater()
+            else:
+                new_boxes.append(box)
+        self.highlight_boxes = new_boxes
 
         for err in errors_list:
             marker = ErrorMarker(err, self.viewport())
             self.markers.append(marker)
             
-            w = err.get("wspolrzedne", {}).get("w", 0)
-            h = err.get("wspolrzedne", {}).get("h", 0)
+            coords = err.get("wspolrzedne", {})
+            w = coords.get("w", 0)
+            h = coords.get("h", 0)
             
-            if w > 0 and h > 0:
+            if w > 0:
                 box = HighlightBox(err, self.viewport())
-                box.setStyleSheet("""
-                    QFrame {
-                        background-color: rgba(255, 0, 0, 60); 
-                    }
-                """)
+                box.is_error = True
+                box.setStyleSheet("background-color: rgba(255, 0, 0, 60); border: none;")
                 self.highlight_boxes.append(box)
 
         self.update_markers_pos()
+
+    def clear_comments(self):
+        for m in self.comment_markers:
+            m.deleteLater()
+        self.comment_markers = []
+
+        new_boxes = []
+        for b in self.highlight_boxes:
+            if not getattr(b, 'is_error', False):
+                b.deleteLater()
+            else:
+                new_boxes.append(b)
+        self.highlight_boxes = new_boxes
 
     def update_markers_pos(self):
         doc = self.document()
@@ -383,6 +398,7 @@ class SelectablePdfView(QPdfView):
             }
             
             box = HighlightBox(comment_data, self.viewport())
+            box.is_error = False
             self.highlight_boxes.append(box)
 
             marker = CommentMarker(comment_data, self.viewport())
