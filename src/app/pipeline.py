@@ -103,8 +103,9 @@ class AnalysisPipeline:
         def task_linguistics():
             try:
                 from analysis.extraction.extraction_json import extractPDF
-                from analysis.extraction.converter_linguistics import PDFMapper
+                from analysis.extraction.converter_linguistics_clean import PDFMapper
                 import importlib.util
+                mapper = PDFMapper()
                 ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
                 spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
                 ling_module = importlib.util.module_from_spec(spec)
@@ -112,7 +113,7 @@ class AnalysisPipeline:
                 sys.modules["analysis.modules.linguistics.run_mock_data"] = ling_module
                 spec.loader.exec_module(ling_module)
                 
-                raw_blocks = PDFMapper.map_to_schema(doc_obj)
+                raw_blocks = mapper.map_to_schema(doc_obj)
                 ling_matches = ling_module.run_linguistics(raw_blocks)
                 print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
                 return ling_matches
@@ -125,10 +126,11 @@ class AnalysisPipeline:
         def task_redaction():
             try:
                 from analysis.modules.redaction.redaction_validator import RedactionValidator
-                
+                from analysis.extraction.converter_linguistics_clean import PDFMapper
+                mapper = PDFMapper()
                 validator = RedactionValidator(
                     document_data=doc_obj, 
-                    document_data_linguistics=PDFMapper.map_to_schema(doc_obj), 
+                    document_data_linguistics=mapper.map_to_schema(doc_obj), 
                     config_path=config_path
                 )
                 
