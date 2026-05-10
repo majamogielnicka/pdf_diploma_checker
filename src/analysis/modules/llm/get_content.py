@@ -1,13 +1,26 @@
 import re
+import os
+import sys
 import fitz
 from dataclasses import dataclass
 from pathlib import Path
 from collections import Counter
 import fitz
 
-file_path = Path("src/theses/doju1.pdf")
-output_path = Path("src/llm/wyniki/blocks.txt")
-summaries_path = Path("src/llm/wyniki/subtitles.txt")
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parents[3]
+SRC_DIR = PROJECT_ROOT / "src"
+
+for p in (PROJECT_ROOT, SRC_DIR):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
+
+from common.path import resource_path
+
+file_path = Path(resource_path(os.path.join("theses", "doju1.pdf")))
+output_path = Path(resource_path(os.path.join("llm", "wyniki", "blocks.txt")))
+summaries_path = Path(resource_path(os.path.join("llm", "wyniki", "subtitles.txt")))
 
 
 def get_font_size(pdf_path):

@@ -1,15 +1,13 @@
 import sys
-from pathlib import Path
+import os
 import time
 
-BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parents[3]
-SRC_DIR = PROJECT_ROOT / "src"
+_src_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
+for _p in (os.path.dirname(_src_dir), _src_dir):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-for p in (PROJECT_ROOT, SRC_DIR):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+from common.path import resource_path
 
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
