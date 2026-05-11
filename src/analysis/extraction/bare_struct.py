@@ -45,12 +45,7 @@ class TextBlock:
 #moja propozycja:   ~Bartek 08.03
 #jesli chodzi o zdjecia to wydaje mi sie ze najlepiej bedzie trzymac tylko sciezke zamiast calego obrazu zeby bylo czytelniej
 #wszystkie obrazy z pdf'a beda ekstraktowane do folderu /images
-@dataclass
-class HeaderData:
-    level: int
-    title: str
-    page_num: int
-    bbox: tuple
+
 @dataclass
 class TocEntry:
     level: int
@@ -60,11 +55,35 @@ class TocEntry:
     src_page: int #Strona na ktorej znajduje sie czesc spisu tresci z odnosnikiem do tego naglowka
 
 @dataclass
+class TofEntry:
+    number: int
+    title: str
+    page: int
+    bbox: tuple
+    src_page: int
+@dataclass
+class TotEntry:
+    number: int
+    title: str
+    page: int
+    bbox: tuple
+    src_page: int
+
+@dataclass
 class TocData:
     page_nums: List[int]
     entries: List[TocEntry]
     text: str
-
+@dataclass
+class TofData:
+    page_nums: List[int]
+    entries: List[TofEntry]
+    text: str
+@dataclass
+class TotData:
+    page_nums: List[int]
+    entries:List[TotEntry]
+    text:str
 @dataclass
 class ImageInfo:
     path: str
@@ -102,7 +121,8 @@ class DocumentData:
     metadata: Dict[str, Any]
     pages: List[PageData] = field(default_factory=list)
     toc: TocData | None = None
-    headers: List[HeaderData] = field(default_factory=list)
+    tof: TofData | None = None
+    tot: TotData | None = None
 
     def _to_dict(self):  #zeby latwo bylo przeniesc do jsona
         return asdict(self)
