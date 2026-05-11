@@ -8,66 +8,60 @@ import re
 
 def get_proper_names(blocks):
 
-
     TITLE_PAGE_PHRASES = {
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
     "STRESZCZENIE", "ABSTRACT", "SŁOWA", "KLUCZOWE",
     "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS",
-    "ENGINEERING", "THESIS",
+    "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA",
+    "WSTĘP", "CEL", "PRACY", "TEORIA", "PRZEGLĄD", "ROZWIĄZAŃ", "OPIS", 
+    "WYNIKI", "ZAKOŃCZENIE", "DODATEK", "INSTRUKCJA", "PROGRAMISTY", 
+    "DYPLOMU", "UŻYTKOWNIKA", "BIBLIOGRAFIA", "SPIS", "TREŚCI", "RYSUNKÓW", 
+    "TABEL", "LISTA", "SYMBOLI"
     }
     SKIP_LABELS_EN = {"TIME", "DATE", "CARDINAL", "MONEY", "PERCENT", "QUANTITY", "ORDINAL"}
     SKIP_LABEL_PL = {"date", "time"}
+    BIB_LABELS_EN = {"PERSON", "WORK_OF_ART", "GPE", "ORG" }
+    BIB_LABELS_PL = {"persName", "placeName", "orgName"}
     proper_names = []
 
-    previous_check = re.compile(r"^[A-Z].$")
-    split_key = re.compile(":")
+    # previous_check = re.compile(r"^[A-Z].$")
+    # split_key = re.compile(":")
     split = re.compile(",|;")
     search_keywords = re.compile(r'(?i)(?:keywords|słowa kluczowe)\s*:\s*(.*)')
     search_space = re.compile(r"\s")
-    bibliography = re.compile(r"^\[\d+\]")
 
     for block in blocks:
-        previous = None
-
-        if bibliography.findall(block.contents):
-            continue
+        block_type = block.block.type
+        is_bib = block.block.is_bibliography if block_type == "list" else False
         if any(phrase in block.contents for phrase in TITLE_PAGE_PHRASES):
             continue
-        if block.block.type in ("paragraph", "heading", "list", "acronyms"):
+        if block_type in ("paragraph", "heading", "list", "acronyms"): 
 
             if block.language == "pl":
                 nlp = nlp_pl
                 text = nlp(block.contents)
                 for ent in text.ents:
                     ent_text = ent.text.strip("(),.:;[]\n\t ")
+                    if block_type == "list" and is_bib:  
+                        if not ent.label_ or not ent.label_ in BIB_LABELS_PL:
+                            continue
                     if not ent.label_ or ent.label_ in SKIP_LABEL_PL or len(ent_text) < 2:
-                        previous = ent
                         continue
-                    if previous is not None and (previous_check.findall(previous.text) or previous.label_ == "PERSON") and ent.label_ == "PERSON":
-                        previous = ent
-                        ent_text = previous.text + " " + ent_text
-                        if proper_names:
-                            proper_names.pop(-1)
                     ent_lemma, is_found = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))
-                    previous = ent  
 
-            elif block.language == "en":
+            if block.language == "en":
                 nlp = nlp_en
                 text = nlp(block.contents)
                 for ent in text.ents:
-                    ent_text = ent.text.strip("(),.:;[]\n\t ")   
+                    ent_text = ent.text.strip("(),.:;[]\n\t ")
+                    if block_type == "list" and is_bib:  
+                        if not ent.label_ or not ent.label_ in BIB_LABELS_EN:
+                            continue   
                     if not ent.label_ or ent.label_ in SKIP_LABELS_EN or len(ent_text) < 2:
-                        previous = ent
                         continue
-                    if previous is not None and (previous_check.findall(previous.text) or previous.label_ == "PERSON") and ent.label_ == "PERSON":
-                        ent_text = previous.text + " " + ent_text
-                        if proper_names:
-                            proper_names.pop(-1)
-                        previous = ent
                     ent_lemma, is_found = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))
-                    previous = ent 
 
         if block.block.type in ("keywords", "paragraph"):
             keyword_match = search_keywords.search(block.contents)

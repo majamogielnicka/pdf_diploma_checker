@@ -4,8 +4,6 @@ Moduł weryfikujący, czy dane słowo jest nazwą własną, skrótem lub wyraże
 """
 import re
 from .helpers import lemmatization
-from src.analysis.extraction.schema import ParagraphBlock, WordInfo
-from .linguistics_types import Error_type
 
 
 def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
@@ -33,8 +31,6 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
         return True
     if text.isupper():
         return True
-
-
     
     if proper_names is not None:
         proper = {p[0] for p in proper_names}

@@ -1,7 +1,7 @@
 '''
 Uruchamianie analizy lingwistycznej funkcją run_linguistics.
 '''
-
+import os
 from .language_error_extractor import *
 from .decimal_point_extractor import decimal_check
 from .dash_check import dash_check
@@ -13,15 +13,17 @@ from .helpers import extract_errors_to_json, get_context
 from .first_definition import check_first_definition
 from .check_acronym import check_if_was_defined
 #from .bibliography_check import check_bibliography
-from src.analysis.extraction.extraction_json import extractPDF
-from src.analysis.extraction.converter_linguistics_clean import PDFMapper
+from analysis.extraction.extraction_json import extractPDF
+from analysis.extraction.converter_linguistics_clean import PDFMapper
+from common.path import resource_path
 
 def run_linguistics(raw_blocks):
     blocks = get_context(raw_blocks)
     extract_errors_to_json(blocks, "final_document.json")
     proper_names = get_proper_names(blocks)
     acronyms_with_definitions, proper_names = check_first_definition(blocks, proper_names)
-    acronym_matches = check_if_was_defined(blocks, acronyms_with_definitions)
+    acronym_matches, proper_names = check_if_was_defined(blocks, acronyms_with_definitions, proper_names)
+    proper_names = set(proper_names)
     decimal_matches, decimal_counter = decimal_check(blocks)
     dash_matches, dash_counter = dash_check(blocks)
     language_matches, whitespace_counter = language_tool_analisys(blocks)
@@ -33,7 +35,7 @@ def run_linguistics(raw_blocks):
 
 #plik pomocniczy do uruchamiania analizy bez GUI
 if __name__ == "__main__":
-    pdf_file = "data/most_important/jabi.pdf"
+    pdf_file = resource_path(os.path.join("data", "most_important", "jabi.pdf"))
     try:
         document = extractPDF(str(pdf_file))
         mapper = PDFMapper()

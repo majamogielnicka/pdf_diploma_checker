@@ -2,7 +2,6 @@
 Moduł odpowiedzialny za ekstrakcję pierwszych definicji skrótów (akronimów) w dokumencie.
 
 """
-from src.analysis.modules.linguistics import check_acronym
 import re
 from .helpers import language
 from .check_acronym import potential_acronym
@@ -122,9 +121,9 @@ def check_first_definition(blocks, proper_names):
     parenthesis_def_dash_acr = re.compile(r'\(\s*(?:ang\.|pol\.|fr\.|niem\.|łac\.)?\s*([A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\s\-]{2,}?)\s*[\-\u2013\u2014]\s*([A-Z]{2,})\s*\)', re.UNICODE)
     broken_no_parenthesis_svm = re.compile(r'\b([A-Z]{2,})\s+([A-Z][a-z]+\s+[A-Z][a-z]+[\w\s\-]*)\s*\)', re.UNICODE)
     split = re.compile(r"\s[-\u2013\u2014]\s")
-    for block in blocks:
-        block = block.block
-        words = block.words
+    for b in blocks:
+        block = b.block
+        words = block.words 
         if bibliography_re.search(block.content):
             continue
         if block.type == "acronyms":
@@ -136,6 +135,8 @@ def check_first_definition(blocks, proper_names):
                 else:
                     continue
         elif block.type == "list":
+            if block.is_bibliography:
+                continue
             for item in block.items:
                 if list_acronyms.search(item.text):
                     new_acronym = split.split(item.text, 1)
@@ -145,6 +146,8 @@ def check_first_definition(blocks, proper_names):
 
 
         if block.type in ("paragraph", "heading", "list"):
+            if block.type == "list" and block.is_bibliography:
+                continue
             if '(' in block.content or ')' in block.content:
                 text = block.content
                 new_acronyms = paragraph_acr_first.findall(text)
@@ -166,7 +169,5 @@ def check_first_definition(blocks, proper_names):
                     if initials_match(new_acronym[1], new_acronym[0], proper_names, block):
                         acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions)
 
-    proper_names = set(proper_names)
-    #print(f"Proper Names: ",proper_names)
     #print(f'\n acronyms_with_definitions: \n' + '\n'.join([f'{acronym}: {acronyms_with_definitions[acronym][0]}' for acronym in acronyms_with_definitions]))
     return acronyms_with_definitions, proper_names
