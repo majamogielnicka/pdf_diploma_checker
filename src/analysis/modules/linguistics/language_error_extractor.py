@@ -3,7 +3,7 @@ Analiza tekstu pod względem gramatycznym, stylistycznym i typograficznym.
 '''
 import language_tool_python
 from .linguistics_types import Error_type
-from src.analysis.extraction.schema import *
+from analysis.extraction.schema import *
 from .helpers import get_match_info, morf
 
 def language_tool_analisys(blocks):

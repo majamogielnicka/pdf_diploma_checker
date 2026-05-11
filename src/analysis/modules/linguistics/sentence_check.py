@@ -2,7 +2,7 @@
 Analiza składni zdań, wydobywanie form osobowych oraz zdań w praragrafach niezawierających podmiotu lub orzeczenia.
 '''
 from spacy.symbols import VERB
-from src.analysis.extraction.schema import *
+from analysis.extraction.schema import *
 from .exeptions_check import check_quotes
 from .helpers import get_match_info, morf, language, nlp_pl, nlp_en
 from .linguistics_types import Error_type, Analisys_type

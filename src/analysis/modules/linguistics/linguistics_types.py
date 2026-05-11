@@ -2,7 +2,7 @@
 Definicje dataclasses używanych w module lingwistycznym.
 '''
 from dataclasses import dataclass
-from src.analysis.extraction.schema import ParagraphBlock, ListBlock
+from analysis.extraction.schema import ParagraphBlock, ListBlock
 from typing import Union
 @dataclass
 class Error_type:
