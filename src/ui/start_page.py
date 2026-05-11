@@ -237,7 +237,6 @@ class StartPage(QWidget):
         row_l = QHBoxLayout(row)
         row_l.setContentsMargins(5, 10, 5, 10)
         
-        current_dir = os.path.dirname(os.path.abspath(__file__))
         icon_path =  resource_path(os.path.join("ui", "assets", "pdf_file.svg"))
         if os.path.exists(icon_path):
             icon_widget = QSvgWidget(icon_path)

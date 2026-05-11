@@ -1,13 +1,10 @@
 import os
 import sys
 import concurrent.futures
-
-import os
-import sys
-
-from common.path import resource_path
-
-BASE_DIR = resource_path(".") 
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 EXTRACTION_DIR = os.path.join(BASE_DIR, "analysis", "extraction")
 COMMON_DIR     = os.path.join(BASE_DIR, "common")
@@ -15,13 +12,16 @@ LINGUISTICS_DIR = os.path.join(BASE_DIR, "analysis", "modules", "linguistics")
 LLM_DIR         = os.path.join(BASE_DIR, "analysis", "modules", "llm")
 REDACTION_DIR   = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
 
+from common.path import resource_path
+
+
 for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from service import ExtractionService
-from linguistics_service import LinguisticsService
-from models import FinalReport, ModuleResult
+from analysis.extraction.service import ExtractionService
+from analysis.modules.linguistics.linguistics_service import LinguisticsService
+from common.models import FinalReport, ModuleResult
 
 
 class AnalysisPipeline:
@@ -68,7 +68,7 @@ class AnalysisPipeline:
                 from analysis.modules.llm.get_purpose import get_purpose
                 from analysis.modules.llm.get_summary import get_summaries
                 from analysis.modules.llm.get_subtitles import get_subtitles
-                from run_sota import get_final_sota_report
+                from analysis.modules.llm.run_sota import get_final_sota_report
                 from analysis.modules.llm.get_content import get_content
                 from analysis.modules.llm.config import THESIS_PATH, LANGUAGE
 

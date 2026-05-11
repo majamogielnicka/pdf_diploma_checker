@@ -12,14 +12,29 @@ from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
 import spacy
+import sys
 
 morf = morfeusz2.Morfeusz()
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
-nlp_en = spacy.load('en_core_web_lg')
-nlp_pl = spacy.load('pl_core_news_lg')
+import os
+import sys
+import spacy
 
+def get_nlp(model_name):
+    """Bezpieczne ładowanie dowolnego modelu spaCy w .exe i kodzie źródłowym"""
+    if getattr(sys, 'frozen', False):
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+        model_path = os.path.join(base_path, model_name)
+        if not os.path.exists(model_path):
+            model_path = os.path.join(base_path, "_internal", model_name)
+        if os.path.exists(model_path):
+            return spacy.load(model_path)
+    return spacy.load(model_name)
+
+nlp_pl = get_nlp("pl_core_news_lg")
+nlp_en = get_nlp("en_core_web_lg")
 
 @functools.cache
 def lemmatization(word_base, text_language):
