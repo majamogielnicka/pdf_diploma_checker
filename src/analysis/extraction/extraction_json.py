@@ -1308,7 +1308,8 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
 def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: #Table of Figures
     """ Funkcja wykrywająca spisy rysunków """
     keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
-                "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków"]
+                "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków",
+                "spis wykresów", "table of graphs"]
     all_entries = []
     tof_pages = []
     is_detecting = False

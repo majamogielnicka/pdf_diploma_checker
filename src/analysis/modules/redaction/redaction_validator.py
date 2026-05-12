@@ -165,17 +165,17 @@ class RedactionValidator:
                 self.errors.remove(error)
 
     def remove_errors_from_toc_tof_tot(self):
-        if self.document_data.toc.page_nums:
+        if self.document_data.toc and self.document_data.toc.page_nums:
             toc_pages = self.document_data.toc.page_nums
         else:
             toc_pages = []
 
-        if self.document_data.tof.page_nums:
+        if self.document_data.tof and self.document_data.tof.page_nums:
             tof_pages = self.document_data.tof.page_nums
         else:
             tof_pages = []
 
-        if self.document_data.tot.page_nums:
+        if self.document_data.tot and self.document_data.tot.page_nums:
             tot_pages = self.document_data.tot.page_nums
         else:
             tot_pages = []
