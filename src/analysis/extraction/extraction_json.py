@@ -1311,6 +1311,7 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                 "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków"]
     all_entries = []
     tof_pages = []
+    is_detecting = False
 
     for page_obj in pages:
         if page_obj.number in toc_pages:
@@ -1342,11 +1343,15 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                 continue
 
             line_full_text = " ".join(fragments)
+
+            if line_full_text.lower() in keywords:
+                page_text += line_full_text + " "
+                continue
+
             page_text += line_full_text + " "
 
-
-            match_full = re.search(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
-            match_start = re.match(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
+            match_full = re.search(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
             if match_full:
@@ -1379,16 +1384,18 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                 cut_title = base_title + sep + line_full_text
 
         low_page_text = page_text.lower()
-        has_keyword = any(word in low_page_text for word in keywords)
+        if any(word in low_page_text for word in keywords):
+            is_detecting = True
         
-        if has_keyword and len(page_entries) >= 2:
+        if is_detecting and page_entries:
             all_entries.extend(page_entries)
             if page_obj.number not in tof_pages:
                 tof_pages.append(page_obj.number)
+        elif is_detecting and not page_entries:
+            is_detecting = False
 
     if all_entries:
         return TofData(page_nums=tof_pages, entries=all_entries, text="Spis Rysunków")
-
     return None
 
 def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Tables
@@ -1396,6 +1403,7 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
     keywords = ["spis tabel", "spis tablic", "list of tables", "tot", "wykaz tabel"]
     all_entries = []
     tot_pages = []
+    is_detecting = False
 
     for page_obj in pages:
         if page_obj.number in toc_pages:
@@ -1427,10 +1435,15 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
                 continue
 
             line_full_text = " ".join(fragments)
+
+            if line_full_text.lower() in keywords:
+                page_text += line_full_text + " "
+                continue
+
             page_text += line_full_text + " "
 
-            match_full = re.search(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
-            match_start = re.match(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
+            match_full = re.search(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
             if match_full:
@@ -1463,14 +1476,16 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
                 cut_title = base_title + sep + line_full_text
 
         low_page_text = page_text.lower()
-        has_keyword = any(word in low_page_text for word in keywords)
+        if any(word in low_page_text for word in keywords):
+            is_detecting = True
         
-        if has_keyword and len(page_entries) >= 2:
+        if is_detecting and page_entries:
             all_entries.extend(page_entries)
             if page_obj.number not in tot_pages:
                 tot_pages.append(page_obj.number)
+        elif is_detecting and not page_entries:
+            is_detecting = False
 
     if all_entries:
         return TotData(page_nums=tot_pages, entries=all_entries, text="Spis Tabel")
-
     return None
