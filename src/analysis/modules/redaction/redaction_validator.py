@@ -129,6 +129,7 @@ class RedactionValidator:
 
         self.remove_errors_from_title_page()
         self.remove_errors_from_toc_tof_tot()
+        self.remove_errors_from_images()
         self.replace_global_errors()
 
         return self.errors
@@ -193,6 +194,35 @@ class RedactionValidator:
             errors_fixed.append(error)
         self.errors = errors_fixed
 
+    def remove_errors_from_images(self):
+        def is_inside(error_bbox, image_bbox):
+            return (
+                error_bbox[0] >= image_bbox[0] - 10 and
+                error_bbox[1] >= image_bbox[1] - 10 and
+                error_bbox[2] <= image_bbox[2] + 10 and
+                error_bbox[3] <= image_bbox[3] + 10
+            )
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "check_justification"]
+        filtered_errors = []
+
+        for error in self.errors:
+            error_to_remove = False
+
+            if error.category in errors_excluded:
+                for page in self.document_data.pages:
+                    if error.page_number == page.number:
+                        for image in page.images:
+                            if is_inside(error.bounding_box, image.bbox):
+                                error_to_remove = True
+                                break
+                        break 
+            
+            if not error_to_remove:
+                filtered_errors.append(error)
+
+        self.errors = filtered_errors
+                                
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
         orphans = []
@@ -541,8 +571,7 @@ class RedactionValidator:
                 wrong_entries.append(entry)
 
         return wrong_entries
-
-        
+    
     def check_footers(self):
 
         for page in self.document_data.pages:
