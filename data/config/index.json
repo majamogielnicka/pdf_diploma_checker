@@ -1,13 +1,6 @@
 {
     "prace": [
         {
-            "nazwa_pliku": "jost2.pdf",
-            "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/jost2.pdf",
-            "typ": "PDF",
-            "data_dodania": "2026-04-23",
-            "komentarze": []
-        },
-        {
             "nazwa_pliku": "bosh.pdf",
             "sciezka_lokalna": "C:/Users/natal/OneDrive/Pulpit/pdf_diploma_checker/data/bosh.pdf",
             "typ": "PDF",
@@ -7502,6 +7495,3532 @@
                 "r3": true,
                 "tytul": "BIOTECHNOLOGY"
             }
+        },
+        {
+            "nazwa_pliku": "jago.pdf",
+            "sciezka_lokalna": "/home/m/uni/sem6/zsd/data/most_important/jago.pdf",
+            "typ": "PDF",
+            "data_dodania": "2026-05-10",
+            "komentarze": [],
+            "bledy_analizy": [
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Używana interlinia (1.38) jest niezgodna z wymaganą interlinią (1.5).",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 109.06,
+                        "x": 5.0,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Dokument ma 66 stron, więcej niż maksymalna liczba 60.",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 109.05000000000001,
+                        "x": 124.06,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Używany rozmiar czcionki (9.36) jest niezgodny z wymaganym rozmiarem czcionki (10).",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 109.06,
+                        "x": 243.11,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "config_file",
+                    "komentarz": "Używana czcionka (TeXGyreHeros-Bold) jest niezgodna z wymaganą czcionką.",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 109.05000000000001,
+                        "x": 362.17,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "Footer_on_1st_page",
+                    "komentarz": "Wykryto numerację na stronie, która nie powinna się tam znaleźć.",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206878662109375,
+                        "x": 280.8609924316406,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "1"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 5, oczekiwano: 2.",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206878662109375,
+                        "x": 309.2079772949219,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "5"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 6, oczekiwano: 3.",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206878662109375,
+                        "x": 280.8609924316406,
+                        "y": 793.419921875
+                    },
+                    "znaleziony_tekst": "6"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 7, oczekiwano: 4.",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206878662109375,
+                        "x": 309.2079772949219,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "7"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 8, oczekiwano: 5.",
+                    "strona": 5,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206878662109375,
+                        "x": 280.8609924316406,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "8"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 9, oczekiwano: 6.",
+                    "strona": 6,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206878662109375,
+                        "x": 309.20709228515625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "9"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 10, oczekiwano: 7.",
+                    "strona": 7,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "10"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 11, oczekiwano: 8.",
+                    "strona": 8,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "11"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 12, oczekiwano: 9.",
+                    "strona": 9,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "12"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 13, oczekiwano: 10.",
+                    "strona": 10,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "13"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 14, oczekiwano: 11.",
+                    "strona": 11,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "14"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 15, oczekiwano: 12.",
+                    "strona": 12,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "15"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 16, oczekiwano: 13.",
+                    "strona": 13,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.2580261230469,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "16"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 17, oczekiwano: 14.",
+                    "strona": 14,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.420166015625
+                    },
+                    "znaleziony_tekst": "17"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 18, oczekiwano: 15.",
+                    "strona": 15,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "18"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 19, oczekiwano: 16.",
+                    "strona": 16,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "19"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 20, oczekiwano: 17.",
+                    "strona": 17,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "20"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 21, oczekiwano: 18.",
+                    "strona": 18,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "21"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 22, oczekiwano: 19.",
+                    "strona": 19,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.419921875
+                    },
+                    "znaleziony_tekst": "22"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 23, oczekiwano: 20.",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60406494140625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "23"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 24, oczekiwano: 21.",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "24"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 25, oczekiwano: 22.",
+                    "strona": 22,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "25"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 26, oczekiwano: 23.",
+                    "strona": 23,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "26"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 27, oczekiwano: 24.",
+                    "strona": 24,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "27"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 28, oczekiwano: 25.",
+                    "strona": 25,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "28"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 29, oczekiwano: 26.",
+                    "strona": 26,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.6040954589844,
+                        "y": 793.4202270507812
+                    },
+                    "znaleziony_tekst": "29"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 30, oczekiwano: 27.",
+                    "strona": 27,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "30"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 31, oczekiwano: 28.",
+                    "strona": 28,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "31"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 32, oczekiwano: 29.",
+                    "strona": 29,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "32"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 33, oczekiwano: 30.",
+                    "strona": 30,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.420166015625
+                    },
+                    "znaleziony_tekst": "33"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 34, oczekiwano: 31.",
+                    "strona": 31,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "34"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 35, oczekiwano: 32.",
+                    "strona": 32,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "35"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 36, oczekiwano: 33.",
+                    "strona": 33,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "36"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 37, oczekiwano: 34.",
+                    "strona": 34,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "37"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 38, oczekiwano: 35.",
+                    "strona": 35,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "38"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 39, oczekiwano: 36.",
+                    "strona": 36,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.6038818359375,
+                        "y": 793.419921875
+                    },
+                    "znaleziony_tekst": "39"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 40, oczekiwano: 37.",
+                    "strona": 37,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "40"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 41, oczekiwano: 38.",
+                    "strona": 38,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60406494140625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "41"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 42, oczekiwano: 39.",
+                    "strona": 39,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "42"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 43, oczekiwano: 40.",
+                    "strona": 40,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.419921875
+                    },
+                    "znaleziony_tekst": "43"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 44, oczekiwano: 41.",
+                    "strona": 41,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "44"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 45, oczekiwano: 42.",
+                    "strona": 42,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "45"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 46, oczekiwano: 43.",
+                    "strona": 43,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.2580261230469,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "46"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 47, oczekiwano: 44.",
+                    "strona": 44,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60406494140625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "47"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 48, oczekiwano: 45.",
+                    "strona": 45,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "48"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 49, oczekiwano: 46.",
+                    "strona": 46,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60406494140625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "49"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 50, oczekiwano: 47.",
+                    "strona": 47,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "50"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 51, oczekiwano: 48.",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "51"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 52, oczekiwano: 49.",
+                    "strona": 49,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "52"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 53, oczekiwano: 50.",
+                    "strona": 50,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "53"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 54, oczekiwano: 51.",
+                    "strona": 51,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "54"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 55, oczekiwano: 52.",
+                    "strona": 52,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60406494140625,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "55"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 56, oczekiwano: 53.",
+                    "strona": 53,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "56"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 57, oczekiwano: 54.",
+                    "strona": 54,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.6039733886719,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "57"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 58, oczekiwano: 55.",
+                    "strona": 55,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.420166015625
+                    },
+                    "znaleziony_tekst": "58"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 59, oczekiwano: 56.",
+                    "strona": 56,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.420166015625
+                    },
+                    "znaleziony_tekst": "59"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 60, oczekiwano: 57.",
+                    "strona": 57,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "60"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 61, oczekiwano: 58.",
+                    "strona": 58,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "61"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 62, oczekiwano: 59.",
+                    "strona": 59,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "62"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 63, oczekiwano: 60.",
+                    "strona": 60,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "63"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 64, oczekiwano: 61.",
+                    "strona": 61,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "64"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 65, oczekiwano: 62.",
+                    "strona": 62,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "65"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 66, oczekiwano: 63.",
+                    "strona": 63,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4200439453125
+                    },
+                    "znaleziony_tekst": "66"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 67, oczekiwano: 64.",
+                    "strona": 64,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60394287109375,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "67"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 68, oczekiwano: 65.",
+                    "strona": 65,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 278.25799560546875,
+                        "y": 793.4199829101562
+                    },
+                    "znaleziony_tekst": "68"
+                },
+                {
+                    "kategoria": "Wrong_page_number",
+                    "komentarz": "Błędny numer strony. Wykryto: 69, oczekiwano: 66.",
+                    "strona": 66,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 10.41375732421875,
+                        "x": 306.60400390625,
+                        "y": 793.4201049804688
+                    },
+                    "znaleziony_tekst": "69"
+                },
+                {
+                    "kategoria": "TOC_invalid",
+                    "komentarz": "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści.",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 40.0,
+                        "w": 109.05999999999995,
+                        "x": 481.22,
+                        "y": 5.0
+                    },
+                    "znaleziony_tekst": "None"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '1 WSTĘP I CEL PRACY (JAKUB GÓRALSKI, TYMOTEUSZ PRUD)' nie znajduje się na wskazanej stronie (strona 10).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 5.206886291503906,
+                        "x": 99.21299743652344,
+                        "y": 138.86705017089844
+                    },
+                    "znaleziony_tekst": "1 WSTĘP I CEL PRACY (JAKUB GÓRALSKI, TYMOTEUSZ PRUD)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '1.1 Cel pracy' nie znajduje się na wskazanej stronie (strona 10).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 155.30105590820312
+                    },
+                    "znaleziony_tekst": "1.1 Cel pracy"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '1.2 Układ pracy' nie znajduje się na wskazanej stronie (strona 10).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 172.03103637695312
+                    },
+                    "znaleziony_tekst": "1.2 Układ pracy"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '2 EMOCJE (JAKUB GÓRALSKI)' nie znajduje się na wskazanej stronie (strona 11).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 5.206886291503906,
+                        "x": 99.21299743652344,
+                        "y": 199.21104431152344
+                    },
+                    "znaleziony_tekst": "2 EMOCJE (JAKUB GÓRALSKI)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '2.1 Modele emocji' nie znajduje się na wskazanej stronie (strona 11).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 215.64505004882812
+                    },
+                    "znaleziony_tekst": "2.1 Modele emocji"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '2.2 Podsumowanie emocji' nie znajduje się na wskazanej stronie (strona 12).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 232.37503051757812
+                    },
+                    "znaleziony_tekst": "2.2 Podsumowanie emocji"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3 ASPEKTY TEORETYCZNE SIECI NEURONOWYCH' nie znajduje się na wskazanej stronie (strona 13).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206886291503906,
+                        "x": 99.21299743652344,
+                        "y": 259.5550231933594
+                    },
+                    "znaleziony_tekst": "3 ASPEKTY TEORETYCZNE SIECI NEURONOWYCH"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1 Aspekty współczesnych sieci neuronowych (Jakub Góralski)' nie znajduje się na wskazanej stronie (strona 13).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 275.9890441894531
+                    },
+                    "znaleziony_tekst": "3.1 Aspekty współczesnych sieci neuronowych (Jakub Góralski)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1.1 Perceptron wielowarstwowy' nie znajduje się na wskazanej stronie (strona 13).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 292.7190246582031
+                    },
+                    "znaleziony_tekst": "3.1.1 Perceptron wielowarstwowy"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1.2 Konwolucyjna sieć neuronowa' nie znajduje się na wskazanej stronie (strona 13).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 309.4480285644531
+                    },
+                    "znaleziony_tekst": "3.1.2 Konwolucyjna sieć neuronowa"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1.3 Sieć w pełni konwolucyjna' nie znajduje się na wskazanej stronie (strona 14).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 326.1770324707031
+                    },
+                    "znaleziony_tekst": "3.1.3 Sieć w pełni konwolucyjna"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1.4 Sieć piramidy cech' nie znajduje się na wskazanej stronie (strona 15).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 342.9060363769531
+                    },
+                    "znaleziony_tekst": "3.1.4 Sieć piramidy cech"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1.5 Mechanizm uwagi' nie znajduje się na wskazanej stronie (strona 15).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 359.6350402832031
+                    },
+                    "znaleziony_tekst": "3.1.5 Mechanizm uwagi"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1.6 Bloki residualne' nie znajduje się na wskazanej stronie (strona 16).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 376.3640441894531
+                    },
+                    "znaleziony_tekst": "3.1.6 Bloki residualne"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.1.7 Przestrzenie projektowe (Tymoteusz Prud)' nie znajduje się na wskazanej stronie (strona 17).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 393.09405517578125
+                    },
+                    "znaleziony_tekst": "3.1.7 Przestrzenie projektowe (Tymoteusz Prud)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.2 Najpopularniejsze architektury sieci przetwarzających obraz (Tymoteusz Prud)' nie znajduje się na wskazanej stronie (strona 18).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 409.82305908203125
+                    },
+                    "znaleziony_tekst": "3.2 Najpopularniejsze architektury sieci przetwarzających obraz (Tymoteusz Prud)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.2.1 VGG16' nie znajduje się na wskazanej stronie (strona 18).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 426.55206298828125
+                    },
+                    "znaleziony_tekst": "3.2.1 VGG16"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.2.2 ResNet' nie znajduje się na wskazanej stronie (strona 18).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 443.28106689453125
+                    },
+                    "znaleziony_tekst": "3.2.2 ResNet"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.2.3 ViT' nie znajduje się na wskazanej stronie (strona 20).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 460.01007080078125
+                    },
+                    "znaleziony_tekst": "3.2.3 ViT"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.2.4 Self Regulated Network RegNet' nie znajduje się na wskazanej stronie (strona 21).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 476.73907470703125
+                    },
+                    "znaleziony_tekst": "3.2.4 Self Regulated Network RegNet"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.2.5 YOLO (You Only Look Once)' nie znajduje się na wskazanej stronie (strona 21).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 493.4690856933594
+                    },
+                    "znaleziony_tekst": "3.2.5 YOLO (You Only Look Once)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.3 Sposoby uczenia sieci (Jakub Góralski)' nie znajduje się na wskazanej stronie (strona 22).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 510.1980895996094
+                    },
+                    "znaleziony_tekst": "3.3 Sposoby uczenia sieci (Jakub Góralski)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.3.1 Aspekty związane z zanurzeniem i normalizacją' nie znajduje się na wskazanej stronie (strona 22).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 526.9270629882812
+                    },
+                    "znaleziony_tekst": "3.3.1 Aspekty związane z zanurzeniem i normalizacją"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.3.2 Dostrajanie' nie znajduje się na wskazanej stronie (strona 23).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 543.6560668945312
+                    },
+                    "znaleziony_tekst": "3.3.2 Dostrajanie"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '3.3.3 Adaptacja domen' nie znajduje się na wskazanej stronie (strona 23).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.8275146484375,
+                        "x": 134.7989959716797,
+                        "y": 560.3850708007812
+                    },
+                    "znaleziony_tekst": "3.3.3 Adaptacja domen"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '4 ZBIORY DANYCH (JAKUB GÓRALSKI, TYMOTEUSZ PRUD)' nie znajduje się na wskazanej stronie (strona 24).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.3648681640625,
+                        "w": 5.206886291503906,
+                        "x": 99.21299743652344,
+                        "y": 587.5661010742188
+                    },
+                    "znaleziony_tekst": "4 ZBIORY DANYCH (JAKUB GÓRALSKI, TYMOTEUSZ PRUD)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '4.1 Facial Expression Recognition' nie znajduje się na wskazanej stronie (strona 24).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 604.0000610351562
+                    },
+                    "znaleziony_tekst": "4.1 Facial Expression Recognition"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '4.2 Expression in-the-Wild' nie znajduje się na wskazanej stronie (strona 24).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 620.7290649414062
+                    },
+                    "znaleziony_tekst": "4.2 Expression in-the-Wild"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '4.3 LFW' nie znajduje się na wskazanej stronie (strona 24).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 637.4580688476562
+                    },
+                    "znaleziony_tekst": "4.3 LFW"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '4.4 CelebA' nie znajduje się na wskazanej stronie (strona 25).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 654.1881103515625
+                    },
+                    "znaleziony_tekst": "4.4 CelebA"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '4.5 CK+' nie znajduje się na wskazanej stronie (strona 25).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25999450683594,
+                        "y": 670.9171142578125
+                    },
+                    "znaleziony_tekst": "4.5 CK+"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '(TYMOTEUSZ PRUD)' nie znajduje się na wskazanej stronie (strona 26).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.3648681640625,
+                        "w": 93.03089904785156,
+                        "x": 113.25999450683594,
+                        "y": 713.6390991210938
+                    },
+                    "znaleziony_tekst": "(TYMOTEUSZ PRUD)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '5.1 Facial Expression Recognition with Spatial-Temporal Networks' nie znajduje się na wskazanej stronie (strona 26).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25997924804688,
+                        "y": 730.0730590820312
+                    },
+                    "znaleziony_tekst": "5.1 Facial Expression Recognition with Spatial-Temporal Networks"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '5.2 A Face Emotion Recognition Method Using Image Edge Computing' nie znajduje się na wskazanej stronie (strona 26).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25997924804688,
+                        "y": 746.8031005859375
+                    },
+                    "znaleziony_tekst": "5.2 A Face Emotion Recognition Method Using Image Edge Computing"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '5.3 Deeper cascaded peak-piloted network for weak expression recognition' nie znajduje się na wskazanej stronie (strona 27).",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 113.25997924804688,
+                        "y": 763.5321044921875
+                    },
+                    "znaleziony_tekst": "5.3 Deeper cascaded peak-piloted network for weak expression recognition"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6 ŚLEDZENIE I ROZPOZNAWANIE TWARZY' nie znajduje się na wskazanej stronie (strona 28).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 5.206886291503906,
+                        "x": 70.86599731445312,
+                        "y": 73.63212585449219
+                    },
+                    "znaleziony_tekst": "6 ŚLEDZENIE I ROZPOZNAWANIE TWARZY"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.1 Śledzenie twarzy (Jakub Góralski)' nie znajduje się na wskazanej stronie (strona 29).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 89.3801498413086
+                    },
+                    "znaleziony_tekst": "6.1 Śledzenie twarzy (Jakub Góralski)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.1.1 Filtr Kalmana' nie znajduje się na wskazanej stronie (strona 29).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 105.4221420288086
+                    },
+                    "znaleziony_tekst": "6.1.1 Filtr Kalmana"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.1.2 CAMShift z filtrem Kalmana' nie znajduje się na wskazanej stronie (strona 29).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364906311035156,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 121.4651107788086
+                    },
+                    "znaleziony_tekst": "6.1.2 CAMShift z filtrem Kalmana"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.1.3 DeepSORT' nie znajduje się na wskazanej stronie (strona 30).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 137.50711059570312
+                    },
+                    "znaleziony_tekst": "6.1.3 DeepSORT"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.2 Rozpoznawanie twarzy (Tymoteusz Prud)' nie znajduje się na wskazanej stronie (strona 30).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 153.55007934570312
+                    },
+                    "znaleziony_tekst": "6.2 Rozpoznawanie twarzy (Tymoteusz Prud)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.2.1 Deepid3: Face recognition with very deep neural networks' nie znajduje się na wskazanej stronie (strona 31).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 169.59207153320312
+                    },
+                    "znaleziony_tekst": "6.2.1 Deepid3: Face recognition with very deep neural networks"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.2.2 ArcFace: Additive Angular Margin Loss for Deep Face Recognition' nie znajduje się na wskazanej stronie (strona 31).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 185.63504028320312
+                    },
+                    "znaleziony_tekst": "6.2.2 ArcFace: Additive Angular Margin Loss for Deep Face Recognition"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.2.3 AdaFace: Quality Adaptive Margin for Face Recognition' nie znajduje się na wskazanej stronie (strona 32).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 201.67703247070312
+                    },
+                    "znaleziony_tekst": "6.2.3 AdaFace: Quality Adaptive Margin for Face Recognition"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '6.2.4 Podsumowanie' nie znajduje się na wskazanej stronie (strona 33).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 217.72000122070312
+                    },
+                    "znaleziony_tekst": "6.2.4 Podsumowanie"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7 PROPONOWANE ROZWIĄZANIE' nie znajduje się na wskazanej stronie (strona 34).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 5.206886291503906,
+                        "x": 70.86599731445312,
+                        "y": 243.7560272216797
+                    },
+                    "znaleziony_tekst": "7 PROPONOWANE ROZWIĄZANIE"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.1 Wstępne przetwarzanie wideo (Tymoteusz Prud)' nie znajduje się na wskazanej stronie (strona 34).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 259.5040588378906
+                    },
+                    "znaleziony_tekst": "7.1 Wstępne przetwarzanie wideo (Tymoteusz Prud)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.1.1 Zamiana trybu kolorów' nie znajduje się na wskazanej stronie (strona 34).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 275.5460510253906
+                    },
+                    "znaleziony_tekst": "7.1.1 Zamiana trybu kolorów"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.2 Detekcja twarzy' nie znajduje się na wskazanej stronie (strona 36).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 291.5890197753906
+                    },
+                    "znaleziony_tekst": "7.2 Detekcja twarzy"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.2.1 Wybory projektowe' nie znajduje się na wskazanej stronie (strona 36).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 307.6310119628906
+                    },
+                    "znaleziony_tekst": "7.2.1 Wybory projektowe"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.2.2 Implementacja' nie znajduje się na wskazanej stronie (strona 36).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 323.67401123046875
+                    },
+                    "znaleziony_tekst": "7.2.2 Implementacja"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.3 Rozpoznawanie twarzy (Tymoteusz Prud)' nie znajduje się na wskazanej stronie (strona 37).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 339.71600341796875
+                    },
+                    "znaleziony_tekst": "7.3 Rozpoznawanie twarzy (Tymoteusz Prud)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.3.1 Wybór architektury modelu' nie znajduje się na wskazanej stronie (strona 37).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 355.7590026855469
+                    },
+                    "znaleziony_tekst": "7.3.1 Wybór architektury modelu"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.3.2 Zbiór danych' nie znajduje się na wskazanej stronie (strona 38).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 371.8009948730469
+                    },
+                    "znaleziony_tekst": "7.3.2 Zbiór danych"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.3.3 Architektura modelu' nie znajduje się na wskazanej stronie (strona 38).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 387.843994140625
+                    },
+                    "znaleziony_tekst": "7.3.3 Architektura modelu"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.3.4 Trening' nie znajduje się na wskazanej stronie (strona 39).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 403.885986328125
+                    },
+                    "znaleziony_tekst": "7.3.4 Trening"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.4 Korekcja szacunkowej pozycji filtrem Kalmana (Jakub Góralski)' nie znajduje się na wskazanej stronie (strona 40).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 419.9289855957031
+                    },
+                    "znaleziony_tekst": "7.4 Korekcja szacunkowej pozycji filtrem Kalmana (Jakub Góralski)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.5 Detekcja emocji (Jakub Góralski)' nie znajduje się na wskazanej stronie (strona 40).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 435.9709777832031
+                    },
+                    "znaleziony_tekst": "7.5 Detekcja emocji (Jakub Góralski)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.5.1 Zbiór danych' nie znajduje się na wskazanej stronie (strona 40).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 452.01397705078125
+                    },
+                    "znaleziony_tekst": "7.5.1 Zbiór danych"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.5.2 Model' nie znajduje się na wskazanej stronie (strona 40).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 468.0569763183594
+                    },
+                    "znaleziony_tekst": "7.5.2 Model"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '7.6 Zapis w bazie' nie znajduje się na wskazanej stronie (strona 42).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 484.0989685058594
+                    },
+                    "znaleziony_tekst": "7.6 Zapis w bazie"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8 WYNIKI PROPONOWANEGO ROZWIĄZANIA' nie znajduje się na wskazanej stronie (strona 43).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 5.206886291503906,
+                        "x": 70.86599731445312,
+                        "y": 510.1349792480469
+                    },
+                    "znaleziony_tekst": "8 WYNIKI PROPONOWANEGO ROZWIĄZANIA"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.1 Wyniki detekcji twarzy (Tymoteusz Prud)' nie znajduje się na wskazanej stronie (strona 43).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 525.8829345703125
+                    },
+                    "znaleziony_tekst": "8.1 Wyniki detekcji twarzy (Tymoteusz Prud)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.1.1 Zestaw testowy' nie znajduje się na wskazanej stronie (strona 43).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 541.9249267578125
+                    },
+                    "znaleziony_tekst": "8.1.1 Zestaw testowy"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.1.2 Hiperparametry' nie znajduje się na wskazanej stronie (strona 43).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 557.9678955078125
+                    },
+                    "znaleziony_tekst": "8.1.2 Hiperparametry"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.1.3 Parametry detektora w rozwiązaniu' nie znajduje się na wskazanej stronie (strona 44).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 574.0098876953125
+                    },
+                    "znaleziony_tekst": "8.1.3 Parametry detektora w rozwiązaniu"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.2 Wyniki rozpoznawania twarzy (Tymoteusz Prud)' nie znajduje się na wskazanej stronie (strona 45).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 590.0529174804688
+                    },
+                    "znaleziony_tekst": "8.2 Wyniki rozpoznawania twarzy (Tymoteusz Prud)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.2.1 Proces uczenia' nie znajduje się na wskazanej stronie (strona 45).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 606.095947265625
+                    },
+                    "znaleziony_tekst": "8.2.1 Proces uczenia"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.2.2 Wyniki testów' nie znajduje się na wskazanej stronie (strona 46).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 622.137939453125
+                    },
+                    "znaleziony_tekst": "8.2.2 Wyniki testów"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.3 Wyniki filtru Kalmana (Jakub Góralski)' nie znajduje się na wskazanej stronie (strona 46).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 638.180908203125
+                    },
+                    "znaleziony_tekst": "8.3 Wyniki filtru Kalmana (Jakub Góralski)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.4 Wyniki modelu do detekcji emocji (Jakub Góralski)' nie znajduje się na wskazanej stronie (strona 47).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 13.0172119140625,
+                        "x": 84.91299438476562,
+                        "y": 654.222900390625
+                    },
+                    "znaleziony_tekst": "8.4 Wyniki modelu do detekcji emocji (Jakub Góralski)"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.4.1 Proces uczenia' nie znajduje się na wskazanej stronie (strona 47).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 670.265869140625
+                    },
+                    "znaleziony_tekst": "8.4.1 Proces uczenia"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '8.4.2 Wyniki walidacji' nie znajduje się na wskazanej stronie (strona 48).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 20.827537536621094,
+                        "x": 106.45299530029297,
+                        "y": 686.307861328125
+                    },
+                    "znaleziony_tekst": "8.4.2 Wyniki walidacji"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział '9 ZAKOŃCZENIE' nie znajduje się na wskazanej stronie (strona 51).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.3648681640625,
+                        "w": 5.206886291503906,
+                        "x": 70.86599731445312,
+                        "y": 712.3439331054688
+                    },
+                    "znaleziony_tekst": "9 ZAKOŃCZENIE"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'SPIS RYSUNKÓW' nie znajduje się na wskazanej stronie (strona 53).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.3648681640625,
+                        "w": 79.00230407714844,
+                        "x": 70.86599731445312,
+                        "y": 738.0859375
+                    },
+                    "znaleziony_tekst": "SPIS RYSUNKÓW"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'SPIS TABEL' nie znajduje się na wskazanej stronie (strona 54).",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.3648681640625,
+                        "w": 54.363258361816406,
+                        "x": 70.86599731445312,
+                        "y": 763.826904296875
+                    },
+                    "znaleziony_tekst": "SPIS TABEL"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'BIBLIOGRAFIA' nie znajduje się na wskazanej stronie (strona 59).",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 67.63330078125,
+                        "x": 99.21299743652344,
+                        "y": 73.63212585449219
+                    },
+                    "znaleziony_tekst": "BIBLIOGRAFIA"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'DODATEK A INSTRUKCJA DLA PROGRAMISTY' nie znajduje się na wskazanej stronie (strona 60).",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 215.64553833007812,
+                        "x": 99.21298217773438,
+                        "y": 98.53910827636719
+                    },
+                    "znaleziony_tekst": "DODATEK A INSTRUKCJA DLA PROGRAMISTY"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'A.0.1 Trening sieci do wykrywania emocji' nie znajduje się na wskazanej stronie (strona 60).",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 21.913848876953125,
+                        "x": 134.79898071289062,
+                        "y": 113.78511810302734
+                    },
+                    "znaleziony_tekst": "A.0.1 Trening sieci do wykrywania emocji"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'A.0.2 Trening sieci do rozpoznawania twarzy' nie znajduje się na wskazanej stronie (strona 61).",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 21.913848876953125,
+                        "x": 134.79898071289062,
+                        "y": 129.32711791992188
+                    },
+                    "znaleziony_tekst": "A.0.2 Trening sieci do rozpoznawania twarzy"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'A.0.3 Plik główny programu' nie znajduje się na wskazanej stronie (strona 62).",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 21.913848876953125,
+                        "x": 134.79898071289062,
+                        "y": 144.86911010742188
+                    },
+                    "znaleziony_tekst": "A.0.3 Plik główny programu"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'DODATEK B INSTRUKCJA DLA UŻYTKOWNIKA' nie znajduje się na wskazanej stronie (strona 65).",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 215.58926391601562,
+                        "x": 99.21298217773438,
+                        "y": 170.0710906982422
+                    },
+                    "znaleziony_tekst": "DODATEK B INSTRUKCJA DLA UŻYTKOWNIKA"
+                },
+                {
+                    "kategoria": "TOC_mismatch",
+                    "komentarz": "Rozdział/Podrozdział 'DODATEK C OPIS PRACY' nie znajduje się na wskazanej stronie (strona 66).",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 119.30879211425781,
+                        "x": 99.21298217773438,
+                        "y": 194.9770965576172
+                    },
+                    "znaleziony_tekst": "DODATEK C OPIS PRACY"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 7,
+                    "wspolrzedne": {
+                        "h": 9.364906311035156,
+                        "w": 5.206878662109375,
+                        "x": 490.8536376953125,
+                        "y": 126.23909759521484
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 8,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.68243408203125,
+                        "x": 519.724853515625,
+                        "y": 145.56106567382812
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 8,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 5.2069091796875,
+                        "x": 519.20068359375,
+                        "y": 458.2860412597656
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 8,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 4.68243408203125,
+                        "x": 519.72509765625,
+                        "y": 699.4739990234375
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 10,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.68243408203125,
+                        "x": 519.7252807617188,
+                        "y": 159.01211547851562
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 10,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 6.761474609375,
+                        "x": 517.6460571289062,
+                        "y": 669.4359741210938
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 24,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.68243408203125,
+                        "x": 519.7251586914062,
+                        "y": 277.7710876464844
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 24,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 2.0789794921875,
+                        "x": 522.328369140625,
+                        "y": 308.8540954589844
+                    },
+                    "znaleziony_tekst": "i"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 25,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 2.079010009765625,
+                        "x": 493.9813537597656,
+                        "y": 547.58203125
+                    },
+                    "znaleziony_tekst": "i"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 26,
+                    "wspolrzedne": {
+                        "h": 9.364906311035156,
+                        "w": 6.761474609375,
+                        "x": 517.6461791992188,
+                        "y": 126.8561019897461
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 28,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 6.761474609375,
+                        "x": 517.64599609375,
+                        "y": 331.5061340332031
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 37,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 2.079010009765625,
+                        "x": 493.98162841796875,
+                        "y": 461.6020812988281
+                    },
+                    "znaleziony_tekst": "i"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 37,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 5.206878662109375,
+                        "x": 490.86004638671875,
+                        "y": 641.3861083984375
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 39,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 2.079010009765625,
+                        "x": 493.98712158203125,
+                        "y": 324.3960876464844
+                    },
+                    "znaleziony_tekst": "i"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 40,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.68243408203125,
+                        "x": 519.72509765625,
+                        "y": 434.1260070800781
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 43,
+                    "wspolrzedne": {
+                        "h": 9.962646484375,
+                        "w": 9.354888916015625,
+                        "x": 222.12200927734375,
+                        "y": 690.86279296875
+                    },
+                    "znaleziony_tekst": "v"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 43,
+                    "wspolrzedne": {
+                        "h": 9.962646484375,
+                        "w": 9.354888916015625,
+                        "x": 222.12200927734375,
+                        "y": 692.8397827148438
+                    },
+                    "znaleziony_tekst": "u"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 43,
+                    "wspolrzedne": {
+                        "h": 9.962646484375,
+                        "w": 9.354888916015625,
+                        "x": 222.12200927734375,
+                        "y": 695.728759765625
+                    },
+                    "znaleziony_tekst": "t"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 44,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.682464599609375,
+                        "x": 392.73590087890625,
+                        "y": 418.9371032714844
+                    },
+                    "znaleziony_tekst": "y"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 44,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 6.761474609375,
+                        "x": 517.6460571289062,
+                        "y": 747.989990234375
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 6.761474609375,
+                        "x": 517.6461181640625,
+                        "y": 157.34011840820312
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.68243408203125,
+                        "x": 519.7250366210938,
+                        "y": 250.60012817382812
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.68243408203125,
+                        "x": 519.7306518554688,
+                        "y": 281.6921081542969
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 6.761474609375,
+                        "x": 517.6461181640625,
+                        "y": 390.49407958984375
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 6.761474609375,
+                        "x": 517.6517333984375,
+                        "y": 654.72998046875
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 55,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 5.206878662109375,
+                        "x": 490.853515625,
+                        "y": 73.33712005615234
+                    },
+                    "znaleziony_tekst": "a"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 63,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 2.079010009765625,
+                        "x": 493.981689453125,
+                        "y": 482.8930969238281
+                    },
+                    "znaleziony_tekst": "i"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 64,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 6.761474609375,
+                        "x": 517.64599609375,
+                        "y": 323.02911376953125
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 64,
+                    "wspolrzedne": {
+                        "h": 9.364898681640625,
+                        "w": 4.68243408203125,
+                        "x": 519.7247924804688,
+                        "y": 338.57110595703125
+                    },
+                    "znaleziony_tekst": "z"
+                },
+                {
+                    "kategoria": "orphan_span",
+                    "komentarz": "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji.",
+                    "strona": 65,
+                    "wspolrzedne": {
+                        "h": 9.36492919921875,
+                        "w": 6.761444091796875,
+                        "x": 489.3046569824219,
+                        "y": 559.5379638671875
+                    },
+                    "znaleziony_tekst": "w"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 1,
+                    "wspolrzedne": {
+                        "h": 9.369999999999976,
+                        "w": 44.22999999999999,
+                        "x": 70.87,
+                        "y": 172.86
+                    },
+                    "znaleziony_tekst": "limitations."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 172.03
+                    },
+                    "znaleziony_tekst": "10"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 232.38
+                    },
+                    "znaleziony_tekst": "12"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 275.99
+                    },
+                    "znaleziony_tekst": "13"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.359999999999957,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 292.72
+                    },
+                    "znaleziony_tekst": "13"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 309.45
+                    },
+                    "znaleziony_tekst": "13"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 326.18
+                    },
+                    "znaleziony_tekst": "14"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.359999999999957,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 342.91
+                    },
+                    "znaleziony_tekst": "15"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 359.64
+                    },
+                    "znaleziony_tekst": "15"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 376.36
+                    },
+                    "znaleziony_tekst": "16"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 409.82
+                    },
+                    "znaleziony_tekst": "18"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 426.55
+                    },
+                    "znaleziony_tekst": "18"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 443.28
+                    },
+                    "znaleziony_tekst": "18"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 460.01
+                    },
+                    "znaleziony_tekst": "20"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 476.74
+                    },
+                    "znaleziony_tekst": "21"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.359999999999957,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 510.2
+                    },
+                    "znaleziony_tekst": "22"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 526.93
+                    },
+                    "znaleziony_tekst": "22"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 543.66
+                    },
+                    "znaleziony_tekst": "23"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 560.39
+                    },
+                    "znaleziony_tekst": "23"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 670.92
+                    },
+                    "znaleziony_tekst": "25"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 2,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 763.53
+                    },
+                    "znaleziony_tekst": "27"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 89.38
+                    },
+                    "znaleziony_tekst": "29"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 105.42
+                    },
+                    "znaleziony_tekst": "29"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 121.47
+                    },
+                    "znaleziony_tekst": "29"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.359999999999985,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 153.55
+                    },
+                    "znaleziony_tekst": "30"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 169.59
+                    },
+                    "znaleziony_tekst": "31"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 185.64
+                    },
+                    "znaleziony_tekst": "31"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.359999999999985,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 201.68
+                    },
+                    "znaleziony_tekst": "32"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 217.72
+                    },
+                    "znaleziony_tekst": "33"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 259.5
+                    },
+                    "znaleziony_tekst": "34"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 291.59
+                    },
+                    "znaleziony_tekst": "36"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 307.63
+                    },
+                    "znaleziony_tekst": "36"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.359999999999957,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 339.72
+                    },
+                    "znaleziony_tekst": "37"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 355.76
+                    },
+                    "znaleziony_tekst": "37"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 371.8
+                    },
+                    "znaleziony_tekst": "38"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 387.84
+                    },
+                    "znaleziony_tekst": "38"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.369999999999948,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 435.97
+                    },
+                    "znaleziony_tekst": "40"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 452.01
+                    },
+                    "znaleziony_tekst": "40"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.359999999999957,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 484.1
+                    },
+                    "znaleziony_tekst": "42"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 525.88
+                    },
+                    "znaleziony_tekst": "43"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 541.92
+                    },
+                    "znaleziony_tekst": "43"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 557.97
+                    },
+                    "znaleziony_tekst": "43"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 590.05
+                    },
+                    "znaleziony_tekst": "45"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 606.1
+                    },
+                    "znaleziony_tekst": "45"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 654.22
+                    },
+                    "znaleziony_tekst": "47"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 670.27
+                    },
+                    "znaleziony_tekst": "47"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 3,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 686.31
+                    },
+                    "znaleziony_tekst": "48"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.36,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 113.79
+                    },
+                    "znaleziony_tekst": "60"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.359999999999985,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 129.33
+                    },
+                    "znaleziony_tekst": "61"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 4,
+                    "wspolrzedne": {
+                        "h": 9.359999999999985,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 144.87
+                    },
+                    "znaleziony_tekst": "62"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 6,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 21.33,
+                        "x": 90.79,
+                        "y": 235.03
+                    },
+                    "znaleziony_tekst": "MOE"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 6,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 20.11,
+                        "x": 90.79,
+                        "y": 359.37
+                    },
+                    "znaleziony_tekst": "MSA"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 7,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 23.75,
+                        "x": 70.87,
+                        "y": 377.3
+                    },
+                    "znaleziony_tekst": "wych."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 10,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 100.69000000000001,
+                        "x": 99.21,
+                        "y": 431.38
+                    },
+                    "znaleziony_tekst": "nieliniowych problemów."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 16,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 29.66000000000001,
+                        "x": 99.21,
+                        "y": 577.31
+                    },
+                    "znaleziony_tekst": "emocji."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 17,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 80.1,
+                        "x": 70.87,
+                        "y": 336.99
+                    },
+                    "znaleziony_tekst": "twarzania obrazów."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 17,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 60.829999999999984,
+                        "x": 70.87,
+                        "y": 605.35
+                    },
+                    "znaleziony_tekst": "rozdzielczości."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 18,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 89.48,
+                        "x": 99.21,
+                        "y": 268.25
+                    },
+                    "znaleziony_tekst": "danym zastosowaniu."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 18,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 36.35000000000001,
+                        "x": 99.21,
+                        "y": 507.03
+                    },
+                    "znaleziony_tekst": "treningu."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 18,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 71.42999999999999,
+                        "x": 99.21,
+                        "y": 570.29
+                    },
+                    "znaleziony_tekst": "kładność analizy."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 18,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 46.230000000000004,
+                        "x": 99.21,
+                        "y": 746.9
+                    },
+                    "znaleziony_tekst": "i pewności."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 19,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 31.129999999999995,
+                        "x": 70.87,
+                        "y": 416.45
+                    },
+                    "znaleziony_tekst": "trening."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 19,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 48.39999999999999,
+                        "x": 70.87,
+                        "y": 763.53
+                    },
+                    "znaleziony_tekst": "szumu [29]."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 43.62000000000002,
+                        "x": 99.21,
+                        "y": 455.62
+                    },
+                    "znaleziony_tekst": "i strukturą."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 20,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 48.82000000000001,
+                        "x": 99.21,
+                        "y": 670.28
+                    },
+                    "znaleziony_tekst": "niemożliwe."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 21,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 29.64999999999999,
+                        "x": 70.87,
+                        "y": 157.72
+                    },
+                    "znaleziony_tekst": "emocji."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 22,
+                    "wspolrzedne": {
+                        "h": 9.359999999999985,
+                        "w": 32.269999999999996,
+                        "x": 99.21,
+                        "y": 231.15
+                    },
+                    "znaleziony_tekst": "okulary."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 25,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 39.67999999999999,
+                        "x": 70.87,
+                        "y": 297.31
+                    },
+                    "znaleziony_tekst": "(rys. 6.1)."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 26,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 39.47000000000001,
+                        "x": 99.21,
+                        "y": 269.12
+                    },
+                    "znaleziony_tekst": "Kalmana:"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 26,
+                    "wspolrzedne": {
+                        "h": 9.659999999999968,
+                        "w": 36.95,
+                        "x": 99.21,
+                        "y": 512.47
+                    },
+                    "znaleziony_tekst": "R(t) [15]."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 29,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 33.44999999999999,
+                        "x": 70.87,
+                        "y": 535.1
+                    },
+                    "znaleziony_tekst": "cyjnych."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 30,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 58.780000000000015,
+                        "x": 99.21,
+                        "y": 457.5
+                    },
+                    "znaleziony_tekst": "szych danych."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 33,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 46.03,
+                        "x": 70.87,
+                        "y": 716.91
+                    },
+                    "znaleziony_tekst": "tleniowych."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 34,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 52.000000000000014,
+                        "x": 99.21,
+                        "y": 763.53
+                    },
+                    "znaleziony_tekst": "rozwiązania."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 36,
+                    "wspolrzedne": {
+                        "h": 9.359999999999957,
+                        "w": 59.86,
+                        "x": 99.21,
+                        "y": 315.23
+                    },
+                    "znaleziony_tekst": "zdjęciu osobę."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 36,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 26.450000000000003,
+                        "x": 99.21,
+                        "y": 583.81
+                    },
+                    "znaleziony_tekst": "metru."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 37,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 46.209999999999994,
+                        "x": 70.87,
+                        "y": 282.27
+                    },
+                    "znaleziony_tekst": "czasowym."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 38,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 65.3,
+                        "x": 99.21,
+                        "y": 622.3
+                    },
+                    "znaleziony_tekst": "zbiorze danych."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 40,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 70.60000000000001,
+                        "x": 99.21,
+                        "y": 190.64
+                    },
+                    "znaleziony_tekst": "rozwoju projektu."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 41,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 46.31,
+                        "x": 70.87,
+                        "y": 526.47
+                    },
+                    "znaleziony_tekst": "zależności."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 43,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 76.38999999999999,
+                        "x": 70.87,
+                        "y": 307.06
+                    },
+                    "znaleziony_tekst": "przede wszystkim:"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 43,
+                    "wspolrzedne": {
+                        "h": 9.960000000000036,
+                        "w": 9.359999999999985,
+                        "x": 222.12,
+                        "y": 695.73
+                    },
+                    "znaleziony_tekst": "t"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 46,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 42.67,
+                        "x": 99.21,
+                        "y": 450.5
+                    },
+                    "znaleziony_tekst": "smutkiem."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 47,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 66.19999999999999,
+                        "x": 70.87,
+                        "y": 475.99
+                    },
+                    "znaleziony_tekst": "identyfikowanie."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 62.500000000000014,
+                        "x": 99.21,
+                        "y": 266.14
+                    },
+                    "znaleziony_tekst": "nich wniosków."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 48,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 32.65000000000002,
+                        "x": 99.21,
+                        "y": 639.18
+                    },
+                    "znaleziony_tekst": "smutek."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 50,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 136.2
+                    },
+                    "znaleziony_tekst": "12"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 50,
+                    "wspolrzedne": {
+                        "h": 9.359999999999957,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 286.04
+                    },
+                    "znaleziony_tekst": "22"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 50,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 327.09
+                    },
+                    "znaleziony_tekst": "25"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 50,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 383.67
+                    },
+                    "znaleziony_tekst": "32"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 50,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 455.8
+                    },
+                    "znaleziony_tekst": "41"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 50,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.419999999999959,
+                        "x": 513.99,
+                        "y": 559.02
+                    },
+                    "znaleziony_tekst": "50"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 51,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 136.2
+                    },
+                    "znaleziony_tekst": "12"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 51,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 10.410000000000025,
+                        "x": 485.65,
+                        "y": 177.25
+                    },
+                    "znaleziony_tekst": "49"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 58,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 31.14,
+                        "x": 99.21,
+                        "y": 104.42
+                    },
+                    "znaleziony_tekst": "trening."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 58,
+                    "wspolrzedne": {
+                        "h": 7.969999999999999,
+                        "w": 12.070000000000007,
+                        "x": 91.63,
+                        "y": 223.53
+                    },
+                    "znaleziony_tekst": "9 )"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 58,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 46.3,
+                        "x": 99.21,
+                        "y": 645.53
+                    },
+                    "znaleziony_tekst": "syjamskim."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 62,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 82.19000000000001,
+                        "x": 99.21,
+                        "y": 290.37
+                    },
+                    "znaleziony_tekst": "rzystując polecenie:"
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 63,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 58.31,
+                        "x": 70.87,
+                        "y": 268.78
+                    },
+                    "znaleziony_tekst": "rzeczywistym."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 64,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 59.489999999999995,
+                        "x": 99.21,
+                        "y": 261.28
+                    },
+                    "znaleziony_tekst": "danych wideo."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 64,
+                    "wspolrzedne": {
+                        "h": 9.370000000000005,
+                        "w": 64.59000000000002,
+                        "x": 99.21,
+                        "y": 402.17
+                    },
+                    "znaleziony_tekst": "anatomicznych."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 64,
+                    "wspolrzedne": {
+                        "h": 9.3599999999999,
+                        "w": 32.17999999999999,
+                        "x": 99.21,
+                        "y": 624.07
+                    },
+                    "znaleziony_tekst": "jętność."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 65,
+                    "wspolrzedne": {
+                        "h": 9.360000000000014,
+                        "w": 26.92,
+                        "x": 70.87,
+                        "y": 684.85
+                    },
+                    "znaleziony_tekst": "wania."
+                },
+                {
+                    "kategoria": "widow",
+                    "komentarz": "Wykryto wdowę",
+                    "strona": 66,
+                    "wspolrzedne": {
+                        "h": 9.370000000000019,
+                        "w": 42.92,
+                        "x": 99.21,
+                        "y": 119.96
+                    },
+                    "znaleziony_tekst": "poprawek."
+                },
+                {
+                    "kategoria": "bekart",
+                    "komentarz": "Wykryto bękarta",
+                    "strona": 22,
+                    "wspolrzedne": {
+                        "h": 9.36,
+                        "w": 284.59000000000003,
+                        "x": 99.21,
+                        "y": 88.88
+                    },
+                    "znaleziony_tekst": "można znaleźć sprostowania błędnych oznaczeń, których jest sześć."
+                },
+                {
+                    "kategoria": "bekart",
+                    "komentarz": "Wykryto bękarta",
+                    "strona": 32,
+                    "wspolrzedne": {
+                        "h": 8.690000000000055,
+                        "w": 245.55999999999997,
+                        "x": 189.03,
+                        "y": 694.16
+                    },
+                    "znaleziony_tekst": "Rysunek 7.1: Wykres przedstawiający przetwarzanie jednej klatki"
+                },
+                {
+                    "kategoria": "bekart",
+                    "komentarz": "Wykryto bękarta",
+                    "strona": 39,
+                    "wspolrzedne": {
+                        "h": 9.36,
+                        "w": 179.37,
+                        "x": 70.87,
+                        "y": 88.88
+                    },
+                    "znaleziony_tekst": "prawę zdolności generalizacyjnych modelu."
+                },
+                {
+                    "kategoria": "bekart",
+                    "komentarz": "Wykryto bękarta",
+                    "strona": 49,
+                    "wspolrzedne": {
+                        "h": 9.36,
+                        "w": 198.70999999999998,
+                        "x": 70.87,
+                        "y": 88.88
+                    },
+                    "znaleziony_tekst": "również przyczynić się do polepszenia wyników."
+                },
+                {
+                    "kategoria": "bekart",
+                    "komentarz": "Wykryto bękarta",
+                    "strona": 59,
+                    "wspolrzedne": {
+                        "h": 7.969999999999999,
+                        "w": 404.20000000000005,
+                        "x": 63.28,
+                        "y": 74.44
+                    },
+                    "znaleziony_tekst": "8 siamese_model.fit(train_generator.generate_batch(), steps_per_epoch=steps_in_epoch ,"
+                }
+            ],
+            "wynik_sota": null
         }
     ],
     "konfiguracje_regul": []
