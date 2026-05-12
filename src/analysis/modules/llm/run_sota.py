@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from find_sota import get_sota_chapter
-from evaluate_sota import analyze_sota_chapter
+from evaluate_sota import analyze_sota_chapter, free_sota_memory
 from config import THESIS_PATH, LANGUAGE
 import re
 
@@ -93,6 +93,8 @@ def get_final_sota_report(mapped_doc, language: str = LANGUAGE):
         print(f"Błąd analizy SOTA: {e}")
         s_score = 0
         r1 = r2 = r3 = False
+    finally:
+        free_sota_memory()
 
     return s_id, s_title, s_score, s_method, s_citations, r1, r2, r3
 
@@ -102,6 +104,7 @@ if __name__ == "__main__":
     
     import sys
     import os
+    import time 
     BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     if BASE_DIR not in sys.path:
         sys.path.insert(0, BASE_DIR)
@@ -109,12 +112,19 @@ if __name__ == "__main__":
     from analysis.extraction.extraction_json import extractPDF
     from analysis.extraction.converter_linguistics_clean import PDFMapper
     
+    start_time = time.time()
     doc_data = extractPDF(str(THESIS_PATH))
     mapper = PDFMapper()
     mapped_data = mapper.map_to_schema(doc_data)
 
     res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_data, LANGUAGE)
-    
+    end_time = time.time() 
+    elapsed_time = int(end_time - start_time)
+
+    print("\n" + "="*50)
+    print(f"CZAS WYKONANIA: {elapsed_time // 60} min {elapsed_time % 60} sek.")
+    print("="*50)
+
     print(f"\n--- WYNIKI ---")
     print(f"ID: {res_id}")
     print(f"Tytuł: {res_title}")

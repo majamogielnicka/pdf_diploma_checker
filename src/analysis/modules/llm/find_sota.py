@@ -32,9 +32,23 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
             break
 
     if not sota_chapter:
+        blocks_with_cites = []
+        for block in valid_blocks:
+            c_count = len(set(extract_citations(block.content)))
+            blocks_with_cites.append((c_count, block))
+            
+        blocks_with_cites.sort(key=lambda x: x[0], reverse=True)
+        top_candidates = [b[1] for b in blocks_with_cites[:3] if b[0] > 0]
+        
+        if not top_candidates:
+            valid_blocks.sort(key=lambda b: len(b.content), reverse=True)
+            top_candidates = valid_blocks[:3]
+
+        print(f"\n[AI] Szukam SOTA. Analizuję tylko {len(top_candidates)} najbardziej prawdopodobnych kandydatów...")
         llm = get_llm()
         llm_candidates = []
-        for block in valid_blocks:
+        
+        for block in top_candidates:
             truncated_content = block.content[:4000]
             prompt = PROMPT_EVALUATE_PL.format(title=block.title or "Brak", content=truncated_content) if language == "pl" else PROMPT_EVALUATE_EN.format(title=block.title or "None", content=truncated_content)
             try:
@@ -46,7 +60,8 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
                 score = data.get("pewnosc_procentowa", 0)
                 if score >= 90 and data.get("czy_sota"):
                     llm_candidates.append({"block": block, "score": score})
-            except: continue
+            except: 
+                continue
         
         if llm_candidates:
             perfect = [c for c in llm_candidates if c["score"] == 100]

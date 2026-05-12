@@ -26,7 +26,8 @@ class ConsistencyChecker:
             ],
             response_format={
                 "type": "json_object",
-            }
+            },
+            temperature=0.0
         )
         
         result_text = response["choices"][0]["message"]["content"]

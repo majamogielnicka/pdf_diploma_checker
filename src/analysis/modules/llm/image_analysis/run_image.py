@@ -2,11 +2,12 @@ import sys
 import os
 import json
 import re
+import gc
 from pathlib import Path
 
 current_dir = Path(__file__).resolve().parent
 sys.path.append(str(current_dir.parent))
-sys.path.append(str(current_dir.parents[3])) 
+sys.path.append(str(current_dir.parents[3]))
 
 import config 
 from llava_engine import LlavaEngine
@@ -27,7 +28,7 @@ def adapt_data_for_images(doc_obj, mapped_doc):
             paragraphs.append(text)
             
     caption_pattern = re.compile(r"(?i)rys(?:unek|\.)?\s*(\d+(?:\.\d+)?)")
-    unique_images = {} 
+    unique_images = {}
     
     for page in doc_obj.pages:
         for img in page.images:
@@ -39,19 +40,14 @@ def adapt_data_for_images(doc_obj, mapped_doc):
                     
                     if found_id not in unique_images:
                         unique_images[found_id] = {"desc": desc, "bytes": None}
-
                         img_path = Path(img.path)
                         if img_path.exists():
                             with open(img_path, "rb") as f:
                                 unique_images[found_id]["bytes"] = f.read()
-                        else:
-                            print(f"[Ostrzeżenie] Nie znaleziono pliku obrazka na dysku: {img_path}")
-                    
                     else:
                         old_desc = unique_images[found_id]["desc"]
                         if not re.match(r"(?i)^rys", old_desc.strip()) and re.match(r"(?i)^rys", desc.strip()):
                             unique_images[found_id]["desc"] = desc
-                            
                             img_path = Path(img.path)
                             if img_path.exists():
                                 with open(img_path, "rb") as f:
@@ -61,45 +57,72 @@ def adapt_data_for_images(doc_obj, mapped_doc):
     
     return paragraphs, images
 
-def analyze_images(doc_obj, mapped_doc):
-    llava = LlavaEngine()
+def analyze_images(doc_obj, mapped_doc, verbose=False):
+    """
+    Analizuje obrazki i odwołania do nich.
+    Jeśli verbose=False (domyślnie), funkcja nie wypisuje nic do terminala.
+    """
     matcher = ReferenceMatcher()
-    checker = ConsistencyChecker()
-
     paragraphs, images = adapt_data_for_images(doc_obj, mapped_doc)
+    
+    images_with_refs = []
     final_report = []
 
     for img in images:
-        img_id = img["id"]
-        image_bytes = img["bytes"]
-
-        raw_refs = matcher.find_references(paragraphs, img_id)
-
+        raw_refs = matcher.find_references(paragraphs, img["id"])
         refs = []
         for r in raw_refs:
-            if re.match(rf"(?i)^rys(?:unek|\.)?\s*{re.escape(str(img_id))}\s*[:\.\-]", r.strip()):
-                continue 
+            if re.match(rf"(?i)^rys(?:unek|\.)?\s*{re.escape(str(img['id']))}\s*[:\.\-]", r.strip()):
+                continue
             if len(r.strip()) < 50 and "rys" in r.lower():
                 continue
-            
             refs.append(r)
 
         if not refs:
             final_report.append({
-                "obrazek": img_id,
+                "obrazek": img["id"],
                 "odwolanie": "brak",
                 "poprawnosc_danych": "False",
                 "bledy": ["Brak prawdziwego odwołania omawiającego rysunek w tekście pracy (znaleziono jedynie podpis)."]
             })
-            continue
+        else:
+            images_with_refs.append({"id": img["id"], "bytes": img["bytes"], "refs": refs})
 
-        image_data = llava.extract_data(image_bytes)
+    if not images_with_refs:
+        return final_report
 
-        for ref_para in refs:
-            verification = checker.check(ref_para, image_data)
+    if verbose:
+        print(f"\n[AI] Ładowanie modelu wizyjnego LLaVA do VRAM...")
+        
+    llava = LlavaEngine()
+    extracted_image_data = {}
+    
+    for idx, img in enumerate(images_with_refs, 1):
+        if verbose:
+            print(f"[{idx}/{len(images_with_refs)}] LLaVA analizuje obrazek {img['id']}...")
+        extracted_image_data[img["id"]] = llava.extract_data(img["bytes"])
+  
+    if verbose:
+        print(f"\n[AI] Koniec pracy LLaVA. Zwalniam VRAM karty graficznej...")
+        
+    del llava
+    gc.collect() 
+
+    if verbose:
+        print(f"\n[AI] Ładowanie Sędziego (Gemma) do VRAM...")
+        
+    checker = ConsistencyChecker()
+    
+    for img in images_with_refs:
+        img_data_text = extracted_image_data[img["id"]]
+        for ref_para in img["refs"]:
+            if verbose:
+                print(f" -> Sędzia ocenia akapit dla rysunku {img['id']}...")
+                
+            verification = checker.check(ref_para, img_data_text)
             
             final_report.append({
-                "obrazek": img_id,
+                "obrazek": img["id"],
                 "odwolanie": "wystapilo",
                 "poprawnosc_danych": verification.get("poprawnosc_danych", "False"),
                 "bledy": verification.get("bledy", "None")
@@ -108,15 +131,35 @@ def analyze_images(doc_obj, mapped_doc):
     return final_report
 
 if __name__ == "__main__":
-    import config 
-    print(f"Rozpoczynam testową analizę z konfiguracji: {config.THESIS_PATH}")
+    import time
+    
+    print("==================================================")
+    print("URUCHAMIANIE TESTOWE ZOPTYMALIZOWANEGO RUN_IMAGE")
+    print("==================================================")
+    print(f"Plik: {config.THESIS_PATH}")
     
     from analysis.extraction.extraction_json import extractPDF
     from analysis.extraction.converter_linguistics_clean import PDFMapper
     
-    doc_obj = extractPDF(str(config.THESIS_PATH))
-    mapper = PDFMapper()
-    mapped_doc = mapper.map_to_schema(doc_obj)
+    start_time = time.time()
     
-    wynik = analyze_images(doc_obj, mapped_doc)
-    print(json.dumps(wynik, indent=4, ensure_ascii=False))
+    print("\n[1/3] Trwa główna ekstrakcja z pliku PDF...")
+    doc_obj = extractPDF(str(config.THESIS_PATH))
+    print("[2/3] Trwa mapowanie lingwistyczne...")
+    mapped_doc = PDFMapper().map_to_schema(doc_obj)
+    
+    print("\n[3/3] Rozpoczynamy analizę obrazów (AI)...")
+    
+    # Tutaj włączamy verbose=True, aby widzieć logi tylko podczas testów
+    raport = analyze_images(doc_obj, mapped_doc, verbose=True)
+    
+    end_time = time.time()
+    elapsed_time = int(end_time - start_time)
+    
+    print("\n==================================================")
+    print("TEST ZAKOŃCZONY SUKCESEM!")
+    print("==================================================")
+    print(f"Czas wykonania: {elapsed_time // 60} min {elapsed_time % 60} sek.")
+    
+    print("\n--- RAPORT JSON ---")
+    print(json.dumps(raport, indent=4, ensure_ascii=False))

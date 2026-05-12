@@ -127,3 +127,13 @@ def analyze_sota_chapter(chapter_title: str, content: str) -> Dict[str, Any]:
         "status": status,
         "procent": percentage
     }
+
+def free_sota_memory():
+    """Zwalnia VRAM karty graficznej po zakończeniu modułu SOTA."""
+    global _llm_instance
+    if _llm_instance is not None:
+        del _llm_instance
+        _llm_instance = None
+        import gc
+        gc.collect()
+        print("[AI] Pamięć GPU po module SOTA została wyczyszczona.")

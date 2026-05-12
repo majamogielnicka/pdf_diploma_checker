@@ -1,6 +1,5 @@
 import re
 from pathlib import Path
-from get_content import get_content
 
 NUMERIC_PATTERN = r'\[\s*\d+\s*(?:[,;\-–]\s*\d+\s*)*\]'
 HARVARD_PATTERN = r'\([A-ZŚĆŻŹŁ][^()0-9]+(?:19|20)\d{2}[^()]*\)'
@@ -22,20 +21,29 @@ def extract_citations(text):
     all_citations = numeric + harvard + mla + footnotes_cleaned + alpha + acm
     return all_citations
 
-def analyze_sota_citations(pdf_path, sota_ids, output_dir="."):
+def analyze_sota_citations(blocks, pdf_path, sota_ids, output_dir="."):
+    """
+    Analizuje cytowania w podanych blokach tekstowych.
+    Zamiast używać 'get_content', funkcja operuje na gotowych 'blocks'.
+    """
     output_lines = []
-    output_lines.append(f"Wczytywanie pliku: {pdf_path}")
-    
-    blocks = get_content(pdf_path)
+    output_lines.append(f"Przetwarzanie cytowań dla pliku: {pdf_path}")
     
     total_citations = 0
     all_found_citations = []
     
+    sota_ids_str = [str(i) for i in sota_ids]
+    
     for block in blocks:
-        if block.id in sota_ids:
-            output_lines.append(f"\n--- Rozdział: {block.title} (ID: {block.id}) ---")
+        block_id = str(getattr(block, "id", ""))
+        
+        if block_id in sota_ids_str:
+            title = getattr(block, "title", "Brak tytułu")
+            content = getattr(block, "content", "")
             
-            citations = extract_citations(block.content)
+            output_lines.append(f"\n--- Rozdział: {title} (ID: {block_id}) ---")
+            
+            citations = extract_citations(content)
             count = len(citations)
             total_citations += count
             
@@ -59,7 +67,7 @@ def analyze_sota_citations(pdf_path, sota_ids, output_dir="."):
     output_lines.append(f"Łączna liczba wszystkich wstawień cytowań: {total_citations}")
     
     global_unique = set(all_found_citations)
-    output_lines.append(f"Łączna liczba unikalnych przypisów z całej pracy: {len(global_unique)}")
+    output_lines.append(f"Łączna liczba unikalnych przypisów w tych rozdziałach: {len(global_unique)}")
 
     summary_text = "\n".join(output_lines)
     print(summary_text)
