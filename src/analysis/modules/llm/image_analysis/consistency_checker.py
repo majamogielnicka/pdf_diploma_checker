@@ -6,7 +6,8 @@ class ConsistencyChecker:
     def __init__(self, model_path=str(config.MODEL_PATH)):
         self.llm = Llama(
             model_path=model_path,
-            n_ctx=2048,
+            n_ctx=4096,
+            n_gpu_layers=-1,
             verbose=False
         )
 

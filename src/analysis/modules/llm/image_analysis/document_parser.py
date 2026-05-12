@@ -35,7 +35,7 @@ class DocumentParser:
                 
                 candidate_blocks = [
                     b for b in blocks 
-                    if b[6] == 0 and (img_bottom - 5) <= b[1] <= (img_bottom + 150)
+                    if b[6] == 0 and (img_bottom - 50) <= b[1] <= (img_bottom + 150)
                 ]
 
                 candidate_blocks.sort(key=lambda b: b[1])

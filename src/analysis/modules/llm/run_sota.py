@@ -1,24 +1,83 @@
-from get_content import get_content
+from dataclasses import dataclass
 from find_sota import get_sota_chapter
 from evaluate_sota import analyze_sota_chapter
-
 from config import THESIS_PATH, LANGUAGE
+import re
 
-def get_final_sota_report(blocks: list, language: str = LANGUAGE):
-    """
-    ZWRACA 8 WARTOŚCI:
-    1) id (str)
-    2) tytul (str)
-    3) ocena (int: 0, 50, 100)
-    4) podstawa_wyboru (str)
-    5) liczba_cytowan (int)
-    6) r1 (bool) - ocena istniejących rozwiązań
-    7) r2 (bool) - wskazanie luki/problemu
-    8) r3 (bool) - synteza/porównanie metod
-    """
+@dataclass
+class ChapterBlock:
+    id: int
+    title: str
+    content: str = ""
 
-    s_id, s_title, s_method, s_citations, s_content = get_sota_chapter(blocks, language)
+def is_toc_like(text):
+    """
+    Niszczarka Spisów Treści:
+    Sprawdza, czy blok tekstu wygląda jak Spis Treści (TOC),
+    szukając ciągów kropek kończących się numerem strony, np. "...... 34" lub ". . . 34"
+    """
+    toc_lines = len(re.findall(r"(?:\.{3,}|\.\s\.\s\.)[\s\.]*\d+", text))
+    return toc_lines >= 2
+
+def adapt_extraction_to_blocks(mapped_doc):
+    blocks = []
+    current_title = "Początek"
+    current_content = []
+    block_id = 1
     
+    for block in mapped_doc.logical_blocks:
+        is_header = getattr(block, "type", "") == "heading"
+        text = getattr(block, "content", "").strip()
+        
+        if not text:
+            continue
+
+        if is_header:
+            is_main_chapter = bool(re.match(r"^\d+\.?\s+[A-ZĄĆĘŁŃÓŚŹŻ]", text.upper())) or text.upper() in ["WSTĘP", "PODSUMOWANIE", "ZAKOŃCZENIE", "BIBLIOGRAFIA", "LITERATURA"]
+            
+            if is_main_chapter:
+                if current_content:
+                    content_str = "\n".join(current_content)
+                    if not is_toc_like(content_str):
+                        blocks.append(ChapterBlock(
+                            id=block_id, 
+                            title=current_title, 
+                            content=content_str
+                        ))
+                        block_id += 1
+                
+                clean_title = re.sub(r"\s+\d+$", "", text)
+                current_title = clean_title
+                current_content = [clean_title]
+            else:
+                current_content.append(text)
+        else:
+            current_content.append(text)
+
+    if current_content:
+        content_str = "\n".join(current_content)
+        if not is_toc_like(content_str):
+            blocks.append(ChapterBlock(
+                id=block_id, 
+                title=current_title, 
+                content=content_str
+            ))
+    
+    return blocks
+
+
+def get_final_sota_report(mapped_doc, language: str = LANGUAGE):
+    
+    sota_blocks = adapt_extraction_to_blocks(mapped_doc)
+
+    s_id, s_title, s_method, s_citations, s_content = get_sota_chapter(sota_blocks, language)
+    
+    if s_id:
+        print("\n--- DEBUG SOTA (CO WIDZI MODEL?) ---")
+        print(f"Długość tekstu przekazanego do Gemmy: {len(s_content)} znaków")
+        print(f"Początek tekstu:\n{s_content[:300]}...")
+        print("------------------------------------\n")
+
     if not s_id:
         return None, None, 0, "Brak", 0, False, False, False
 
@@ -31,18 +90,30 @@ def get_final_sota_report(blocks: list, language: str = LANGUAGE):
         r3 = bool(ocena_data["r3"])
         
     except Exception as e:
-        print(f"Błąd analizy: {e}")
+        print(f"Błąd analizy SOTA: {e}")
         s_score = 0
         r1 = r2 = r3 = False
 
     return s_id, s_title, s_score, s_method, s_citations, r1, r2, r3
 
-if __name__ == "__main__":
-    print(f"Rozpoczynam analizę z konfiguracji: {THESIS_PATH}")
-    
-    extracted_blocks = get_content(THESIS_PATH)
 
-    res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, LANGUAGE)
+if __name__ == "__main__":
+    print(f"Rozpoczynam testową analizę z konfiguracji: {THESIS_PATH}")
+    
+    import sys
+    import os
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    if BASE_DIR not in sys.path:
+        sys.path.insert(0, BASE_DIR)
+        
+    from analysis.extraction.extraction_json import extractPDF
+    from analysis.extraction.converter_linguistics_clean import PDFMapper
+    
+    doc_data = extractPDF(str(THESIS_PATH))
+    mapper = PDFMapper()
+    mapped_data = mapper.map_to_schema(doc_data)
+
+    res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_data, LANGUAGE)
     
     print(f"\n--- WYNIKI ---")
     print(f"ID: {res_id}")
