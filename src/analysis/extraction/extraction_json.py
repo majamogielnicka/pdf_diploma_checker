@@ -1308,7 +1308,7 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
 def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: #Table of Figures
     """ Funkcja wykrywająca spisy rysunków """
     keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
-                "list of figures", "table of figures", "tof"]
+                "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków"]
     all_entries = []
     tof_pages = []
 
@@ -1344,8 +1344,9 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
             line_full_text = " ".join(fragments)
             page_text += line_full_text + " "
 
-            match_full = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
-            match_start = re.match(r"^(\d+(?:\.\d+)*)\s+(.*)", line_full_text)
+
+            match_full = re.search(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
             if match_full:
@@ -1392,7 +1393,7 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
 
 def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Tables
     """ Funkcja wykrywająca spisy tabel """
-    keywords = ["spis tabel", "spis tablic", "list of tables", "tot"]
+    keywords = ["spis tabel", "spis tablic", "list of tables", "tot", "wykaz tabel"]
     all_entries = []
     tot_pages = []
 
@@ -1428,8 +1429,8 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
             line_full_text = " ".join(fragments)
             page_text += line_full_text + " "
 
-            match_full = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
-            match_start = re.match(r"^(\d+(?:\.\d+)*)\s+(.*)", line_full_text)
+            match_full = re.search(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(?:[A-Z][a-zśł]*\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
             if match_full:

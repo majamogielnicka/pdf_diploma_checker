@@ -115,6 +115,8 @@ class RedactionValidator:
             self.check_blank_page()
             self.check_footers()
             self.check_toc()
+            self.check_tof()
+            self.check_tot()
 
 
         #--------------------advanced redaction check
@@ -443,6 +445,102 @@ class RedactionValidator:
 
         return wrong_entries, is_toc
     
+    def check_tot(self):
+        wrong_entries = []
+        
+        if self.document_data.tot == None:
+            error = Error(
+                id = self._get_next_id(),
+                module=self.module,
+                category = "lack_of_TOT",
+                page_number = 1,
+                bounding_box = (0,0,0,0), 
+                text = None,
+                comments = f"Wykryto brak spisu tabel."
+            )
+            self.errors.append(error)
+            return 
+
+        for entry in self.document_data.tot.entries:
+            expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
+            correct_page = False
+
+            for page in self.document_data.pages:
+                if page.number == entry.page:
+                    for table in page.tables:
+                        if not table.description:
+                            continue
+                        table_desc = " ".join(table.description.lower().strip().split())
+                        
+                        if expected_title in table_desc or table_desc in expected_title:
+                            correct_page = True
+                            break
+
+                if correct_page: 
+                    break
+
+            if not correct_page:
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="TOT_mismatch",
+                    page_number=entry.src_page,
+                    bounding_box=entry.bbox,
+                    text=entry.title,
+                    comments=f"Tabela o tytule '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                ))
+                wrong_entries.append(entry)
+
+        return wrong_entries
+
+    def check_tof(self):
+        wrong_entries = []
+
+        if self.document_data.tof == None:
+            error = Error(
+                id = self._get_next_id(),
+                module=self.module,
+                category = "lack_of_TOF",
+                page_number = 1,
+                bounding_box = (0,0,0,0), 
+                text = None,
+                comments = f"Wykryto brak spisu rysunków."
+            )
+            self.errors.append(error)
+            is_toc = False
+            return None, is_toc
+
+        for entry in self.document_data.tof.entries:
+            expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
+            correct_page = False
+
+            for page in self.document_data.pages:
+                if page.number == entry.page:
+                    for image in page.images:
+                        if not image.description:
+                            continue
+                            
+                        image_desc = " ".join(image.description.lower().strip().split())
+                        
+                        if expected_title in image_desc or image_desc in expected_title:
+                            correct_page = True
+                            break
+                if correct_page: 
+                    break
+
+            if not correct_page:
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="TOF_mismatch",
+                    page_number=entry.src_page,
+                    bounding_box=entry.bbox,
+                    text=entry.title,
+                    comments=f"Rysunek o tytule '{entry.title}' nie znajduje się na wskazanej stronie (Strona {entry.page})."
+                ))
+                wrong_entries.append(entry)
+
+        return wrong_entries
 
         
     def check_footers(self):
