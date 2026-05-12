@@ -1,15 +1,21 @@
 import sys
 import os
+import datetime
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import sys
+import os
+from common.path import resource_path
+
+BASE_DIR = resource_path(".")
+
 APP_DIR = os.path.join(BASE_DIR, "app")
 COMMON_DIR = os.path.join(BASE_DIR, "common")
 
 if APP_DIR not in sys.path:
-    sys.path.append(APP_DIR)
+    sys.path.insert(0, APP_DIR)
 
 if COMMON_DIR not in sys.path:
-    sys.path.append(COMMON_DIR)
+    sys.path.insert(0, COMMON_DIR)
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -43,6 +49,7 @@ from pipeline import AnalysisPipeline
 
 from PySide6.QtWidgets import QFrame
 from entry import run_analysis_for_pdf
+from common.path import resource_path
 
 class AnalysisWorker(QObject):
     progress = Signal(int, str)
@@ -102,7 +109,7 @@ class PDFReader(QMainWindow):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        if hasattr(self, 'overlay'):
+        if hasattr(self, 'overlay')and self.overlay is not None:
             self.overlay.resize(event.size())
 
     def open_existing_file(self, path):
@@ -162,6 +169,7 @@ class PDFReader(QMainWindow):
         
         layout.addWidget(splitter)
         self.toolbar.raise_()
+        
 
     def _create_toolbar(self):
 
@@ -177,8 +185,7 @@ class PDFReader(QMainWindow):
         l = QHBoxLayout(toolbar)
         
         self.back_btn = QPushButton()
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        back_icon_path = os.path.join(current_dir, "assets", "back.svg")
+        back_icon_path = resource_path(os.path.join("ui", "assets", "back.svg"))
         if os.path.exists(back_icon_path):
             self.back_btn.setIcon(QIcon(back_icon_path))
             self.back_btn.setIconSize(QSize(24, 40))
@@ -257,6 +264,7 @@ class PDFReader(QMainWindow):
                 self.pdf_view.add_errors(bledy)
                 self.update_sota_panel(sota_data)
                 self.manager.zapisz_bledy(path, bledy)
+                self.manager.zapisz_wynik_ai(path, sota_data)
                 
             self.stack.setCurrentIndex(1)
             print("Analiza zakończona, widok przełączony.")
@@ -298,7 +306,23 @@ class PDFReader(QMainWindow):
             self.zoom_label.setText("100%")
         
             self.load_template_errors()
+            self.load_ai_analysis()
             self.load_custom_comments()
+
+    def load_ai_analysis(self):
+        if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
+            return
+            
+        try:
+            sota_data = None
+            for p in self.manager.data.get("prace", []):
+                if p['sciezka_lokalna'] == self.current_pdf_path:
+                    sota_data = p.get("wynik_sota") 
+                    break
+            self.update_sota_panel(sota_data)
+            
+        except Exception as e:
+            print(f"Błąd podczas wczytywania analizy AI: {e}")
 
     def load_template_errors(self):
         if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
@@ -308,6 +332,7 @@ class PDFReader(QMainWindow):
             bledy = self.manager.pobierz_bledy(self.current_pdf_path)
             if bledy:
                 self.pdf_view.add_errors(bledy) 
+                self.pdf_view.update_markers_pos() 
         except Exception as e:
             print(f"Błąd podczas wczytywania błędów: {e}")
 
@@ -369,7 +394,7 @@ class PDFReader(QMainWindow):
 
     def update_sota_panel(self, sota_data):
         import os
-        from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame
+        from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QPushButton
         from PySide6.QtCore import Qt, QSize
         from PySide6.QtGui import QIcon
 
@@ -381,7 +406,7 @@ class PDFReader(QMainWindow):
                 self.right_panel.layout().removeItem(item)
 
         if not sota_data:
-            brak_label = QLabel("Brak danych SOTA (Tryb szybki)")
+            brak_label = QLabel("Brak danych analizy AI (Tryb szybki)")
             brak_label.setStyleSheet("color: #7f8c8d; font-style: italic; border: none; margin-top: 15px;")
             self.right_panel.layout().addWidget(brak_label)
             self.right_panel.layout().addStretch()
@@ -392,6 +417,54 @@ class PDFReader(QMainWindow):
         l = QVBoxLayout(content)
         l.setContentsMargins(0, 15, 0, 0)
         l.setSpacing(15)
+
+        content_grade = sota_data.get('content_grade')
+        if content_grade is not None:
+            if isinstance(content_grade, dict):
+                grade = content_grade.get('grade', 0.0)
+                max_grade = content_grade.get('max_grade', 60.0)
+                p_off = content_grade.get('p_off', 0.0)
+                off_topic = content_grade.get('off_topic_sections', 0)
+            elif isinstance(content_grade, (float, int)):
+                grade = float(content_grade)
+                max_grade = 60.0
+                p_off = 0.0
+                off_topic = 0
+            else:
+                grade = 0.0
+                max_grade = 60.0
+                p_off = 0.0
+                off_topic = 0
+
+            cg_frame = QFrame()
+            cg_frame.setStyleSheet("QFrame { background-color: #F0F7FF; border: 2px solid #90C8FF; border-radius: 8px; }")
+            cg_layout = QVBoxLayout(cg_frame)
+            cg_layout.setContentsMargins(15, 15, 15, 15)
+            cg_layout.setSpacing(5)
+
+            cg_title = QLabel("Ogólna ocena pracy")
+            cg_title.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none; background: transparent;")
+            
+            cg_val = QLabel(f"{grade} <span style='font-size: 16px; color: #666;'>/ {max_grade} pkt</span>")
+            cg_val.setStyleSheet("color: #0056b3; font-size: 32px; font-weight: bold; border: none; background: transparent;")
+
+            detale_lbl = QLabel(f"Podrozdziały poza tematem: <b>{off_topic}</b> ({p_off}%)")
+            detale_lbl.setStyleSheet("color: #666; font-size: 12px; border: none; background: transparent;")
+
+            cg_layout.addWidget(cg_title)
+            cg_layout.addWidget(cg_val)
+            cg_layout.addWidget(detale_lbl)
+            l.addWidget(cg_frame)
+
+            sep = QFrame()
+            sep.setFrameShape(QFrame.HLine)
+            sep.setStyleSheet("background-color: #D3D3D3; margin-top: 5px; margin-bottom: 5px;")
+            l.addWidget(sep)
+
+        sota_header = QLabel("Analiza sekcji SOTA")
+        sota_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
+        l.addWidget(sota_header)
+
         wynik = sota_data.get('ocena', 0)
         is_good = wynik >= 50
         
@@ -400,35 +473,28 @@ class PDFReader(QMainWindow):
         border_color = "#C8E6C9" if is_good else "#FFCDD2"
         text_color = "#2E7D32" if is_good else "#C62828"
         
-        score_frame.setStyleSheet(f"""
-            QFrame {{
-                background-color: {bg_color};
-                border-radius: 8px;
-                border: 1px solid {border_color};
-            }}
-        """)
+        score_frame.setStyleSheet(f"QFrame {{ background-color: {bg_color}; border-radius: 8px; border: 1px solid {border_color}; }}")
         score_layout = QVBoxLayout(score_frame)
         score_layout.setContentsMargins(15, 12, 15, 12)
-        score_layout.setSpacing(2)
         
-        score_title = QLabel("Ogólna ocena SOTA")
+        score_title = QLabel("Ocena istniejących rozwiązań")
         score_title.setStyleSheet("color: #555; font-size: 12px; font-weight: bold; border: none; background: transparent;")
-        
         score_val = QLabel(f"{wynik}%")
-        score_val.setStyleSheet(f"color: {text_color}; font-size: 28px; font-weight: bold; border: none; background: transparent;")
+        score_val.setStyleSheet(f"color: {text_color}; font-size: 24px; font-weight: bold; border: none; background: transparent;")
         
         score_layout.addWidget(score_title)
         score_layout.addWidget(score_val)
         l.addWidget(score_frame)
+
         tytul_lbl = QLabel(f"<b>Analizowany rozdział:</b><br>{sota_data.get('tytul', 'Brak')}")
         tytul_lbl.setWordWrap(True)
-        tytul_lbl.setStyleSheet("color: #333; font-size: 13px; border: none; margin-top: 5px;")
+        tytul_lbl.setStyleSheet("color: #333; font-size: 13px; border: none;")
         l.addWidget(tytul_lbl)
+
         def create_badge_row(label_text, is_met):
             row_widget = QWidget()
             row_layout = QHBoxLayout(row_widget)
             row_layout.setContentsMargins(0, 0, 0, 0)
-            row_layout.setSpacing(10)
 
             lbl = QLabel(label_text)
             lbl.setWordWrap(True)
@@ -438,77 +504,53 @@ class PDFReader(QMainWindow):
             badge.setFixedHeight(26)
             badge_layout = QHBoxLayout(badge)
             badge_layout.setContentsMargins(2, 0, 10, 0)
-            badge_layout.setSpacing(6)
 
             icon_circle = QLabel()
-            icon_circle.setAlignment(Qt.AlignCenter)
             icon_circle.setFixedSize(20, 20)
+            icon_circle.setAlignment(Qt.AlignCenter)
 
+            current_dir = os.path.dirname(os.path.abspath(__file__))
             if is_met:
                 badge.setStyleSheet("QFrame { background-color: #D1EEDC; border-radius: 13px; border: none; }")
                 
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-                tick_path = os.path.join(current_dir, "assets", "tick.svg")
+                tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
                 if os.path.exists(tick_path):
                     icon_circle.setPixmap(QIcon(tick_path).pixmap(QSize(12, 12)))
                 else:
                     icon_circle.setText("✓")
-                icon_circle.setStyleSheet("QLabel { background-color: #2CA05A; color: white; border-radius: 10px; font-weight: bold; font-size: 12px; }")
-                
+                icon_circle.setStyleSheet("QLabel { background-color: #2CA05A; color: white; border-radius: 10px; font-weight: bold; }")
                 text_lbl = QLabel("Tak")
-                text_lbl.setStyleSheet("color: #000; font-weight: bold; font-size: 12px; border: none; background: transparent;")
             else:
                 badge.setStyleSheet("QFrame { background-color: #F8D7DA; border-radius: 13px; border: none; }")
-                
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-                cross_path = os.path.join(current_dir, "assets", "cross.svg")
+            
+                cross_path = resource_path(os.path.join("ui", "assets", "cross.svg"))
                 if os.path.exists(cross_path):
                     icon_circle.setPixmap(QIcon(cross_path).pixmap(QSize(10, 10)))
                 else:
                     icon_circle.setText("✕")
-                icon_circle.setStyleSheet("QLabel { background-color: #DC3545; color: white; border-radius: 10px; font-weight: bold; font-size: 12px; }")
-                
+                icon_circle.setStyleSheet("QLabel { background-color: #DC3545; color: white; border-radius: 10px; font-weight: bold; }")
                 text_lbl = QLabel("Nie")
-                text_lbl.setStyleSheet("color: #000; font-weight: bold; font-size: 12px; border: none; background: transparent;")
 
+            text_lbl.setStyleSheet("color: #000; font-weight: bold; font-size: 12px; border: none; background: transparent;")
             badge_layout.addWidget(icon_circle)
             badge_layout.addWidget(text_lbl)
-
             row_layout.addWidget(lbl, stretch=1)
-            row_layout.addWidget(badge, alignment=Qt.AlignRight | Qt.AlignVCenter)
+            row_layout.addWidget(badge, alignment=Qt.AlignRight)
             return row_widget
 
         l.addWidget(create_badge_row("Ocena istniejących rozwiązań", sota_data.get('r1')))
         l.addWidget(create_badge_row("Wskazanie luki / problemu", sota_data.get('r2')))
         l.addWidget(create_badge_row("Synteza / porównanie metod", sota_data.get('r3')))
 
-        content_grade = sota_data.get('content_grade')
-        if content_grade:
-            sep = QFrame()
-            sep.setFrameShape(QFrame.HLine)
-            sep.setStyleSheet("background-color: #D3D3D3; margin-top: 15px; margin-bottom: 5px;")
-            l.addWidget(sep)
-
-            cg_lbl = QLabel("<b>Ocena realizacji celu</b>")
-            cg_lbl.setStyleSheet("color: #333; font-size: 13px; border: none;")
-            l.addWidget(cg_lbl)
-
-            grade = content_grade.get('grade', 0.0)
-            max_grade = content_grade.get('max_grade', 60.0)
-            p_off = content_grade.get('p_off', 0.0)
-            off_topic = content_grade.get('off_topic_sections', 0)
-
-            wynik_lbl = QLabel(f"Wynik punktowy: <span style='color: #2E7D32;'><b>{grade} / {max_grade}</b></span>")
-            wynik_lbl.setStyleSheet("color: #444; font-size: 13px; border: none;")
-            l.addWidget(wynik_lbl)
-
-            detale_lbl = QLabel(f"Podrozdziały poza tematem: <b>{off_topic}</b> ({p_off}%)")
-            detale_lbl.setStyleSheet("color: #777; font-size: 12px; border: none;")
-            l.addWidget(detale_lbl)
+        l.addSpacing(15)
+        self.raport_btn = QPushButton("Pobierz dokładny raport")
+        self.raport_btn.setCursor(Qt.PointingHandCursor)
+        self.raport_btn.setStyleSheet(styles.RAPORT_BTN_STYLE)
+        self.raport_btn.clicked.connect(self.generate_detailed_report)
+        l.addWidget(self.raport_btn)
 
         self.right_panel.layout().addWidget(content)
         self.right_panel.layout().addStretch()
-
 
     def zoom_in(self):
         self.pdf_view.setZoomFactor(self.pdf_view.zoomFactor() * 1.1)
@@ -543,7 +585,7 @@ class PDFReader(QMainWindow):
 
             for err in bledy_do_zapisu:
                 try:
-                    page_num = int(err.get("strona", 1)) - 1
+                    page_num = int(err.get("strona", 1))
                     if 0 <= page_num < len(doc):
                         page = doc[page_num]
                         coords = err.get("wspolrzedne", {})
@@ -576,7 +618,7 @@ class PDFReader(QMainWindow):
                 for marker in self.pdf_view.comment_markers:
                     try:
                         notatka = marker.data
-                        page_idx = notatka["strona"] - 1
+                        page_idx = notatka["strona"]
                         if 0 <= page_idx < len(doc):
                             page = doc[page_idx]
                             coords = notatka["wspolrzedne"]
@@ -613,21 +655,123 @@ class PDFReader(QMainWindow):
 
     def load_custom_comments(self):
         self.pdf_view.clear_comments()
-        
         if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
             return
 
         saved_comments = self.manager.pobierz_komentarze(self.current_pdf_path)
-
         for c_data in saved_comments:
-            w = c_data.get("wspolrzedne", {}).get("w", 0)
-            h = c_data.get("wspolrzedne", {}).get("h", 0)
-
-            if w > 0 and h > 0:
+            coords = c_data.get("wspolrzedne", {})
+            if coords.get("w", 0) > 0:
+                from select_text import HighlightBox
                 box = HighlightBox(c_data, self.pdf_view.viewport())
+                box.is_error = False
+                box.setStyleSheet("background-color: rgba(0, 120, 255, 60); border: none;")
                 self.pdf_view.highlight_boxes.append(box)
 
+            from select_text import CommentMarker
             marker = CommentMarker(c_data, self.pdf_view.viewport())
             self.pdf_view.comment_markers.append(marker)
 
         self.pdf_view.update_markers_pos()
+
+
+    def generate_detailed_report(self):
+        sota_data = None
+        if hasattr(self, 'current_pdf_path'):
+            for p in self.manager.data.get("prace", []):
+                if p['sciezka_lokalna'] == self.current_pdf_path:
+                    sota_data = p.get("wynik_sota")
+                    break
+
+        if not sota_data:
+            QMessageBox.warning(self, "Ostrzeżenie", "Brak danych szczegółowej analizy AI dla tego dokumentu.")
+            return
+
+        default_name = f"Raport_AI_{os.path.basename(self.current_pdf_path)}"
+        save_path, _ = QFileDialog.getSaveFileName(self, "Zapisz Raport Szczegółowy", default_name, "Pliki PDF (*.pdf)")
+        
+        if not save_path:
+            return
+
+        try:
+            report_pdf = fitz.open()
+            page = report_pdf.new_page()
+            
+            font_path = resource_path(os.path.join("ui", "assets", "Roboto-Regular.ttf"))
+            font_bold_path = resource_path(os.path.join("ui", "assets", "Roboto-Bold.ttf"))
+
+            if os.path.exists(font_path) and os.path.exists(font_bold_path):
+                f_main = "roboto"
+                f_bold = "roboto-bold"
+                page.insert_font(fontname=f_main, fontfile=font_path)
+                page.insert_font(fontname=f_bold, fontfile=font_bold_path)
+            else:
+                f_main = "helv"
+                f_bold = "hebo"
+                print("UWAGA: Nie znaleziono czcionek w assets. Użyto zamienników.")
+
+            pos_y = 50
+            margin = 50
+            
+            page.insert_text((margin, pos_y), "Szczegółowy Raport Analizy AI", 
+                             fontsize=22, fontname=f_bold, color=(0.13, 0.58, 0.95))
+            pos_y += 45
+            page.insert_text((margin, pos_y), f"Dokument: {os.path.basename(self.current_pdf_path)}", 
+                             fontsize=12, fontname=f_main, color=(0.2, 0.2, 0.2))
+            pos_y += 40
+            
+            content_grade = sota_data.get('content_grade', {})
+            if isinstance(content_grade, dict):
+                grade = content_grade.get('grade', 0)
+                max_g = content_grade.get('max_grade', 60)
+                page.insert_text((margin, pos_y), "1. Ogólna ocena merytoryczna", 
+                                 fontsize=14, fontname=f_bold)
+                pos_y += 25
+                page.insert_text((margin, pos_y), f"Wynik punktowy: {grade} / {max_g} pkt", 
+                                 fontsize=12, fontname=f_main)
+                pos_y += 20
+                page.insert_text((margin, pos_y), 
+                                 f"Podrozdziały poza tematem: {content_grade.get('off_topic_sections', 0)} ({content_grade.get('p_off', 0)}%)", 
+                                 fontsize=11, fontname=f_main)
+                pos_y += 45
+
+            page.insert_text((margin, pos_y), "2. Analiza rozdziału SOTA", 
+                             fontsize=14, fontname=f_bold)
+            pos_y += 25
+            
+            chapter_title = sota_data.get('tytul', 'Brak tytułu')
+            page.insert_text((margin, pos_y), f"Analizowany rozdział: {chapter_title}", 
+                             fontsize=12, fontname=f_main)
+            pos_y += 20
+            
+            score = sota_data.get('ocena', 0)
+            page.insert_text((margin, pos_y), f"Zgodność z wymogami SOTA: {score}%", 
+                             fontsize=12, fontname=f_main)
+            pos_y += 30
+
+            criteria = [
+                ("Ocena istniejących rozwiązań:", sota_data.get('r1')),
+                ("Wskazanie luki badawczej / problemu:", sota_data.get('r2')),
+                ("Synteza i porównanie metod:", sota_data.get('r3'))
+            ]
+
+            for label, met in criteria:
+                status = "TAK [X]" if met else "NIE [ ]"
+                color = (0.17, 0.62, 0.35) if met else (0.86, 0.2, 0.27)
+                page.insert_text((margin + 20, pos_y), f"{label} {status}", 
+                                 fontsize=11, fontname=f_main, color=color)
+                pos_y += 20
+
+
+            page.insert_text((margin, 800), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
+                             fontsize=9, fontname=f_main, color=(0.5, 0.5, 0.5))
+
+            report_pdf.save(save_path)
+            report_pdf.close()
+            
+            QMessageBox.information(self, "Sukces", f"Raport został zapisany pomyślnie:\n{save_path}")
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(self, "Błąd Eksportu", f"Błąd podczas generowania raportu:\n{str(e)}")

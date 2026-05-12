@@ -1,6 +1,5 @@
 import re
 from .linguistics_types import Error_type
-from src.analysis.extraction.schema import ParagraphBlock, ListBlock
 from .helpers import get_match_info
 
 def dash_check(blocks):
@@ -11,6 +10,9 @@ def dash_check(blocks):
     dash_counter = 0
     
     for block in blocks:
+        if block.block.type == "list":
+            if block.block.is_bibliography:
+                continue
         # Przygotowujemy jednostki do sprawdzenia (tekst + obiekt)
         text = block.contents
         unit = block.block

@@ -1,21 +1,27 @@
 import os
 import sys
 import concurrent.futures
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EXTRACTION_DIR = os.path.join(BASE_DIR, "analysis", "extraction")
-COMMON_DIR = os.path.join(BASE_DIR, "common")
+COMMON_DIR     = os.path.join(BASE_DIR, "common")
 LINGUISTICS_DIR = os.path.join(BASE_DIR, "analysis", "modules", "linguistics")
-LLM_DIR = os.path.join(BASE_DIR, "analysis", "modules", "llm")
-REDACTION_DIR = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
+LLM_DIR         = os.path.join(BASE_DIR, "analysis", "modules", "llm")
+REDACTION_DIR   = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
+
+from common.path import resource_path
+
 
 for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from service import ExtractionService
-from linguistics_service import LinguisticsService
-from models import FinalReport, ModuleResult
+from analysis.extraction.service import ExtractionService
+from analysis.modules.linguistics.linguistics_service import LinguisticsService
+from common.models import FinalReport, ModuleResult
 
 
 class AnalysisPipeline:
@@ -62,7 +68,7 @@ class AnalysisPipeline:
                 from analysis.modules.llm.get_purpose import get_purpose
                 from analysis.modules.llm.get_summary import get_summaries
                 from analysis.modules.llm.get_subtitles import get_subtitles
-                from run_sota import get_final_sota_report
+                from analysis.modules.llm.run_sota import get_final_sota_report
                 from analysis.modules.llm.get_content import get_content
                 from analysis.modules.llm.config import THESIS_PATH, LANGUAGE
 
@@ -94,7 +100,7 @@ class AnalysisPipeline:
                 }
                 
                 
-                return result, score
+                return result, score, "Analiza LLM zakończona pomyślnie."
             
             except Exception as e:
                 print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
@@ -103,8 +109,9 @@ class AnalysisPipeline:
         def task_linguistics():
             try:
                 from analysis.extraction.extraction_json import extractPDF
-                from analysis.extraction.converter_linguistics import PDFMapper
+                from analysis.extraction.converter_linguistics_clean import PDFMapper
                 import importlib.util
+                mapper = PDFMapper()
                 ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
                 spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
                 ling_module = importlib.util.module_from_spec(spec)
@@ -112,7 +119,7 @@ class AnalysisPipeline:
                 sys.modules["analysis.modules.linguistics.run_mock_data"] = ling_module
                 spec.loader.exec_module(ling_module)
                 
-                raw_blocks = PDFMapper.map_to_schema(doc_obj)
+                raw_blocks = mapper.map_to_schema(doc_obj)
                 ling_matches = ling_module.run_linguistics(raw_blocks)
                 print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
                 return ling_matches
@@ -125,10 +132,11 @@ class AnalysisPipeline:
         def task_redaction():
             try:
                 from analysis.modules.redaction.redaction_validator import RedactionValidator
-                
+                from analysis.extraction.converter_linguistics_clean import PDFMapper
+                mapper = PDFMapper()
                 validator = RedactionValidator(
                     document_data=doc_obj, 
-                    document_data_linguistics=PDFMapper.map_to_schema(doc_obj), 
+                    document_data_linguistics=mapper.map_to_schema(doc_obj), 
                     config_path=config_path
                 )
                 

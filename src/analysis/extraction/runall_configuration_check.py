@@ -8,10 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.analysis.extraction.extraction_json import extractPDF
-from src.analysis.modules.redaction.redaction_validator import RedactionValidator
-from src.analysis.extraction.converter_linguistics import PDFMapper
+from analysis.extraction.extraction_json import extractPDF
+from analysis.modules.redaction.redaction_validator import RedactionValidator
+from analysis.extraction.converter_linguistics import PDFMapper
 
+# tu paths nie zmieniam bo to nie do exe tylko do testowania
 def main():
     pdf_path = PROJECT_ROOT / "data" / "zusz.pdf"
 

@@ -8,13 +8,13 @@ import statistics
 import fitz  # PyMuPDF
 from typing import Dict
 
-from src.analysis.extraction.schema import (
+from analysis.extraction.schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
-from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
-from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
+from analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
+from analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
 
 class PDFMapper:
     
@@ -209,9 +209,13 @@ class PDFMapper:
 
         if len(items) > 1:
             first_item_data = self.list_buffer[0]
+
+            is_bibiography = True if getattr(self, "in_bibliography_section", False) else False
+
             new_list_block = ListBlock(
                 block_id=f"list_{first_item_data['block_id']}",
                 content=combined_content,
+                is_bibliography=is_bibiography,
                 words=all_words,
                 items=items,
                 bbox=first_item_data['bbox'] 
@@ -368,6 +372,7 @@ class PDFMapper:
         x0_margin = margins["left"]            
 
         for block in page.text_blocks:
+            current_marker = self.list_buffer[-1]['item'].marker_type if self.list_buffer else None
             full_text = ""
             words_info = []
             word_counter = 0
@@ -379,7 +384,7 @@ class PDFMapper:
             is_valid_list_cont = False
             if self.list_buffer:
                 raw_block_text = "".join(s.text for l in block.lines for s in l.spans).strip()
-                current_block_type, _ = classify_block_content(raw_block_text)
+                current_block_type, _ = classify_block_content(raw_block_text, current_marker)
                 allowed_gap = self.MIN_VERTICAL_GAP_LIST if current_block_type == "list" else self.MIN_VERTICAL_GAP
                 last_item = self.list_buffer[-1]
                 if self.is_continuation(last_item['bbox'], list(block.bbox)):
@@ -411,10 +416,10 @@ class PDFMapper:
                     continue
                 
                 tmp_line_text = "".join(s.text for s in line.spans).strip()
-                line_type, _ = classify_block_content(tmp_line_text)
+                line_type, _ = classify_block_content(tmp_line_text, current_marker)
                 
                 if line_type == "list" and full_text.strip():
-                    prev_type, prev_marker = classify_block_content(full_text)
+                    prev_type, prev_marker = classify_block_content(full_text, current_marker)
                     if prev_type == "paragraph":
                         self.paragraph_buffer.append({'content': full_text.strip(), 'words': words_info.copy(), 'block_id': block.block_id})
                         self._empty_paragraph_buffer("odcięcie wstępu od listy")
@@ -443,7 +448,7 @@ class PDFMapper:
 
                 if is_new_paragraph:
                     if full_text.strip():
-                        prev_type, prev_marker = classify_block_content(full_text)
+                        prev_type, prev_marker = classify_block_content(full_text, current_marker)
             
                         if prev_type == "list":
                             cleaned_text = strip_list_marker(full_text, prev_marker)
@@ -472,10 +477,16 @@ class PDFMapper:
                 self._empty_paragraph_buffer("wykryto nagłówek")
                 self.curr_line = 0
                 self._empty_list_buffer()
+
+                if full_text.upper().startswith(("BIBLIOGRAFIA", "LITERATURA", "REFERENCES", "WYKAZ LITERATURY")):
+                    self.in_bibliography_section = True
+                else: 
+                    self.in_bibliography_section = False
+
                 self.logical_blocks.append(ParagraphBlock(block_id=block.block_id, content=full_text, words=words_info, type="heading", debug_empty="wykryto nagłówek"))
                 continue
 
-            block_type, marker_type = classify_block_content(full_text)
+            block_type, marker_type = classify_block_content(full_text, current_marker)
 
             if block_type == "list":
                 self._empty_paragraph_buffer("wykryto listę")
