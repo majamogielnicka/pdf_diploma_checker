@@ -363,6 +363,9 @@ class PDFMapper:
         self._merge_adjacent_headings()
         self._assign_captions_to_visuals(old_doc.pages, new_doc)
 
+        # 5. Wyciąganie akronimów
+        self._extract_acronyms_to_schema(new_doc)
+
         return new_doc
 
     def _process_page(self, page, new_doc):
@@ -561,7 +564,74 @@ class PDFMapper:
                         if hasattr(lb, 'content') and lb.content.strip() == desc_text:
                             lb.type = "image_description"
                             break
+    
+    def _extract_acronyms_to_schema(self, new_doc):
+        from schema import AcronymItem
+        import re 
+        
+        # Wzorzec 1: Dla skrótów z myślnikami 
+        PATTERN_DASH = re.compile(r'\b([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15})\s*[-–—−]\s*(.*?)(?=\s*\b[A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15}\s*[-–—−]|$)')
+        
+        # Wzorzec 2: Dla skrótów ze spacją z poprzedniego PDFa 
+        PATTERN_SPACE = re.compile(r'\b([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15})\s+(.*?)(?=\s*\b[A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15}\s+[A-ZĄĆĘŁŃÓŚŹŻ]|$)')
+        
+        in_acronym_section = False
+        
+        for block in self.logical_blocks:
+            
+            if getattr(block, "type", None) == "heading":
+                header_text = block.content.strip().upper()
+                # Sprawdzenie nagłówka (dodano "ABBREVIATION" z Twojego PDF-a)
+                if "ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text:
+                    in_acronym_section = True
+                else:
+                    in_acronym_section = False
+                continue 
 
+            if in_acronym_section and getattr(block, "type", None) in ["acronyms", "paragraph", "math"]:
+                lines = block.content.split('\n')
+                
+                for line in lines:
+                    line = line.strip()
+                    if not line: continue
+                    
+                    if re.search(r'\.{3,}', line):
+                        continue
+                    
+                    # Automatyczne wykrywanie formatu: Czy ta linijka używa myślników jako separatora?
+                    if re.search(r'(?:^|\s+)[A-Za-z0-9\-]{2,15}\s+[-–—]', line):
+                        active_pattern = PATTERN_DASH
+                    else:
+                        active_pattern = PATTERN_SPACE
+
+                    # Tniemy złączony tekst używając odpowiedniego wzorca
+                    for match in active_pattern.finditer(line):
+                        acronym = match.group(1).strip()
+                        raw_definition = match.group(2).strip()
+                        
+                        def_match = re.match(r'^(.*?)(?:\.\s*([\d,\-\s\u2013\u2014]+))?$', raw_definition)
+                        
+                        if def_match:
+                            definition = def_match.group(1).strip()
+                            pages = def_match.group(2).strip() if def_match.group(2) else ""
+                        else:
+                            definition = raw_definition
+                            pages = ""
+                        
+                        definition = re.sub(r'^[-–—−‐:=]\s*', '', definition)
+                            
+                        # Wydłużony limit, na wypadek wyjątkowo długich definicji
+                        if len(definition) < 2 or len(definition) > 350:
+                             continue
+
+                        new_item = AcronymItem(
+                            acronym=acronym,
+                            definition=definition,
+                            pages=pages,
+                            bbox=[],  
+                            words=[]  
+                        )
+                        new_doc.reference_sections.acronyms.append(new_item)
 
 # Funkcje zewnętrzne
 
@@ -592,3 +662,6 @@ def get_plain_text(pdf_path):
         parts.append(text)
 
     return clean_ws(" ".join(parts))
+
+def get_acronyms_lut(doc) -> dict:
+    return {item.acronym: item.definition for item in doc.reference_sections.acronyms}

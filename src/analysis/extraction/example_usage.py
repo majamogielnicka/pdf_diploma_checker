@@ -9,7 +9,7 @@ if str(BASE_DIR) not in sys.path:
 
 from extraction_json import extractPDF
 
-input_path = PROJECT_ROOT / "data" / "other" /"bosh.pdf"
+input_path = PROJECT_ROOT / "data" / "other" /"kana.pdf"
 output_path = PROJECT_ROOT / "src" / "output.json"
 
 # Tryb debugu:
@@ -42,7 +42,8 @@ else:
 
 
 # -----------------------przykład dla converter_linguistics.py-----------------------
-from converter_linguistics_clean import PDFMapper
+from converter_linguistics_clean import PDFMapper, get_acronyms_lut
+import pprint
 
 mapper = PDFMapper()
 
@@ -74,5 +75,11 @@ if doc_data_linguistics is not None:
     final_doc = mapper.map_to_schema(doc_data_linguistics)
     final_doc.to_json(output_path_linguistics)
     print("[converter_linguistics] JSON wygenerowany")
+
+    #Debug do ekstrakcji akronimów do LUT
+    lut = get_acronyms_lut(final_doc)
+    print("\n--- WYCIĄGNIĘTE AKRONIMY (LUT) ---")
+    pprint.pprint(lut)
+    print("----------------------------------\n")
 else:
     print(f"[converter_linguistics] Nie wygenerowano pliku JSON") 
