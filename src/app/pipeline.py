@@ -13,6 +13,7 @@ LLM_DIR         = os.path.join(BASE_DIR, "analysis", "modules", "llm")
 REDACTION_DIR   = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
 
 from common.path import resource_path
+from analysis.modules.linguistics import run_mock_data as ling_module
 
 
 for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
@@ -70,7 +71,7 @@ class AnalysisPipeline:
                 from analysis.modules.llm.get_subtitles import get_subtitles
                 from analysis.modules.llm.run_sota import get_final_sota_report
                 from analysis.modules.llm.get_content import get_content
-                from analysis.modules.llm.config import THESIS_PATH, LANGUAGE
+                from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH
 
                 plain_txt_purpose = get_plain_text(pdf_path)
                 txt_for_llm = extractPDF_llm(pdf_path)
@@ -83,8 +84,7 @@ class AnalysisPipeline:
                 content_g = get_content_grade(purpose, summaries)
                 purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
                 
-                extracted_blocks = get_content(pdf_path)
-                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
+                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(txt_for_llm, language)
         
                 score = get_overall_grade(purpose_g, content_g, res_score)
                 result = {
@@ -108,19 +108,11 @@ class AnalysisPipeline:
 
         def task_linguistics():
             try:
-                from analysis.extraction.extraction_json import extractPDF
                 from analysis.extraction.converter_linguistics_clean import PDFMapper
-                import importlib.util
                 mapper = PDFMapper()
-                ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
-                spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
-                ling_module = importlib.util.module_from_spec(spec)
-                ling_module.__package__ = "analysis.modules.linguistics"
-                sys.modules["analysis.modules.linguistics.run_mock_data"] = ling_module
-                spec.loader.exec_module(ling_module)
-                
                 raw_blocks = mapper.map_to_schema(doc_obj)
                 ling_matches = ling_module.run_linguistics(raw_blocks)
+                
                 print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
                 return ling_matches
             except Exception as e:
@@ -152,18 +144,19 @@ class AnalysisPipeline:
                 traceback.print_exc()
                 return []
         report_progress(30, "Rozpoczynam analizy...")
+
+        redaction_errors = task_redaction()
+        report_progress(50, "Redakcja zakończona. Uruchamiam pozostałe analizy...")
         
-        workers_count = 3 if use_llm else 2
+        workers_count = 2 if use_llm else 1
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers_count) as executor:
             future_ling = executor.submit(task_linguistics)
-            future_redaction = executor.submit(task_redaction)
-
+    
             if use_llm:
                 future_llm = executor.submit(task_llm)
 
             ling_matches = future_ling.result()
-            redaction_errors = future_redaction.result()
 
             if use_llm:
                 llm_result, content_grade_result, llm_summary_text = future_llm.result()

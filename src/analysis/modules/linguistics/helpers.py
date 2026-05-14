@@ -22,15 +22,32 @@ import os
 import sys
 import spacy
 
+import sys
+import os
+import spacy
+from pathlib import Path
+
 def get_nlp(model_name):
     """Bezpieczne ładowanie dowolnego modelu spaCy w .exe i kodzie źródłowym"""
     if getattr(sys, 'frozen', False):
-        base_path = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
-        model_path = os.path.join(base_path, model_name)
-        if not os.path.exists(model_path):
-            model_path = os.path.join(base_path, "_internal", model_name)
-        if os.path.exists(model_path):
-            return spacy.load(model_path)
+        base_path = Path(getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))).resolve()
+        
+        model_path = base_path / "_internal" / model_name
+        if not model_path.exists():
+            model_path = base_path / model_name
+
+        if model_path.exists():
+            config_path = model_path / "config.cfg"
+            if not config_path.exists():
+                subdirs = [d for d in model_path.iterdir() if d.is_dir()]
+                for subdir in subdirs:
+                    if (subdir / "config.cfg").exists():
+                        model_path = subdir
+                        break
+            
+            print(f"[SPA CY] Ładowanie modelu z absolutnej ścieżki: {model_path.resolve()}")
+            return spacy.load(model_path.resolve())
+            
     return spacy.load(model_name)
 
 nlp_pl = get_nlp("pl_core_news_lg")
