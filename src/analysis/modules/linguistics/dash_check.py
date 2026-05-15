@@ -1,5 +1,6 @@
 import re
 from .linguistics_types import Error_type
+from src.analysis.extraction.schema import ParagraphBlock, ListBlock
 from .helpers import get_match_info
 
 def dash_check(blocks):

@@ -2,6 +2,7 @@
 Moduł odpowiedzialny za ekstrakcję pierwszych definicji skrótów (akronimów) w dokumencie.
 
 """
+from src.analysis.modules.linguistics import check_acronym
 import re
 from .helpers import language
 from .check_acronym import potential_acronym

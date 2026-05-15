@@ -4,10 +4,9 @@ Funkcje pomocnicze do analizy lingwistycznej.
 import os
 import dataclasses
 import json
-from common.path import resource_path
 import morfeusz2
 from lingua import Language, LanguageDetectorBuilder
-from analysis.extraction.schema import *
+from src.analysis.extraction.schema import *
 from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
@@ -107,7 +106,7 @@ def extract_errors_to_json(matches, name):
             all_matches.append(dataclasses.asdict(match))
     else:
         all_matches = dataclasses.asdict(matches)
-    output_path = resource_path(os.path.join("analysis", "modules", "linguistics", name))
+    output_path = os.path.join(os.path.dirname(__file__), name)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(all_matches, f, ensure_ascii=False, indent=4)
