@@ -1,10 +1,13 @@
 '''
-Analiza tekstu pod względem gramatycznym, stylistycznym i typograficznym.
+Analiza tekstu paragrafów pod kątem błędów ortograficznych, interpunkcyjnych, 
+literówek oraz błędów składni zdania, wykorzystując LanguageTool. 
+W celu zminimalizowania FP dla literówek, są one dwustopniowo weryfikowane przy użyciu dodatkowych słowników 
+(morfeusz2 i spellchecker).
 '''
 import language_tool_python
 from .linguistics_types import Error_type
 from src.analysis.extraction.schema import *
-from .helpers import get_match_info, morf
+from .helpers import get_match_info, morf, spell
 
 def language_tool_analisys(blocks):
 
@@ -76,10 +79,10 @@ def language_tool_analisys(blocks):
                         continue
                     elif not any(letter.isalpha() for letter in match.matched_text):
                         continue
-                if match.category == "TYPOS":
+                if match.category == "TYPOS" or match.category == "SPELLING":
                     word = contents[match.offset:match.offset + match.error_length]
                     if text_language == 'pl':
-                        if pl_typo_check(word):
+                        if typo_check(word):
                             continue
                         en_matches = tool_en.check(word)
                         for en_match in en_matches:
@@ -118,13 +121,17 @@ def language_tool_analisys(blocks):
                 ))
     return errors, whitespace_counter
 
-def pl_typo_check(typo_text):
+def typo_check(typo_text):
     analysis = morf.analyse(typo_text)
+    words = typo_text.split()
     for interpretation in analysis:
         tag = interpretation[2][2]
-        if tag == "ign":
-            return False
-    return True
+        if tag != "ign":
+            return True
+    typos = spell.unknown(words)
+    if not typos:
+        return True
+    return False
 
 
 

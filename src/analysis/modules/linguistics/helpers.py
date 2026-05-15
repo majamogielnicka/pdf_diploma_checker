@@ -1,5 +1,7 @@
 '''
-Funkcje pomocnicze do analizy lingwistycznej.
+Plik zawiera funkje pomocnicze używane wielokrotnie w module lingwistycznym, zebrane w jednym miejscu.
+Uruchamiane są tu modele spacy, language_tool, morfeusz, spellchecker, 
+następnie tylko przekazywane do odpowiednich funkcji.
 '''
 import os
 import dataclasses
@@ -11,8 +13,10 @@ from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
 import spacy
+from spellchecker import SpellChecker
 
 morf = morfeusz2.Morfeusz()
+spell = SpellChecker()
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 

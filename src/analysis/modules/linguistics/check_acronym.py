@@ -4,7 +4,7 @@ Moduł weryfikujący, czy skróty użyte w dokumencie zostały wcześniej zdefin
 """
 from .helpers import add_match
 import re
-from .language_error_extractor import pl_typo_check
+from .language_error_extractor import typo_check
 
 def potential_acronym(text):
 
@@ -71,7 +71,7 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                 if roman_numeral.match(clean_text):
                     continue
                 if b.language == "pl":
-                    if pl_typo_check(clean_text):
+                    if typo_check(clean_text):
                         continue
                 if block.type == "heading":
                     heading_word_count = len([w for w in block.content.split() if w.strip()])
