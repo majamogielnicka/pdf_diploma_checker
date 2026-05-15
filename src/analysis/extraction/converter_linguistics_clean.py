@@ -379,8 +379,10 @@ class PDFMapper:
         
         # 4. Post-processing (Łączenie nagłówków i podpisy)
         self._merge_adjacent_headings()
-        self._assign_captions_to_visuals(old_doc.pages, new_doc)
+        #self._assign_captions_to_visuals(old_doc.pages, new_doc)
         self._tag_special_lists(old_doc)
+        self._tag_visual_descriptions()
+        self._pair_descriptions_with_visuals(new_doc)
 
         # 5. Wyciąganie akronimów
         self._extract_acronyms_to_schema(new_doc)
@@ -542,6 +544,16 @@ class PDFMapper:
             )
             new_doc.floating_elements.visual_elements.append(ve)
 
+        for img in page.images:
+            ve = VisualElement(
+                element_id=id(img), 
+                type="image", 
+                page_number=page.number, 
+                bbox=list(img.bbox),
+                caption=""
+            )
+            new_doc.floating_elements.visual_elements.append(ve)
+
     def _merge_adjacent_headings(self):
         i = 0
         while i < len(self.logical_blocks) - 1:
@@ -580,9 +592,15 @@ class PDFMapper:
 
             for img in page.images:
                 desc_text, _ = find_image_description(list(img.bbox), self.logical_blocks, priority_side="below")
-                if desc_text:
+                
+                final_caption = desc_text if desc_text else getattr(img, 'description', "")
+
+                ve = next((v for v in new_doc.floating_elements.visual_elements if v.element_id == id(img)), None)
+                if ve: ve.caption = {"text": final_caption}
+                
+                if final_caption:
                     for lb in self.logical_blocks:
-                        if hasattr(lb, 'content') and lb.content.strip() == desc_text:
+                        if hasattr(lb, 'content') and lb.content.strip() == final_caption:
                             lb.type = "image_description"
                             break
     
@@ -639,6 +657,82 @@ class PDFMapper:
             
             if matched_tag:
                 block.type = matched_tag
+
+    def _tag_visual_descriptions(self):
+        """
+        Post-processing: Szuka bloków tekstowych będących opisami tabel lub obrazów
+        na podstawie zawartości tekstu i długości (max 2 oryginalne linie z PDF).
+        """
+        
+        img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+        tab_pattern = re.compile(r"^(tabela|tab\.)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+
+        for block in self.logical_blocks:
+            if getattr(block, "type", None) not in ["paragraph", "heading"]:
+                continue
+
+            content = getattr(block, "content", "").strip()
+            words = getattr(block, "words", [])
+
+            if not content or not words:
+                continue
+
+            unique_lines = set(w.line for w in words)
+            
+            if len(unique_lines) > 2:
+                continue  
+
+            if tab_pattern.match(content):
+                block.type = "table_description"
+            elif img_pattern.match(content):
+                block.type = "img_description"
+
+    def _pair_descriptions_with_visuals(self, new_doc):
+        """
+        Post-processing: Przypisuje znalezione opisy (table_description, img_description)
+        do najbliższych im obiektów wizualnych na tej samej stronie.
+        """
+        visuals = new_doc.floating_elements.visual_elements
+
+        for block in self.logical_blocks:
+            if getattr(block, "type", None) not in ["table_description", "img_description"]:
+                continue
+
+            words = getattr(block, "words", [])
+            if not words:
+                continue
+
+            page_num = words[0].page_number
+            
+            desc_y0 = min(w.bbox[1] for w in words)
+            desc_y1 = max(w.bbox[3] for w in words)
+            
+            target_type = "table" if block.type == "table_description" else "image"
+            
+            candidates = [v for v in visuals if v.type == target_type and v.page_number == page_num]
+            
+            if not candidates:
+                continue
+                
+            closest_visual = None
+            min_distance = float('inf')
+            
+            for candidate in candidates:
+                v_y0, v_y1 = candidate.bbox[1], candidate.bbox[3]
+                
+                if desc_y1 <= v_y0:
+                    dist = v_y0 - desc_y1 
+                elif desc_y0 >= v_y1:
+                    dist = desc_y0 - v_y1
+                else:
+                    dist = 0 
+                    
+                if dist < min_distance:
+                    min_distance = dist
+                    closest_visual = candidate
+                    
+            if closest_visual:
+                closest_visual.caption = {"text": block.content.strip()}
     
     def _extract_acronyms_to_schema(self, new_doc):
         from schema import AcronymItem
