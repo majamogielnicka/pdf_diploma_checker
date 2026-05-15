@@ -13,9 +13,17 @@ from analysis.extraction.schema import (
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker
 )
+
+#from src.analysis.extraction.schema import (
+#    FinalDocument, ParagraphBlock, ListBlock, ListItem, 
+#    WordInfo, VisualElement, FloatingElements, ReferenceSections,
+#    classify_block_content, strip_list_marker
+#)
 from analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
 from analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
 
+#from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
+#from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
 class PDFMapper:
     
     # Stałe
@@ -362,6 +370,7 @@ class PDFMapper:
         # 4. Post-processing (Łączenie nagłówków i podpisy)
         self._merge_adjacent_headings()
         self._assign_captions_to_visuals(old_doc.pages, new_doc)
+        self._tag_special_lists(old_doc)
 
         # 5. Wyciąganie akronimów
         self._extract_acronyms_to_schema(new_doc)
@@ -371,6 +380,8 @@ class PDFMapper:
     def _process_page(self, page, new_doc):
         bottom_thresh = page.height - self.BOTTOM_MARGIN_OFFSET
         table_bboxes = [t.bbox for t in page.tables]
+        
+
         margins = calculate_margins([{"bbox": b.bbox} for b in page.text_blocks], page.width, page.height)
         x0_margin = margins["left"]            
 
@@ -564,6 +575,60 @@ class PDFMapper:
                         if hasattr(lb, 'content') and lb.content.strip() == desc_text:
                             lb.type = "image_description"
                             break
+    
+    def _tag_special_lists(self, old_doc: DocumentData):
+        """
+        Post-processing: Zmienia typ bloków na 'toc', 'tot' lub 'tof' 
+        jeśli ich bboxy pokrywają się z danymi z ekstraktora.
+        """
+        special_bboxes = {} 
+        
+        def add_entries(entries, tag):
+            if not entries: return
+            for entry in entries:
+                if entry.src_page == -1: 
+                    continue 
+                if entry.src_page not in special_bboxes:
+                    special_bboxes[entry.src_page] = {'toc': [], 'tot': [], 'tof': []}
+                special_bboxes[entry.src_page][tag].append(entry.bbox)
+
+        add_entries(old_doc.toc.entries if old_doc.toc else [], 'toc')
+        add_entries(old_doc.tot.entries if old_doc.tot else [], 'tot')
+        add_entries(old_doc.tof.entries if old_doc.tof else [], 'tof') 
+
+        if not special_bboxes:
+            return 
+
+        for block in self.logical_blocks:
+            words = getattr(block, 'words', [])
+            if not words:
+                continue
+            
+            page_num = words[0].page_number
+            if page_num not in special_bboxes:
+                continue
+            
+            bx0 = min(w.bbox[0] for w in words)
+            by0 = min(w.bbox[1] for w in words)
+            bx1 = max(w.bbox[2] for w in words)
+            by1 = max(w.bbox[3] for w in words)
+            
+            matched_tag = None
+            for tag in ['toc', 'tot', 'tof']:
+                for t_bbox in special_bboxes[page_num][tag]:
+                    ix0 = max(bx0, t_bbox[0] - 5)
+                    iy0 = max(by0, t_bbox[1] - 5)
+                    ix1 = min(bx1, t_bbox[2] + 5)
+                    iy1 = min(by1, t_bbox[3] + 5)
+                    
+                    if ix0 < ix1 and iy0 < iy1: #
+                        matched_tag = tag
+                        break
+                if matched_tag:
+                    break
+            
+            if matched_tag:
+                block.type = matched_tag
     
     def _extract_acronyms_to_schema(self, new_doc):
         from schema import AcronymItem

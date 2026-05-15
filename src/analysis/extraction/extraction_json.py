@@ -11,6 +11,7 @@ import sys
 
 
 from analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
+#from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
 
 
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
