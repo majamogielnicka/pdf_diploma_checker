@@ -11,7 +11,7 @@ from typing import Dict
 from analysis.extraction.schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
-    classify_block_content, strip_list_marker
+    classify_block_content, strip_list_marker, AcronymItem
 )
 
 #from src.analysis.extraction.schema import (
@@ -734,9 +734,7 @@ class PDFMapper:
             if closest_visual:
                 closest_visual.caption = {"text": block.content.strip()}
     
-    def _extract_acronyms_to_schema(self, new_doc):
-        from schema import AcronymItem
-        import re 
+    def _extract_acronyms_to_schema(self, new_doc): 
         
         # Wzorzec 1: Dla skrótów z myślnikami 
         PATTERN_DASH = re.compile(r'\b([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15})\s*[-–—−]\s*(.*?)(?=\s*\b[A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15}\s*[-–—−]|$)')
