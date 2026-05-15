@@ -9,7 +9,7 @@ if str(BASE_DIR) not in sys.path:
 
 from extraction_json import extractPDF
 
-input_path = PROJECT_ROOT / "data" / "most_important" /"jabi.pdf"
+input_path = PROJECT_ROOT / "data" / "most_important" /"inż_3_.pdf"
 output_path = PROJECT_ROOT / "src" / "output.json"
 
 # Tryb debugu:

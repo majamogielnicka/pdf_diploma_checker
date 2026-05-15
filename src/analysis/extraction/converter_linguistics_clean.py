@@ -219,6 +219,13 @@ class PDFMapper:
             first_item_data = self.list_buffer[0]
 
             is_bibiography = True if getattr(self, "in_bibliography_section", False) else False
+            data = self.list_buffer[0]
+            item = data['item']
+
+            if item.marker_type == "listing":
+                list_type = "code_snippet"
+            else: 
+                list_type = "list"
 
             new_list_block = ListBlock(
                 block_id=f"list_{first_item_data['block_id']}",
@@ -226,8 +233,10 @@ class PDFMapper:
                 is_bibliography=is_bibiography,
                 words=all_words,
                 items=items,
-                bbox=first_item_data['bbox'] 
+                bbox=first_item_data['bbox'], 
+                type=list_type
             )
+
             all_bboxes = [item.bbox for item in items]
             new_list_block.bbox = [
                 min(b[0] for b in all_bboxes), min(b[1] for b in all_bboxes),

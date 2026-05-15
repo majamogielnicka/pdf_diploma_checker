@@ -178,7 +178,8 @@ class DocumentPatterns:
         "letter_with_bracket": re.compile(r"^[a-z]\)\s?"),
         "bullet": re.compile(r"^[••●○■]"),
         "dash": re.compile(r"^[-−\u2013\u2014]"),
-        "number_in_brackets": re.compile(r"^\[\d+\]\s?")
+        "number_in_brackets": re.compile(r"^\[\d+\]\s?"),
+        "listing": re.compile(r"^\d+\s")
     }
     ACRONYM_PATTERN = re.compile(r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)')
     ACRONYM_SEP = re.compile(r'^\S{1,15}\s*[-–—−‐:=]\s+')
