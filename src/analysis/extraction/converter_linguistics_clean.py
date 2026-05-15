@@ -734,72 +734,190 @@ class PDFMapper:
             if closest_visual:
                 closest_visual.caption = {"text": block.content.strip()}
     
-    def _extract_acronyms_to_schema(self, new_doc): 
-        
-        # Wzorzec 1: Dla skrótów z myślnikami 
-        PATTERN_DASH = re.compile(r'\b([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15})\s*[-–—−]\s*(.*?)(?=\s*\b[A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15}\s*[-–—−]|$)')
-        
-        # Wzorzec 2: Dla skrótów ze spacją z poprzedniego PDFa 
-        PATTERN_SPACE = re.compile(r'\b([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15})\s+(.*?)(?=\s*\b[A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,15}\s+[A-ZĄĆĘŁŃÓŚŹŻ]|$)')
+    def _extract_acronyms_to_schema(self, new_doc):
+        # BAZA AKRONIMU
+        acr = r'(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/]*[A-Za-zĄĆĘŁŃÓŚŹŻ])(?:[A-ZĄĆĘŁŃÓŚŹŻ0-9]|[a-ząćęłńóśźż][A-ZĄĆĘŁŃÓŚŹŻ])[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/]{0,20}'
         
         in_acronym_section = False
+        acronym_words = []
+        fallback_blocks = []
+        has_words_data = False
         
         for block in self.logical_blocks:
             
-            if getattr(block, "type", None) == "heading":
-                header_text = block.content.strip().upper()
-                # Sprawdzenie nagłówka (dodano "ABBREVIATION" z Twojego PDF-a)
+            header_text = getattr(block, "content", "").strip().upper()
+            block_type = getattr(block, "type", None)
+            
+            #sprawdzanie czy blok jest spisem akronimów
+            is_header = False
+            if block_type == "heading":
+                is_header = True
+            elif len(header_text) < 60 and ("ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text):
+                is_header = True
+
+            if is_header:
                 if "ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text:
                     in_acronym_section = True
                 else:
                     in_acronym_section = False
                 continue 
 
-            if in_acronym_section and getattr(block, "type", None) in ["acronyms", "paragraph", "math"]:
-                lines = block.content.split('\n')
+            if in_acronym_section:
+                fallback_blocks.append(block)
                 
-                for line in lines:
-                    line = line.strip()
-                    if not line: continue
-                    
-                    if re.search(r'\.{3,}', line):
-                        continue
-                    
-                    # Automatyczne wykrywanie formatu: Czy ta linijka używa myślników jako separatora?
-                    if re.search(r'(?:^|\s+)[A-Za-z0-9\-]{2,15}\s+[-–—]', line):
-                        active_pattern = PATTERN_DASH
-                    else:
-                        active_pattern = PATTERN_SPACE
-
-                    # Tniemy złączony tekst używając odpowiedniego wzorca
-                    for match in active_pattern.finditer(line):
-                        acronym = match.group(1).strip()
-                        raw_definition = match.group(2).strip()
-                        
-                        def_match = re.match(r'^(.*?)(?:\.\s*([\d,\-\s\u2013\u2014]+))?$', raw_definition)
-                        
-                        if def_match:
-                            definition = def_match.group(1).strip()
-                            pages = def_match.group(2).strip() if def_match.group(2) else ""
+                def fetch_words(obj):
+                    w = []
+                    try:
+                        if isinstance(obj, dict):
+                            if obj.get("words"): w.extend(obj["words"])
+                            if obj.get("items"):
+                                for item in obj["items"]: w.extend(fetch_words(item))
                         else:
-                            definition = raw_definition
-                            pages = ""
-                        
-                        definition = re.sub(r'^[-–—−‐:=]\s*', '', definition)
-                            
-                        # Wydłużony limit, na wypadek wyjątkowo długich definicji
-                        if len(definition) < 2 or len(definition) > 350:
-                             continue
+                            if getattr(obj, "words", None): w.extend(obj.words)
+                            if getattr(obj, "items", None):
+                                for item in obj.items: w.extend(fetch_words(item))
+                    except Exception:
+                        pass
+                    return w
 
-                        new_item = AcronymItem(
-                            acronym=acronym,
-                            definition=definition,
-                            pages=pages,
-                            bbox=[],  
-                            words=[]  
-                        )
-                        new_doc.reference_sections.acronyms.append(new_item)
+                words = fetch_words(block)
+                    
+                if words:
+                    has_words_data = True
+                    acronym_words.extend(words)
 
+        reconstructed_lines = []
+
+        if has_words_data and acronym_words:
+            def get_y0(w):
+                try:
+                    bbox = w.get("bbox") if isinstance(w, dict) else getattr(w, "bbox", None)
+                    return float(bbox[1]) if bbox and len(bbox) >= 2 else 0.0
+                except: return 0.0
+
+            def get_x0(w):
+                try:
+                    bbox = w.get("bbox") if isinstance(w, dict) else getattr(w, "bbox", None)
+                    return float(bbox[0]) if bbox and len(bbox) >= 1 else 0.0
+                except: return 0.0
+
+            def get_page(w):
+                try:
+                    p = w.get("page_number") if isinstance(w, dict) else getattr(w, "page_number", None)
+                    return int(p) if p is not None else 0
+                except: return 0
+
+            def get_text(w):
+                try:
+                    t = w.get("text") if isinstance(w, dict) else getattr(w, "text", "")
+                    return str(t) if t else ""
+                except: return ""
+
+            unique_words = []
+            seen_coords = set()
+            for w in acronym_words:
+                txt = get_text(w)
+                if not txt or not txt.strip(): continue
+                coord_key = (txt, round(get_x0(w), 1), round(get_y0(w), 1), get_page(w))
+                if coord_key not in seen_coords:
+                    seen_coords.add(coord_key)
+                    unique_words.append(w)
+                    
+            acronym_words = unique_words
+            acronym_words.sort(key=lambda w: (get_page(w), get_y0(w)))
+            
+            current_line_words = []
+            current_y = None
+            current_page = None
+            tolerance = 5.0 
+            
+            for word in acronym_words:
+                y0 = get_y0(word)
+                page = get_page(word)
+                
+                if current_y is None:
+                    current_y = y0
+                    current_page = page
+                    current_line_words.append(word)
+                elif current_page == page and abs(y0 - current_y) <= tolerance:
+                    current_line_words.append(word)
+                else:
+                    current_line_words.sort(key=get_x0)
+                    reconstructed_lines.append(" ".join([get_text(w) for w in current_line_words]))
+                    current_line_words = [word]
+                    current_y = y0
+                    current_page = page
+                    
+            if current_line_words:
+                current_line_words.sort(key=get_x0)
+                reconstructed_lines.append(" ".join([get_text(w) for w in current_line_words]))
+                
+        else:
+            for block in fallback_blocks:
+                if getattr(block, "type", None) in ["acronyms", "paragraph", "math", "list"]:
+                    content = getattr(block, "content", "")
+                    if not content: continue
+                    for raw_line in content.split('\n'):
+                        reconstructed_lines.append(raw_line)
+
+        final_lines = []
+        
+        #jeśli w skrócie jest myślnik
+        uses_dashes = any(re.search(r'^' + acr + r'\s+[-–—−]\s*', l.strip()) for l in reconstructed_lines)
+
+        for raw_line in reconstructed_lines:
+            raw_line = raw_line.strip()
+            if not raw_line: continue
+            
+            if re.search(r'(\.\s*){3,}', raw_line): continue
+            
+            is_new = False
+            if uses_dashes:
+                if re.match(r'^' + acr + r'\s+[-–—−]\s*', raw_line):
+                    is_new = True
+            else:
+                if re.match(r'^' + acr + r'\s+[A-ZĄĆĘŁŃÓŚŹŻ]', raw_line):
+                    is_new = True
+
+            if is_new or not final_lines:
+                final_lines.append(raw_line)
+            else:
+                final_lines[-1] += " " + raw_line
+
+        for line in final_lines:
+            if uses_dashes:
+                match = re.match(r'^(' + acr + r')\s+[-–—−]\s*(.*)$', line)
+            else:
+                match = re.match(r'^(' + acr + r')\s+(.*)$', line)
+
+            if match:
+                acronym = match.group(1).strip()
+                raw_definition = match.group(2).strip()
+                
+                raw_definition = re.sub(r'\)\s*\)$', ')', raw_definition)
+                
+                def_match = re.match(r'^(.*?)(?:\.\s*([\d,\-\s\u2013\u2014]+))?$', raw_definition)
+                
+                if def_match:
+                    definition = def_match.group(1).strip()
+                    pages = def_match.group(2).strip() if def_match.group(2) else ""
+                else:
+                    definition = raw_definition
+                    pages = ""
+                
+                definition = re.sub(r'^[-–—−‐:=]\s*', '', definition)
+                    
+                if len(definition) < 2 or len(definition) > 350:
+                     continue
+
+                new_item = AcronymItem(
+                    acronym=acronym,
+                    definition=definition,
+                    pages=pages,
+                    bbox=[],  
+                    words=[]  
+                )
+                new_doc.reference_sections.acronyms.append(new_item)
 # Funkcje zewnętrzne
 
 MULTISPACE_RE = re.compile(r"\s+")
