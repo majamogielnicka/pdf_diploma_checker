@@ -70,11 +70,42 @@ class AnalysisPipeline:
                 from analysis.modules.llm.get_summary import get_summaries
                 from analysis.modules.llm.get_subtitles import get_subtitles
                 from analysis.modules.llm.run_sota import get_final_sota_report
-                from analysis.modules.llm.get_content import get_content
-                from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH
+                from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH, LLAVA_MMPROJ_PATH, LLAVA_MODEL_PATH
+                from analysis.modules.llm.image_analysis.run_image import analyze_images
+                from analysis.extraction.converter_linguistics_clean import PDFMapper
 
+                mapper = PDFMapper()
+                mapped_doc = mapper.map_to_schema(doc_obj)
+                raw_image_report = analyze_images(doc_obj, mapped_doc)
                 plain_txt_purpose = get_plain_text(pdf_path)
                 txt_for_llm = extractPDF_llm(pdf_path)
+
+                total_images = len(raw_image_report)
+                bad_images_count = 0
+                image_details_lines = []
+
+                for item in raw_image_report:
+                    img_id = item.get("obrazek", item.get("id", "Nieznany"))
+                    is_correct = item.get("poprawnosc_danych", "True")
+                    errors = item.get("bledy", "None")
+                    
+                    if isinstance(errors, list):
+                        errors = " ".join(errors)
+                    
+                    if is_correct == "False" or is_correct is False:
+                        bad_images_count += 1
+                        status_text = "Wykryto rozbieznosci"
+                    else:
+                        status_text = "Poprawny"
+                        
+                    image_details_lines.append(f"Rysunek {img_id}: {status_text} - Szczegoly: {errors}")
+
+                image_summary_data = {
+                    "total": total_images,
+                    "bad_count": bad_images_count,
+                    "good_count": total_images - bad_images_count,
+                    "details": image_details_lines
+                }
 
                 language = "pl"
                 purpose = get_purpose(plain_txt_purpose, language)
@@ -84,7 +115,7 @@ class AnalysisPipeline:
                 content_g = get_content_grade(purpose, summaries)
                 purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
                 
-                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(txt_for_llm, language)
+                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
         
                 score = get_overall_grade(purpose_g, content_g, res_score)
                 result = {
@@ -96,7 +127,8 @@ class AnalysisPipeline:
                     "r1": r1,
                     "r2": r2,
                     "r3": r3,
-                    "content_grade": score
+                    "content_grade": score,
+                    "image_analysis": image_summary_data
                 }
                 
                 
