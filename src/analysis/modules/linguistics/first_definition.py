@@ -1,5 +1,66 @@
+"""
+Moduł odpowiedzialny za ekstrakcję pierwszych definicji skrótów (akronimów) w dokumencie.
+
+"""
+from src.analysis.modules.linguistics import check_acronym
 import re
+from .helpers import language
 from .check_acronym import potential_acronym
+
+def initials_match(acronym, definition, proper_names, block):
+
+    org_words = [w for w in re.split(r'\s+', definition.strip()) if w]
+    def_language = language(definition)
+    pl_def = def_language == "pl"
+
+    initials = [w[0] for w in org_words if w and w[0].isupper()]
+
+    if not initials:
+        return False
+
+    idx = 0
+    matched = True
+    for char in acronym:
+        if idx < len(initials) and char == initials[idx]:
+            idx += 1
+        else:
+            matched = False
+            break
+
+        if idx == len(acronym):
+            break
+
+    if matched and idx == len(acronym):
+        proper_names.append((acronym, acronym))
+        proper_names.append((definition, definition))
+        return True
+
+    if not pl_def and len(org_words) >= len(acronym):
+        initials_all = [w[0].upper() for w in org_words if w and w[0].isalpha()]
+        if sequence_match(acronym, initials_all):
+            proper_names.append((acronym, acronym))
+            proper_names.append((definition, definition))
+            return True
+
+    if pl_def:
+        capitalized_words = [w for w in org_words if w and w[0].isupper() and w[1:].islower() and len(w) > 1]
+        if len(capitalized_words) >= max(2, len(acronym)):
+            proper_names.append((acronym, acronym))
+            proper_names.append((definition, definition))
+            return True
+
+    return False
+
+def sequence_match(acronym, initials):
+    
+    idx = 0
+    for letter in initials:
+        if idx == len(acronym):
+            break
+        if letter == acronym[idx]:
+            idx += 1
+    return idx == len(acronym)
+
 
 def check_position_if_new(new_acronym, definition, words, block_id, acronyms_with_definitions):
 
@@ -44,15 +105,6 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
     return acronyms_with_definitions
 
 def check_first_definition(blocks, proper_names):
-    """
-    Extracts the first definition of an acronym from the document.
-    
-    Args:
-        document (FinalDocument): Parsed JSON document.
-    
-    Returns:
-        list: A list of tuples containing acronyms and their definitions.
-    """
 
     acronyms_with_definitions = {}
     bibliography_re = re.compile(r"^\[\d+\]")
@@ -62,9 +114,12 @@ def check_first_definition(blocks, proper_names):
     paragraph_def_with_comma = re.compile(r'(?<![A-Za-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c])([a-zA-Z\u0104-\u017e][a-zA-Z\u0104-\u017e\s\-]{2,}?)\s*\(([A-Z]{2,})[,\s]',re.UNICODE)
     paragraph_acr_first = re.compile(r'\(([A-Z]{2,})\)\s([A-Z\u00c0-\u017d][a-z\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c\w\s]+)')
     paragraph_ang_pattern = re.compile(r'\b([A-Z]{2,})\s*\((?:ang\.|pol\.|fr\.|niem\.)\s+([^)]{3,}?)\s*\)', re.UNICODE)
+    paragraph_ang_pol_pattern = re.compile(r'\b([A-Z]{2,10})\s*\(\s*(?:ang\.|pol\.|niem\.|fr\.|łac\.)?\s*([A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\s\-]{3,}?)\s*(?:,|;|\s{2,})', re.UNICODE)
     paragraph_acr_then_expansion = re.compile(r'\b([A-Z]{2,})\s*\(([A-Z][a-zA-ZÀ-Ž][a-zA-ZÀ-Žąćęłńóśźż\s\-]{2,})\)')
+    paragraph_acr_quoted = re.compile(r'\b([A-Z]{2,})\s*\(["\u201e\u201c\u00ab\u2018]([A-Za-z][^"\u201d\u00bb\u2019)]{3,}?)["\u201d\u00bb\u2019]\)',re.UNICODE)
     broken_parenthesis_ang = re.compile(r'\b([A-Z]{2,})\s*\(\s*(?:ang\.|pol\.|fr\.|niem\.)\s+([A-Za-z\u0104-\u017e\s\-]{3,}?)\s*(?:\)|,|$)', re.UNICODE)
     broken_parenthesis_acr_dash = re.compile(r'\(\s*([A-Z]{2,})\s*[\-\u2013\u2014:]\s*(?:ang\.|pol\.|fr\.|niem\.)?\s*([A-Za-z\u0104-\u017e\s\-]{3,}?)\s*(?:\)|,|$)', re.UNICODE)
+    parenthesis_def_dash_acr = re.compile(r'\(\s*(?:ang\.|pol\.|fr\.|niem\.|łac\.)?\s*([A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\s\-]{2,}?)\s*[\-\u2013\u2014]\s*([A-Z]{2,})\s*\)', re.UNICODE)
     broken_no_parenthesis_svm = re.compile(r'\b([A-Z]{2,})\s+([A-Z][a-z]+\s+[A-Z][a-z]+[\w\s\-]*)\s*\)', re.UNICODE)
     split = re.compile(r"\s[-\u2013\u2014]\s")
     for block in blocks:
@@ -95,19 +150,23 @@ def check_first_definition(blocks, proper_names):
                 new_acronyms = paragraph_acr_first.findall(text)
                 new_acronyms.extend(paragraph_acr_then_expansion.findall(text))
                 new_acronyms.extend(paragraph_ang_pattern.findall(text))
+                new_acronyms.extend(paragraph_ang_pol_pattern.findall(text))
+                new_acronyms.extend(paragraph_acr_quoted.findall(text))
                 new_acronyms.extend(broken_parenthesis_ang.findall(text))
                 new_acronyms.extend(broken_parenthesis_acr_dash.findall(text))
                 new_acronyms.extend(broken_no_parenthesis_svm.findall(text))
                 for new_acronym in new_acronyms:
-                    acronyms_with_definitions = check_position_if_new(new_acronym[0], new_acronym[1], words, block.block_id, acronyms_with_definitions)
+                    if initials_match(new_acronym[0], new_acronym[1], proper_names, block):
+                        acronyms_with_definitions = check_position_if_new(new_acronym[0], new_acronym[1], words, block.block_id, acronyms_with_definitions)
                 new_acronyms = paragraph_def_first.findall(text)
                 new_acronyms.extend(paragraph_def_with_comma.findall(text))
                 new_acronyms.extend(paragraph_def_first_lower.findall(text))
+                new_acronyms.extend(parenthesis_def_dash_acr.findall(text))
                 for new_acronym in new_acronyms:
-                    acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions)
+                    if initials_match(new_acronym[1], new_acronym[0], proper_names, block):
+                        acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions)
 
-    for acronym in acronyms_with_definitions.keys():
-        proper_names.append((acronym, acronym))
     proper_names = set(proper_names)
+    #print(f"Proper Names: ",proper_names)
     #print(f'\n acronyms_with_definitions: \n' + '\n'.join([f'{acronym}: {acronyms_with_definitions[acronym][0]}' for acronym in acronyms_with_definitions]))
-    return acronyms_with_definitions
+    return acronyms_with_definitions, proper_names

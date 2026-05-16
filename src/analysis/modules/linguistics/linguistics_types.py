@@ -19,12 +19,9 @@ class Error_type:
 
 @dataclass
 class Analisys_type:
-    passive_count: int
-    active_count: int
-    impersonal_count: int
-    wrong_person_count: int
+    active_ratio: str
     passive_ratio: str
-    sentence_count: int
+    verbless_ratio: str
 
 @dataclass
 class Block_context:

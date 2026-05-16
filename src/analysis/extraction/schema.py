@@ -53,6 +53,7 @@ class ListBlock:
     content: str
     bbox: List[float]
     type: str = "list"
+    is_bibliography: bool = False
     items: List[ListItem] = field(default_factory=list)
     words: List[WordInfo] = field(default_factory=list)
 
@@ -167,14 +168,22 @@ class DocumentPatterns:
         #"letter_with_dot": re.compile(r"^[a-z]\.\s"),
         "letter_with_bracket": re.compile(r"^[a-z]\)\s?"),
         "bullet": re.compile(r"^[••●○■]"),
-        "dash": re.compile(r"^[-−\u2013\u2014]")
+        "dash": re.compile(r"^[-−\u2013\u2014]"),
+        "number_in_brackets": re.compile(r"^\[\d+\]\s?")
     }
     ACRONYM_PATTERN = re.compile(r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)')
     ACRONYM_SEP = re.compile(r'^\S{1,15}\s*[-–—−‐:=]\s+')
 
 # Klasyfikacja typu bloku (paragraf lub lista) na podstawie tego czy zaczyna się od typowych elementów dla listy
-def classify_block_content(text: str):
+def classify_block_content(text: str, active_marker: str = None):
     text = text.strip()
+
+    if active_marker:
+        pattern = DocumentPatterns.LIST_PATTERNS.get(active_marker)
+        if pattern and pattern.match(text):
+            return "list", active_marker
+        return "paragraph", None
+    
     for marker_type, pattern in DocumentPatterns.LIST_PATTERNS.items():
         if pattern.match(text): 
             return "list", marker_type

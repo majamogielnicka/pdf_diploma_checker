@@ -1,23 +1,15 @@
+'''
+Odrzucanie false positives uzyskanych podczas analizy językowej.
+'''
+
 import language_tool_python
 from collections import defaultdict
 import re
-from .linguistics_types import Error_type
-from .spacy_helpers import lemmatization
-from src.analysis.extraction.schema import ParagraphBlock
+from .helpers import lemmatization
 from .proper_check import check_if_proper
 import string
  
 def check_exeptions(matches, blocks, proper_names):
-    '''
-    Checks potentially false positive python language tool error with different criteria.
-    
-    Args:
-        matches (list): A list of Error_type, containing python_language_tool errors of type TYPOS
-        blocks (list(Block_context)): List contaning Block_context objects.
-        proper_names (set): A collection of known proper names in the document.
-    Returns:
-        valid_errors (list): List of Error_type, containing errors that did not meet the criteria
-    '''
     potential_exeptions = defaultdict(list)
     valid_errors = []
     blocks_to_check = defaultdict(list)
