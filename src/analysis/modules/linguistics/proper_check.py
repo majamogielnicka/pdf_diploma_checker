@@ -4,8 +4,6 @@ Moduł weryfikujący, czy dane słowo jest nazwą własną, skrótem lub wyraże
 """
 import re
 from .helpers import lemmatization
-from src.analysis.extraction.schema import ParagraphBlock, WordInfo
-from .linguistics_types import Error_type
 
 
 def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
@@ -18,7 +16,6 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
             return False
     ACADEMIC_TITLES = {"prof.", "dr", "dr hab.", "mgr", "inż.", "lic.", "doc."}
     BRITISH_ABBREVIATIONS = {"Dr", "Mr", "Mrs", "Ms", "Jr", "Sr", "St"}
-    #regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
 
     is_digit = re.compile(r'\d')
     if lemma:
@@ -27,8 +24,6 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
         text = match.content.strip("():;,.!?[]\n\t ")
     if is_digit.search(text):
         return True
-    #elif regex.search(text) != None:
-    #    return True
     if text in ACADEMIC_TITLES or text in BRITISH_ABBREVIATIONS:
         return True
     if text.isupper():
