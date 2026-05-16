@@ -736,7 +736,7 @@ class PDFMapper:
     
     def _extract_acronyms_to_schema(self, new_doc):
         # BAZA AKRONIMU
-        acr = r'(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/]*[A-Za-zĄĆĘŁŃÓŚŹŻ])(?:[A-ZĄĆĘŁŃÓŚŹŻ0-9]|[a-ząćęłńóśźż][A-ZĄĆĘŁŃÓŚŹŻ])[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/]{0,20}'
+        acr = r'(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\s\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF\^\|_=<>\.,]*[A-Za-zĄĆĘŁŃÓŚŹŻ\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF])(?:(?:[A-ZĄĆĘŁŃÓŚŹŻ0-9\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF]|[a-ząćęłńóśźż\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF][A-ZĄĆĘŁŃÓŚŹŻ\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF\s\^\|_=<>\.,])[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\s\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF\^\|_=<>\.,]{0,25}|[a-ząćęłńóśźż\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF])(?<=\S)'
         
         in_acronym_section = False
         acronym_words = []
@@ -752,11 +752,11 @@ class PDFMapper:
             is_header = False
             if block_type == "heading":
                 is_header = True
-            elif len(header_text) < 60 and ("ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text):
+            elif len(header_text) < 60 and ("ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text or "SYMBOL" in header_text):
                 is_header = True
 
             if is_header:
-                if "ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text:
+                if ("ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text or "SYMBOL" in header_text) and "SKRÓT DYPLOMU" not in header_text and "SKRÓT PRACY" not in header_text:
                     in_acronym_section = True
                 else:
                     in_acronym_section = False
