@@ -80,15 +80,15 @@ def get_content_grade(purpose, summaries):
     grade = embedding_result.get("grade", 0.0)
     items = embedding_result.get("items", [])
     
-    # Extract off-topic headings (items below threshold)
+    # Extract off-topic heading indices (items below threshold)
     off_topic_headings = [
-        item.get("heading", "Unknown") 
-        for item in items 
+        idx
+        for idx, item in enumerate(items)
         if item.get("below_threshold", False)
     ]
     
-    # Return (grade, off_topic_headings, full_items_list)
-    return (grade, off_topic_headings, items)
+    # Return (grade, off_topic_headings_indices)
+    return (grade, off_topic_headings)
 
 def get_overall_grade(purpose_grade, embedding_grade, sota_grade):
     overall_grade = 0.2 * sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade
@@ -120,25 +120,20 @@ def main():
     subtitles = get_subtitles(raw_doc)
     summaries = get_summaries(subtitles, LANGUAGE)
 
-    result = get_content_grade(
+    grade, off_topic_headings = get_content_grade(
         purpose=purpose,
         summaries=summaries
     )
 
-    purpose_grade = get_purpose_grade(plain_text, purpose, LANGUAGE)
+    purpose_score, purpose_reason = get_purpose_grade(plain_text, purpose, LANGUAGE)
 
     print("CEL PRACY:")
     print(purpose)
     print()
     print("OCENA EMBEDDINGOWA:")
-    print(f"{result['grade']} / {result['max_grade']}")
-    print(f"OCENA REALIZACJI CELU: ", purpose_grade )
-    print()
-    print(f"S_emb: {result['s_emb']}")
-    print(f"Próg: {result['threshold']}")
-    print(f"Liczba podrozdziałów: {result['total_sections']}")
-    print(f"Poniżej progu: {result['off_topic_sections']}")
-    print(f"P_off: {result['p_off']}%")
+    print(f"Ocena: {grade}")
+    print(f"OCENA REALIZACJI CELU: {purpose_score} - {purpose_reason}")
+    print(f"Off-topic headings indices: {off_topic_headings}")
 
 
 

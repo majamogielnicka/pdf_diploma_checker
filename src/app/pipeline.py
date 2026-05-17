@@ -112,13 +112,13 @@ class AnalysisPipeline:
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
-                content_g, off_topic_headings, embedding_items = get_content_grade(purpose, summaries)
+                content_g, off_topic_headings = get_content_grade(purpose, summaries)
                 purpose_g_score, purpose_g_reason = get_purpose_grade(txt_for_llm, purpose, language)
                 
                 print(f"[PIPELINE] Cel pracy: {purpose}")
                 print(f"[PIPELINE] Ocena celu pracy: {purpose_g_score} - {purpose_g_reason}")
-                print(f"offtopic headings list: {off_topic_headings}")
-                
+                print(f"offtopic headings indices: {off_topic_headings}")
+
                 res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
         
                 score = get_overall_grade(purpose_g_score, content_g, res_score)
