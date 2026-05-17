@@ -56,8 +56,17 @@ def get_proper_names(blocks):
                             bibliography["organizations"].add(ent_text)
                     if not ent.label_ or ent.label_ in SKIP_LABEL_PL or len(ent_text) < 2:
                         continue
-                    ent_lemma, is_found = lemmatization(ent_text, block.language)
+                    ent_lemma, _ = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))
+
+                    entity_words = ent_text.split()
+                    if len(entity_words) > 1:
+                        for word in entity_words:
+                            word = word.strip("(),.:;")
+                            if len(word) < 2:
+                                continue
+                            word_lemma, _ = lemmatization(word, block.language)
+                            proper_names.append((word, word_lemma))
 
             if block.language == "en":
                 nlp = nlp_en
@@ -66,7 +75,7 @@ def get_proper_names(blocks):
                     ent_text = ent.text.strip("(),.:;[]\n\t ")
                     if block_type == "list" and is_bib:  
                         if not ent.label_ or not ent.label_ in BIB_LABELS_EN:
-                            continue 
+                            continue
                         if ent.label_ == "PERSON":
                             bibliography["people"].add(ent_text)
                         elif ent.label_ == "GPE":
@@ -74,11 +83,20 @@ def get_proper_names(blocks):
                         elif ent.label_ == "ORG":
                             bibliography["organizations"].add(ent_text)
                         elif ent.label_ == "WORK_OF_ART":
-                            bibliography["work"].add(ent_text)
+                            bibliography["work"].add(ent_text)   
                     if not ent.label_ or ent.label_ in SKIP_LABELS_EN or len(ent_text) < 2:
                         continue
-                    ent_lemma, is_found = lemmatization(ent_text, block.language)
+                    ent_lemma, _ = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))
+
+                    entity_words = ent_text.split()
+                    if len(entity_words) > 1:
+                        for word in entity_words:
+                            word = word.strip("(),.:;")
+                            if len(word) < 2:
+                                continue
+                            word_lemma, _ = lemmatization(word, block.language)
+                            proper_names.append((word, word_lemma))
 
         if block.block.type in ("keywords", "paragraph"):
             keyword_match = search_keywords.search(block.contents)
@@ -92,9 +110,15 @@ def get_proper_names(blocks):
                         continue
                     if search_space.search(keyword):
                         keyword_lemma = keyword
+                        keyword_words = keyword.split()
+                        for word in keyword_words:
+                            word = word.strip("(),.:;")
+                            if len(word) < 2:
+                                continue
+                            word_lemma, _ = lemmatization(word, block.language)
+                            proper_names.append((word, word_lemma))
                     else:
-                        keyword_lemma, is_found = lemmatization(keyword, block.language)
+                        keyword_lemma, _ = lemmatization(keyword, block.language)
                     keywords_lemma.append((keyword, keyword_lemma))
                 proper_names.extend(keywords_lemma)
-    print(bibliography)
     return proper_names, bibliography
