@@ -95,7 +95,7 @@ LOWER_CASE = r'[a-ząćęłńóśźżà-öø-ÿā-ž]'
 SPECIAL_CHARS = rf"[-–']"
 SURNAME_PATTERN = rf'{UPPER_CASE}{LOWER_CASE}+(?:{SPECIAL_CHARS}(?:{UPPER_CASE}|{LOWER_CASE})+)*'
 FULLNAME_PATTERN = rf'{UPPER_CASE}{LOWER_CASE}+'
-SHORT_NAME_PATTERN = rf'{UPPER_CASE}\.?(?!\w)'
+SHORT_NAME_PATTERN = rf'(?<!\w){UPPER_CASE}\.?(?!\w)'
 SEPARATOR_PATTERNS = r'(?:\s*(?:,|[Aa]nd\b|[Ii]\b|&)\s*)+'
 END_AUTHOR_PATTERNS = r'(?i)\s*(?:et al\.|i inni|i in)\s*'
 
@@ -103,7 +103,7 @@ AUTHOR_PATTERNS = {
     rf'{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*\s{SURNAME_PATTERN}': 'J. Nowak',
     rf'{FULLNAME_PATTERN}(?:\s(?:{FULLNAME_PATTERN}|{SHORT_NAME_PATTERN}))*\s{SURNAME_PATTERN}': 'Jan Nowak',
     rf'{SURNAME_PATTERN},\s{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*': 'Nowak, J.',
-    rf'{SURNAME_PATTERN},\s{FULLNAME_PATTERN}(?:\s{FULLNAME_PATTERN})*': 'Nowak, Jan',
+    rf'{SURNAME_PATTERN},\s{FULLNAME_PATTERN}(?:\s(?:{FULLNAME_PATTERN}|{SHORT_NAME_PATTERN}))*': 'Nowak, Jan',
     rf'{SURNAME_PATTERN}\s{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*': 'Nowak J.'
 }
 
@@ -199,6 +199,7 @@ def check_bibliography(blocks, producer, bibliography_dict):
                 bib_context.items.append(bib_item)
 
                 print(
+                f"{content[0]}"
                 f"  content: {content}\n"
                 f"  authors: {bib_item.authors}\n"
                 f"{bib_item.author_format}\n"
@@ -295,46 +296,86 @@ def mask_spans(content, spans):
 
 
 def extract_authors(masked, content, authors):
+    best_start_known = None
+    best_start_other = None
+    best_start_fallback = None
     best_known = None
     best_other = None
     best_fallback = None
+
+    authors_lower = {a.lower() for a in authors}
 
     for pattern, fmt in AUTHOR_PATTERNS.items():
         match = re.search(pattern, masked)
         if match and not check_quotes(match.start(), match.end(), content):
             candidate = (match.end(), match.start(), fmt, pattern)
             if fmt == 'Jan Nowak':
-                if match.group(0).strip() in authors:
-                    if best_known is None or match.end() < best_known[0]:
-                        best_known = candidate
+                in_authors = match.group(0).strip().lower() in authors_lower
+                if match.start() == 0:
+                    if in_authors:
+                        best_start_known = candidate
+                    else:
+                        best_start_fallback = candidate
                 else:
-                    if best_fallback is None or match.end() < best_fallback[0]:
-                        best_fallback = candidate
+                    if in_authors:
+                        if best_known is None or match.end() < best_known[0]:
+                            best_known = candidate
+                    else:
+                        if best_fallback is None or match.end() < best_fallback[0]:
+                            best_fallback = candidate
             else:
-                if best_other is None or match.end() > best_other[0]:
-                    best_other = candidate
+                if match.start() == 0:
+                    if best_start_other is None or match.end() > best_start_other[0]:
+                        best_start_other = candidate
+                else:
+                    if best_other is None or match.end() > best_other[0]:
+                        best_other = candidate
 
-    winner = best_known or best_other or best_fallback
+    best_direct = None
+    if not (best_start_known or best_start_other or best_start_fallback):
+        for author in authors:
+            if masked.lower().startswith(author.lower()):
+                best_direct = (len(author), 0, 'different', None)
+                break
+
+    winner = best_start_known or best_start_other or best_start_fallback or best_direct or best_known or best_other or best_fallback
     if winner is None:
         return None, '', 0, 0
 
     idx, start_idx, author_fmt, author_pattern = winner
     current_idx = idx
     authors_end = idx
-    while True:
-        current_text = masked[current_idx:]
-        if re.match(END_AUTHOR_PATTERNS, current_text):
-            break
-        separator = re.match(SEPARATOR_PATTERNS, current_text)
-        if separator:
-            current_idx += separator.end()
+
+    if author_fmt == 'different':
+        while True:
             current_text = masked[current_idx:]
-        next_author = re.match(author_pattern, current_text)
-        if next_author:
-            current_idx += next_author.end()
-            authors_end = current_idx
-        else:
-            break
+            if re.match(END_AUTHOR_PATTERNS, current_text):
+                break
+            sep = re.match(SEPARATOR_PATTERNS, current_text)
+            if not sep:
+                break
+            rest = masked[current_idx + sep.end():]
+            next_known = next((a for a in authors if rest.lower().startswith(a.lower())), None)
+            if next_known:
+                current_idx += sep.end() + len(next_known)
+                authors_end = current_idx
+            else:
+                break
+    else:
+        while True:
+            current_text = masked[current_idx:]
+            if re.match(END_AUTHOR_PATTERNS, current_text):
+                break
+            separator = re.match(SEPARATOR_PATTERNS, current_text)
+            if separator:
+                current_idx += separator.end()
+                current_text = masked[current_idx:]
+            next_author = re.match(author_pattern, current_text)
+            if next_author:
+                current_idx += next_author.end()
+                authors_end = current_idx
+            else:
+                break
 
     return content[start_idx:authors_end], author_fmt, start_idx, authors_end
 
@@ -371,12 +412,15 @@ def extract_title(content, font_spans, quoted_spans, plain_candidates, authors_e
                 break
     if publisher_span:
         publisher = content[publisher_span[0]:publisher_span[1]]
-        if has_quoted:
-            title = content[quoted_after[0][0]:quoted_after[0][1]].strip(quotes_types)
-        elif has_italic:
-            title = content[italic_after[0][1]:italic_after[0][2]]
-        elif plain_candidates:
-            title = plain_candidates[0][0]
+        quoted_title = [(start, end) for start, end in quoted_after if (start, end) != publisher_span]
+        italic_title = [(style, start, end) for style, start, end in italic_after if (start, end) != publisher_span]
+        plain_title = [candidate for candidate in plain_candidates if candidate[2] != publisher_span[0]]
+        if quoted_title:
+            title = content[quoted_title[0][0]:quoted_title[0][1]].strip(quotes_types)
+        elif italic_title:
+            title = content[italic_title[0][1]:italic_title[0][2]]
+        elif plain_title:
+            title = plain_title[0][0]
     elif has_italic and has_quoted:
         quote_start = quoted_after[0][0]
         italic_start = italic_after[0][1]
