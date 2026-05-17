@@ -63,10 +63,23 @@ def calculate_embedding_grade(purpose, summaries):
 
 
 def get_content_grade(purpose, summaries):
-    return calculate_embedding_grade(
+    embedding_result = calculate_embedding_grade(
         purpose=purpose,
         summaries=summaries
     )
+    
+    grade = embedding_result.get("grade", 0.0)
+    items = embedding_result.get("items", [])
+    
+    # Extract off-topic headings (items below threshold)
+    off_topic_headings = [
+        item.get("heading", "Unknown") 
+        for item in items 
+        if item.get("below_threshold", False)
+    ]
+    
+    # Return (grade, off_topic_headings, full_items_list)
+    return (grade, off_topic_headings, items)
 
 def get_overall_grade(purpose_grade, embedding_grade, sota_grade):
     overall_grade = 0.2 * sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade

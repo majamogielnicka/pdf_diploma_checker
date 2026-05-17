@@ -112,12 +112,12 @@ class AnalysisPipeline:
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
-                content_g = get_content_grade(purpose, summaries)
-                purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
+                content_g, off_topic_headings, embedding_items = get_content_grade(purpose, summaries)
+                purpose_g_score, purpose_g_reason = get_purpose_grade(txt_for_llm, purpose, language)
                 
                 res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
         
-                score = get_overall_grade(purpose_g, content_g, res_score)
+                score = get_overall_grade(purpose_g_score, content_g, res_score)
                 result = {
                     "id": res_id,
                     "tytul": res_title,
@@ -128,6 +128,10 @@ class AnalysisPipeline:
                     "r2": r2,
                     "r3": r3,
                     "content_grade": score,
+                    "off_topic_headings": off_topic_headings,
+                    "purpose_reason": purpose_g_reason,
+                    "purpose_score": purpose_g_score,
+                    "embedding_items": embedding_items,
                     "image_analysis": image_summary_data
                 }
                 
