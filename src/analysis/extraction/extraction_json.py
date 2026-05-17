@@ -115,8 +115,8 @@ def fix_latex(text):
         "˛e": "ę",
         "˛E": "Ę",
     }
-    for wrong, right in replace.items():
-        text = text.replace(wrong, right)
+    #for wrong, right in replace.items():
+        #text = text.replace(wrong, right)
     return text
 
 def find_table_description(table_bbox, text_blocks, priority_side=None):
@@ -1163,6 +1163,7 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             lines.append(curr_line)
     output_block = TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text")
     clean_block = post_process_block(output_block)
+    #clean_block = output_block
     return clean_block, prev_bottomline, current_span_id
 
 
