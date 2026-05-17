@@ -751,11 +751,12 @@ class PDFMapper:
     
     def _extract_acronyms_to_schema(self, new_doc):
         
-        # BAZA AKRONIMU (Przywrócone regexy matematyczne)
-        acr_dash_pattern = r'^(?![a-ząćęłńóśźż]{3,})(?!\d+\s+[-–—−‐:=])(.{1,40}?)\s+[-–—−‐:=]\s+(?!\d)'
+        # BAZA AKRONIMU 
+        acr_dash_pattern = r'^(?![a-ząćęłńóśźż]{3,})(?!\d+\s+[-–—−‐:=])(.{1,40}?)\s+[-–—−‐:=]\s+'
         acr_space_pattern = r'^(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\u0370-\u03FF]*[A-Za-zĄĆĘŁŃÓŚŹŻ\u0370-\u03FF])(?:[A-ZĄĆĘŁŃÓŚŹŻ0-9\u0370-\u03FF]|[a-ząćęłńóśźż][A-ZĄĆĘŁŃÓŚŹŻ\u0370-\u03FF])[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\u0370-\u03FF]{0,20}'
         mc = r'\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF'
-        math_symbol_pattern = r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\s' + mc + r']{1,25})\s+(?=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ])'
+        
+        math_symbol_pattern = r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\(\)\*\s' + mc + r']{1,30})\s+[-–—−‐:=]?\s*(?=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ])'
 
         in_acronym_section = False
         acronym_words = []
@@ -767,25 +768,25 @@ class PDFMapper:
             header_text = getattr(block, "content", "").strip().upper()
             block_type = getattr(block, "type", None)
             
+            pattern_target = r'\b(ACRONYM|ACRONYMS|SKRÓT|SKRÓTY|SKRÓTÓW|ABBREVIATION|ABBREVIATIONS|OZNACZEŃ|OZNACZENIA|SYMBOL|SYMBOLI|SYMBOLE)\b'
+            
             #sprawdzanie czy blok jest spisem akronimów
             is_header = False
             if block_type == "heading":
                 is_header = True
-            elif len(header_text) < 80 and any(kw in header_text for kw in ["ACRONYM", "SKRÓT", "ABBREVIATION", "OZNACZEŃ", "SYMBOL"]):
+            elif len(header_text) < 80 and re.search(pattern_target, header_text):
                 is_header = True
 
             if is_header:
-                is_target = any(kw in header_text for kw in ["ACRONYM", "SKRÓT", "ABBREVIATION", "OZNACZEŃ", "SYMBOL"]) and "SKRÓT DYPLOMU" not in header_text and "SKRÓT PRACY" not in header_text
+                is_target = re.search(pattern_target, header_text) and "SKRÓT DYPLOMU" not in header_text and "SKRÓT PRACY" not in header_text
                 
                 if is_target:
                     in_acronym_section = True
                     continue 
                 elif in_acronym_section:
-                    # Wyłączamy zbieranie TYLKO jeśli to faktyczny rozdział (np. Wstęp, Bibliografia, 1. Cel)
                     if re.match(r'^\d+\.', header_text) or any(kw in header_text for kw in ["WSTĘP", "SPIS", "BIBLIOGRAFIA", "ROZDZIAŁ", "STRESZCZENIE", "ABSTRACT", "SUMMARY", "PODSUMOWANIE", "WPROWADZENIE"]):
                         in_acronym_section = False
                         continue 
-                    # Jeśli to "fałszywy nagłówek" (np. pogrubiona litera "d"), idziemy dalej bez continue!
 
             if in_acronym_section:
                 fallback_blocks.append(block)
@@ -797,10 +798,20 @@ class PDFMapper:
                             if obj.get("words"): w.extend(obj["words"])
                             if obj.get("items"):
                                 for item in obj["items"]: w.extend(fetch_words(item))
+                            if obj.get("lines"):
+                                for line in obj["lines"]:
+                                    if isinstance(line, dict) and line.get("spans"):
+                                        w.extend(line["spans"])
                         else:
                             if getattr(obj, "words", None): w.extend(obj.words)
                             if getattr(obj, "items", None):
                                 for item in obj.items: w.extend(fetch_words(item))
+                            if getattr(obj, "lines", None):
+                                for line in obj.lines:
+                                    if hasattr(line, "spans"):
+                                        w.extend(line.spans)
+                                    elif isinstance(line, dict) and line.get("spans"):
+                                        w.extend(line["spans"])
                     except Exception:
                         pass
                     return w
@@ -883,10 +894,17 @@ class PDFMapper:
                 
         else:
             for block in fallback_blocks:
-                if getattr(block, "type", None) in ["acronyms", "paragraph", "math", "list"]:
+                if getattr(block, "type", None) in ["acronyms", "paragraph", "math", "list", "text", "table", "heading"]:
                     content = getattr(block, "content", "")
                     if not content: continue
                     for raw_line in content.split('\n'):
+                        if '|' in raw_line:
+                            raw_line = re.sub(r'^\|\s*', '', raw_line)
+                            raw_line = re.sub(r'\s*\|$', '', raw_line)
+                            raw_line = re.sub(r'\s*\|\s*[-–—−‐:=]?\s*', ' - ', raw_line)
+                            if set(raw_line.strip()).issubset({'-', '|', ' '}):
+                                continue
+                        raw_line = raw_line.replace('$', '')
                         reconstructed_lines.append(raw_line)
 
         final_lines = []
@@ -900,37 +918,49 @@ class PDFMapper:
             
             if re.search(r'(\.\s*){3,}', raw_line): continue
             
-            is_new = False
+            parts = [raw_line]
             if uses_dashes:
-                if re.match(acr_dash_pattern, raw_line):
-                    is_new = True
-                else:
-                    m = re.match(math_symbol_pattern, raw_line)
-                    if m and re.search(r'[' + mc + r']', m.group(1)):
-                        is_new = True
-            else:
-                if re.match(acr_space_pattern + r'\s+[A-ZĄĆĘŁŃÓŚŹŻ]', raw_line):
-                    is_new = True
-                else:
-                    m = re.match(math_symbol_pattern, raw_line)
-                    if m and re.search(r'[' + mc + r']', m.group(1)):
-                        is_new = True
+                parts = re.split(r'\s+(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-]{2,15}\s+[-–—−‐:=]\s+)', raw_line)
 
-            if is_new or not final_lines:
-                final_lines.append(raw_line)
-            else:
-                final_lines[-1] += " " + raw_line
+            for part in parts:
+                part = part.strip()
+                if not part: continue
+
+                is_new = False
+                if uses_dashes:
+                    if re.match(acr_dash_pattern, part):
+                        is_new = True
+                    else:
+                        m = re.match(math_symbol_pattern, part)
+                        if m and re.search(r'[' + mc + r']', m.group(1)):
+                            is_new = True
+                else:
+                    if re.match(acr_space_pattern + r'\s+[A-ZĄĆĘŁŃÓŚŹŻ]', part):
+                        is_new = True
+                    else:
+                        m = re.match(math_symbol_pattern, part)
+                        if m and re.search(r'[' + mc + r']', m.group(1)):
+                            is_new = True
+
+                if is_new or not final_lines:
+                    final_lines.append(part)
+                else:
+                    final_lines[-1] += " " + part
 
         for line in final_lines:
             match = None
             if uses_dashes:
                 match = re.match(acr_dash_pattern + r'(.*)$', line)
+                if not match:
+                    m = re.match(r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\(\)\*\s' + mc + r']{1,30})\s+[-–—−‐:=]?\s*(.*)$', line)
+                    if m and re.search(r'[' + mc + r']', m.group(1)):
+                        match = m
             
             if not match:
                 match = re.match(r'^(' + acr_space_pattern + r')\s+(.*)$', line)
                 
             if not match:
-                m = re.match(r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\s' + mc + r']{1,30})\s+(.*)$', line)
+                m = re.match(r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\(\)\*\s' + mc + r']{1,30})\s+(.*)$', line)
                 if m and re.search(r'[' + mc + r']', m.group(1)):
                     match = m
 
