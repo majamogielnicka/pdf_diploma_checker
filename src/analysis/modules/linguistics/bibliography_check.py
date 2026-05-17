@@ -8,8 +8,6 @@ import re
 from .linguistics_types import Bibliography_context, Bib_item_context
 from .exeptions_check import check_quotes
 
-#TODO przekazać do iso check, access dla samych url i połączyć z date patterns
-#zmieniń strukture żeby przekazywać też valueu z dictów, bez case sensivity dla autorów
 LINKER_KEYWORDS = {
     'a', 'an', 'the', 'of', 'in', 'on', 'at', 'to', 'for', 'and', 'or', 'but',
     'w', 'i', 'z', 'dla', 'do', 'na', 'od', 'po', 'ze', 'że', 'oraz', 'by'}

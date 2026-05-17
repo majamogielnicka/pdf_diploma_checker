@@ -29,30 +29,28 @@ class Block_context:
     language: str
     block: Union[ParagraphBlock, ListBlock]
 
-@dataclass 
+@dataclass
 class Bib_item_context:
     content: str
     item: str
-    authors: Optional[str] = None
-    date: Optional[str] = None
-    title: Optional[str] = None
+    authors: Optional[dict[str, str]] = None
+    date: Optional[list[dict[str, str]]] = None
+    title: Optional[dict[str, str]] = None
     is_title_italics: bool = False
-    book_title: Optional[str] = None
-    pages: Optional[str] = None
-    publisher: Optional[str] = None
-    doi: Optional[str] = None
-    volume: Optional[str] = None
-    access_date: Optional[str] = None
-    url: Optional[str] = None
+    book_title: Optional[dict[str, str]] = None
+    pages: Optional[dict[str, str]] = None
+    publisher: Optional[dict[str, str]] = None
+    doi: Optional[dict[str, str]] = None
+    volume: Optional[dict[str, str]] = None
+    access_date: Optional[dict[str, str]] = None
+    url: Optional[dict[str, str]] = None
     online: bool = False
-    journal: Optional[str] = None
-    issue: Optional[str] = None
-    entry_type: Optional[str] = None
+    journal: Optional[dict[str, str]] = None
+    issue: Optional[dict[str, str]] = None
+    entry_type: Optional[dict[str, str]] = None
     other: Optional[str] = None
     bibtex_type: Optional[str] = None
-    author_format: Optional[str] = None
     separator: Optional[str] = None
-    potential_title: Optional[str] = None
 
 @dataclass
 class Bibliography_context:
