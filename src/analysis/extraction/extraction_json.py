@@ -1200,7 +1200,6 @@ def post_process_block(block: TextBlock) -> TextBlock:
 
             # PRZYPADEK 1: Ogonek na samym początku spana -> Scalamy z poprzednim spanem
             if first_char_code in MAPS and len(text) > 1 and fixed_spans:
-                print(f"Znaleziono potencjalny modyfikator: {text[0]} w spanie '{text}' (span_id={current_span.span_id})")
                 next_char_code = ord(text[1])
                 modifier_map = MAPS[first_char_code]
 
