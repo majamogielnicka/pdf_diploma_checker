@@ -6,6 +6,7 @@ venv/
 env/
 .env/
 /images
+/data
 .vscode
 src/llm/wyniki/
 /Modelfile-gemma3-local
@@ -14,3 +15,5 @@ src/analysis/modules/llm/models/gemma3
 src/analysis/modules/linguistics/final_document.json
 src/analysis/modules/linguistics/final_document_raw.json
 src/analysis/modules/linguistics/errors.json
+src/output_linguistics.json
+src/output.json

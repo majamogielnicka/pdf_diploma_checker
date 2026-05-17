@@ -53,6 +53,14 @@ class PDFMapper:
         return abs(last_x0 - curr_x0) < PDFMapper.LIST_CONT_MAX_X_DIFF or curr_x0 > last_x0
     
     @staticmethod
+    def _adjust_item_word_positions(item_words):        
+        if len(item_words) > 1:
+            marker_offset = item_words[1].start_char
+            for word in item_words[1:]:
+                word.start_char -= marker_offset
+                word.end_char -= marker_offset
+    
+    @staticmethod
     def is_header(words: list[WordInfo]) -> bool:
         if not words: return False
         is_bold = all(w.bold for w in words)
@@ -456,6 +464,7 @@ class PDFMapper:
                             'item': ListItem(item_id=block.block_id, marker_type=prev_marker, text=cleaned_text, bbox=list(block.bbox), words=words_info.copy()),
                             'words': words_info.copy(), 'block_id': block.block_id, 'bbox': list(block.bbox), 'original_text': full_text
                         })
+                        self._adjust_item_word_positions(self.list_buffer[-1]['item'].words)
                         full_text, words_info = "", []
 
                 line_x0 = block.bbox[0]
@@ -482,6 +491,7 @@ class PDFMapper:
                                 'item': ListItem(item_id=block.block_id, marker_type=prev_marker, text=cleaned_text, bbox=list(block.bbox), words=words_info.copy()),
                                 'words': words_info.copy(), 'block_id': block.block_id, 'bbox': list(block.bbox), 'original_text': full_text
                             })
+                            self._adjust_item_word_positions(self.list_buffer[-1]['item'].words)
                         else:
                             if self.list_buffer:
                                 self._empty_list_buffer()
@@ -522,9 +532,14 @@ class PDFMapper:
                     'item': ListItem(item_id=block.block_id, marker_type=marker_type, text=cleaned_text, bbox=list(block.bbox), words=words_info),
                     'words': words_info, 'block_id': block.block_id, 'bbox': list(block.bbox), 'original_text': full_text
                 })
+                self._adjust_item_word_positions(self.list_buffer[-1]['item'].words)
             elif is_valid_list_cont: 
                 last_item_data = self.list_buffer[-1]
                 connector = "" if last_item_data['item'].text.rstrip().endswith('-') else " "
+                cont_base = len(last_item_data['item'].text) + len(connector)
+                for word in words_info:
+                    word.start_char += cont_base
+                    word.end_char += cont_base
                 last_item_data['item'].text += connector + full_text
                 last_item_data['item'].words.extend(words_info)
                 b = list(block.bbox)
