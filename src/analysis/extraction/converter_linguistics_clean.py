@@ -735,9 +735,14 @@ class PDFMapper:
                 closest_visual.caption = {"text": block.content.strip()}
     
     def _extract_acronyms_to_schema(self, new_doc):
-        # BAZA AKRONIMU
-        acr = r'(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\s\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF\^\|_=<>\.,]*[A-Za-zĄĆĘŁŃÓŚŹŻ\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF])(?:(?:[A-ZĄĆĘŁŃÓŚŹŻ0-9\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF]|[a-ząćęłńóśźż\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF][A-ZĄĆĘŁŃÓŚŹŻ\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF\s\^\|_=<>\.,])[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\s\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF\^\|_=<>\.,]{0,25}|[a-ząćęłńóśźż\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF])(?<=\S)'
+        import re
         
+        # BAZA AKRONIMU (Przywrócone regexy matematyczne)
+        acr_dash_pattern = r'^(?![a-ząćęłńóśźż]{3,})(?!\d+\s+[-–—−‐:=])(.{1,40}?)\s+[-–—−‐:=]\s+(?!\d)'
+        acr_space_pattern = r'^(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\u0370-\u03FF]*[A-Za-zĄĆĘŁŃÓŚŹŻ\u0370-\u03FF])(?:[A-ZĄĆĘŁŃÓŚŹŻ0-9\u0370-\u03FF]|[a-ząćęłńóśźż][A-ZĄĆĘŁŃÓŚŹŻ\u0370-\u03FF])[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\u0370-\u03FF]{0,20}'
+        mc = r'\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF'
+        math_symbol_pattern = r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\s' + mc + r']{1,25})\s+(?=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ])'
+
         in_acronym_section = False
         acronym_words = []
         fallback_blocks = []
@@ -752,15 +757,21 @@ class PDFMapper:
             is_header = False
             if block_type == "heading":
                 is_header = True
-            elif len(header_text) < 60 and ("ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text or "SYMBOL" in header_text):
+            elif len(header_text) < 80 and any(kw in header_text for kw in ["ACRONYM", "SKRÓT", "ABBREVIATION", "OZNACZEŃ", "SYMBOL"]):
                 is_header = True
 
             if is_header:
-                if ("ACRONYM" in header_text or "SKRÓT" in header_text or "ABBREVIATION" in header_text or "OZNACZEŃ" in header_text or "SYMBOL" in header_text) and "SKRÓT DYPLOMU" not in header_text and "SKRÓT PRACY" not in header_text:
+                is_target = any(kw in header_text for kw in ["ACRONYM", "SKRÓT", "ABBREVIATION", "OZNACZEŃ", "SYMBOL"]) and "SKRÓT DYPLOMU" not in header_text and "SKRÓT PRACY" not in header_text
+                
+                if is_target:
                     in_acronym_section = True
-                else:
-                    in_acronym_section = False
-                continue 
+                    continue 
+                elif in_acronym_section:
+                    # Wyłączamy zbieranie TYLKO jeśli to faktyczny rozdział (np. Wstęp, Bibliografia, 1. Cel)
+                    if re.match(r'^\d+\.', header_text) or any(kw in header_text for kw in ["WSTĘP", "SPIS", "BIBLIOGRAFIA", "ROZDZIAŁ", "STRESZCZENIE", "ABSTRACT", "SUMMARY", "PODSUMOWANIE", "WPROWADZENIE"]):
+                        in_acronym_section = False
+                        continue 
+                    # Jeśli to "fałszywy nagłówek" (np. pogrubiona litera "d"), idziemy dalej bez continue!
 
             if in_acronym_section:
                 fallback_blocks.append(block)
@@ -792,7 +803,11 @@ class PDFMapper:
             def get_y0(w):
                 try:
                     bbox = w.get("bbox") if isinstance(w, dict) else getattr(w, "bbox", None)
-                    return float(bbox[1]) if bbox and len(bbox) >= 2 else 0.0
+                    if bbox and len(bbox) >= 4:
+                        return (float(bbox[1]) + float(bbox[3])) / 2.0
+                    elif bbox and len(bbox) >= 2:
+                        return float(bbox[1])
+                    return 0.0
                 except: return 0.0
 
             def get_x0(w):
@@ -829,7 +844,7 @@ class PDFMapper:
             current_line_words = []
             current_y = None
             current_page = None
-            tolerance = 5.0 
+            tolerance = 8.0 
             
             for word in acronym_words:
                 y0 = get_y0(word)
@@ -863,7 +878,7 @@ class PDFMapper:
         final_lines = []
         
         #jeśli w skrócie jest myślnik
-        uses_dashes = any(re.search(r'^' + acr + r'\s+[-–—−]\s*', l.strip()) for l in reconstructed_lines)
+        uses_dashes = any(re.search(acr_dash_pattern, l.strip()) for l in reconstructed_lines)
 
         for raw_line in reconstructed_lines:
             raw_line = raw_line.strip()
@@ -873,22 +888,38 @@ class PDFMapper:
             
             is_new = False
             if uses_dashes:
-                if re.match(r'^' + acr + r'\s+[-–—−]\s*', raw_line):
+                if re.match(acr_dash_pattern, raw_line):
                     is_new = True
+                else:
+                    m = re.match(math_symbol_pattern, raw_line)
+                    if m and re.search(r'[' + mc + r']', m.group(1)):
+                        is_new = True
             else:
-                if re.match(r'^' + acr + r'\s+[A-ZĄĆĘŁŃÓŚŹŻ]', raw_line):
+                if re.match(acr_space_pattern + r'\s+[A-ZĄĆĘŁŃÓŚŹŻ]', raw_line):
                     is_new = True
+                else:
+                    m = re.match(math_symbol_pattern, raw_line)
+                    if m and re.search(r'[' + mc + r']', m.group(1)):
+                        is_new = True
 
             if is_new or not final_lines:
                 final_lines.append(raw_line)
             else:
                 final_lines[-1] += " " + raw_line
 
+        from schema import AcronymItem
         for line in final_lines:
+            match = None
             if uses_dashes:
-                match = re.match(r'^(' + acr + r')\s+[-–—−]\s*(.*)$', line)
-            else:
-                match = re.match(r'^(' + acr + r')\s+(.*)$', line)
+                match = re.match(acr_dash_pattern + r'(.*)$', line)
+            
+            if not match:
+                match = re.match(r'^(' + acr_space_pattern + r')\s+(.*)$', line)
+                
+            if not match:
+                m = re.match(r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\s' + mc + r']{1,30})\s+(.*)$', line)
+                if m and re.search(r'[' + mc + r']', m.group(1)):
+                    match = m
 
             if match:
                 acronym = match.group(1).strip()
