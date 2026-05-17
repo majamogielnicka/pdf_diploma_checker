@@ -80,14 +80,20 @@ def get_content_grade(purpose, summaries):
     grade = embedding_result.get("grade", 0.0)
     items = embedding_result.get("items", [])
     
-    # Extract off-topic heading indices (items below threshold)
+    # Extract off-topic heading labels (items below threshold)
     off_topic_headings = [
-        idx
+        (
+            item.get("display")
+            or item.get("heading")
+            or item.get("title")
+            or item.get("subtitle")
+            or f"Sekcja {idx + 1}"
+        )
         for idx, item in enumerate(items)
         if item.get("below_threshold", False)
     ]
     
-    # Return (grade, off_topic_headings_indices)
+    # Return (grade, off_topic_heading_labels)
     return (grade, off_topic_headings)
 
 def get_overall_grade(purpose_grade, embedding_grade, sota_grade):

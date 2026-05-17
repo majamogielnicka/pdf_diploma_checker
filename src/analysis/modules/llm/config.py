@@ -26,7 +26,7 @@ OUTPUT_DIR = Path(resource_path(os.path.join("analysis", "modules", "llm", "wyni
 
 #JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
 # MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
-MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
+MODEL_PATH = Path("C:\Users\Wiktor\models\gemma3_12b\google_gemma-3-12b-it-Q4_K_M.gguf")
 LLAVA_MODEL_PATH=Path.home() / "models" / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
 LLAVA_MMPROJ_PATH=Path.home() / "models" / "mmproj-model-f16.gguf"
 

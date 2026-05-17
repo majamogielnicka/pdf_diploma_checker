@@ -117,7 +117,7 @@ class AnalysisPipeline:
                 
                 print(f"[PIPELINE] Cel pracy: {purpose}")
                 print(f"[PIPELINE] Ocena celu pracy: {purpose_g_score} - {purpose_g_reason}")
-                print(f"offtopic headings indices: {off_topic_headings}")
+                print(f"offtopic headings: {off_topic_headings}")
 
                 res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
         
