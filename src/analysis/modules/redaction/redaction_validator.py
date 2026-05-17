@@ -130,6 +130,7 @@ class RedactionValidator:
         self.remove_errors_from_title_page()
         self.remove_errors_from_toc_tof_tot()
         self.remove_errors_from_images()
+        self.remove_errors_from_tables()
         self.replace_global_errors()
 
         return self.errors
@@ -223,6 +224,35 @@ class RedactionValidator:
 
         self.errors = filtered_errors
                                 
+    def remove_errors_from_tables(self):
+        def is_inside(error_bbox, table_bbox):
+            return (
+                error_bbox[0] >= table_bbox[0] - 10 and
+                error_bbox[1] >= table_bbox[1] - 10 and
+                error_bbox[2] <= table_bbox[2] + 10 and
+                error_bbox[3] <= table_bbox[3] + 10
+            )
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "check_justification"]
+        filtered_errors = []
+
+        for error in self.errors:
+            error_to_remove = False
+
+            if error.category in errors_excluded:
+                for page in self.document_data.pages:
+                    if error.page_number == page.number:
+                        for table in page.tables:
+                            if is_inside(error.bounding_box, table.bbox):
+                                error_to_remove = True
+                                break
+                        break 
+            
+            if not error_to_remove:
+                filtered_errors.append(error)
+
+        self.errors = filtered_errors
+
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
         orphans = []
@@ -573,6 +603,19 @@ class RedactionValidator:
         return wrong_entries
     
     def check_footers(self):
+        first_chapter_page = None
+        
+        if self.document_data_linguistics and self.document_data_linguistics.logical_blocks:
+            for block in self.document_data_linguistics.logical_blocks:
+                if getattr(block, "type", "") == "heading" and block.words:
+                    first_word = block.words[0]
+                    page_num = getattr(first_word, "page_number", None)
+                    if page_num is not None:
+                        first_chapter_page = page_num
+                        break 
+
+        if first_chapter_page is None and self.document_data.toc and self.document_data.toc.entries:
+            first_chapter_page = self.document_data.toc.entries[0].page
 
         for page in self.document_data.pages:
             footer_block = None
@@ -580,17 +623,17 @@ class RedactionValidator:
             for block in page.text_blocks:
                 if block.block_type == "footer":
                     footer_block = block
-                    
-            if page.number == 1:
+
+            if first_chapter_page is not None and page.number < first_chapter_page:
                 if footer_block:
                     self.errors.append(Error(
                         id = self._get_next_id(),
                         module = self.module,
-                        category = "Footer_on_1st_page",
-                        page_number = 1,
+                        category = "Footer_on_forbidden_page",
+                        page_number = page.number,
                         bounding_box = footer_block.bbox, 
-                        text = "1",
-                        comments = "Wykryto numerację na stronie, która nie powinna się tam znaleźć."
+                        text = "Footer detected",
+                        comments = f"Wykryto numerację na stronie {page.number}, która znajduje się przed pierwszym rozdziałem lub nagłówkiem (oczekiwano od strony {first_chapter_page})."
                     ))
             else: 
                 if footer_block is None:
@@ -637,7 +680,6 @@ class RedactionValidator:
                 text = None,
                 comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści, rysunków oraz tabel."
             ))
-                #return wrong_entries, is_toc
         return None
     
     #------------------config checks-----------------------
