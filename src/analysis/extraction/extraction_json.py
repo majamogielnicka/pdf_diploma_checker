@@ -1159,8 +1159,96 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             curr_line.spacing_consistency = consistent
             # curr_line.gap_to_r = gap_toright #debug
             lines.append(curr_line)
-            
-    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text"), prev_bottomline, current_span_id
+    output_block = TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text")
+    clean_block = post_process_block(output_block)
+    return clean_block, prev_bottomline, current_span_id
+
+def post_process_block(block: TextBlock) -> TextBlock:
+    # Bezpieczna mapa liczbowych kodów Unicode (ogonek, kropka, akcent ostry)
+    MAPS = {
+        0x02DB: {0x0061: 0x0105, 0x0041: 0x0104, 0x0065: 0x0119, 0x0045: 0x0118},  # ˛ -> ą, Ą, ę, Ę
+        0x02D9: {0x007A: 0x017C, 0x005A: 0x017B},                                  # ˙ -> ż, Ż
+        0x00B4: {                                                                  # ´ -> ś, Ś, ć, ...
+            0x0073: 0x015B, 0x0053: 0x015A, 0x0063: 0x0107, 0x0043: 0x0106,
+            0x007A: 0x017A, 0x005A: 0x0179, 0x006E: 0x0144, 0x004E: 0x0143,
+            0x006F: 0x00F3, 0x004F: 0x00D3
+        }
+    }
+
+    for line in block.lines:
+        if not line.spans:
+            continue
+
+        fixed_spans = []
+        i = 0
+        n = len(line.spans)
+
+        while i < n:
+            current_span = line.spans[i]
+            text = current_span.text
+
+            if not text:
+                fixed_spans.append(current_span)
+                i += 1
+                continue
+
+            first_char_code = ord(text[0])
+
+            # PRZYPADEK 1: Ogonek na samym początku spana -> Scalamy z poprzednim spanem
+            if first_char_code in MAPS and len(text) > 1 and fixed_spans:
+                next_char_code = ord(text[1])
+                modifier_map = MAPS[first_char_code]
+
+                if next_char_code in modifier_map:
+                    # Wyciągamy poprawioną literę (np. 'ą')
+                    fixed_char = chr(modifier_map[next_char_code])
+                    # Reszta tekstu z bieżącego spana (odcinamy modyfikator i literę bazową)
+                    rest_of_text = text[2:]
+
+                    # Bierzemy ostatnio dodany span (ten po lewej stronie) i go modyfikujemy
+                    prev_span = fixed_spans[-1]
+                    prev_span.text = prev_span.text + fixed_char + rest_of_text
+                    
+                    # Łączymy bboxy (rozszerzamy prawą i dolną krawędź)
+                    p_box = prev_span.bbox
+                    c_box = current_span.bbox
+                    prev_span.bbox = (
+                        p_box[0], 
+                        min(p_box[1], c_box[1]), 
+                        max(p_box[2], c_box[2]), 
+                        max(p_box[3], c_box[3])
+                    )
+                    
+                    i += 1
+                    continue
+
+            # PRZYPADEK 2: Ogonek w środku/na końcu spana (tekst nie został rozbity strukturalnie)
+            fixed_text = []
+            j = 0
+            length = len(text)
+            has_changes = False
+
+            while j < length:
+                c_code = ord(text[j])
+                if c_code in MAPS and j + 1 < length:
+                    next_c_code = ord(text[j + 1])
+                    if next_c_code in MAPS[c_code]:
+                        fixed_text.append(chr(MAPS[c_code][next_c_code]))
+                        j += 2
+                        has_changes = True
+                        continue
+                fixed_text.append(text[j])
+                j += 1
+
+            if has_changes:
+                current_span.text = "".join(fixed_text)
+
+            fixed_spans.append(current_span)
+            i += 1
+
+        line.spans = fixed_spans
+
+    return block
 
 def check_page_format(width, height, tolerance: float = 10) -> str:
 
