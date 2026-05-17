@@ -9,8 +9,9 @@ from typing import Dict
 import re
 import sys
 
-
 from analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
+
+#from pdf_diploma_checker.src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
 #from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
 
 
@@ -1006,6 +1007,7 @@ def extractPDF(file_path: str) -> DocumentData:
             if block["type"] == 0:
                 is_ftr = is_footer(block, p_height, page_index + 1)
                 text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id, all_spacings, is_ftr)
+                
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
                     if not is_ftr:
@@ -1163,6 +1165,7 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
     clean_block = post_process_block(output_block)
     return clean_block, prev_bottomline, current_span_id
 
+
 def post_process_block(block: TextBlock) -> TextBlock:
     # Bezpieczna mapa liczbowych kodów Unicode (ogonek, kropka, akcent ostry)
     MAPS = {
@@ -1196,6 +1199,7 @@ def post_process_block(block: TextBlock) -> TextBlock:
 
             # PRZYPADEK 1: Ogonek na samym początku spana -> Scalamy z poprzednim spanem
             if first_char_code in MAPS and len(text) > 1 and fixed_spans:
+                print(f"Znaleziono potencjalny modyfikator: {text[0]} w spanie '{text}' (span_id={current_span.span_id})")
                 next_char_code = ord(text[1])
                 modifier_map = MAPS[first_char_code]
 
