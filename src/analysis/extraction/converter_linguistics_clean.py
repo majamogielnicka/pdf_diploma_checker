@@ -735,7 +735,6 @@ class PDFMapper:
                 closest_visual.caption = {"text": block.content.strip()}
     
     def _extract_acronyms_to_schema(self, new_doc):
-        import re
         
         # BAZA AKRONIMU (Przywrócone regexy matematyczne)
         acr_dash_pattern = r'^(?![a-ząćęłńóśźż]{3,})(?!\d+\s+[-–—−‐:=])(.{1,40}?)\s+[-–—−‐:=]\s+(?!\d)'
@@ -907,7 +906,6 @@ class PDFMapper:
             else:
                 final_lines[-1] += " " + raw_line
 
-        from schema import AcronymItem
         for line in final_lines:
             match = None
             if uses_dashes:
