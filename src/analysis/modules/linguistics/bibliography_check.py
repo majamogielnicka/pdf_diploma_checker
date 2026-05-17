@@ -1,6 +1,5 @@
 '''
-Skrypt sprawdzający kompletność bibliografii i sprawdzający jej zgodność z (pn-iso 690:2012).
-Szuka wzorców mogących wskazywać na obecność danego pola w bibliografii: autor, tytuł, url itd.
+Skrypt szukający wzorców mogących wskazywać na obecność danego pola w bibliografii: autor, tytuł, url itd.
 Głównym celem skryptu jest prędkość (działanie w trybie szybkim), więc przy pomocy regexów i metadanych wpisów bibliograficznych
 pola wpisu są heurystyczie dopasowywane do kategorii.
 '''
@@ -150,9 +149,7 @@ def check_bibliography(blocks, producer, bibliography_dict):
 
                 plain_candidates = find_title_candidates(remaining)
 
-                bib_item.title, bib_item.publisher, bib_item.is_title_italics = extract_title(
-                    content, font_spans, quoted_spans, plain_candidates, authors_end
-                )
+                bib_item.title, bib_item.publisher, bib_item.is_title_italics = extract_title(content, font_spans, quoted_spans, plain_candidates, authors_end)
 
                 if 'date' in fields:
                     bib_item.date = fields['date'][2]
@@ -348,21 +345,36 @@ def extract_title(content, font_spans, quoted_spans, plain_candidates, authors_e
     has_italic = bool(italic_after)
     has_quoted = bool(quoted_after)
     quotes_types = '"„″""\''
-
+    keywords = BOOK_KEYWORDS.union(ARTICLE_KEYWORDS)
     title = None
     publisher = None
     is_title_italics = False
-
+    not_keyword = True
     publisher_span = None
-    for _, start, end in italic_after:
-        if any(keyword in content[start:end].lower() for keyword in BOOK_KEYWORDS | ARTICLE_KEYWORDS):
-            publisher_span = (start, end)
-            break
-
+    if not_keyword:
+        for _, start, end in italic_after:
+            if any(keyword in content[start:end].lower() for keyword in keywords):
+                publisher_span = (start, end)
+                not_keyword = False
+                break
+    if not_keyword:
+        for start, end in quoted_after:
+            if any(keyword in content[start:end].lower() for keyword in keywords):
+                publisher_span = (start, end)
+                not_keyword = False
+                break
+    if not_keyword:
+        for candidate in plain_candidates:
+            if any(keyword in candidate[0].lower() for keyword in keywords):
+                publisher_span = (candidate[2], candidate[2] + len(candidate[0]))
+                not_keyword = False
+                break
     if publisher_span:
         publisher = content[publisher_span[0]:publisher_span[1]]
         if has_quoted:
             title = content[quoted_after[0][0]:quoted_after[0][1]].strip(quotes_types)
+        elif has_italic:
+            title = content[italic_after[0][1]:italic_after[0][2]]
         elif plain_candidates:
             title = plain_candidates[0][0]
     elif has_italic and has_quoted:
