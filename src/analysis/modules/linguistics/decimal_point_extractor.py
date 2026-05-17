@@ -62,7 +62,7 @@ def check_decimal_matches(potential_matches, block, chapter_numbers):
         following_text = re.findall(r'[^.()\[\]{}:,;\s]+',block.contents[match_end:end_check_idx].lower())
         begin_check_idx = max(match.offset-30, 0)
         previous_text = re.findall(r'[^.()\[\]{}:,;\s]+', block.contents[begin_check_idx:match.offset].lower())
-        if check_quotes(match, block.contents):
+        if check_quotes(match.offset, match.offset + match.error_length, block.contents):
             is_error = 0
         elif check_if_proper(block.block, match, is_diff= True):
             is_error = 0

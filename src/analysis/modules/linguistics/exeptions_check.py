@@ -26,7 +26,7 @@ def check_exeptions(matches, blocks, proper_names):
                 if word.translate(str.maketrans('', '', string.punctuation)) in proper_names:
                     continue
                 potential_exeption = False
-                inside_quotes = check_quotes(match, text)
+                inside_quotes = check_quotes(match.offset, match.offset + match.error_length, text)
                 if not inside_quotes:
                     if match.category == 'TYPOS':
                         try:
@@ -58,16 +58,7 @@ def check_exeptions(matches, blocks, proper_names):
 
 
 def check_lemma(lemma, text_language):
-    '''
-    Extracts the lemma of a word
-    
-    Args:
-        word (str): Word to be checked
-        text_language (str): pl for Polish or en for English.
-    
-    Returns:
-        tuple(lemma(str), is_found(bool)): A tuple of extracted word and bolean value True if lemma has been found. 
-    '''
+
     is_valid = False
     if text_language == "pl":
         tool_en = language_tool_python.LanguageTool('pl-PL')
@@ -81,21 +72,15 @@ def check_lemma(lemma, text_language):
     return is_valid
 
 
-def check_quotes(match, text):   
-    '''
-    Extracts if typo is inside quotes.
-    
-    Args:
-        match (str): Object type Error_type
-        text (str): String of currently checked block
-    
-    Returns:
-        Boolean: True - if match is inside quotes, False if it is not.
-    '''
-    inside_quotes_matches = re.finditer(r'[„″"](.+?)["”″]',text)
-    for quote_match in inside_quotes_matches:
-        if match.offset > quote_match.start() and match.offset < quote_match.end():
+def check_quotes(start, end, text, return_spans=False):
+    spans = []
+    for quote_match in re.finditer(r'[“„″””\'”"](.+?)[“”″\'"”]', text):
+        if return_spans:
+            spans.append((quote_match.start(), quote_match.end()))
+        elif quote_match.start() < start < quote_match.end() or quote_match.start() < end < quote_match.end():
             return True
+    if return_spans:
+        return spans
     return False
 
 

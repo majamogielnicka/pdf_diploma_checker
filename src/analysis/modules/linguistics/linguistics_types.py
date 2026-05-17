@@ -2,7 +2,7 @@
 Definicje dataclasses używanych w module lingwistycznym.
 '''
 from dataclasses import dataclass, field
-from src.analysis.extraction.schema import ParagraphBlock, ListBlock, BibItem, Bibliography
+from src.analysis.extraction.schema import ParagraphBlock, ListBlock, ListItem, BibItem, Bibliography
 from typing import Union, List, Optional
 @dataclass
 class Error_type:
@@ -32,26 +32,27 @@ class Block_context:
 @dataclass 
 class Bib_item_context:
     content: str
-    authors: str
-    date: str
-    title: str
-    is_title_italics: bool
-    book_title: Optional[str]
-    pages: Optional[str]
-    publisher: Optional[str]
-    doi: Optional[str]
-    volume: Optional[str]
-    access_date: Optional[str]
-    url: Optional[str]
-    online: Optional[bool]
-    journal: Optional[str]
-    issue: Optional[str]
-    entry_type: Optional[str]
-    other: Optional[str]
-    bibtex_type: Optional[str]
-    author_format: str
-    separator: str
-    item: BibItem
+    item: str
+    authors: Optional[str] = None
+    date: Optional[str] = None
+    title: Optional[str] = None
+    is_title_italics: bool = False
+    book_title: Optional[str] = None
+    pages: Optional[str] = None
+    publisher: Optional[str] = None
+    doi: Optional[str] = None
+    volume: Optional[str] = None
+    access_date: Optional[str] = None
+    url: Optional[str] = None
+    online: bool = False
+    journal: Optional[str] = None
+    issue: Optional[str] = None
+    entry_type: Optional[str] = None
+    other: Optional[str] = None
+    bibtex_type: Optional[str] = None
+    author_format: Optional[str] = None
+    separator: Optional[str] = None
+    potential_title: Optional[str] = None
 
 @dataclass
 class Bibliography_context:
