@@ -16,11 +16,11 @@ from .check_acronym import check_if_was_defined
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.converter_linguistics_clean import PDFMapper
 
-def run_linguistics(raw_blocks):
+def run_linguistics(raw_blocks, extracted_acronyms):
     blocks = get_context(raw_blocks)
     extract_errors_to_json(blocks, "final_document.json")
     proper_names = get_proper_names(blocks)
-    acronyms_with_definitions, proper_names = check_first_definition(blocks, proper_names)
+    acronyms_with_definitions, proper_names = check_first_definition(blocks, proper_names, extracted_acronyms)
     acronym_matches, proper_names = check_if_was_defined(blocks, acronyms_with_definitions, proper_names)
     proper_names = set(proper_names)
     decimal_matches, decimal_counter = decimal_check(blocks)
@@ -39,10 +39,10 @@ if __name__ == "__main__":
         document = extractPDF(str(pdf_file))
         mapper = PDFMapper()
         raw_blocks = mapper.map_to_schema(document)
+        extracted_acronyms = raw_blocks.reference_sections.acronyms
     except AttributeError as e:
         print(f"Ekstrakcja zakończyła się niepowodzeniem.")
     else:
         extract_errors_to_json(raw_blocks, "final_document_raw.json")
-        matches = run_linguistics(raw_blocks)
-        #print(f"Znaleziono błędów: {len(matches)}")
+        matches = run_linguistics(raw_blocks, extracted_acronyms)
         extract_errors_to_json(matches, "errors.json")

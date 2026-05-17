@@ -6,7 +6,7 @@ import re
 from .helpers import language
 from .check_acronym import potential_acronym
 
-def initials_match(acronym, definition, proper_names, block):
+def initials_match(acronym, definition, proper_names, block = None):
 
     org_words = [w for w in re.split(r'\s+', definition.strip()) if w]
     def_language = language(definition)
@@ -81,14 +81,16 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
         word_page, word_bbox = None, None
         
         for w in words_list:
-            if w.text == new_acronym_clean:
+            clean_word_text = w.text.strip('.,()[]{}:;"\'')
+            if clean_word_text == new_acronym_clean:
                 word_page = w.page_number
                 word_bbox = w.bbox
                 break
                 
         if word_page is None:
             for w in words_list:
-                if w.text.startswith(new_acronym_clean):
+                clean_word_text = w.text.strip('.,()[]{}:;"\'')
+                if clean_word_text.startswith(new_acronym_clean):
                     word_page = w.page_number
                     word_bbox = w.bbox
                     break
@@ -103,7 +105,7 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
             
     return acronyms_with_definitions
 
-def check_first_definition(blocks, proper_names):
+def check_first_definition(blocks, proper_names, extracted_acronyms):
 
     acronyms_with_definitions = {}
     bibliography_re = re.compile(r"^\[\d+\]")
@@ -121,20 +123,25 @@ def check_first_definition(blocks, proper_names):
     parenthesis_def_dash_acr = re.compile(r'\(\s*(?:ang\.|pol\.|fr\.|niem\.|łac\.)?\s*([A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\s\-]{2,}?)\s*[\-\u2013\u2014]\s*([A-Z]{2,})\s*\)', re.UNICODE)
     broken_no_parenthesis_svm = re.compile(r'\b([A-Z]{2,})\s+([A-Z][a-z]+\s+[A-Z][a-z]+[\w\s\-]*)\s*\)', re.UNICODE)
     split = re.compile(r"\s[-\u2013\u2014]\s")
+
+    if extracted_acronyms:
+        for item in extracted_acronyms:
+            if not item.words:
+                item_page = 0
+                item_bbox = [0.0, 0.0, 0.0, 0.0]
+            else:
+                item_page = item.words[0].page_number
+                item_bbox = item.words[0].bbox
+
+            initials_match(item.acronym, item.definition, proper_names)
+            acronyms_with_definitions[item.acronym] = (item.definition, "official_list", item_page, item_bbox)
+
     for b in blocks:
         block = b.block
         words = block.words 
         if bibliography_re.search(block.content):
             continue
-        if block.type == "acronyms":
-            list_of_acronyms = block.content.split("\n")
-            for item in list_of_acronyms:
-                defined_acronym = split.split(item, 1)
-                if len(defined_acronym) >= 2:
-                    acronyms_with_definitions = check_position_if_new(defined_acronym[0], defined_acronym[1], words, block.block_id, acronyms_with_definitions)
-                else:
-                    continue
-        elif block.type == "list":
+        if block.type == "list":
             if block.is_bibliography:
                 continue
             for item in block.items:
@@ -168,6 +175,4 @@ def check_first_definition(blocks, proper_names):
                 for new_acronym in new_acronyms:
                     if initials_match(new_acronym[1], new_acronym[0], proper_names, block):
                         acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions)
-
-    #print(f'\n acronyms_with_definitions: \n' + '\n'.join([f'{acronym}: {acronyms_with_definitions[acronym][0]}' for acronym in acronyms_with_definitions]))
     return acronyms_with_definitions, proper_names
