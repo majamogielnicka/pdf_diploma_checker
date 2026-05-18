@@ -40,7 +40,8 @@ PL_MONTH_LONG = (
     r'|września|wrzesień|października|październik|listopada|listopad'
     r'|grudnia|grudzień'
 )
-YEAR_PATTERN = r'(?:1[6789]\d{2}|2[01]\d{2})'
+R_PATTERN = rf'(?:\s*[rR]\.?)?'
+YEAR_PATTERN = rf'(?:1[6789]\d{2}|2[01]\d{{2}}){R_PATTERN}'
 DATE_PATTERNS = {
     rf'(?i)(?<!\w)\d{{1,2}}\s+(?:{EN_MONTH_LONG})\s+{YEAR_PATTERN}\b(?!\.\d)': 'DD Month YYYY',
     rf'(?i)(?<!\w)(?:{EN_MONTH_LONG})\s+\d{{1,2}},?\s+{YEAR_PATTERN}\b(?!\.\d)': 'Month DD YYYY',
@@ -61,6 +62,7 @@ DATE_PATTERNS = {
     rf'\({YEAR_PATTERN}\)(?=[\s\.\:\;\,])': '(yyyy)',
     rf'(?:(?<=[,;]\s)|(?<=\.\s)|(?<=\s))\b{YEAR_PATTERN}\b(?=[,;:.\s]|$)(?!\.[\d\w])': 'YYYY'
 }
+
 
 PAGES_PATTERNS = {
     r'(?<![\d\.\w])pp\.[\s\:]*\d+(?:\s*[-–]\s*\d+)?': 'pp. 2 - 4',
