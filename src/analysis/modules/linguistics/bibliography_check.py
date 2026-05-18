@@ -42,7 +42,7 @@ PL_MONTH_LONG = (
     r'|grudnia|grudzień'
 )
 R_PATTERN = rf'(?:\s*[rR]\.?)?'
-YEAR_PATTERN = rf'(?:1[6789]\d{2}|2[01]\d{{2}}){R_PATTERN}'
+YEAR_PATTERN = rf'(?:1[6789]\d{{2}}|2[01]\d{{2}}){R_PATTERN}'
 DATE_PATTERNS = {
     rf'(?i)(?<!\w)\d{{1,2}}\s+(?:{EN_MONTH_LONG})\s+{YEAR_PATTERN}\b(?!\.\d)': 'DD Month YYYY',
     rf'(?i)(?<!\w)(?:{EN_MONTH_LONG})\s+\d{{1,2}},?\s+{YEAR_PATTERN}\b(?!\.\d)': 'Month DD YYYY',
@@ -56,6 +56,10 @@ DATE_PATTERNS = {
     rf'(?i)(?<!\w)(?:{PL_MONTH_SHORT})\.?\s+{YEAR_PATTERN}\b(?!\.\d)': 'mies. YYYY',
     rf'(?<![\w\/\.\-])(?<!\d\.)\d{{1,2}}/\d{{1,2}}/{YEAR_PATTERN}\b(?![\w\/\-])(?!\.\d)': 'dd/mm/yyyy',
     rf'(?<![\w\/\.\-])(?<!\d\.){YEAR_PATTERN}/\d{{1,2}}/\d{{1,2}}\b(?![\w\/\-])(?!\.\d)': 'yyyy/mm/dd',
+    rf'(?i)(?<![\w\/\.\-])(?<!\d\.)\d{{1,2}}-{PL_MONTH_LONG}-{YEAR_PATTERN}\b(?![\w\/\-])(?!\.\d)': 'dd-Miesiąc-yyyy',
+    rf'(?i)(?<![\w\/\.\-])(?<!\d\.)\d{{1,2}}-{PL_MONTH_SHORT}-{YEAR_PATTERN}\b(?![\w\/\-])(?!\.\d)': 'dd-mie-yyyy',
+    rf'(?i)(?<![\w\/\.\-])(?<!\d\.)\d{{1,2}}-{EN_MONTH_LONG}-{YEAR_PATTERN}\b(?![\w\/\-])(?!\.\d)': 'dd-Month-yyyy',
+    rf'(?i)(?<![\w\/\.\-])(?<!\d\.)\d{{1,2}}-{EN_MONTH_SHORT}-{YEAR_PATTERN}\b(?![\w\/\-])(?!\.\d)': 'dd-mon-yyyy',
     rf'(?<![\w\/\.\-])(?<!\d\.)\d{{1,2}}-\d{{1,2}}-{YEAR_PATTERN}\b(?![\w\/\-])(?!\.\d)': 'dd-mm-yyyy',
     rf'(?<![\w\/\.\-])(?<!\d\.)\b{YEAR_PATTERN}-\d{{1,2}}-\d{{1,2}}\b(?![\w\/\-])(?!\.\d)': 'yyyy-mm-dd',
     rf'(?<![\w\/\.\-])(?<!\d\.)\d{{1,2}}\.\d{{1,2}}\.{YEAR_PATTERN}\b(?![\w\/\-])(?!\.\d)': 'dd.mm.yyyy',
@@ -100,7 +104,7 @@ END_AUTHOR_PATTERNS = r'(?i)\s*(?:et al\.|i inni|i in)\s*'
 AUTHOR_PATTERNS = {
     rf'{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*\s{SURNAME_PATTERN}': 'J. Nowak',
     rf'{FULLNAME_PATTERN}(?:\s(?:{FULLNAME_PATTERN}|{SHORT_NAME_PATTERN}))*\s{SURNAME_PATTERN}': 'Jan Nowak',
-    rf'{SURNAME_PATTERN},\s{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*': 'Nowak, J.',
+    rf'{SURNAME_PATTERN},\s{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*\s*': 'Nowak, J.',
     rf'{SURNAME_PATTERN},\s{FULLNAME_PATTERN}(?:\s(?:{FULLNAME_PATTERN}|{SHORT_NAME_PATTERN}))*': 'Nowak, Jan',
     rf'{SURNAME_PATTERN}\s{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*': 'Nowak J.'
 }
@@ -190,20 +194,20 @@ def check_bibliography(blocks, producer, bibliography_dict):
 
                 bib_context.items.append(bib_item)
 
-                # print(
-                # f"{content[0]}"
-                # f"  content: {content}\n"
-                # f"  authors: {bib_item.authors}\n"
-                # f"  title: {bib_item.title}\n"
-                # f"  publisher : {bib_item.publisher}\n"
-                # f"  date : {bib_item.date}\n"
-                # f"  access_date: {bib_item.access_date}\n"
-                # f"  pages: {bib_item.pages}\n"
-                # f"  volume: {bib_item.volume}\n"
-                # f"  url: {bib_item.url}\n"
-                # f"  doi: {bib_item.doi}\n"
-                # f"  other: {bib_item.other}\n"
-            # )
+                print(
+                f"{content[0]}"
+                f"  content: {content}\n"
+                f"  authors: {bib_item.authors}\n"
+                f"  title: {bib_item.title}\n"
+                f"  publisher : {bib_item.publisher}\n"
+                f"  date : {bib_item.date}\n"
+                f"  access_date: {bib_item.access_date}\n"
+                f"  pages: {bib_item.pages}\n"
+                f"  volume: {bib_item.volume}\n"
+                f"  url: {bib_item.url}\n"
+                f"  doi: {bib_item.doi}\n"
+                f"  other: {bib_item.other}\n"
+            )
     bib_blocks = {}
     for block in blocks:
         if block.block.type == "list" and block.block.is_bibliography:
