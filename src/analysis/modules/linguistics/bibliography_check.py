@@ -7,6 +7,7 @@ pola wpisu są heurystyczie dopasowywane do kategorii.
 import re
 from .linguistics_types import Bibliography_context, Bib_item_context
 from .exeptions_check import check_quotes
+from .iso_and_bibtex_check import check_coherence_iso, check_bibtex
 
 LINKER_KEYWORDS = {
     'a', 'an', 'the', 'of', 'in', 'on', 'at', 'to', 'for', 'and', 'or', 'but',
@@ -108,7 +109,6 @@ def check_bibliography(blocks, producer, bibliography_dict):
     matches = []
     authors = bibliography_dict["people"].union(bibliography_dict["organizations"])
     bib_context = Bibliography_context(block_id=0)
-    print(authors)
     for block in blocks:
         if block.block.type == "list" and block.block.is_bibliography:
             bib_context.block_id = block.block.block_id
@@ -165,7 +165,8 @@ def check_bibliography(blocks, producer, bibliography_dict):
 
                 if 'access_date' in fields:
                     bib_item.access_date = fields['access_date'][2]
-                    bib_item.online = True
+                    #bib_item.online = True
+                    bib_item.online = bool(url_span)
 
                 if 'doi' in fields:
                     bib_item.doi = fields['doi'][2]
@@ -189,26 +190,30 @@ def check_bibliography(blocks, producer, bibliography_dict):
 
                 bib_context.items.append(bib_item)
 
-                print(
-                f"{content[0]}"
-                f"  content: {content}\n"
-                f"  authors: {bib_item.authors}\n"
-                f"  title: {bib_item.title}\n"
-                f"  publisher : {bib_item.publisher}\n"
-                f"  date : {bib_item.date}\n"
-                f"  access_date: {bib_item.access_date}\n"
-                f"  pages: {bib_item.pages}\n"
-                f"  volume: {bib_item.volume}\n"
-                f"  url: {bib_item.url}\n"
-                f"  doi: {bib_item.doi}\n"
-                f"  other: {bib_item.other}\n"
-            )
-       # matches = check_coherence_iso(blocks, matches, bib_context)
-       # if producer and re.search(r'latex|tex', producer, re.IGNORECASE):
-        #    matches = check_bibtex(blocks, matches, bib_context)
-        matches = []
-        bib_matches = []
-    return matches, bib_matches
+                # print(
+                # f"{content[0]}"
+                # f"  content: {content}\n"
+                # f"  authors: {bib_item.authors}\n"
+                # f"  title: {bib_item.title}\n"
+                # f"  publisher : {bib_item.publisher}\n"
+                # f"  date : {bib_item.date}\n"
+                # f"  access_date: {bib_item.access_date}\n"
+                # f"  pages: {bib_item.pages}\n"
+                # f"  volume: {bib_item.volume}\n"
+                # f"  url: {bib_item.url}\n"
+                # f"  doi: {bib_item.doi}\n"
+                # f"  other: {bib_item.other}\n"
+            # )
+    bib_blocks = {}
+    for block in blocks:
+        if block.block.type == "list" and block.block.is_bibliography:
+            for list_item in block.block.items:
+                bib_blocks[list_item.item_id] = block.block
+
+    matches = check_coherence_iso(matches, bib_context, bib_blocks)
+    if producer and re.search(r'latex|tex', producer, re.IGNORECASE):
+        matches = check_bibtex(matches, bib_context, bib_blocks)
+    return matches
 
 def first_match(content, patterns):
     for pattern, name in patterns.items():

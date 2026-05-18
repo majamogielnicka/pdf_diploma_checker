@@ -47,7 +47,7 @@ class Bib_item_context:
     online: bool = False
     journal: Optional[dict[str, str]] = None
     issue: Optional[dict[str, str]] = None
-    entry_type: Optional[dict[str, str]] = None
+    entry_type: Optional[str] = None
     other: Optional[str] = None
     bibtex_type: Optional[str] = None
     separator: Optional[str] = None
@@ -56,7 +56,3 @@ class Bib_item_context:
 class Bibliography_context:
     block_id: int
     items: List[Bib_item_context] = field(default_factory=list)
-    dominant_separator: Optional[str] = None
-    dominant_author_format: Optional[str] = None
-    dominant_language: Optional[str] = None
-    dominant_marker_type: Optional[str] = None
