@@ -66,7 +66,7 @@ def sentence_check(blocks):
                                 word_idxs = word_idxs,
                                 error_coordinate= error_coordinate
                                 )   
-                                if not check_quotes(match, text) and not check_if_proper(block.block, match, is_diff = True):
+                                if not check_quotes(match.offset, match.offset + match.error_length, text) and not check_if_proper(block.block, match, is_diff = True):
                                     checked_matches.append(match)
                     if token.dep_ in {'nsubj', 'nsubj:pass', 'nsubjpass', 'attr'}:
                         is_subject = True
@@ -108,7 +108,7 @@ def sentence_check(blocks):
                     error_coordinate= error_coordinate
                     )
                     #sprawdzanie czy zdanie jest cytatem, aby nie uwzględniać ich jako błędów.
-                    if not check_quotes(match, text) and not check_if_proper(block.block, match) and not definicion(block.block, word_idxs, text):
+                    if not check_quotes(match.offset, match.offset + match.error_length, text) and not check_if_proper(block.block, match) and not definicion(block.block, word_idxs, text):
                         checked_matches.append(match)
                 if passive:
                     passive_count += 1

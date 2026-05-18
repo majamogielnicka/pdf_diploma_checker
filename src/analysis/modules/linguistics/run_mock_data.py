@@ -12,7 +12,7 @@ from .proper_names import get_proper_names
 from .helpers import extract_errors_to_json, get_context
 from .first_definition import check_first_definition
 from .check_acronym import check_if_was_defined
-#from .bibliography_check import check_bibliography
+from .bibliography_check import check_bibliography
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.converter_linguistics_clean import PDFMapper
 
@@ -29,12 +29,13 @@ def run_linguistics(raw_blocks, extracted_acronyms):
     list_matches = check_coherence_in_list(blocks, proper_names, acronyms_with_definitions)
     checked_exeptions = check_exeptions(language_matches, blocks, proper_names)
     language_style_matches, sentence_analisys = sentence_check(blocks)
-    matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches 
+    bib_matches = check_bibliography(blocks, raw_blocks.metadata["producer"], bibliography_dict)
+    matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches + bib_matches
     return matches
 
 #plik pomocniczy do uruchamiania analizy bez GUI
 if __name__ == "__main__":
-    pdf_file = "data/most_important/jabi.pdf"
+    pdf_file = "data/jabi.pdf"
     try:
         document = extractPDF(str(pdf_file))
         mapper = PDFMapper()
