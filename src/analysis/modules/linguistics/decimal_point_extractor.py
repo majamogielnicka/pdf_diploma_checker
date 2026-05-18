@@ -12,46 +12,57 @@ def decimal_check(blocks):
     checked_matches = []
     chapter_numbers = set()
     for block in blocks:
+        if block.block.type in {"math", "code_snippet", "toc", "tot", "tof"}:
+            continue
+        if block.block.type == "list":
+            if block.block.is_bibliography == True:
+                continue
+        if block.language == 'pl':
+            regex = r'(?<![\d.a-zA-Z])\d+\.\d+(?!\.?\d)'
+        else:
+            regex = r'(\d+,(?!\d{3}(?!\d))\d+)'
+        potential_matches = []
+        text = block.contents
+        regexes = list(re.finditer(regex, text))
+        for reg in regexes:
+            start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
+            potential_matches.append(Error_type(
+                content=text[reg.start():reg.end()],
+                category= "DECIMAL",
+                message= "",
+                offset= reg.start(),
+                error_length=reg.end() - reg.start(),
+                block_id = block.block.block_id,
+                page_start = start_page,
+                page_end = end_page,
+                word_idxs = word_idxs,
+                error_coordinate= error_coordinate,
+            ))
         if block.block.type == 'paragraph':
-            if block.language == 'pl':
-                regex = r'(?<![\d.a-zA-Z])\d+\.\d+(?!\.?\d)'
-            else:
-                regex = r'(\d+,(?!\d{3}(?!\d))\d+)'
-            potential_matches = []
-            text = block.contents
-            regexes = list(re.finditer(regex, text))
-            for reg in regexes:
-                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, reg.start(), reg.end()- reg.start())
-                potential_matches.append(Error_type(
-                    content=text[reg.start():reg.end()],
-                    category= "DECIMAL",
-                    message= "",
-                    offset= reg.start(),
-                    error_length=reg.end() - reg.start(),
-                    block_id = block.block.block_id,
-                    page_start = start_page,
-                    page_end = end_page,
-                    word_idxs = word_idxs,
-                    error_coordinate= error_coordinate,
-                ))
-            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers)
+            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 1)
             checked_matches.extend(checked_match)
-            counter += decimal_counter
+        else:
+            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 2)
+            checked_matches.extend(checked_match)
+        counter += decimal_counter
+
     return checked_matches, counter
 
-def check_decimal_matches(potential_matches, block, chapter_numbers):
+def check_decimal_matches(potential_matches, block, chapter_numbers, error_tolerance):
     decimal_counter = 0
     black_list = {"%", "$", "€", "£", "zł", "usd", "eur", "gbp", "°"}
-    #for now set with declensions, it's faster than using spacy.
-    #once all headers and footers will be extracted, list of chapters and attachments
-    white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "wykres", "wykresu", "wykresom", "wykresowi", "wykresie", "wykresach", "rozdziale", "rozdział", "rozdziały", "rozdziałów"}
+    white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "tabelach", "tab",
+                     "wykres", "wykresu", "wykresom", "wykresowi", "wykresem", "wykresie", "wykresach", "wyk", "rozdziale", "rozdział", "rozdziały", "rozdziału", "rozdziałem", "rozdziałach", "roz", "rozdz", "rozdziałów", 
+                     "obraz", "obr", "obrazie", "obrazu", "obrazowi", "obrazach", "obrazem","obrazom", 
+                     "wzór", "wzoru", "wzorowi", "wzory", "wzorom", "wzorach", "wzorami", "wzorem", "wzorze"
+                     "równanie", "równaniu", "równaniach", "równaniami", "równaniom", "równania", "równaniem", "rów"}
     checked_matches = []
     for match in potential_matches: 
-        is_error = 1 #zero for excluded, 1 for supposed but can not be fully certain, 2 for certain mistake.
+        is_error = 1 #0 - brak błędu, 1 - potencjalny błąd, 1 - potencjalny błąd, 2 - pewny błąd.
         match_end = match.offset + match.error_length
         after_text = block.contents[match_end:].lstrip()
         before_text = block.contents[:match.offset].rstrip()
-        if re.match(r'[^.\d]*\.[ .]{4,}', after_text):
+        if re.match(r'[^.\d]*\.[ .]{4,}', block.contents):
             chapter_numbers.add(match.content)
             continue 
         if match.content in chapter_numbers:
@@ -77,7 +88,7 @@ def check_decimal_matches(potential_matches, block, chapter_numbers):
         elif block.block.type == "heading" and match.word_idxs and (match.word_idxs[0] == 0 or match.word_idxs[0] == 1):
             is_error = 0
 
-        if is_error>0:
+        if is_error>= error_tolerance:
             if is_error == 2:
                 error_message = "Niepoprawny separator dziesiętny"
             else:

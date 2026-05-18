@@ -64,7 +64,7 @@ def language_tool_analisys(blocks):
 
     errors = []
     for block in blocks:
-        if block.block.type not in {"acronym", "keywords"}:
+        if block.block.type not in {"acronyms", "keywords", "math", "code_snippet", "toc", "tof", "tot"}:
             if block.block.type == "list":
                 if block.block.is_bibliography == True:
                     continue
@@ -79,7 +79,7 @@ def language_tool_analisys(blocks):
                         continue
                     elif not any(letter.isalpha() for letter in match.matched_text):
                         continue
-                if match.category == "TYPOS" or match.category == "SPELLING":
+                if match.category in {"TYPOS", "SPELLING", "COMPOUNDING"}:
                     word = contents[match.offset:match.offset + match.error_length]
                     if text_language == 'pl':
                         if typo_check(word):
