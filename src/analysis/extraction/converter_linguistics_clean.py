@@ -8,7 +8,7 @@ import statistics
 import fitz  # PyMuPDF
 from typing import Dict
 
-from analysis.extraction.schema import (
+from src.analysis.extraction.schema import (
     FinalDocument, ParagraphBlock, ListBlock, ListItem, 
     WordInfo, VisualElement, FloatingElements, ReferenceSections,
     classify_block_content, strip_list_marker, AcronymItem
@@ -19,8 +19,8 @@ from analysis.extraction.schema import (
 #    WordInfo, VisualElement, FloatingElements, ReferenceSections,
 #    classify_block_content, strip_list_marker
 #)
-from analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
-from analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
+from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
+from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
 
 
 #from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
@@ -270,6 +270,12 @@ class PDFMapper:
         is_new_paragraph = False
         debug_reason = ""
 
+        finished = True
+        if full_text.strip():
+            finished = full_text.strip()[-1] in {'.', '!', '?', ':', ';'}
+        elif self.paragraph_buffer:
+            finished = self.paragraph_buffer[-1]['content'].strip()[-1] in {'.', '!', '?', ':', ';'}
+
         # Wertykalna przerwa
         if self.last_y1 is not None:
             if current_y0 < self.last_y1 - 10:
@@ -278,16 +284,22 @@ class PDFMapper:
                 vertical_gap = current_y0 - self.last_y1
                 line_height = current_y1 - current_y0
                 if vertical_gap > line_height * 1.5:
-                    is_new_paragraph = True
-                    debug_reason = "zbyt duża wertykalna przerwa"
+                    if not finished:
+                        is_new_paragraph = False 
+                    else:
+                        is_new_paragraph = True
+                        debug_reason = "zbyt duża wertykalna przerwa"
         
         self.last_y1 = current_y1
 
         # Wcięcie akapitowe 
         if not is_new_paragraph:
             if not full_text.strip() and (line_x0 > x0_margin + self.MARGIN_INDENT_THRESH):
-                is_new_paragraph = True
-                debug_reason = "wcięcie na początku bloku/strony"
+                if not finished:
+                    is_new_paragraph = False # Ratujemy! Zignoruj fałszywe wcięcie (np. lustrzane)
+                else:
+                    is_new_paragraph = True
+                    debug_reason = "wcięcie na początku bloku/strony"
 
         if is_valid_list_cont:
             is_new_paragraph = False
@@ -398,6 +410,7 @@ class PDFMapper:
         return new_doc
 
     def _process_page(self, page, new_doc):
+        #self.last_y1 = None
         bottom_thresh = page.height - self.BOTTOM_MARGIN_OFFSET
         table_bboxes = [t.bbox for t in page.tables]
         
@@ -450,6 +463,8 @@ class PDFMapper:
                     continue
                 
                 tmp_line_text = "".join(s.text for s in line.spans).strip()
+                if not tmp_line_text:
+                    continue
                 line_type, _ = classify_block_content(tmp_line_text, current_marker)
                 
                 if line_type == "list" and full_text.strip():
