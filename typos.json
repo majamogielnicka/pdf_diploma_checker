@@ -1,0 +1,294 @@
+{
+    "before_total": 1438,
+    "resolved_typos": [
+        {
+            "original_typo": "tworz",
+            "resolved_as": "tworzę",
+            "context": "...cj ę stylu wizualnego oraz det[tworz]ę artefaktów anatomicznych. Dz...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "poł",
+            "resolved_as": "poła",
+            "context": "... jest wrażliwy na jakość dział[poł]a poszczególnych modułów, szcz...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "dyfuzyjn",
+            "resolved_as": "dyfuzyjnej",
+            "context": "...przedstawionej na rysunku C.3.[dyfuzyjn]ej rozpoznawane s ą klasy foto...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "wizualn",
+            "resolved_as": "wizualną",
+            "context": "..., natomiast najsłabsze wyniki [wizualn]ą klasy anime. W przypadku ani...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "EﬃcientNet",
+            "resolved_as": "EﬃcientNet0",
+            "context": "...[EﬃcientNet] 0 . 55 , IR= 0 . 28 , 푛퐴  = 4...",
+            "language": "en"
+        },
+        {
+            "original_typo": "konwolucyjnych",
+            "resolved_as": "28konwolucyjnych",
+            "context": "...b) 푄  = − 0 . 55 , IR= 0 . 28 [konwolucyjnych]푒푛  = 2 . 83 . photorealistic ...",
+            "language": "en"
+        },
+        {
+            "original_typo": "ąt",
+            "resolved_as": "Tąt",
+            "context": "...: get_transforms(is_training=T[ąt]e/False) Dla treningu aktywne ...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ędy",
+            "resolved_as": "3ędy",
+            "context": "...(e) Q=3.[ędy] IR=1.31, pen=0.00, nA=0. phot...",
+            "language": "en"
+        },
+        {
+            "original_typo": "nA",
+            "resolved_as": "polnA",
+            "context": "...ena zgodności semantycznej pol[nA]ała na sprawdzeniu, na ile wyg...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "nA",
+            "resolved_as": "00nA",
+            "context": "...e) Q=3.31, IR=1.31, pen=0.00, [nA]=0. photorealistic (100%). On ...",
+            "language": "en"
+        },
+        {
+            "original_typo": "nA",
+            "resolved_as": "nAtora",
+            "context": "...dy poprawnych predykcji klasyﬁ[nA]tora stylu dla obrazów wygener...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "nA",
+            "resolved_as": "4nA",
+            "context": "... 0 . 55 , IR= 0 . 28 , 푛퐴  = 4[nA]  푝푒푛  = 2 . 83 . photorealist...",
+            "language": "en"
+        },
+        {
+            "original_typo": "ędów",
+            "resolved_as": "błędów",
+            "context": "...styczne, nie jest wolny od bł [ędów]. W niektórych przypadkach mod...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ędnie",
+            "resolved_as": "błędnie",
+            "context": "...natomiczne z artefaktami i bł [ędnie] klasyﬁkować je jako defekty, ...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "SDXL-Turbo",
+            "resolved_as": "SDXL-Turbo2024",
+            "context": "...10.10.2025. Stability AI. AI. [SDXL-Turbo]. . 2024. Online: https://hugg...",
+            "language": "en"
+        },
+        {
+            "original_typo": "Imagen",
+            "resolved_as": "Imagen3",
+            "context": "...801.01401. . Google DeepMind. [Imagen] 3 - Text-to-Image Model on Ve...",
+            "language": "en"
+        },
+        {
+            "original_typo": "Appli-cations",
+            "resolved_as": "Appli-cations35",
+            "context": "...”. W: W: Neural Computing and [Appli-cations] 35 (2023), s. 1–15. R. Geirho...",
+            "language": "en"
+        },
+        {
+            "original_typo": "ICLR",
+            "resolved_as": "ICLR2019",
+            "context": "... on Learning Representations ([ICLR]). . 2019. Online: https://arx...",
+            "language": "en"
+        },
+        {
+            "original_typo": "Ultralytics",
+            "resolved_as": "UltralyticsYOLOv8",
+            "context": "...abs/2002.12054. . G. Jocher i [Ultralytics]. YOLOv8: State-of-the-Art Obj...",
+            "language": "en"
+        },
+        {
+            "original_typo": "Lykon",
+            "resolved_as": "06991Lykon",
+            "context": "...//arxiv.org/abs/1904.06991. . [Lykon]. DreamShaper XL Lightning. 20...",
+            "language": "en"
+        },
+        {
+            "original_typo": "OpenGenus",
+            "resolved_as": "2025OpenGenus",
+            "context": "...-3. Data dostępu: 11.10.2025. [OpenGenus]. Types of GANs. 2025. Online:...",
+            "language": "en"
+        },
+        {
+            "original_typo": "SemiEngineering",
+            "resolved_as": "4520SemiEngineering",
+            "context": "...n (CVPR). 2018, s. 4510–4520. [SemiEngineering]. Generative Adversarial Netwo...",
+            "language": "en"
+        },
+        {
+            "original_typo": "MultiMedia",
+            "resolved_as": "MultiMedia32",
+            "context": "...eneration: A Survey”. W: IEEE [MultiMedia] 32.2 (2025), s. 44–52. K. Vij...",
+            "language": "en"
+        },
+        {
+            "original_typo": "py",
+            "resolved_as": "pyty",
+            "context": "...iale opisano implementację i t[py]ty komponentów pipeline’u ocen...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "py",
+            "resolved_as": "py4",
+            "context": "...  = − 0 . 55 , IR= 0 . 28 , 푛퐴[py]= 4 ,  푝푒푛  = 2 . 83 . photore...",
+            "language": "en"
+        },
+        {
+            "original_typo": "ędzy",
+            "resolved_as": "między",
+            "context": "...jnym. Brak dużego rozjazdu mi [ędzy] krzywymi sugeruje poprawn ą g...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "poprawn",
+            "resolved_as": "poprawną",
+            "context": "...zdu mi ędzy krzywymi sugeruje [poprawn] ą generalizacj ę, a najlepszy...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "generalizacj",
+            "resolved_as": "generalizację",
+            "context": "...y krzywymi sugeruje poprawn ą [generalizacj] ę, a najlepszy wynik walidacy...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "trenigowa",
+            "resolved_as": "trenigowa2",
+            "context": "...− 0 . 55 , IR= 0 . 28 , 푛퐴  = [trenigowa] = 2 . 83 . photorealistic (10...",
+            "language": "en"
+        },
+        {
+            "original_typo": "ęste",
+            "resolved_as": "częste",
+            "context": "...ypadku anime widoczne jest cz [ęste] mylenie tej klasy ze stylem a...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ędnych",
+            "resolved_as": "błędnych",
+            "context": "...ze. Przykłady poprawnych i bł [ędnych] predykcji pokazano odpowiedni...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ędne",
+            "resolved_as": "Błędne",
+            "context": "...na rysunkach C.4 oraz C.5. Bł [ędne] klasyﬁkacje dotycz ą głównie ...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ąc",
+            "resolved_as": "Podsumowując",
+            "context": "...a do jednej klasy. Podsumowuj [ąc], klasyﬁkator dobrze rozpoznaj...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "modułow",
+            "resolved_as": "modułową",
+            "context": "...mage. Podejście ma struktur ę [modułow] ą i ł ączy trzy elementy: oce...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ączy",
+            "resolved_as": "łączy",
+            "context": "...e ma struktur ę modułow ą i ł [ączy] trzy elementy: ocen ę zgodnoś...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "detekcj",
+            "resolved_as": "detekcję",
+            "context": "...ﬁkacj ę stylu wizualnego oraz [detekcj] ę artefaktów anatomicznych. D...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "Dzi",
+            "resolved_as": "Dzięki",
+            "context": "...j ę artefaktów anatomicznych. [Dzi] ęki agregacji wyników modułów...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ęki",
+            "resolved_as": "Dzięki",
+            "context": "...artefaktów anatomicznych. Dzi [ęki] agregacji wyników modułów sys...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "końcow",
+            "resolved_as": "końcową",
+            "context": "...w system zwraca jedn ą ocen ę [końcow] ą, a jednocześnie pozwala wsk...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "wzgl",
+            "resolved_as": "względem",
+            "context": "...lepiej różnicowała obrazy pod [wzgl] ędem dopasowania do promptu n...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ędem",
+            "resolved_as": "względem",
+            "context": "...j różnicowała obrazy pod wzgl [ędem] dopasowania do promptu niż CL...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ęta",
+            "resolved_as": "przyjęta",
+            "context": "...PScore, dlatego została przyj [ęta] jako główna metryka semantycz...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "najwi",
+            "resolved_as": "największe",
+            "context": "...ny i abstrakcyjny), natomiast [najwi] ększe problemy dotyczyły obra...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ększe",
+            "resolved_as": "największe",
+            "context": "...bstrakcyjny), natomiast najwi [ększe] problemy dotyczyły obrazów o ...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ęsto",
+            "resolved_as": "często",
+            "context": "...w klasie anime, która była cz [ęsto] mylona ze stylem artystycznym...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "końcow",
+            "resolved_as": "końcową",
+            "context": "...ość predykcji, co wpływało na [końcow] ą ocen ę jakości. W detekcji ...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "pomini",
+            "resolved_as": "pominięcia",
+            "context": "...omyłki (fałszywe detekcje lub [pomini] ęcia) s ą w praktyce trudne d...",
+            "language": "pl"
+        },
+        {
+            "original_typo": "ęcia",
+            "resolved_as": "pominięcia",
+            "context": "...(fałszywe detekcje lub pomini [ęcia]) s ą w praktyce trudne do cał...",
+            "language": "pl"
+        }
+    ],
+    "after_total": 1390
+}

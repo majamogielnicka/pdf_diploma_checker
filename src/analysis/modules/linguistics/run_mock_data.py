@@ -15,6 +15,7 @@ from .check_acronym import check_if_was_defined
 #from .bibliography_check import check_bibliography
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.extraction.converter_linguistics_clean import PDFMapper
+from .typos_final_filter import refine_typos ### DODANE
 
 def run_linguistics(raw_blocks):
     blocks = get_context(raw_blocks)
@@ -25,6 +26,7 @@ def run_linguistics(raw_blocks):
     decimal_matches, decimal_counter = decimal_check(blocks)
     dash_matches, dash_counter = dash_check(blocks)
     language_matches, whitespace_counter = language_tool_analisys(blocks)
+    language_matches = refine_typos(language_matches, blocks) ### DODANE
     list_matches = check_coherence_in_list(blocks, proper_names, acronyms_with_definitions)
     checked_exeptions = check_exeptions(language_matches, blocks, proper_names)
     language_style_matches, sentence_analisys = sentence_check(blocks)

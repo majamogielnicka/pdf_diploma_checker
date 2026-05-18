@@ -109,7 +109,7 @@ def language_tool_analisys(blocks):
                     page_end = end_page,
                     word_idxs = word_idxs,
                     error_coordinate= error_coordinate,
-                ))
+                ))        
     return errors, whitespace_counter
 
 def pl_typo_check(typo_text):
