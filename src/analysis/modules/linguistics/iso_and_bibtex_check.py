@@ -23,47 +23,34 @@ def get_format(field):
         return None
     return next(iter(field.values()), None)
 
-def check_order(block, matches, item):
+def check_order(item):
     
-    expected_order = {
-    "article":       ["authors", "journal", "volume", "date", "pages"],
-    "book":          ["authors", "publisher", "date"],
-    "inproceedings": ["authors", "date"],
-    "online":        ["authors", "url", "access_date"],
-    None:            ["authors", "date"],
-    }
-
-    Category_and_message = {
-        "WRONG_ORDER_ISO": "Wpis w bibliografii jest w złej kolejności.",
-    }
     text = item.content
     positions = {}
-
-    if item.authors and get_text(item.authors): positions['authors'] = text.find(get_text(item.authors))
-    if item.title and get_text(item.title): positions['title'] = text.find(get_text(item.title))
-    if item.date and len(item.date) > 0 and get_text(item.date[0]): positions['date'] = text.find(get_text(item.date[0]))
-    if getattr(item, 'journal', None) and get_text(item.journal): positions['journal'] = text.find(get_text(item.journal))
-    if item.volume and get_text(item.volume): positions['volume'] = text.find(get_text(item.volume))
-    if item.pages and get_text(item.pages): positions['pages'] = text.find(get_text(item.pages))
-    if item.url and get_text(item.url): positions['url'] = text.find(get_text(item.url))
-    if item.access_date and get_text(item.access_date): positions['access_date'] = text.find(get_text(item.access_date))
-    if item.book_title and get_text(item.book_title): positions['book_title'] = text.find(get_text(item.book_title))
-    if item.publisher and get_text(item.publisher): positions['publisher'] = text.find(get_text(item.publisher))
-
-    positions = {k: v for k, v in positions.items() if v != -1}
     
-    if not positions:
-        return matches
+    field_map = {
+        'authors':    get_text(item.authors) if item.authors else None,
+        'title':      get_text(item.title) if item.title else None,
+        'journal':    get_text(getattr(item, 'journal', None)),
+        'volume':     get_text(item.volume) if item.volume else None,
+        'pages':      get_text(item.pages) if item.pages else None,
+        'publisher':  get_text(item.publisher) if item.publisher else None,
+        'book_title': get_text(item.book_title) if item.book_title else None,
+        'url':        get_text(item.url) if item.url else None,
+        'access_date':get_text(item.access_date) if item.access_date else None,
+    }
+    if item.date and len(item.date) > 0:
+        field_map['date'] = get_text(item.date[0])
 
-    actual_order = sorted(positions.keys(), key=lambda k: positions[k])
-    expected_order = expected_order.get(item.bibtex_type, expected_order[None])
-    expected_present = [elem for elem in expected_order if elem in actual_order]
-    
-    actual_filtered = [k for k in actual_order if k in expected_present]
-    if actual_filtered != expected_present:
-        matches = check_item_words(matches, item, block, "WRONG_ORDER_ISO", Category_and_message["WRONG_ORDER_ISO"], text)
+    min_len = 4
 
-    return matches
+    for name, val in field_map.items():
+        if val and len(val) >= min_len:
+            pos = text.find(val)
+            if pos != -1:
+                positions[name] = pos
+
+    return tuple(sorted(positions.keys(), key=lambda k: positions[k]))
 
 def get_field_separator(item):
 
@@ -100,9 +87,6 @@ def get_field_separator(item):
 
 def check_iso(matches, item, block):
 
-    # if item.item.marker_type == "number_in_brackets":
-    #     return matches
-
     Category_and_message = {
         "MISSING_FINAL_DOT": "Nie zastosowano kropki na końcu wpisu.",
     }
@@ -124,8 +108,6 @@ def check_iso(matches, item, block):
             dominant_separator = Counter(separators).most_common()[0][0]
             if dominant_separator != dominant_author_separator:
                 item.separator = dominant_separator
-    
-    check_order(block, matches, item)
 
     return matches
 
@@ -138,30 +120,30 @@ def add_bibtex_type(Bib_context):
     }
 
     for item in Bib_context.items:
-        has_url         = bool(item.url and get_text(item.url))
+        has_url = bool(item.url and get_text(item.url))
         has_access_date = bool(item.access_date and get_text(item.access_date))
-        has_pub_date    = bool(item.date and len(item.date) > 0 and get_text(item.date[0]))
-        has_journal     = bool(getattr(item, 'journal', None) and get_text(item.journal))
+        has_pub_date = bool(item.date and len(item.date) > 0 and get_text(item.date[0]))
+        has_journal = bool(getattr(item, 'journal', None) and get_text(item.journal))
         
         publisher_text = get_text(item.publisher) or ""
-        publisher_fmt  = get_format(item.publisher) if item.publisher else None
-        publisher_is_journal     = publisher_fmt == 'italic' and not has_url
+        publisher_fmt = get_format(item.publisher) if item.publisher else None
+        publisher_is_journal = publisher_fmt == 'italic' and not has_url
         publisher_is_proceedings = (
             publisher_is_journal and
             any(kw in publisher_text.lower() for kw in keywords)
         )
 
-        if has_journal or publisher_is_journal:
-            item.bibtex_type = "article"
-            if not getattr(item, 'journal', None):
-                item.journal = item.publisher
-                item.publisher = None
-        elif publisher_is_proceedings:
+        if publisher_is_proceedings:
             item.bibtex_type = "inproceedings"
             if not getattr(item, 'book_title', None):
                 item.book_title = item.publisher
                 item.publisher = None
-        elif getattr(item, 'online', False) or (has_url and not has_pub_date):
+        elif has_journal or publisher_is_journal and not has_url :
+            item.bibtex_type = "article"
+            if not getattr(item, 'journal', None):
+                item.journal = item.publisher
+                item.publisher = None
+        elif getattr(item, 'online', False) or has_url:
             item.bibtex_type = "online"
             if not getattr(item, 'journal', None):
                 item.journal = item.publisher
@@ -178,12 +160,12 @@ def add_bibtex_type(Bib_context):
             elif "journal" in raw_text or "transactions" in raw_text or "letters" in raw_text or re.search(r'\d+\(\d+\)', raw_text):
                 item.bibtex_type = "article"
             else:
-                item.bibtex_type = "None"
+                item.bibtex_type = None
 
 def check_bibtex(matches, Bib_context, bib_blocks):
     
     Category_and_message = {
-        "WRONG_BIBTEX_TYPE": "Nie udało się sklasyfikować wpisu w bibliografii.",
+        "WRONG_BIBTEX_TYPE": "Nieznany typ wpisu w bibliografii.",
         "MISSING_BIBTEX_FIELD": "Brakuje wymaganego pola dla tego typu wpisu BibTeX.",
     }
     required_fields_per_type = {
@@ -191,6 +173,7 @@ def check_bibtex(matches, Bib_context, bib_blocks):
         "book": ["authors", "publisher", "date"],
         "inproceedings": ["authors", "date"],
         "online": ["url"], 
+        None: [], 
     }
 
     add_bibtex_type(Bib_context)
@@ -226,7 +209,7 @@ def check_bibtex(matches, Bib_context, bib_blocks):
 def check_item(matches, item, block):
 
     Category_and_message = {
-        "MISSING_OBLIGATORY": "Brakuje autorów, tytułu lub daty.",
+        "MISSING_OBLIGATORY": "We wpisie brakuje pól wymaganych (autor, tytuł lub data)",
         "MISSING_PUBLISHER": "Brakuje wydawcy dla pozycji książkowej.",
         "MISSING_ONLINE": "Brakuje pól obowiązkowych dla prac online.",
         "MISSING_PAGES": "Brakuje stron dla artykułu.",
@@ -243,7 +226,7 @@ def check_item(matches, item, block):
     if item.bibtex_type =="book" and (not item.publisher or not get_text(item.publisher)):
         matches = check_item_words(matches, item, block, "MISSING_PUBLISHER", Category_and_message["MISSING_PUBLISHER"], text)
 
-    if item.online:
+    if item.bibtex_type == "online":
         if not item.access_date or not get_text(item.access_date):
             matches = check_item_words(matches, item, block, "MISSING_ONLINE", Category_and_message["MISSING_ONLINE"], text)
         if not get_text(item.url) and not get_text(item.doi) and not get_text(item.publisher):
@@ -278,11 +261,12 @@ def check_item(matches, item, block):
 def check_coherence_iso(matches, Bib_context, bib_blocks):
 
     Category_and_message = {
-        "SEPARATOR_COHERENCE": "Niespójna forma separatora we wpisach w bibliografii.",
-        "AUTHOR_FORMAT_COHERENCE": "Niespójny format autorów we wpisach w bibliografii.",
-        "DATE_FORMAT_COHERENCE": "Niespójny format dat we wpisach w bibliografii.",
-        "TITLE_FORMAT_COHERENCE": "Niespójny format tytułów we wpisach w bibliografii.",
-        "DATE_POSITION_COHERENCE": "Niespójna pozycja daty we wpisach w bibliografii.",
+        "SEPARATOR_COHERENCE": "Niespójna forma separatora pól wpisu z pozostałymi wpisami bibliografii.",
+        "AUTHOR_FORMAT_COHERENCE": "Niespójny format autorów wpisu z pozostałymi wpisami bibliografii.",
+        "DATE_FORMAT_COHERENCE": "Niespójny format dat wpisu z pozostałymi wpisami bibliografii.",
+        "TITLE_FORMAT_COHERENCE": "Niespójny format tytułów wpisu z pozostałymi wpisami bibliografii.",
+        "DATE_POSITION_COHERENCE": "Niespójna pozycja daty wpisu z pozostałymi wpisami bibliografii.",
+        "WRONG_ORDER_ISO": "Kolejność bądź formatowanie pól we wpisie niespójna z resztą bibliografii.",
     }
 
     add_bibtex_type(Bib_context)
@@ -290,6 +274,7 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
     date_formats, title_formats = {}, {}
     date_positions = {}
     marker_types = []
+    field_order = {}
 
     for item in Bib_context.items:
         block = bib_blocks.get(item.item.item_id)
@@ -317,12 +302,17 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
         if item.item.marker_type:
             marker_types.append(item.item.marker_type)
 
-    dominant_separator    = {t: Counter(v).most_common(1)[0][0] for t, v in separators.items()}
-    dominant_author_fmt   = {t: Counter(v).most_common(1)[0][0] for t, v in author_formats.items()}
-    dominant_date_fmt     = {t: Counter(v).most_common(1)[0][0] for t, v in date_formats.items()}
-    dominant_title_fmt    = {t: Counter(v).most_common(1)[0][0] for t, v in title_formats.items()}
-    dominant_date_pos     = {t: Counter(v).most_common(1)[0][0] for t, v in date_positions.items()}
-    dominant_marker       = Counter(marker_types).most_common(1)[0][0] if marker_types else None
+        order = check_order(item)
+        if order:
+            field_order.setdefault(t, []).append(order)
+
+    dominant_separator = {t: Counter(v).most_common(1)[0][0] for t, v in separators.items()}
+    dominant_author_fmt = {t: Counter(v).most_common(1)[0][0] for t, v in author_formats.items()}
+    dominant_date_fmt = {t: Counter(v).most_common(1)[0][0] for t, v in date_formats.items()}
+    dominant_title_fmt = {t: Counter(v).most_common(1)[0][0] for t, v in title_formats.items()}
+    dominant_date_pos = {t: Counter(v).most_common(1)[0][0] for t, v in date_positions.items()}
+    dominant_marker = Counter(marker_types).most_common(1)[0][0] if marker_types else None
+    dominant_order = {t: Counter(v).most_common(1)[0][0] for t, v in field_order.items()}
 
     for item in Bib_context.items:
         block = bib_blocks.get(item.item.item_id)
@@ -336,7 +326,9 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
                 matches = check_item_words(matches, item, block, "SEPARATOR_COHERENCE", Category_and_message["SEPARATOR_COHERENCE"], item.content)
 
         author_fmt = get_format(item.authors)
-        if author_fmt and author_fmt not in ('different', 'Jan Nowak') and t in dominant_author_fmt:
+        if dominant_author_fmt[t] == 'Jan Nowak' and author_fmt == dominant_author_fmt[t] and author_fmt in {'Nowak J.', 'Nowak, J.'}:
+            pass
+        elif author_fmt and author_fmt not in ('different', 'Jan Nowak') and t in dominant_author_fmt:
             if author_fmt != dominant_author_fmt[t]:
                 matches = check_item_words(matches, item, block, "AUTHOR_FORMAT_COHERENCE", Category_and_message["AUTHOR_FORMAT_COHERENCE"], item.content)
 
@@ -384,8 +376,15 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
                         if not title_text.startswith('(') and len(title_text) > 10:
                             matches = check_item_words(matches, item, block, "TITLE_FORMAT_COHERENCE", Category_and_message["TITLE_FORMAT_COHERENCE"], item.content)
 
+        if t in dominant_order:
+            item_order = check_order(item)
+            dom = dominant_order[t]
+            common_fields = [f for f in dom if f in item_order]
+            item_filtered = [f for f in item_order if f in common_fields]
+            if item_filtered != common_fields:
+                matches = check_item_words(matches, item, block, "WRONG_ORDER_ISO", Category_and_message["WRONG_ORDER_ISO"], item.content)
+
         if getattr(item, 'date_position', None) and t in dominant_date_pos and not getattr(item, 'online', False):
             if item.date_position != dominant_date_pos[t]:
                 matches = check_item_words(matches, item, block, "DATE_POSITION_COHERENCE", Category_and_message["DATE_POSITION_COHERENCE"], item.content)
-
     return matches
