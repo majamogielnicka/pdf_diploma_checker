@@ -12,7 +12,7 @@ def potential_acronym(text):
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
     "STRESZCZENIE", "ABSTRACT", "SŁOWA", "KLUCZOWE",
     "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS",
-    "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA",
+    "ENGINEERING", "THESIS", "UNIVERSITY", "POLITECHNIKA", "OECD"
     "WSTĘP", "CEL", "PRACY", "TEORIA", "PRZEGLĄD", "ROZWIĄZAŃ", "OPIS", 
     "WYNIKI", "ZAKOŃCZENIE", "DODATEK", "INSTRUKCJA", "PROGRAMISTY", 
     "DYPLOMU", "UŻYTKOWNIKA", "BIBLIOGRAFIA", "SPIS", "TREŚCI", "RYSUNKÓW", 
@@ -31,8 +31,8 @@ def potential_acronym(text):
         return False
     if clean_text.isupper() and any(char.isalpha() for char in clean_text):
         return True
-    # if any(char.isupper() for char in clean_text[1:]) and not clean_text[0].isupper():
-    #     return True
+    if (not clean_text[0].isupper() and sum(1 for c in clean_text if c.isupper()) >= 2):
+        return True
     if text.startswith("(") and text.endswith(")"):
         inner = text[1:-1]
         if inner.isupper() and len(inner) >= 2:
@@ -56,6 +56,8 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
     
     for b in blocks:
         block = b.block
+        if block.type in {"math", "code_snippet", "toc", "tot", "tof"}:
+            continue
         if block.type in {"paragraph", "list", "heading"}:
             if block.type == "list" and block.is_bibliography:
                 continue   
@@ -89,14 +91,11 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                     if (page, word.bbox[1], word.bbox[0]) < (acronym_page, acronym_bbox[1], acronym_bbox[0]):
                         if clean_text not in reported_acronyms:
                             reported_acronyms.add(clean_text)
-                            #print(f"Acronym: " + clean_text + "\n")
                             proper_names.append((clean_text, clean_text))
                             matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))
                 else:
                     if clean_text not in reported_acronyms:
                         reported_acronyms.add(clean_text)
-                        #print(f"Acronym: " + clean_text + "\n")
                         proper_names.append((clean_text, clean_text))
-                        matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))   
-    
+                        matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))
     return matches, proper_names
