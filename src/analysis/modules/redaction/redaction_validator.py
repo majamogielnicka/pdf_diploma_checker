@@ -604,15 +604,64 @@ class RedactionValidator:
     
     def check_footers(self):
         first_chapter_page = None
+
+        keywords = [
+            "streszczenie", "abstract", "wstęp", "wstep", "introduction",
+            "spis treści", "spis tresci", "table of contents", "table of content", "toc",
+            "spis rysunków", "spis rysunkow", "list of figures", "tof",
+            "spis tabel", "spis tablic", "list of tables", "tot",
+            "wykaz skrótów", "wykaz skrotow", "list of abbreviations"
+        ]
+
+        font_sizes = []
+        for page in self.document_data.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    for span in line.spans:
+                        if span.text and span.text.strip() and hasattr(span, "size"):
+                            font_sizes.append(span.size)
         
-        if self.document_data_linguistics and self.document_data_linguistics.logical_blocks:
-            for block in self.document_data_linguistics.logical_blocks:
-                if getattr(block, "type", "") == "heading" and block.words:
-                    first_word = block.words[0]
-                    page_num = getattr(first_word, "page_number", None)
-                    if page_num is not None:
-                        first_chapter_page = page_num
-                        break 
+        main_font_size = 12.0
+        if font_sizes:
+            font_sizes.sort()
+            main_font_size = font_sizes[len(font_sizes) // 2]
+
+        for page in self.document_data.pages:
+            if page.number > 10:
+                break
+
+            line_counter = 0
+            found_keyword = False
+            
+            for block in page.text_blocks:
+                for line in block.lines:
+                    line_text_lower = ""
+                    max_span_size = 0.0
+                    
+                    for span in line.spans:
+                        if span.text:
+                            line_text_lower += span.text.lower() + " "
+                            if hasattr(span, "size") and span.size > max_span_size:
+                                max_span_size = span.size
+                    
+                    line_text_lower = line_text_lower.strip()
+                    if not line_text_lower:
+                        continue
+                        
+                    line_counter += 1
+                    
+                    if line_counter <= 4:
+                        if max_span_size >= (main_font_size + 1.5):
+                            if any(word == line_text_lower or line_text_lower.startswith(word) for word in keywords):
+                                found_keyword = True
+                                break
+                if found_keyword:
+                    break
+            
+            if found_keyword:
+                if page.number > 0:
+                    first_chapter_page = page.number
+                    break
 
         if first_chapter_page is None and self.document_data.toc and self.document_data.toc.entries:
             first_chapter_page = self.document_data.toc.entries[0].page
@@ -623,7 +672,7 @@ class RedactionValidator:
             for block in page.text_blocks:
                 if block.block_type == "footer":
                     footer_block = block
-
+                    
             if first_chapter_page is not None and page.number < first_chapter_page:
                 if footer_block:
                     self.errors.append(Error(
@@ -681,7 +730,6 @@ class RedactionValidator:
                 comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści, rysunków oraz tabel."
             ))
         return None
-    
     #------------------config checks-----------------------
     #funckje w tym bloku zwracają True jeśli wszystko ok, False jeśli wykryto błąd
     def check_interline_spacing(self, doc_data: DocumentData) -> bool:
