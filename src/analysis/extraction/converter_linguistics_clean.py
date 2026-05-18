@@ -403,6 +403,7 @@ class PDFMapper:
         self._tag_special_lists(old_doc)
         self._tag_visual_descriptions()
         self._pair_descriptions_with_visuals(new_doc)
+        self._verify_bibliography_references()
 
         # 5. Wyciąganie akronimów
         self._extract_acronyms_to_schema(new_doc)
@@ -763,6 +764,78 @@ class PDFMapper:
                     
             if closest_visual:
                 closest_visual.caption = {"text": block.content.strip()}
+
+    def _verify_bibliography_references(self):
+        """
+        Post-processing: Zbiera poprawne indeksy z sekcji bibliografii,
+        sprawdzając pierwsze słowo (marker) każdego podpunktu.
+        Następnie waliduje odwołania w tekście.
+        Oznacza 'incorrect_bibliography = 1' w obiektach WordInfo dla błędnych odwołań.
+        """
+        valid_bib_numbers = set()
+        
+        # -----------------------------------------------------
+        # KROK 1: Zbieramy klucze z pierwszych słów (markerów) list bibliograficznych
+        # -----------------------------------------------------
+        for block in self.logical_blocks:
+            if getattr(block, "is_bibliography", False) and hasattr(block, "items"):
+                for item in block.items:
+                    # Sprawdzamy, czy podpunkt ma przypisane jakiekolwiek słowa
+                    if item.words:
+                        # Pierwsze słowo to nasz marker (np. "[1]", "1.", "1")
+                        marker_text = item.words[0].text
+                        
+                        # Wyciągamy z niego same cyfry
+                        match = re.search(r'\d+', marker_text)
+                        if match:
+                            valid_bib_numbers.add(match.group())
+
+        citation_pattern = re.compile(r'\[([\d\s,\-]+)\]')
+
+        def extract_numbers_from_citation(cit_str):
+            nums = set()
+            for part in cit_str.split(','):
+                part = part.strip()
+                if '-' in part:  
+                    try:
+                        start_s, end_s = part.split('-')
+                        for i in range(int(start_s), int(end_s) + 1):
+                            nums.add(str(i))
+                    except ValueError:
+                        pass
+                else:
+                    num_match = re.search(r'\d+', part)
+                    if num_match:
+                        nums.add(num_match.group())
+            return nums
+
+        
+        for block in self.logical_blocks:
+            # Pomijamy nagłówki i samą bibliografię
+            if getattr(block, "is_bibliography", False) or getattr(block, "type", None) == "heading" or getattr(block, "type", False) == "code_snippet":
+                continue
+            
+                
+            search_targets = []
+            if hasattr(block, "items"):
+                for item in block.items:
+                    search_targets.append((item.text, item.words))
+            else:
+                search_targets.append((getattr(block, "content", ""), getattr(block, "words", [])))
+
+            for text, words in search_targets:
+                if not text or not words:
+                    continue
+                    
+                for match in citation_pattern.finditer(text):
+                    cit_content = match.group(1)
+                    nums = extract_numbers_from_citation(cit_content)
+                    
+                    if nums and not nums.issubset(valid_bib_numbers):
+                        start_pos, end_pos = match.span()
+                        for word in words:
+                            if word.start_char < end_pos and word.end_char > start_pos:
+                                word.incorrect_bibliography = 1
     
     def _extract_acronyms_to_schema(self, new_doc):
         
@@ -1039,3 +1112,4 @@ def get_plain_text(pdf_path):
 
 def get_acronyms_lut(doc) -> dict:
     return {item.acronym: item.definition for item in doc.reference_sections.acronyms}
+

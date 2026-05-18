@@ -107,7 +107,7 @@ class RedactionValidator:
             self.check_margins(self.document_data)
             self.check_orientation(self.document_data)
             self.check_fonts(self.document_data)
-            #self.check_justification(self.document_data)
+            self.check_justification(self.document_data)
             self.check_format(self.document_data)
 
         #--------------------basic redaction check
@@ -125,6 +125,7 @@ class RedactionValidator:
             self.check_widows()
             self.check_bekarts()
             self.check_szewce()
+            self.check_bibliography()
             #self.check_korytarze()
 
         self.remove_errors_from_title_page()
@@ -348,6 +349,27 @@ class RedactionValidator:
                 ))
 
         return blank_pages
+    
+    def check_bibliography(self):        
+        for block in self.document_data_linguistics.logical_blocks:
+            words = getattr(block, "words", [])
+            for word in words:
+                # Flaga: niepoprawne odwołanie do bibliografii
+                if getattr(word, "incorrect_bibliography", 0) == 1:        
+                    error = self._handle_bibliography(word)
+                    if error:
+                        self.errors.append(error)
+
+    def _handle_bibliography(self, word):
+        return Error(
+            id=self._get_next_id(), 
+            module=self.module,
+            category="incorrect bibiography refference", 
+            page_number=word.page_number,
+            bounding_box=word.bbox, 
+            text=word.text,
+            comments="Wykryto niepoprawne odwołanie do bibliografii - element nie występuje w spisie bibliografii lub ten nie istnieje."
+        )
 
     def check_widows(self):
         for block in self.document_data_linguistics.logical_blocks:

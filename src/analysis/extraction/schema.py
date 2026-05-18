@@ -20,6 +20,7 @@ class WordInfo: # Położenie XY oraz relatywne słowa
     bbox: List[float]
     page_number: int
     line: int = 0
+    incorrect_bibliography: int = 0
     
 @dataclass
 class HeadingInfo: # Informacje o nagłówkach (TODO)

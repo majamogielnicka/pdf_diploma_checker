@@ -9,8 +9,8 @@ if str(BASE_DIR) not in sys.path:
 
 from extraction_json import extractPDF
 
-input_path = PROJECT_ROOT / "data"  / "mock_data"/ "mock1.pdf"
-#input_path = PROJECT_ROOT / "data"  /  "jago.pdf"
+#input_path = PROJECT_ROOT / "data"  / "mock_data"/ "mock1.pdf"
+input_path = PROJECT_ROOT / "data"  /  "jago.pdf"
 
 output_path = PROJECT_ROOT / "src" / "output.json"
 
