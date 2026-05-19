@@ -14,10 +14,4 @@ src/analysis/modules/llm/models/gemma3
 src/analysis/modules/linguistics/final_document.json
 src/analysis/modules/linguistics/final_document_raw.json
 src/analysis/modules/linguistics/errors.json
-<<<<<<< HEAD
-build/
-dist/
-*.spec
-=======
 data
->>>>>>> 36666b9ec40665a7488b79445080757ca7b8f4a9

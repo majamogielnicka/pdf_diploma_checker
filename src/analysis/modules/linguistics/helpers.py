@@ -1,10 +1,11 @@
 '''
-Funkcje pomocnicze do analizy lingwistycznej.
+Plik zawiera funkje pomocnicze używane wielokrotnie w module lingwistycznym, zebrane w jednym miejscu.
+Uruchamiane są tu modele spacy, language_tool, morfeusz, spellchecker, 
+następnie tylko przekazywane do odpowiednich funkcji.
 '''
 import os
 import dataclasses
 import json
-from common.path import resource_path
 import morfeusz2
 from lingua import Language, LanguageDetectorBuilder
 from analysis.extraction.schema import *
@@ -12,9 +13,12 @@ from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
 import spacy
-import sys
+from spellchecker import SpellChecker
+from common.path import resource_path
 
 morf = morfeusz2.Morfeusz()
+spell = SpellChecker()
+spell.word_frequency.load_text_file(resource_path(os.path.join("analysis", "modules", "linguistics", "word_whitelist.txt")))
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
@@ -87,24 +91,32 @@ def get_match_info(block, offset, length):
     if block.type == "list":
         item_offset = 0
         for item in block.items:
-            item_text = item.text.lower()
-            search_from = 0
-            for word in item.words:
-                word_text = word.text.lower()
-                idx = item_text.find(word_text, search_from)
-                if idx == -1:
-                    global_start = item_offset + word.start_char
-                    global_end   = item_offset + word.end_char
-                else:
-                    global_start = item_offset + idx
-                    global_end   = item_offset + idx + len(word.text)
-                    search_from = idx + len(word.text)
-                if global_start < end_offset and global_end > offset:
-                    word_idxs.append(word.word_index)
-                    lines[(word.page_number, word.line)].append(word)
-                    if start_page is None:
-                        start_page = word.page_number
-                    end_page = word.page_number
+            if not item.text:
+                continue
+            item_end = item_offset + len(item.text)
+            if item_offset >= end_offset:
+                break
+            if item_end > offset:
+                local_start = max(0, offset - item_offset)
+                local_end = min(len(item.text), end_offset - item_offset)
+                item_text = item.text.lower()
+                search_from = 0
+                for word in item.words:
+                    word_text = word.text.lower()
+                    idx = item_text.find(word_text, search_from)
+                    if idx == -1:
+                        word_start = word.start_char
+                        word_end = word.end_char
+                    else:
+                        word_start = idx
+                        word_end = idx + len(word.text)
+                        search_from = idx + len(word.text)
+                    if word_start < local_end and word_end > local_start:
+                        word_idxs.append(word.word_index)
+                        lines[(word.page_number, word.line)].append(word)
+                        if start_page is None:
+                            start_page = word.page_number
+                        end_page = word.page_number
             item_offset += len(item.text) + 1
     else:
         for word in block.words:
