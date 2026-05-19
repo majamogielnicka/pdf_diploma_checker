@@ -40,7 +40,7 @@ def check_exeptions(matches, blocks, proper_names, main_font):
                             elif match.offset + len(match.content) < len(text) and text[match.offset + len(match.content)] == '-':
                                 continue
                         except:
-                            print(f'błędne koordynaty: {match.content} {match.offset}')
+                            pass
                         lemma, is_found = lemmatization(word, block.language)
                         if check_if_proper(block.block, match, proper_names, lemma):
                             continue

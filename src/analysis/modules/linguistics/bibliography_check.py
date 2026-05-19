@@ -193,21 +193,6 @@ def check_bibliography(blocks, producer, bibliography_dict, bibtex_check_bool = 
                     bib_item.authors = None
 
                 bib_context.items.append(bib_item)
-
-            #     print(
-            #     f"{content[0]}"
-            #     f"  content: {content}\n"
-            #     f"  authors: {bib_item.authors}\n"
-            #     f"  title: {bib_item.title}\n"
-            #     f"  publisher : {bib_item.publisher}\n"
-            #     f"  date : {bib_item.date}\n"
-            #     f"  access_date: {bib_item.access_date}\n"
-            #     f"  pages: {bib_item.pages}\n"
-            #     f"  volume: {bib_item.volume}\n"
-            #     f"  url: {bib_item.url}\n"
-            #     f"  doi: {bib_item.doi}\n"
-            #     f"  other: {bib_item.other}\n"
-            # )
     bib_blocks = {}
     for block in blocks:
         if block.block.type == "list" and block.block.is_bibliography:

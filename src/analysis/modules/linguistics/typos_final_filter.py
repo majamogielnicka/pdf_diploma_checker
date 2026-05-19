@@ -73,11 +73,4 @@ def refine_typos(errors, blocks, output_json="typos.json"):
         else:
             final_errors.append(err)
 
-    # typos_report["after_total"] = len(final_errors)
-    # try:
-    #     with open(output_json, "w", encoding="utf-8") as f:
-    #         json.dump(typos_report, f, ensure_ascii=False, indent=4)
-    # except Exception as e:
-    #     print(f"Nie udało się zapisać {output_json}: {e}")
-
     return final_errors

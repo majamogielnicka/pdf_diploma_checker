@@ -77,7 +77,6 @@ def language_tool_analisys(blocks):
                 new_matches = []
                 for match in matches:
                     if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
-                        #print(f'{match.category} {match.rule_id} {match.matched_text} {text_language}')
                         if block.block.type != "paragraph":
                             continue
                         elif not any(letter.isalpha() for letter in match.matched_text):
