@@ -109,7 +109,7 @@ AUTHOR_PATTERNS = {
     rf'{SURNAME_PATTERN}\s{SHORT_NAME_PATTERN}(?:\s*{SHORT_NAME_PATTERN})*': 'Nowak J.'
 }
 
-def check_bibliography(blocks, producer, bibliography_dict):
+def check_bibliography(blocks, producer, bibliography_dict, bibtex_check_bool = True):
     matches = []
     authors = bibliography_dict["people"].union(bibliography_dict["organizations"])
     bib_context = Bibliography_context(block_id=0)
@@ -194,20 +194,20 @@ def check_bibliography(blocks, producer, bibliography_dict):
 
                 bib_context.items.append(bib_item)
 
-                print(
-                f"{content[0]}"
-                f"  content: {content}\n"
-                f"  authors: {bib_item.authors}\n"
-                f"  title: {bib_item.title}\n"
-                f"  publisher : {bib_item.publisher}\n"
-                f"  date : {bib_item.date}\n"
-                f"  access_date: {bib_item.access_date}\n"
-                f"  pages: {bib_item.pages}\n"
-                f"  volume: {bib_item.volume}\n"
-                f"  url: {bib_item.url}\n"
-                f"  doi: {bib_item.doi}\n"
-                f"  other: {bib_item.other}\n"
-            )
+            #     print(
+            #     f"{content[0]}"
+            #     f"  content: {content}\n"
+            #     f"  authors: {bib_item.authors}\n"
+            #     f"  title: {bib_item.title}\n"
+            #     f"  publisher : {bib_item.publisher}\n"
+            #     f"  date : {bib_item.date}\n"
+            #     f"  access_date: {bib_item.access_date}\n"
+            #     f"  pages: {bib_item.pages}\n"
+            #     f"  volume: {bib_item.volume}\n"
+            #     f"  url: {bib_item.url}\n"
+            #     f"  doi: {bib_item.doi}\n"
+            #     f"  other: {bib_item.other}\n"
+            # )
     bib_blocks = {}
     for block in blocks:
         if block.block.type == "list" and block.block.is_bibliography:
@@ -215,7 +215,7 @@ def check_bibliography(blocks, producer, bibliography_dict):
                 bib_blocks[list_item.item_id] = block.block
 
     matches = check_coherence_iso(matches, bib_context, bib_blocks)
-    if producer and re.search(r'latex|tex', producer, re.IGNORECASE):
+    if producer and re.search(r'latex|tex', producer, re.IGNORECASE) and bibtex_check_bool:
         matches = check_bibtex(matches, bib_context, bib_blocks)
     return matches
 

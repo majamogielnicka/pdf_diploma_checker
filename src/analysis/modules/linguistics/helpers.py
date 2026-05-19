@@ -8,7 +8,7 @@ import dataclasses
 import json
 import morfeusz2
 from lingua import Language, LanguageDetectorBuilder
-from src.analysis.extraction.schema import *
+from analysis.extraction.schema import *
 from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
@@ -17,6 +17,7 @@ from spellchecker import SpellChecker
 
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
+spell.word_frequency.load_text_file(os.path.join(os.path.dirname(__file__), 'word_whitelist.txt'))
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 

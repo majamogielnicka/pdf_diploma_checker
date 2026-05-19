@@ -14,7 +14,6 @@ def check_exeptions(matches, blocks, proper_names):
     blocks_to_check = defaultdict(list)
     for match in matches:
         blocks_to_check[f'{match.block_id}_{match.page_start}'].append(match)
-    print(proper_names)
     for block in blocks:
         block_key = f'{block.block.block_id}_{block.block.words[0].page_number}'
         if block_key in blocks_to_check:
