@@ -682,11 +682,10 @@ class PDFReader(QMainWindow):
             font_path = resource_path(os.path.join("ui", "assets", "Roboto-Regular.ttf"))
             font_bold_path = resource_path(os.path.join("ui", "assets", "Roboto-Bold.ttf"))
 
+            # Przechwytujemy rzeczywiste nazwy referencyjne zwracane przez PyMuPDF
             if os.path.exists(font_path) and os.path.exists(font_bold_path):
-                f_main = "roboto"
-                f_bold = "roboto-bold"
-                page.insert_font(fontname=f_main, fontfile=font_path)
-                page.insert_font(fontname=f_bold, fontfile=font_bold_path)
+                f_main = page.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
+                f_bold = page.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
             else:
                 f_main = "helv"
                 f_bold = "hebo"
@@ -698,11 +697,13 @@ class PDFReader(QMainWindow):
                 if y_coord > 750:
                     new_p = pdf_doc.new_page()
                     if os.path.exists(font_path) and os.path.exists(font_bold_path):
-                        new_p.insert_font(fontname=f_main, fontfile=font_path)
-                        new_p.insert_font(fontname=f_bold, fontfile=font_bold_path)
+                        # Na nowej stronie rejestrujemy czcionki i aktualizujemy zmienne globalne funkcji
+                        nonlocal f_main, f_bold
+                        f_main = new_p.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
+                        f_bold = new_p.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
                     return 50, new_p
                 return y_coord, current_page
-
+            
             def wrap_text(text, max_len=90):
                 words = text.split()
                 lines = []
@@ -717,7 +718,7 @@ class PDFReader(QMainWindow):
                     lines.append(current_line.strip())
                 return lines
             
-            page.insert_text((margin, pos_y), "Szczegolowy Raport Analizy Merytorycznej", 
+            page.insert_text((margin, pos_y), "Szczegółowy Raport Analizy Merytorycznej", 
                              fontsize=22, fontname=f_bold, color=(0.13, 0.58, 0.95))
             pos_y += 45
             page.insert_text((margin, pos_y), f"Dokument: {os.path.basename(self.current_pdf_path)}", 
@@ -739,14 +740,14 @@ class PDFReader(QMainWindow):
                     p_off = 0
                     off_topic_headings = []
 
-                page.insert_text((margin, pos_y), "1. Ogolna ocena merytoryczna", 
+                page.insert_text((margin, pos_y), "1. Ogólna ocena merytoryczna", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 page.insert_text((margin, pos_y), f"Wynik punktowy: {grade} / {max_g} pkt", 
                                  fontsize=12, fontname=f_main)
                 pos_y += 20
                 page.insert_text((margin, pos_y), 
-                                 f"Podrozdzialy poza tematem: {off_topic} ({p_off}%)", 
+                                 f"Podrozdziały poza tematem: {off_topic} ({p_off}%)", 
                                  fontsize=11, fontname=f_main)
                 pos_y += 25
 
@@ -767,12 +768,12 @@ class PDFReader(QMainWindow):
                     pos_y += 15
 
             pos_y, page = check_new_page(pos_y, report_pdf, page)
-            page.insert_text((margin, pos_y), "2. Weryfikacja merytoryczna rozdzialu teoretycznego", 
+            page.insert_text((margin, pos_y), "2. Weryfikacja merytoryczna rozdziału teoretycznego", 
                              fontsize=14, fontname=f_bold)
             pos_y += 25
             
-            chapter_title = sota_data.get('tytul', 'Brak tytulu')
-            page.insert_text((margin, pos_y), f"Analizowany rozdzial: {chapter_title}", 
+            chapter_title = sota_data.get('tytul', 'Brak tytułu')
+            page.insert_text((margin, pos_y), f"Analizowany rozdział: {chapter_title}", 
                              fontsize=12, fontname=f_main)
             pos_y += 20
             
@@ -782,9 +783,9 @@ class PDFReader(QMainWindow):
             pos_y += 30
 
             criteria = [
-                ("Analiza i ocena istniejacych rozwiazan:", sota_data.get('r1')),
+                ("Analiza i ocena istniejących rozwiązań:", sota_data.get('r1')),
                 ("Wskazanie luki badawczej lub problemu naukowego:", sota_data.get('r2')),
-                ("Synteza i krytyczne porownanie metod:", sota_data.get('r3'))
+                ("Synteza i krytyczne porównanie metod:", sota_data.get('r3'))
             ]
 
             for label, met in criteria:
@@ -798,16 +799,16 @@ class PDFReader(QMainWindow):
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             img_data = sota_data.get("image_analysis")
             if img_data:
-                page.insert_text((margin, pos_y), "3. Analiza spojnosci grafik i wykresow (AI)", 
+                page.insert_text((margin, pos_y), "3. Analiza spójności grafik i wykresów (AI)", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 
-                page.insert_text((margin, pos_y), f"Wszystkich zweryfikowanych rysunkow: {img_data.get('total', 0)}", 
+                page.insert_text((margin, pos_y), f"Wszystkich zweryfikowanych rysunków: {img_data.get('total', 0)}", 
                                  fontsize=11, fontname=f_main)
                 pos_y += 18
                 
                 color_bad = (0.86, 0.2, 0.27) if img_data.get('bad_count', 0) > 0 else (0.2, 0.2, 0.2)
-                page.insert_text((margin, pos_y), f"Rysunki z blednym opisem w tekscie: {img_data.get('bad_count', 0)}", 
+                page.insert_text((margin, pos_y), f"Rysunki z błędnym opisem w tekście: {img_data.get('bad_count', 0)}", 
                                  fontsize=11, fontname=f_main, color=color_bad)
                 pos_y += 18
                 
@@ -816,12 +817,12 @@ class PDFReader(QMainWindow):
                 pos_y += 25
                 
                 if img_data.get("details", []):
-                    page.insert_text((margin, pos_y), "Lista szczegolowa rozbieznosci:", fontsize=12, fontname=f_bold)
+                    page.insert_text((margin, pos_y), "Lista szczegółowa rozbieżności:", fontsize=12, fontname=f_bold)
                     pos_y += 20
                     for line_text in img_data.get("details", []):
                         wrapped_lines = wrap_text(line_text, 90)
                         for idx, chunk in enumerate(wrapped_lines):
-                            pos_y, page = check_new_page(pos_y, report_pdf, page) # Sprawdzanie przy KAŻDEJ linii tekstu
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
                             indent = margin + 15 if idx == 0 else margin + 25
                             txt_col = (0, 0, 0) if idx == 0 else (0.4, 0.4, 0.4)
                             page.insert_text((indent, pos_y), chunk, fontsize=10, fontname=f_main, color=txt_col)
@@ -829,16 +830,16 @@ class PDFReader(QMainWindow):
                         pos_y += 4
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-            page.insert_text((margin, pos_y), "4. Ocena jakosci obrazow (DPI i czytelnosc)", fontsize=14, fontname=f_bold)
+            page.insert_text((margin, pos_y), "4. Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
             pos_y += 25
 
             jakosc_err = sota_data.get('jakosc_obrazkow', [])
             if not jakosc_err:
-                page.insert_text((margin, pos_y), "Wszystkie obrazy maja odpowiednia jakosc i czytelnosc.", 
+                page.insert_text((margin, pos_y), "Wszystkie obrazy mają odpowiednią jakość i czytelność.", 
                                  fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                 pos_y += 25
             else:
-                page.insert_text((margin, pos_y), f"Wykryto problemy z jakoscia w {len(jakosc_err)} obrazach:", 
+                page.insert_text((margin, pos_y), f"Wykryto problemy z jakością w {len(jakosc_err)} obrazach:", 
                                  fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
                 pos_y += 20
                 for err in jakosc_err:
@@ -859,12 +860,12 @@ class PDFReader(QMainWindow):
                     pos_y += 5
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-            page.insert_text((margin, pos_y), "5. Spojnosc czcionek na obrazach", fontsize=14, fontname=f_bold)
+            page.insert_text((margin, pos_y), "5. Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
             pos_y += 25
 
             czcionki_err = sota_data.get('czcionki_obrazkow', [])
             if not czcionki_err:
-                page.insert_text((margin, pos_y), "Brak wykrytych problemow ze spojnoscia czcionek na rysunkach.", 
+                page.insert_text((margin, pos_y), "Brak wykrytych problemów ze spójnością czcionek na rysunkach.", 
                                  fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                 pos_y += 25
             else:
