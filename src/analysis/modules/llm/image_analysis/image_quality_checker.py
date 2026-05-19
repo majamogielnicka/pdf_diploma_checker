@@ -6,8 +6,8 @@ current_dir = Path(__file__).resolve().parent
 sys.path.append(str(current_dir.parent))
 sys.path.append(str(current_dir.parents[3]))
 
-from quality_analysis import check_image_quality
-from llava_quality_checker import get_llava_quality_report
+from .quality_analysis import check_image_quality
+from .llava_quality_checker import get_llava_quality_report
 
 def get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False):
     """
