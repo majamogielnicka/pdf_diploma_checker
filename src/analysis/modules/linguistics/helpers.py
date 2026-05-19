@@ -129,6 +129,8 @@ def get_context(blocks):
 
     blocks_info = []
     for block in blocks.logical_blocks:
+        if not block.words:
+            continue
         if block.words[-1].page_number != 1:
             if isinstance(block, ParagraphBlock):
                 contents = block.content

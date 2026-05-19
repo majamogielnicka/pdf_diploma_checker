@@ -17,6 +17,8 @@ def has_verb(text, language):
     return any(token.pos_ in ("VERB", "AUX") for token in nlp(text))
 
 def is_upper_and_dot(full_text):
+    if not full_text:
+        return False
     return full_text[0].isupper() and full_text.endswith(".")
 
 def check_item(full_text, last_item, second_to_last, text_language, sentence_style, dominant_ending, marker_type):
