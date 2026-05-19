@@ -25,6 +25,31 @@ from analysis.extraction.converter_linguistics_clean import PDFMapper
 import json
 import os
 
+def remove_errors_inside_images(matches, raw_blocks):
+    def is_inside(coord, image_bbox):
+        return (
+            coord[0] >= image_bbox[0] - 10 and
+            coord[1] >= image_bbox[1] - 10 and
+            coord[2] <= image_bbox[2] + 10 and
+            coord[3] <= image_bbox[3] + 10
+        )
+    images = [ve for ve in raw_blocks.floating_elements.visual_elements if ve.type == "image"]
+    if not images:
+        return matches
+    filtered = []
+    for match in matches:
+        inside = any(
+            entry["coordinates"] != [0, 0, 0, 0] and
+            any(
+                ve.page_number == entry["page"] and is_inside(entry["coordinates"], ve.bbox)
+                for ve in images
+            )
+            for entry in match.error_coordinate
+        )
+        if not inside:
+            filtered.append(match)
+    return filtered
+
 def run_linguistics(raw_blocks, config_path=None):
     check_first_person = True
     check_bibtex = True
@@ -45,7 +70,7 @@ def run_linguistics(raw_blocks, config_path=None):
         except ValueError as e:
             print(f"niepoprawny typ danych w konfiguracji lingwistyki: {e}")
     blocks = get_context(raw_blocks)
-    # extract_errors_to_json(blocks, "final_document.json")
+    extract_errors_to_json(blocks, "final_document.json")
     extracted_acronyms = raw_blocks.reference_sections.acronyms
     proper_names, bibliography_dict = get_proper_names(blocks)
     bib_matches = check_bibliography(blocks, raw_blocks.metadata["producer"], bibliography_dict, bibtex_check_bool = check_bibtex)
@@ -56,9 +81,10 @@ def run_linguistics(raw_blocks, config_path=None):
     language_matches, whitespace_counter = language_tool_analisys(blocks)
     list_matches = check_coherence_in_list(blocks, proper_names, acronyms_with_definitions)
     checked_exeptions = check_exeptions(language_matches, blocks, proper_names)
-    language_style_matches, sentence_analisys = sentence_check(blocks, check_first_person=check_first_person)
+    language_style_matches, sentence_analisys = sentence_check(blocks, check_first_person=check_first_person, acronyms_with_definitions=acronyms_with_definitions)
     matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches + bib_matches
-    # extract_errors_to_json(matches, "errors.json")
+    matches = remove_errors_inside_images(matches, raw_blocks)
+    extract_errors_to_json(matches, "errors.json")
     return matches
 
 #plik pomocniczy do uruchamiania analizy bez GUI
