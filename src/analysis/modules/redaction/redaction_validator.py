@@ -184,7 +184,7 @@ class RedactionValidator:
         else:
             tot_pages = []
 
-        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "check_justification"]
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
         errors_fixed = []
         for error in self.errors:
             is_in_toc = error.page_number in toc_pages
@@ -207,7 +207,7 @@ class RedactionValidator:
                 error_bbox[3] <= image_bbox[3] + 10
             )
 
-        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "check_justification"]
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
         filtered_errors = []
 
         for error in self.errors:
@@ -236,7 +236,7 @@ class RedactionValidator:
                 error_bbox[3] <= table_bbox[3] + 10
             )
 
-        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "check_justification"]
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
         filtered_errors = []
 
         for error in self.errors:
@@ -1000,7 +1000,7 @@ class RedactionValidator:
                         self.errors.append(Error(
                             id = self._get_next_id(),
                             module = self.module,
-                            category = "config_file",
+                            category = "justification",
                             page_number = page.number,
                             bounding_box = line.bbox,
                             text = None,
@@ -1012,7 +1012,7 @@ class RedactionValidator:
                         self.errors.append(Error(
                             id = self._get_next_id(),
                             module = self.module,
-                            category = "config_file",
+                            category = "justification",
                             page_number = page.number,
                             bounding_box = line.bbox,
                             text = None,
