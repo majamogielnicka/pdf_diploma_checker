@@ -127,12 +127,14 @@ class RedactionValidator:
             self.check_szewce()
             self.check_bibliography()
             #self.check_korytarze()
+            self.check_bibliography_summary()
 
         self.remove_errors_from_title_page()
         self.remove_errors_from_toc_tof_tot()
         self.remove_errors_from_images()
         self.remove_errors_from_tables()
         self.replace_global_errors()
+
 
         return self.errors
     
@@ -380,6 +382,33 @@ class RedactionValidator:
                     error = self._handle_widow(block, widow_which)
                     if error:
                         self.errors.append(error)
+
+    def check_bibliography_summary(self):
+        bib_entries = []
+
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "is_bibliography", False) and hasattr(block, "items"):
+                for item in block.items:
+                    text_content = item.text.strip()
+                    if text_content:
+                        marker = item.words[0].text if item.words else ""
+                        bib_entries.append(f"{marker} {text_content}\n")
+                        
+                        #bib_entries.append(text_content)
+
+        if bib_entries:
+            summary_text = "\n".join(bib_entries)
+            
+            summary_error = Error(
+                id=self._get_next_id(),
+                module=self.module,
+                category="bibliography_summary",
+                page_number=3,  
+                bounding_box=(0, 0, 0, 0),  
+                text=summary_text,
+                comments="Podsumowanie: Lista wszystkich pozycji wykrytych w spisie bibliograficznym."
+            )
+            self.errors.append(summary_error)
                 
     def _handle_widow(self, block, widow_which):
         if not block.words:
