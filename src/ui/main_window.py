@@ -422,17 +422,17 @@ class PDFReader(QMainWindow):
         if content_grade is not None:
             if isinstance(content_grade, dict):
                 grade = content_grade.get('grade', 0.0)
-                max_grade = content_grade.get('max_grade', 60.0)
+                max_grade = content_grade.get('max_grade', 100.0)
                 p_off = content_grade.get('p_off', 0.0)
                 off_topic = content_grade.get('off_topic_sections', 0)
             elif isinstance(content_grade, (float, int)):
                 grade = float(content_grade)
-                max_grade = 60.0
+                max_grade = 100.0
                 p_off = 0.0
                 off_topic = 0
             else:
                 grade = 0.0
-                max_grade = 60.0
+                max_grade = 100.0
                 p_off = 0.0
                 off_topic = 0
 
@@ -460,36 +460,6 @@ class PDFReader(QMainWindow):
             sep.setFrameShape(QFrame.HLine)
             sep.setStyleSheet("background-color: #D3D3D3; margin-top: 5px; margin-bottom: 5px;")
             l.addWidget(sep)
-
-        merytoryka_header = QLabel("Szczegolowa weryfikacja tresci")
-        merytoryka_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
-        l.addWidget(merytoryka_header)
-
-        wynik = sota_data.get('ocena', 0)
-        is_good = wynik >= 50
-        
-        score_frame = QFrame()
-        bg_color = "#E8F5E9" if is_good else "#FFEBEE"
-        border_color = "#C8E6C9" if is_good else "#FFCDD2"
-        text_color = "#2E7D32" if is_good else "#C62828"
-        
-        score_frame.setStyleSheet(f"QFrame {{ background-color: {bg_color}; border-radius: 8px; border: 1px solid {border_color}; }}")
-        score_layout = QVBoxLayout(score_frame)
-        score_layout.setContentsMargins(15, 12, 15, 12)
-        
-        score_title = QLabel("Zgodnosc z wymaganiami merytorycznymi")
-        score_title.setStyleSheet("color: #555; font-size: 12px; font-weight: bold; border: none; background: transparent;")
-        score_val = QLabel(f"{wynik}%")
-        score_val.setStyleSheet(f"color: {text_color}; font-size: 24px; font-weight: bold; border: none; background: transparent;")
-        
-        score_layout.addWidget(score_title)
-        score_layout.addWidget(score_val)
-        l.addWidget(score_frame)
-
-        tytul_lbl = QLabel(f"<b>Analizowany rozdzial:</b><br>{sota_data.get('tytul', 'Brak')}")
-        tytul_lbl.setWordWrap(True)
-        tytul_lbl.setStyleSheet("color: #333; font-size: 13px; border: none;")
-        l.addWidget(tytul_lbl)
 
         def create_badge_row(label_text, is_met):
             row_widget = QWidget()
@@ -535,9 +505,22 @@ class PDFReader(QMainWindow):
             row_layout.addWidget(badge, alignment=Qt.AlignRight)
             return row_widget
 
-        l.addWidget(create_badge_row("Przeglad aktualnej wiedzy", sota_data.get('r1')))
-        l.addWidget(create_badge_row("Uzasadnienie celu pracy / problemu", sota_data.get('r2')))
-        l.addWidget(create_badge_row("Porownanie podejsc badawczych", sota_data.get('r3')))
+        grafiki_header = QLabel("Weryfikacja rysunkow i grafik")
+        grafiki_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
+        l.addWidget(grafiki_header)
+
+        jakosc_err = sota_data.get('jakosc_obrazkow', [])
+        czcionki_err = sota_data.get('czcionki_obrazkow', [])
+
+        if not jakosc_err:
+            l.addWidget(create_badge_row("Jakosc obrazow (rozdzielczosc/czytelnosc)", True))
+        else:
+            l.addWidget(create_badge_row(f"Jakosc obrazow (Bledy: {len(jakosc_err)})", False))
+
+        if not czcionki_err:
+            l.addWidget(create_badge_row("Spojnosc czcionek na rysunkach", True))
+        else:
+            l.addWidget(create_badge_row(f"Spojnosc czcionek (Bledy: {len(czcionki_err)})", False))
 
         l.addSpacing(15)
         self.raport_btn = QPushButton("Pobierz dokladny raport")
@@ -549,7 +532,7 @@ class PDFReader(QMainWindow):
         self.right_panel.layout().addWidget(content)
         self.right_panel.layout().addStretch()
 
-        
+       
 
     def zoom_in(self):
         self.pdf_view.setZoomFactor(self.pdf_view.zoomFactor() * 1.1)
@@ -710,6 +693,29 @@ class PDFReader(QMainWindow):
 
             pos_y = 50
             margin = 50
+
+            def check_new_page(y_coord, pdf_doc, current_page):
+                if y_coord > 760:
+                    new_p = pdf_doc.new_page()
+                    if os.path.exists(font_path) and os.path.exists(font_bold_path):
+                        new_p.insert_font(fontname=f_main, fontfile=font_path)
+                        new_p.insert_font(fontname=f_bold, fontfile=font_bold_path)
+                    return 50, new_p
+                return y_coord, current_page
+
+            def wrap_text(text, max_len=90):
+                words = text.split()
+                lines = []
+                current_line = ""
+                for word in words:
+                    if len(current_line) + len(word) + 1 <= max_len:
+                        current_line += (word + " ")
+                    else:
+                        lines.append(current_line.strip())
+                        current_line = word + " "
+                if current_line:
+                    lines.append(current_line.strip())
+                return lines
             
             page.insert_text((margin, pos_y), "Szczegolowy Raport Analizy Merytorycznej", 
                              fontsize=22, fontname=f_bold, color=(0.13, 0.58, 0.95))
@@ -719,19 +725,22 @@ class PDFReader(QMainWindow):
             pos_y += 40
             
             content_grade = sota_data.get('content_grade')
+            content_grade = sota_data.get('content_grade')
             if content_grade is not None:
                 if isinstance(content_grade, dict):
                     grade = content_grade.get('grade', 0)
-                    max_g = content_grade.get('max_grade', 60)
+                    max_g = content_grade.get('max_grade', 100)
                     off_topic = content_grade.get('off_topic_sections', 0)
                     p_off = content_grade.get('p_off', 0)
+                    off_topic_headings = content_grade.get('off_topic_headings', [])
                 else:
                     grade = content_grade
-                    max_g = 60
+                    max_g = 100
                     off_topic = 0
                     p_off = 0
+                    off_topic_headings = []
 
-                page.insert_text((margin, pos_y), "Ogolna ocena merytoryczna", 
+                page.insert_text((margin, pos_y), "1. Ogolna ocena merytoryczna", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 page.insert_text((margin, pos_y), f"Wynik punktowy: {grade} / {max_g} pkt", 
@@ -740,9 +749,25 @@ class PDFReader(QMainWindow):
                 page.insert_text((margin, pos_y), 
                                  f"Podrozdzialy poza tematem: {off_topic} ({p_off}%)", 
                                  fontsize=11, fontname=f_main)
-                pos_y += 45
-                
-            page.insert_text((margin, pos_y), "Weryfikacja merytoryczna rozdzialu teoretycznego", 
+                pos_y += 25
+
+                # WYPISYWANIE LISTY NAGŁÓWKÓW POZA TEMATEM
+                if off_topic > 0 and off_topic_headings:
+                    page.insert_text((margin, pos_y), "Zidentyfikowane sekcje niezgodne z celem pracy:", 
+                                     fontsize=11, fontname=f_bold, color=(0.86, 0.2, 0.27))
+                    pos_y += 18
+                    for heading in off_topic_headings:
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
+                        wrapped_heading = wrap_text(str(heading), 85)
+                        for idx, line in enumerate(wrapped_heading):
+                            prefix = "- " if idx == 0 else "  "
+                            page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                            pos_y += 14
+                    pos_y += 15
+                else:
+                    pos_y += 15
+
+            page.insert_text((margin, pos_y), "2. Weryfikacja merytoryczna rozdzialu teoretycznego", 
                              fontsize=14, fontname=f_bold)
             pos_y += 25
             
@@ -769,10 +794,11 @@ class PDFReader(QMainWindow):
                                  fontsize=11, fontname=f_bold if met else f_main, color=color)
                 pos_y += 20
 
+            pos_y, page = check_new_page(pos_y + 20, report_pdf, page)
             img_data = sota_data.get("image_analysis")
             if img_data:
-                pos_y += 20
-                page.insert_text((margin, pos_y), "Analiza spojnosci grafik i wykresow (AI)", 
+                pos_y += 10
+                page.insert_text((margin, pos_y), "3. Analiza spojnosci grafik i wykresow (AI)", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 
@@ -787,24 +813,92 @@ class PDFReader(QMainWindow):
                 
                 page.insert_text((margin, pos_y), f"Rysunki poprawne: {img_data.get('good_count', 0)}", 
                                  fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
-                
                 pos_y += 25
                 
-                page.insert_text((margin, pos_y), "Lista szczegolowa:", fontsize=12, fontname=f_bold)
-                pos_y += 20
-                
-                for line_text in img_data.get("details", []):
-                    if len(line_text) > 90:
-                        chunk1 = line_text[:90]
-                        chunk2 = "    " + line_text[90:]
-                        page.insert_text((margin + 15, pos_y), chunk1, fontsize=10, fontname=f_main)
-                        pos_y += 15
-                        page.insert_text((margin + 15, pos_y), chunk2, fontsize=10, fontname=f_main, color=(0.4, 0.4, 0.4))
-                        pos_y += 20
-                    else:
-                        page.insert_text((margin + 15, pos_y), line_text, fontsize=10, fontname=f_main)
-                        pos_y += 20
+                if img_data.get("details", []):
+                    page.insert_text((margin, pos_y), "Lista szczegolowa rozbieznosci:", fontsize=12, fontname=f_bold)
+                    pos_y += 20
+                    for line_text in img_data.get("details", []):
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
+                        wrapped_lines = wrap_text(line_text, 90)
+                        for idx, chunk in enumerate(wrapped_lines):
+                            indent = margin + 15 if idx == 0 else margin + 25
+                            txt_col = (0, 0, 0) if idx == 0 else (0.4, 0.4, 0.4)
+                            page.insert_text((indent, pos_y), chunk, fontsize=10, fontname=f_main, color=txt_col)
+                            pos_y += 15
+                        pos_y += 5
 
+            pos_y, page = check_new_page(pos_y + 30, report_pdf, page)
+            
+            page.insert_text((margin, pos_y), "4. Ocena jakosci obrazow (DPI i czytelnosc)", fontsize=14, fontname=f_bold)
+            pos_y += 25
+
+            jakosc_err = sota_data.get('jakosc_obrazkow', [])
+            if not jakosc_err:
+                page.insert_text((margin, pos_y), "Wszystkie obrazy maja odpowiednia jakosc i czytelnosc.", 
+                                 fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+                pos_y += 25
+            else:
+                page.insert_text((margin, pos_y), f"Wykryto problemy z jakoscia w {len(jakosc_err)} obrazach:", 
+                                 fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
+                pos_y += 20
+                for err in jakosc_err:
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    rys = err.get("rysunek", "Nieznany rysunek")
+                    fmt = err.get("format", "Brak formatu")
+                    powody = err.get("powody_odrzucenia", [])
+                    
+                    page.insert_text((margin + 15, pos_y), f"{rys} (Format: {fmt}):", fontsize=11, fontname=f_bold)
+                    pos_y += 16
+                    for powod in powody:
+                        wrapped_powod = wrap_text(powod, 85)
+                        for idx, line in enumerate(wrapped_powod):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
+                            prefix = "- " if idx == 0 else "  "
+                            page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                            pos_y += 14
+                    pos_y += 10
+
+            pos_y, page = check_new_page(pos_y + 20, report_pdf, page)
+
+            page.insert_text((margin, pos_y), "5. Spojnosc czcionek na obrazach", fontsize=14, fontname=f_bold)
+            pos_y += 25
+
+            czcionki_err = sota_data.get('czcionki_obrazkow', [])
+            if not czcionki_err:
+                page.insert_text((margin, pos_y), "Brak wykrytych problemow ze spojnoscia czcionek na rysunkach.", 
+                                 fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+                pos_y += 25
+            else:
+                page.insert_text((margin, pos_y), f"Wykryto problemy z czcionkami w {len(czcionki_err)} elementach:", 
+                                 fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
+                pos_y += 20
+                for err in czcionki_err:
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    if isinstance(err, dict):
+                        rys = err.get("rysunek", "Nieznany rysunek")
+                        bledy = err.get("bledy", err.get("powody_odrzucenia", [str(err)]))
+                        
+                        page.insert_text((margin + 15, pos_y), f"{rys}:", fontsize=11, fontname=f_bold)
+                        pos_y += 16
+                        for b in bledy:
+                            wrapped_blad = wrap_text(str(b), 85)
+                            for idx, line in enumerate(wrapped_blad):
+                                pos_y, page = check_new_page(pos_y, report_pdf, page)
+                                prefix = "- " if idx == 0 else "  "
+                                page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                                pos_y += 14
+                        pos_y += 10
+                    else:
+                        wrapped_err = wrap_text(str(err), 85)
+                        for idx, line in enumerate(wrapped_err):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
+                            prefix = "- " if idx == 0 else "  "
+                            page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                            pos_y += 14
+                        pos_y += 10
+
+            pos_y, page = check_new_page(840, report_pdf, page)
             page.insert_text((margin, 840), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
                              fontsize=9, fontname=f_main, color=(0.5, 0.5, 0.5))
 

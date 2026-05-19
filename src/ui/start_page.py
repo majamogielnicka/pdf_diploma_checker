@@ -11,6 +11,29 @@ from PySide6.QtGui import QColor
 import styles
 from common.path import resource_path
 
+class PDFDropFrame(QFrame):
+    fileDropped = Signal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            # Sprawdzamy, czy to na pewno PDF
+            if urls and urls[0].toLocalFile().lower().endswith('.pdf'):
+                event.acceptProposedAction()
+                return
+        event.ignore()
+
+    def dropEvent(self, event):
+        urls = event.mimeData().urls()
+        if urls:
+            path = urls[0].toLocalFile()
+            if path.lower().endswith('.pdf'):
+                self.fileDropped.emit(path)
+                event.acceptProposedAction()
 
 class StartPage(QWidget):
     fileDropped = Signal(str)
@@ -69,7 +92,8 @@ class StartPage(QWidget):
         content_layout.setContentsMargins(30, 30, 30, 30)
         content_layout.setSpacing(20)
 
-        self.upload_frame = QFrame()
+        self.upload_frame = PDFDropFrame()
+        self.upload_frame.fileDropped.connect(self.fileDropped.emit)
         self.upload_frame.setStyleSheet(styles.UPLOAD_ZONE_STYLE)
         self.upload_frame.setFixedHeight(250)
         

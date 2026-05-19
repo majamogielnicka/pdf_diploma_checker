@@ -73,6 +73,8 @@ class AnalysisPipeline:
                 from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH, LLAVA_MMPROJ_PATH, LLAVA_MODEL_PATH
                 from analysis.modules.llm.image_analysis.run_image import analyze_images
                 from analysis.extraction.converter_linguistics_clean import PDFMapper
+                from analysis.modules.llm.image_analysis.image_quality_checker import get_full_image_quality_json
+                from analysis.modules.llm.image_analysis.font_checker import get_font_consistency_report
 
                 mapper = PDFMapper()
                 mapped_doc = mapper.map_to_schema(doc_obj)
@@ -112,12 +114,41 @@ class AnalysisPipeline:
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
-                content_g = get_content_grade(purpose, summaries)
-                purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
+                # Bezpieczne pobranie ocen składowych (odporne na zwracanie int zamiast krotki)
+                content_res = get_content_grade(purpose, summaries)
+                if isinstance(content_res, tuple) and len(content_res) == 2:
+                    content_grade_val, off_topic_headings = content_res
+                else:
+                    content_grade_val = content_res if isinstance(content_res, (int, float)) else 0.0
+                    off_topic_headings = []
+
+                purpose_res = get_purpose_grade(txt_for_llm, purpose, language)
+                if isinstance(purpose_res, tuple) and len(purpose_res) == 2:
+                    purpose_score, purpose_reason = purpose_res
+                else:
+                    purpose_score = purpose_res if isinstance(purpose_res, (int, float)) else 0
+                    purpose_reason = "Brak uzasadnienia (błąd lub limit czasu CPU)"
+                
+                quality_errors = get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False)
+                font_errors = get_font_consistency_report(doc_obj, mapped_doc, verbose=False)
                 
                 res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
         
-                score = get_overall_grade(purpose_g, content_g, res_score)
+                score = get_overall_grade(purpose_score, content_grade_val, res_score)
+                
+                total_sections = len(summaries) if summaries else 1
+                bad_sections = len(off_topic_headings)
+                p_off_val = (bad_sections / total_sections) * 100.0 if total_sections > 0 else 0.0
+
+                content_grade_dict = {
+                    "grade": round(score, 2),
+                    "max_grade": 100.0,
+                    "off_topic_sections": bad_sections,
+                    "p_off": round(p_off_val, 2),
+                    "off_topic_headings": off_topic_headings,
+                    "purpose_reason": purpose_reason
+                }
+
                 result = {
                     "id": res_id,
                     "tytul": res_title,
@@ -127,10 +158,11 @@ class AnalysisPipeline:
                     "r1": r1,
                     "r2": r2,
                     "r3": r3,
-                    "content_grade": score,
-                    "image_analysis": image_summary_data
+                    "content_grade": content_grade_dict,
+                    "image_analysis": image_summary_data,
+                    "jakosc_obrazkow": quality_errors,
+                    "czcionki_obrazkow": font_errors
                 }
-                
                 
                 return result, score, "Analiza LLM zakończona pomyślnie."
             
@@ -138,21 +170,7 @@ class AnalysisPipeline:
                 print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
                 return None, None, "Błąd analizy SOTA/LLM."
 
-        def task_linguistics():
-            try:
-                from analysis.extraction.converter_linguistics_clean import PDFMapper
-                mapper = PDFMapper()
-                raw_blocks = mapper.map_to_schema(doc_obj)
-                ling_matches = ling_module.run_linguistics(raw_blocks)
                 
-                print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
-                return ling_matches
-            except Exception as e:
-                print(f"[PIPELINE] Błąd lingwistyki: {e}")
-                import traceback
-                traceback.print_exc()
-                return []
-
         def task_redaction():
             try:
                 from analysis.modules.redaction.redaction_validator import RedactionValidator
