@@ -39,6 +39,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
     current_heading = ""
     for b in blocks:
         block = b.block
+        if block.type == "list" and block.is_bibliography: 
+            continue
         if block.type == "heading":
             current_heading = block.content.upper()
             continue
