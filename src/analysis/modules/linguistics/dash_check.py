@@ -10,7 +10,7 @@ def dash_check(blocks):
     dash_counter = 0
     
     for block in blocks:
-        if block.block.type in {"math", "code_snippet"}:
+        if block.block.type in {"acronyms", "keywords", "math", "code_snippet", "toc", "tof", "tot"}:
             continue
         if block.block.type == "list":
             if block.block.is_bibliography:
