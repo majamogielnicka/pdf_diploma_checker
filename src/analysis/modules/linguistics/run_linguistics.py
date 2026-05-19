@@ -80,7 +80,8 @@ def run_linguistics(raw_blocks, config_path=None):
     dash_matches, dash_counter = dash_check(blocks)
     language_matches, whitespace_counter = language_tool_analisys(blocks)
     list_matches = check_coherence_in_list(blocks, proper_names, acronyms_with_definitions)
-    checked_exeptions = check_exeptions(language_matches, blocks, proper_names)
+    main_font = raw_blocks.metadata.get("main_font")
+    checked_exeptions = check_exeptions(language_matches, blocks, proper_names, main_font)
     language_style_matches, sentence_analisys = sentence_check(blocks, check_first_person=check_first_person, acronyms_with_definitions=acronyms_with_definitions)
     matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches + bib_matches
     matches = remove_errors_inside_images(matches, raw_blocks)
