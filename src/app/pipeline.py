@@ -76,6 +76,11 @@ class AnalysisPipeline:
 
                 mapper = PDFMapper()
                 mapped_doc = mapper.map_to_schema(doc_obj)
+
+                language = "pl"
+
+                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
+
                 raw_image_report = analyze_images(doc_obj, mapped_doc)
                 plain_txt_purpose = get_plain_text(pdf_path)
                 txt_for_llm = extractPDF_llm(pdf_path)
@@ -107,21 +112,30 @@ class AnalysisPipeline:
                     "details": image_details_lines
                 }
 
-                language = "pl"
+                
+
                 purpose = get_purpose(plain_txt_purpose, language)
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
                 content_g, off_topic_headings = get_content_grade(purpose, summaries)
                 purpose_g_score, purpose_g_reason = get_purpose_grade(txt_for_llm, purpose, language)
+
+               
                 
                 print(f"[PIPELINE] Cel pracy: {purpose}")
                 print(f"[PIPELINE] Ocena celu pracy: {purpose_g_score} - {purpose_g_reason}")
                 print(f"offtopic headings: {off_topic_headings}")
 
-                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
+                
         
                 score = get_overall_grade(purpose_g_score, content_g, res_score)
+
+                print(score, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print(res_score, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print(purpose_g_reason, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+ 
+
                 result = {
                     "id": res_id,
                     "tytul": res_title,
