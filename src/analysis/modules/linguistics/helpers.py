@@ -14,10 +14,11 @@ from collections import defaultdict
 import functools
 import spacy
 from spellchecker import SpellChecker
+from common.path import resource_path
 
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
-spell.word_frequency.load_text_file(os.path.join(os.path.dirname(__file__), 'word_whitelist.txt'))
+spell.word_frequency.load_text_file(resource_path(os.path.join("analysis", "modules", "linguistics", "word_whitelist.txt")))
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
@@ -119,7 +120,7 @@ def extract_errors_to_json(matches, name):
             all_matches.append(dataclasses.asdict(match))
     else:
         all_matches = dataclasses.asdict(matches)
-    output_path = os.path.join(os.path.dirname(__file__), name)
+    output_path = resource_path(os.path.join("analysis", "modules", "linguistics", name))
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(all_matches, f, ensure_ascii=False, indent=4)

@@ -23,6 +23,7 @@ from analysis.extraction.extraction_json import extractPDF
 from analysis.modules.linguistics.bibliography_check import check_bibliography
 from analysis.extraction.converter_linguistics_clean import PDFMapper
 import json
+from common.path import resource_path
 import os
 
 def run_linguistics(raw_blocks, config_path=None):
@@ -63,7 +64,7 @@ def run_linguistics(raw_blocks, config_path=None):
 
 #plik pomocniczy do uruchamiania analizy bez GUI
 if __name__ == "__main__":
-    pdf_file = "analysis/modules/linguistics/jabi.pdf"
+    pdf_file = resource_path(os.path.join("analysis", "modules", "linguistics", "jabi.pdf"))
     try:
         document = extractPDF(str(pdf_file))
         mapper = PDFMapper()
