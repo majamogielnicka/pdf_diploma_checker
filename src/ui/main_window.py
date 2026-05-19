@@ -695,7 +695,7 @@ class PDFReader(QMainWindow):
             margin = 50
 
             def check_new_page(y_coord, pdf_doc, current_page):
-                if y_coord > 760:
+                if y_coord > 750:
                     new_p = pdf_doc.new_page()
                     if os.path.exists(font_path) and os.path.exists(font_bold_path):
                         new_p.insert_font(fontname=f_main, fontfile=font_path)
@@ -725,7 +725,6 @@ class PDFReader(QMainWindow):
             pos_y += 40
             
             content_grade = sota_data.get('content_grade')
-            content_grade = sota_data.get('content_grade')
             if content_grade is not None:
                 if isinstance(content_grade, dict):
                     grade = content_grade.get('grade', 0)
@@ -751,7 +750,6 @@ class PDFReader(QMainWindow):
                                  fontsize=11, fontname=f_main)
                 pos_y += 25
 
-                # WYPISYWANIE LISTY NAGŁÓWKÓW POZA TEMATEM
                 if off_topic > 0 and off_topic_headings:
                     page.insert_text((margin, pos_y), "Zidentyfikowane sekcje niezgodne z celem pracy:", 
                                      fontsize=11, fontname=f_bold, color=(0.86, 0.2, 0.27))
@@ -760,6 +758,7 @@ class PDFReader(QMainWindow):
                         pos_y, page = check_new_page(pos_y, report_pdf, page)
                         wrapped_heading = wrap_text(str(heading), 85)
                         for idx, line in enumerate(wrapped_heading):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
                             prefix = "- " if idx == 0 else "  "
                             page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
                             pos_y += 14
@@ -767,6 +766,7 @@ class PDFReader(QMainWindow):
                 else:
                     pos_y += 15
 
+            pos_y, page = check_new_page(pos_y, report_pdf, page)
             page.insert_text((margin, pos_y), "2. Weryfikacja merytoryczna rozdzialu teoretycznego", 
                              fontsize=14, fontname=f_bold)
             pos_y += 25
@@ -788,16 +788,16 @@ class PDFReader(QMainWindow):
             ]
 
             for label, met in criteria:
+                pos_y, page = check_new_page(pos_y, report_pdf, page)
                 status = "TAK [X]" if met else "NIE [ ]"
                 color = (0.17, 0.62, 0.35) if met else (0.86, 0.2, 0.27)
                 page.insert_text((margin + 20, pos_y), f"{label} {status}", 
                                  fontsize=11, fontname=f_bold if met else f_main, color=color)
                 pos_y += 20
 
-            pos_y, page = check_new_page(pos_y + 20, report_pdf, page)
+            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             img_data = sota_data.get("image_analysis")
             if img_data:
-                pos_y += 10
                 page.insert_text((margin, pos_y), "3. Analiza spojnosci grafik i wykresow (AI)", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
@@ -819,17 +819,16 @@ class PDFReader(QMainWindow):
                     page.insert_text((margin, pos_y), "Lista szczegolowa rozbieznosci:", fontsize=12, fontname=f_bold)
                     pos_y += 20
                     for line_text in img_data.get("details", []):
-                        pos_y, page = check_new_page(pos_y, report_pdf, page)
                         wrapped_lines = wrap_text(line_text, 90)
                         for idx, chunk in enumerate(wrapped_lines):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page) # Sprawdzanie przy KAŻDEJ linii tekstu
                             indent = margin + 15 if idx == 0 else margin + 25
                             txt_col = (0, 0, 0) if idx == 0 else (0.4, 0.4, 0.4)
                             page.insert_text((indent, pos_y), chunk, fontsize=10, fontname=f_main, color=txt_col)
                             pos_y += 15
-                        pos_y += 5
+                        pos_y += 4
 
-            pos_y, page = check_new_page(pos_y + 30, report_pdf, page)
-            
+            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             page.insert_text((margin, pos_y), "4. Ocena jakosci obrazow (DPI i czytelnosc)", fontsize=14, fontname=f_bold)
             pos_y += 25
 
@@ -857,10 +856,9 @@ class PDFReader(QMainWindow):
                             prefix = "- " if idx == 0 else "  "
                             page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
                             pos_y += 14
-                    pos_y += 10
+                    pos_y += 5
 
-            pos_y, page = check_new_page(pos_y + 20, report_pdf, page)
-
+            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             page.insert_text((margin, pos_y), "5. Spojnosc czcionek na obrazach", fontsize=14, fontname=f_bold)
             pos_y += 25
 
@@ -874,8 +872,8 @@ class PDFReader(QMainWindow):
                                  fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
                 pos_y += 20
                 for err in czcionki_err:
-                    pos_y, page = check_new_page(pos_y, report_pdf, page)
                     if isinstance(err, dict):
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
                         rys = err.get("rysunek", "Nieznany rysunek")
                         bledy = err.get("bledy", err.get("powody_odrzucenia", [str(err)]))
                         
@@ -888,7 +886,7 @@ class PDFReader(QMainWindow):
                                 prefix = "- " if idx == 0 else "  "
                                 page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
                                 pos_y += 14
-                        pos_y += 10
+                        pos_y += 5
                     else:
                         wrapped_err = wrap_text(str(err), 85)
                         for idx, line in enumerate(wrapped_err):
@@ -896,10 +894,10 @@ class PDFReader(QMainWindow):
                             prefix = "- " if idx == 0 else "  "
                             page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
                             pos_y += 14
-                        pos_y += 10
+                        pos_y += 5
 
-            pos_y, page = check_new_page(840, report_pdf, page)
-            page.insert_text((margin, 840), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
+            pos_y, page = check_new_page(810, report_pdf, page)
+            page.insert_text((margin, 820), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
                              fontsize=9, fontname=f_main, color=(0.5, 0.5, 0.5))
 
             report_pdf.save(save_path)

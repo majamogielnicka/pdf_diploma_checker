@@ -1,6 +1,6 @@
 import os
 import subprocess
-from PySide6.QtWidgets import QProgressDialog
+from PySide6.QtWidgets import QProgressDialog, QApplication
 from huggingface_hub import hf_hub_download
 from PySide6.QtCore import Qt
 import ssl
@@ -26,7 +26,6 @@ def check_and_download_requirements(parent=None):
         progress.setWindowModality(Qt.WindowModal)
         progress.show()
         
-        import QApplication
         if QApplication.instance():
             QApplication.instance().processEvents()
 
@@ -55,5 +54,11 @@ def check_and_download_requirements(parent=None):
     except ImportError:
         import spacy
         spacy.cli.download("pl_core_news_lg")
+
+    try:
+        import en_core_web_lg
+    except ImportError:
+        import spacy
+        spacy.cli.download("en_core_web_lg")
         
     return True
