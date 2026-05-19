@@ -173,7 +173,9 @@ def definicion(block, word_idxs, sentence_text):
     if not word_idxs:
         return False
     pattern = r'^\s*\w[\w\s]*[:-–]'
-    if block.words[word_idxs[0]].bold and re.match(pattern, sentence_text):
+    words_by_idx = {w.word_index: w for w in block.words}
+    target_word = words_by_idx.get(word_idxs[0])
+    if target_word and target_word.bold and re.match(pattern, sentence_text):
         return True
     return False
 
