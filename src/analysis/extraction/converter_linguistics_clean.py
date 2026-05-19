@@ -406,6 +406,7 @@ class PDFMapper:
         self._pair_descriptions_with_visuals(new_doc)
         self._verify_bibliography_references()
 
+        new_doc.metadata["main_font"] = old_doc.get_most_common_font()
 
         return new_doc
 
