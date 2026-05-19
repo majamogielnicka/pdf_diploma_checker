@@ -17,7 +17,7 @@ DESCRIPTION_WHITELIST= {"wersja", "wersji", "wersjom", "wersjach", "wersję", "w
                      "wzór", "wzoru", "wzorowi", "wzory", "wzorom", "wzorach", "wzorami", "wzorem", "wzorze",
                      "równanie", "równaniu", "równaniach", "równaniami", "równaniom", "równania", "równaniem", "rów", "listing"}
 
-def sentence_check(blocks, check_first_person=True):
+def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=None):
     sentence_count = 0
     passive_count = 0
     active_count = 0
@@ -94,6 +94,24 @@ def sentence_check(blocks, check_first_person=True):
                     #dla zdań biernych, gdy parser nie wykryje podmiotu
                     if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
                         is_subject = True
+                if not is_subject:
+                    root = None
+                    for tok in sentence:
+                        if tok.dep_ == "ROOT":
+                            root = tok
+                            break
+                    if root and root.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in root.morph:
+                        is_subject = True
+                    elif root:
+                        nom_children = [
+                            tok for tok in root.children
+                            if tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph
+                        ]
+                        if nom_children:
+                            is_subject = True
+                if not is_subject and acronyms_with_definitions:
+                    if any(tok.text in acronyms_with_definitions for tok in sentence):
+                        is_subject = True
                 match_list = []
                 if description_exclude_backup(sentence.text):
                     continue
@@ -140,7 +158,6 @@ def sentence_check(blocks, check_first_person=True):
         passive_ratio= f"{passive_ratio}%",
         verbless_ratio= f"{verbless_ratio}%"
     )
-    # print(f'active: {analisys.active_ratio}, {active_count} passive: {analisys.passive_ratio}, {passive_count} verbless: {analisys.verbless_ratio}, {verbless_count} count: {sentence_count}')
     return checked_matches, analisys
 
 def morfeusz_check(text):
@@ -165,9 +182,7 @@ def description_exclude_backup(sentence_text):
     if len(words) < 3:
         return True
     if words[0].lower() in DESCRIPTION_WHITELIST and not words[1].isalpha():
-        # print(f'{sentence_text} excluded')
         return True
     elif not words[0].isalpha() and words[1][0].isupper():
-        # print(f'{sentence_text} excluded')
         return True
     return False
