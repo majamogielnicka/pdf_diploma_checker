@@ -183,7 +183,8 @@ def check_bibtex(matches, Bib_context, bib_blocks):
             continue
         if item.bibtex_type is None:
             matches = check_item_words(matches, item, block, "WRONG_BIBTEX_TYPE",Category_and_message["WRONG_BIBTEX_TYPE"], item.content)
-            continue  
+            continue 
+        check_item(matches, item, block)
 
         required = required_fields_per_type.get(item.bibtex_type, [])
         missing = []
@@ -280,7 +281,7 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
         block = bib_blocks.get(item.item.item_id)
         if block is None:
             continue
-        check_item(matches, item, block)
+        # check_item(matches, item, block)
         check_iso(matches, item, block)
         t = item.bibtex_type
 
