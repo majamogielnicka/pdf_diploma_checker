@@ -1,10 +1,14 @@
 '''
-Analiza tekstu pod względem gramatycznym, stylistycznym i typograficznym.
+Analiza tekstu paragrafów pod kątem błędów ortograficznych, interpunkcyjnych, 
+literówek oraz błędów składni zdania, wykorzystując LanguageTool. 
+W celu zminimalizowania FP dla literówek, są one dwustopniowo weryfikowane przy użyciu dodatkowych słowników 
+(morfeusz2 i spellchecker).
 '''
 import language_tool_python
 from .linguistics_types import Error_type
-from src.analysis.extraction.schema import *
-from .helpers import get_match_info, morf
+from analysis.extraction.schema import *
+from .helpers import get_match_info, morf, spell
+import string
 
 def language_tool_analisys(blocks):
 
@@ -20,105 +24,122 @@ def language_tool_analisys(blocks):
         'PUNCTUATION': "Błąd interpunkcyjny.",
         'TYPOGRAPHY': "Błąd typograficzny.",
     }
+    tool_pl = None
+    tool_en = None
+    try:
+        whitespace_counter = 0
+        tool_en = language_tool_python.LanguageTool('en-GB')
+        tool_en.disabled_categories.add('BRE_STYLE_OXFORD_SPELLING')
+        tool_en.disabled_categories.add('MULTITOKEN_SPELLING')
+        tool_en.disabled_categories.add('CONFUSED_WORDS')
+        tool_en.disabled_rules.add('EN_UNPAIRED_BRACKETS')
+        tool_en.disabled_rules.add('COMMA_PERIOD_CONFUSION')
+        tool_en.disabled_rules.add('EN_UNPAIRED_QUOTES')
+        tool_en.disabled_categories.add('TON_ACADEMIC')
+        tool_en.disabled_categories.add('CONFUSED_WORDS')
+        tool_en.disabled_categories.add('NONSTANDARD_PHRASES')
+        tool_en.disabled_categories.add('REPETITIONS_STYLE')
+        tool_en.disabled_categories.add('SEMATICS')
+        tool_en.disabled_categories.add('STYLE')
+        tool_en.disabled_categories.add('MISC')
+        tool_en.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
+        tool_en.disabled_rules.add('WHITESPACE_RULE')
+        tool_en.disabled_categories.add('CONSECUTIVE_SPACES')
+        tool_en.disabled_categories.add('CASING')
+        tool_en.disabled_categories.add('DASH_RULE')
 
-    whitespace_counter = 0
-    tool_en = language_tool_python.LanguageTool('en-GB')
-    tool_en.disabled_categories.add('BRE_STYLE_OXFORD_SPELLING')
-    tool_en.disabled_categories.add('MULTITOKEN_SPELLING')
-    tool_en.disabled_categories.add('CONFUSED_WORDS')
-    tool_en.disabled_rules.add('EN_UNPAIRED_BRACKETS')
-    tool_en.disabled_rules.add('COMMA_PERIOD_CONFUSION')
-    tool_en.disabled_rules.add('EN_UNPAIRED_QUOTES')
-    tool_en.disabled_categories.add('TON_ACADEMIC')
-    tool_en.disabled_categories.add('CONFUSED_WORDS')
-    tool_en.disabled_categories.add('NONSTANDARD_PHRASES')
-    tool_en.disabled_categories.add('REPETITIONS_STYLE')
-    tool_en.disabled_categories.add('SEMATICS')
-    tool_en.disabled_categories.add('STYLE')
-    tool_en.disabled_categories.add('MISC')
-    tool_en.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
-    tool_en.disabled_rules.add('WHITESPACE_RULE')
-    tool_en.disabled_categories.add('CONSECUTIVE_SPACES')
-    tool_en._disabled_categories.add('CASING')
+        tool_pl = language_tool_python.LanguageTool('pl-PL')
+        tool_pl.disabled_rules.add('NIETYPOWA_KOMBINACJA_DUZYCH_I_MALYCH_LITER')
+        tool_pl.disabled_rules.add('PL_UNPAIRED_BRACKETS')
+        tool_pl.disabled_rules.add('SUBST_ADJ_UNIFY')
+        tool_pl.disabled_rules.add('ADJ_SUBST_ADJ_UNIFY')
+        tool_pl.disabled_rules.add('FORMAT_DZIESIETNY')
+        tool_pl.disabled_rules.add('SPACJA_ZA_PRZECINKIEM_DZIESITNYM')
+        tool_pl.disabled_rules.add('ZDANIE_PODRZEDNE_Z_KTORY_LUB_JAKI')
+        tool_pl.disabled_categories.add('MISC')
+        tool_pl.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
+        tool_pl.disabled_rules.add('WHITESPACE_RULE')
+        tool_pl.disabled_rules.add('BRAK_SPACJI_NAWIAS')
+        tool_pl.disabled_rules.add('PRZEDROSTKI')
+        tool_pl.disabled_rules.add('ZBIEG_NAWIASOW')
+        tool_pl.disabled_categories.add('CASING')
+        tool_pl.disabled_rules.add('DYWIZ')
 
-    tool_pl = language_tool_python.LanguageTool('pl-PL')
-    tool_pl.disabled_rules.add('NIETYPOWA_KOMBINACJA_DUZYCH_I_MALYCH_LITER')
-    tool_pl.disabled_rules.add('PL_UNPAIRED_BRACKETS')
-    tool_pl.disabled_rules.add('SUBST_ADJ_UNIFY')
-    tool_pl.disabled_rules.add('ADJ_SUBST_ADJ_UNIFY')
-    tool_pl.disabled_rules.add('FORMAT_DZIESIETNY')
-    tool_pl.disabled_rules.add('SPACJA_ZA_PRZECINKIEM_DZIESITNYM')
-    tool_pl.disabled_rules.add('ZDANIE_PODRZEDNE_Z_KTORY_LUB_JAKI')
-    tool_pl.disabled_categories.add('MISC')
-    tool_pl.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
-    tool_pl.disabled_rules.add('WHITESPACE_RULE')
-    tool_pl.disabled_rules.add('BRAK_SPACJI_NAWIAS')
-    tool_pl.disabled_rules.add('PRZEDROSTKI')
-    tool_pl.disabled_rules.add('ZBIEG_NAWIASOW')
-
-    errors = []
-    for block in blocks:
-        if block.block.type not in {"acronym", "keywords"}:
-            contents = block.contents
-            text_language = block.language
-            matches = tool_pl.check(contents) if text_language == "pl" else tool_en.check(contents)
-            new_matches = []
-            for match in matches:
-                if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
-                    #print(f'{match.category} {match.rule_id} {match.matched_text} {text_language}')
-                    if block.block.type != "paragraph":
+        errors = []
+        for block in blocks:
+            if block.block.type not in {"acronyms", "keywords", "math", "code_snippet", "toc", "tof", "tot"}:
+                if block.block.type == "list":
+                    if block.block.is_bibliography == True:
                         continue
-                    elif not any(letter.isalpha() for letter in match.matched_text):
-                        continue
-                if match.category == "TYPOS":
-                    word = contents[match.offset:match.offset + match.error_length]
-                    if text_language == 'pl':
-                        if pl_typo_check(word):
+                contents = block.contents
+                text_language = block.language
+                matches = tool_pl.check(contents) if text_language == "pl" else tool_en.check(contents)
+                new_matches = []
+                for match in matches:
+                    if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
+                        if block.block.type != "paragraph":
                             continue
-                        en_matches = tool_en.check(word)
-                        for en_match in en_matches:
-                            en_match.sentence = match.sentence
-                            en_match.offset += match.offset
-                            en_match.message = match.message
-                        new_matches.extend(en_matches)
-                        continue
-                    else:
-                        pl_matches = tool_pl.check(word)
-                        for pl_match in pl_matches:
-                            pl_match.sentence = match.sentence
-                            pl_match.offset += match.offset
-                            pl_match.message = pl_match.message
-                        new_matches.extend(pl_matches)
-                        continue
-                new_matches.append(match)
+                        elif not any(letter.isalpha() for letter in match.matched_text):
+                            continue
+                    if match.category in {"TYPOS", "SPELLING", "COMPOUNDING", "SYNTAX"}:
+                        word = contents[match.offset:match.offset + match.error_length].strip(string.punctuation + string.whitespace)
+                        if typo_check(word):
+                            continue
+                        elif text_language == 'pl':
+                            en_matches = tool_en.check(word)
+                            for en_match in en_matches:
+                                en_match.sentence = match.sentence
+                                en_match.offset += match.offset
+                                en_match.message = match.message
+                            new_matches.extend(en_matches)
+                            continue
+                        else:
+                            pl_matches = tool_pl.check(word)
+                            for pl_match in pl_matches:
+                                pl_match.sentence = match.sentence
+                                pl_match.offset += match.offset
+                                pl_match.message = pl_match.message
+                            new_matches.extend(pl_matches)
+                            continue
+                    new_matches.append(match)
 
-            for m in new_matches:
-                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, m.offset, m.error_length)
-                if text_language == 'en':
-                    message = polish_messages.get(m.category, m.message)
-                else:
-                    message = m.message
-                errors.append(Error_type(
-                    content=contents[m.offset:m.offset + m.error_length],
-                    category=m.category,
-                    message=message,
-                    offset=m.offset,
-                    error_length=m.error_length,
-                    block_id = block.block.block_id,
-                    page_start = start_page,
-                    page_end = end_page,
-                    word_idxs = word_idxs,
-                    error_coordinate= error_coordinate,
-                ))
+                for m in new_matches:
+                    start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, m.offset, m.error_length)
+                    if text_language == 'en':
+                        message = polish_messages.get(m.category, m.message)
+                    else:
+                        message = m.message
+                    errors.append(Error_type(
+                        content=contents[m.offset:m.offset + m.error_length],
+                        category=m.category,
+                        message=message,
+                        offset=m.offset,
+                        error_length=m.error_length,
+                        block_id = block.block.block_id,
+                        page_start = start_page,
+                        page_end = end_page,
+                        word_idxs = word_idxs,
+                        error_coordinate= error_coordinate,
+                    ))
+    finally:
+        if tool_pl is not None:
+            tool_pl.close()
+        if tool_en is not None:
+            tool_en.close()
+
     return errors, whitespace_counter
 
-def pl_typo_check(typo_text):
+def typo_check(typo_text):
     analysis = morf.analyse(typo_text)
+    words = typo_text.lower().split()
     for interpretation in analysis:
         tag = interpretation[2][2]
-        if tag == "ign":
-            return False
-    return True
+        if tag != "ign":
+            return True
+    typos = spell.unknown(words)
+    if not typos:
+        return True
+    return False
 
 
 

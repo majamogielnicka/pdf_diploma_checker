@@ -2,15 +2,20 @@ import sys
 import os
 import datetime
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import sys
+import os
+from common.path import resource_path
+
+BASE_DIR = resource_path(".")
+
 APP_DIR = os.path.join(BASE_DIR, "app")
 COMMON_DIR = os.path.join(BASE_DIR, "common")
 
 if APP_DIR not in sys.path:
-    sys.path.append(APP_DIR)
+    sys.path.insert(0, APP_DIR)
 
 if COMMON_DIR not in sys.path:
-    sys.path.append(COMMON_DIR)
+    sys.path.insert(0, COMMON_DIR)
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -180,10 +185,7 @@ class PDFReader(QMainWindow):
         l = QHBoxLayout(toolbar)
         
         self.back_btn = QPushButton()
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-
-        back_icon_path = resource_path(os.path.join(current_dir, "assets", "back.svg"))
-        #back_icon_path = resource_path("ui/assets/back.svg")
+        back_icon_path = resource_path(os.path.join("ui", "assets", "back.svg"))
         if os.path.exists(back_icon_path):
             self.back_btn.setIcon(QIcon(back_icon_path))
             self.back_btn.setIconSize(QSize(24, 40))
@@ -404,7 +406,7 @@ class PDFReader(QMainWindow):
                 self.right_panel.layout().removeItem(item)
 
         if not sota_data:
-            brak_label = QLabel("Brak danych analizy AI (Tryb szybki)")
+            brak_label = QLabel("Brak danych analizy merytorycznej (Tryb szybki)")
             brak_label.setStyleSheet("color: #7f8c8d; font-style: italic; border: none; margin-top: 15px;")
             self.right_panel.layout().addWidget(brak_label)
             self.right_panel.layout().addStretch()
@@ -420,17 +422,17 @@ class PDFReader(QMainWindow):
         if content_grade is not None:
             if isinstance(content_grade, dict):
                 grade = content_grade.get('grade', 0.0)
-                max_grade = content_grade.get('max_grade', 60.0)
+                max_grade = content_grade.get('max_grade', 100.0)
                 p_off = content_grade.get('p_off', 0.0)
                 off_topic = content_grade.get('off_topic_sections', 0)
             elif isinstance(content_grade, (float, int)):
                 grade = float(content_grade)
-                max_grade = 60.0
+                max_grade = 100.0
                 p_off = 0.0
                 off_topic = 0
             else:
                 grade = 0.0
-                max_grade = 60.0
+                max_grade = 100.0
                 p_off = 0.0
                 off_topic = 0
 
@@ -440,13 +442,13 @@ class PDFReader(QMainWindow):
             cg_layout.setContentsMargins(15, 15, 15, 15)
             cg_layout.setSpacing(5)
 
-            cg_title = QLabel("Ogólna ocena pracy")
+            cg_title = QLabel("Ogolna ocena pracy")
             cg_title.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none; background: transparent;")
             
             cg_val = QLabel(f"{grade} <span style='font-size: 16px; color: #666;'>/ {max_grade} pkt</span>")
             cg_val.setStyleSheet("color: #0056b3; font-size: 32px; font-weight: bold; border: none; background: transparent;")
 
-            detale_lbl = QLabel(f"Podrozdziały poza tematem: <b>{off_topic}</b> ({p_off}%)")
+            detale_lbl = QLabel(f"Podrozdzialy poza tematem: <b>{off_topic}</b> ({p_off}%)")
             detale_lbl.setStyleSheet("color: #666; font-size: 12px; border: none; background: transparent;")
 
             cg_layout.addWidget(cg_title)
@@ -458,36 +460,6 @@ class PDFReader(QMainWindow):
             sep.setFrameShape(QFrame.HLine)
             sep.setStyleSheet("background-color: #D3D3D3; margin-top: 5px; margin-bottom: 5px;")
             l.addWidget(sep)
-
-        sota_header = QLabel("Analiza sekcji SOTA")
-        sota_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
-        l.addWidget(sota_header)
-
-        wynik = sota_data.get('ocena', 0)
-        is_good = wynik >= 50
-        
-        score_frame = QFrame()
-        bg_color = "#E8F5E9" if is_good else "#FFEBEE"
-        border_color = "#C8E6C9" if is_good else "#FFCDD2"
-        text_color = "#2E7D32" if is_good else "#C62828"
-        
-        score_frame.setStyleSheet(f"QFrame {{ background-color: {bg_color}; border-radius: 8px; border: 1px solid {border_color}; }}")
-        score_layout = QVBoxLayout(score_frame)
-        score_layout.setContentsMargins(15, 12, 15, 12)
-        
-        score_title = QLabel("Ocena istniejących rozwiązań")
-        score_title.setStyleSheet("color: #555; font-size: 12px; font-weight: bold; border: none; background: transparent;")
-        score_val = QLabel(f"{wynik}%")
-        score_val.setStyleSheet(f"color: {text_color}; font-size: 24px; font-weight: bold; border: none; background: transparent;")
-        
-        score_layout.addWidget(score_title)
-        score_layout.addWidget(score_val)
-        l.addWidget(score_frame)
-
-        tytul_lbl = QLabel(f"<b>Analizowany rozdział:</b><br>{sota_data.get('tytul', 'Brak')}")
-        tytul_lbl.setWordWrap(True)
-        tytul_lbl.setStyleSheet("color: #333; font-size: 13px; border: none;")
-        l.addWidget(tytul_lbl)
 
         def create_badge_row(label_text, is_met):
             row_widget = QWidget()
@@ -507,25 +479,22 @@ class PDFReader(QMainWindow):
             icon_circle.setFixedSize(20, 20)
             icon_circle.setAlignment(Qt.AlignCenter)
 
-            current_dir = os.path.dirname(os.path.abspath(__file__))
             if is_met:
                 badge.setStyleSheet("QFrame { background-color: #D1EEDC; border-radius: 13px; border: none; }")
-                tick_path = os.path.join(current_dir, "assets", "tick.svg")
-                # tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
+                tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
                 if os.path.exists(tick_path):
                     icon_circle.setPixmap(QIcon(tick_path).pixmap(QSize(12, 12)))
                 else:
-                    icon_circle.setText("✓")
+                    icon_circle.setText("V")
                 icon_circle.setStyleSheet("QLabel { background-color: #2CA05A; color: white; border-radius: 10px; font-weight: bold; }")
                 text_lbl = QLabel("Tak")
             else:
                 badge.setStyleSheet("QFrame { background-color: #F8D7DA; border-radius: 13px; border: none; }")
-                cross_path = os.path.join(current_dir, "assets", "cross.svg")
-                # cross_path = resource_path(os.path.join("ui", "assets", "cross.svg"))
+                cross_path = resource_path(os.path.join("ui", "assets", "cross.svg"))
                 if os.path.exists(cross_path):
                     icon_circle.setPixmap(QIcon(cross_path).pixmap(QSize(10, 10)))
                 else:
-                    icon_circle.setText("✕")
+                    icon_circle.setText("X")
                 icon_circle.setStyleSheet("QLabel { background-color: #DC3545; color: white; border-radius: 10px; font-weight: bold; }")
                 text_lbl = QLabel("Nie")
 
@@ -536,12 +505,25 @@ class PDFReader(QMainWindow):
             row_layout.addWidget(badge, alignment=Qt.AlignRight)
             return row_widget
 
-        l.addWidget(create_badge_row("Ocena istniejących rozwiązań", sota_data.get('r1')))
-        l.addWidget(create_badge_row("Wskazanie luki / problemu", sota_data.get('r2')))
-        l.addWidget(create_badge_row("Synteza / porównanie metod", sota_data.get('r3')))
+        grafiki_header = QLabel("Weryfikacja rysunkow i grafik")
+        grafiki_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
+        l.addWidget(grafiki_header)
+
+        jakosc_err = sota_data.get('jakosc_obrazkow', [])
+        czcionki_err = sota_data.get('czcionki_obrazkow', [])
+
+        if not jakosc_err:
+            l.addWidget(create_badge_row("Jakosc obrazow (rozdzielczosc/czytelnosc)", True))
+        else:
+            l.addWidget(create_badge_row(f"Jakosc obrazow (Bledy: {len(jakosc_err)})", False))
+
+        if not czcionki_err:
+            l.addWidget(create_badge_row("Spojnosc czcionek na rysunkach", True))
+        else:
+            l.addWidget(create_badge_row(f"Spojnosc czcionek (Bledy: {len(czcionki_err)})", False))
 
         l.addSpacing(15)
-        self.raport_btn = QPushButton("Pobierz dokładny raport")
+        self.raport_btn = QPushButton("Pobierz dokladny raport")
         self.raport_btn.setCursor(Qt.PointingHandCursor)
         self.raport_btn.setStyleSheet(styles.RAPORT_BTN_STYLE)
         self.raport_btn.clicked.connect(self.generate_detailed_report)
@@ -549,6 +531,8 @@ class PDFReader(QMainWindow):
 
         self.right_panel.layout().addWidget(content)
         self.right_panel.layout().addStretch()
+
+       
 
     def zoom_in(self):
         self.pdf_view.setZoomFactor(self.pdf_view.zoomFactor() * 1.1)
@@ -682,11 +666,11 @@ class PDFReader(QMainWindow):
                     break
 
         if not sota_data:
-            QMessageBox.warning(self, "Ostrzeżenie", "Brak danych szczegółowej analizy AI dla tego dokumentu.")
+            QMessageBox.warning(self, "Ostrzezenie", "Brak danych szczegolowej analizy merytorycznej dla tego dokumentu.")
             return
 
-        default_name = f"Raport_AI_{os.path.basename(self.current_pdf_path)}"
-        save_path, _ = QFileDialog.getSaveFileName(self, "Zapisz Raport Szczegółowy", default_name, "Pliki PDF (*.pdf)")
+        default_name = f"Raport_Merytoryczny_{os.path.basename(self.current_pdf_path)}"
+        save_path, _ = QFileDialog.getSaveFileName(self, "Zapisz Raport Szczegolowy", default_name, "Pliki PDF (*.pdf)")
         
         if not save_path:
             return
@@ -695,34 +679,67 @@ class PDFReader(QMainWindow):
             report_pdf = fitz.open()
             page = report_pdf.new_page()
             
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            font_path = os.path.join(current_dir, "assets", "Roboto-Regular.ttf")
-            font_bold_path = os.path.join(current_dir, "assets", "Roboto-Bold.ttf")
+            font_path = resource_path(os.path.join("ui", "assets", "Roboto-Regular.ttf"))
+            font_bold_path = resource_path(os.path.join("ui", "assets", "Roboto-Bold.ttf"))
 
+            # Przechwytujemy rzeczywiste nazwy referencyjne zwracane przez PyMuPDF
             if os.path.exists(font_path) and os.path.exists(font_bold_path):
-                f_main = "roboto"
-                f_bold = "roboto-bold"
-                page.insert_font(fontname=f_main, fontfile=font_path)
-                page.insert_font(fontname=f_bold, fontfile=font_bold_path)
+                f_main = page.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
+                f_bold = page.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
             else:
                 f_main = "helv"
                 f_bold = "hebo"
-                print("UWAGA: Nie znaleziono czcionek w assets. Użyto zamienników.")
 
             pos_y = 50
             margin = 50
+
+            def check_new_page(y_coord, pdf_doc, current_page):
+                if y_coord > 750:
+                    new_p = pdf_doc.new_page()
+                    if os.path.exists(font_path) and os.path.exists(font_bold_path):
+                        # Na nowej stronie rejestrujemy czcionki i aktualizujemy zmienne globalne funkcji
+                        nonlocal f_main, f_bold
+                        f_main = new_p.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
+                        f_bold = new_p.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
+                    return 50, new_p
+                return y_coord, current_page
             
-            page.insert_text((margin, pos_y), "Szczegółowy Raport Analizy AI", 
+            def wrap_text(text, max_len=90):
+                words = text.split()
+                lines = []
+                current_line = ""
+                for word in words:
+                    if len(current_line) + len(word) + 1 <= max_len:
+                        current_line += (word + " ")
+                    else:
+                        lines.append(current_line.strip())
+                        current_line = word + " "
+                if current_line:
+                    lines.append(current_line.strip())
+                return lines
+            
+            page.insert_text((margin, pos_y), "Szczegółowy Raport Analizy Merytorycznej", 
                              fontsize=22, fontname=f_bold, color=(0.13, 0.58, 0.95))
             pos_y += 45
             page.insert_text((margin, pos_y), f"Dokument: {os.path.basename(self.current_pdf_path)}", 
                              fontsize=12, fontname=f_main, color=(0.2, 0.2, 0.2))
             pos_y += 40
             
-            content_grade = sota_data.get('content_grade', {})
-            if isinstance(content_grade, dict):
-                grade = content_grade.get('grade', 0)
-                max_g = content_grade.get('max_grade', 60)
+            content_grade = sota_data.get('content_grade')
+            if content_grade is not None:
+                if isinstance(content_grade, dict):
+                    grade = content_grade.get('grade', 0)
+                    max_g = content_grade.get('max_grade', 100)
+                    off_topic = content_grade.get('off_topic_sections', 0)
+                    p_off = content_grade.get('p_off', 0)
+                    off_topic_headings = content_grade.get('off_topic_headings', [])
+                else:
+                    grade = content_grade
+                    max_g = 100
+                    off_topic = 0
+                    p_off = 0
+                    off_topic_headings = []
+
                 page.insert_text((margin, pos_y), "1. Ogólna ocena merytoryczna", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
@@ -730,11 +747,28 @@ class PDFReader(QMainWindow):
                                  fontsize=12, fontname=f_main)
                 pos_y += 20
                 page.insert_text((margin, pos_y), 
-                                 f"Podrozdziały poza tematem: {content_grade.get('off_topic_sections', 0)} ({content_grade.get('p_off', 0)}%)", 
+                                 f"Podrozdziały poza tematem: {off_topic} ({p_off}%)", 
                                  fontsize=11, fontname=f_main)
-                pos_y += 45
+                pos_y += 25
 
-            page.insert_text((margin, pos_y), "2. Analiza rozdziału SOTA", 
+                if off_topic > 0 and off_topic_headings:
+                    page.insert_text((margin, pos_y), "Zidentyfikowane sekcje niezgodne z celem pracy:", 
+                                     fontsize=11, fontname=f_bold, color=(0.86, 0.2, 0.27))
+                    pos_y += 18
+                    for heading in off_topic_headings:
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
+                        wrapped_heading = wrap_text(str(heading), 85)
+                        for idx, line in enumerate(wrapped_heading):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
+                            prefix = "- " if idx == 0 else "  "
+                            page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                            pos_y += 14
+                    pos_y += 15
+                else:
+                    pos_y += 15
+
+            pos_y, page = check_new_page(pos_y, report_pdf, page)
+            page.insert_text((margin, pos_y), "2. Weryfikacja merytoryczna rozdziału teoretycznego", 
                              fontsize=14, fontname=f_bold)
             pos_y += 25
             
@@ -744,33 +778,135 @@ class PDFReader(QMainWindow):
             pos_y += 20
             
             score = sota_data.get('ocena', 0)
-            page.insert_text((margin, pos_y), f"Zgodność z wymogami SOTA: {score}%", 
+            page.insert_text((margin, pos_y), f"Poziom realizacji wytycznych: {score}%", 
                              fontsize=12, fontname=f_main)
             pos_y += 30
 
             criteria = [
-                ("Ocena istniejących rozwiązań:", sota_data.get('r1')),
-                ("Wskazanie luki badawczej / problemu:", sota_data.get('r2')),
-                ("Synteza i porównanie metod:", sota_data.get('r3'))
+                ("Analiza i ocena istniejących rozwiązań:", sota_data.get('r1')),
+                ("Wskazanie luki badawczej lub problemu naukowego:", sota_data.get('r2')),
+                ("Synteza i krytyczne porównanie metod:", sota_data.get('r3'))
             ]
 
             for label, met in criteria:
+                pos_y, page = check_new_page(pos_y, report_pdf, page)
                 status = "TAK [X]" if met else "NIE [ ]"
                 color = (0.17, 0.62, 0.35) if met else (0.86, 0.2, 0.27)
                 page.insert_text((margin + 20, pos_y), f"{label} {status}", 
-                                 fontsize=11, fontname=f_main, color=color)
+                                 fontsize=11, fontname=f_bold if met else f_main, color=color)
                 pos_y += 20
 
+            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
+            img_data = sota_data.get("image_analysis")
+            if img_data:
+                page.insert_text((margin, pos_y), "3. Analiza spójności grafik i wykresów (AI)", 
+                                 fontsize=14, fontname=f_bold)
+                pos_y += 25
+                
+                page.insert_text((margin, pos_y), f"Wszystkich zweryfikowanych rysunków: {img_data.get('total', 0)}", 
+                                 fontsize=11, fontname=f_main)
+                pos_y += 18
+                
+                color_bad = (0.86, 0.2, 0.27) if img_data.get('bad_count', 0) > 0 else (0.2, 0.2, 0.2)
+                page.insert_text((margin, pos_y), f"Rysunki z błędnym opisem w tekście: {img_data.get('bad_count', 0)}", 
+                                 fontsize=11, fontname=f_main, color=color_bad)
+                pos_y += 18
+                
+                page.insert_text((margin, pos_y), f"Rysunki poprawne: {img_data.get('good_count', 0)}", 
+                                 fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+                pos_y += 25
+                
+                if img_data.get("details", []):
+                    page.insert_text((margin, pos_y), "Lista szczegółowa rozbieżności:", fontsize=12, fontname=f_bold)
+                    pos_y += 20
+                    for line_text in img_data.get("details", []):
+                        wrapped_lines = wrap_text(line_text, 90)
+                        for idx, chunk in enumerate(wrapped_lines):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
+                            indent = margin + 15 if idx == 0 else margin + 25
+                            txt_col = (0, 0, 0) if idx == 0 else (0.4, 0.4, 0.4)
+                            page.insert_text((indent, pos_y), chunk, fontsize=10, fontname=f_main, color=txt_col)
+                            pos_y += 15
+                        pos_y += 4
 
-            page.insert_text((margin, 800), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
+            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
+            page.insert_text((margin, pos_y), "4. Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
+            pos_y += 25
+
+            jakosc_err = sota_data.get('jakosc_obrazkow', [])
+            if not jakosc_err:
+                page.insert_text((margin, pos_y), "Wszystkie obrazy mają odpowiednią jakość i czytelność.", 
+                                 fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+                pos_y += 25
+            else:
+                page.insert_text((margin, pos_y), f"Wykryto problemy z jakością w {len(jakosc_err)} obrazach:", 
+                                 fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
+                pos_y += 20
+                for err in jakosc_err:
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    rys = err.get("rysunek", "Nieznany rysunek")
+                    fmt = err.get("format", "Brak formatu")
+                    powody = err.get("powody_odrzucenia", [])
+                    
+                    page.insert_text((margin + 15, pos_y), f"{rys} (Format: {fmt}):", fontsize=11, fontname=f_bold)
+                    pos_y += 16
+                    for powod in powody:
+                        wrapped_powod = wrap_text(powod, 85)
+                        for idx, line in enumerate(wrapped_powod):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
+                            prefix = "- " if idx == 0 else "  "
+                            page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                            pos_y += 14
+                    pos_y += 5
+
+            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
+            page.insert_text((margin, pos_y), "5. Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
+            pos_y += 25
+
+            czcionki_err = sota_data.get('czcionki_obrazkow', [])
+            if not czcionki_err:
+                page.insert_text((margin, pos_y), "Brak wykrytych problemów ze spójnością czcionek na rysunkach.", 
+                                 fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+                pos_y += 25
+            else:
+                page.insert_text((margin, pos_y), f"Wykryto problemy z czcionkami w {len(czcionki_err)} elementach:", 
+                                 fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
+                pos_y += 20
+                for err in czcionki_err:
+                    if isinstance(err, dict):
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
+                        rys = err.get("rysunek", "Nieznany rysunek")
+                        bledy = err.get("bledy", err.get("powody_odrzucenia", [str(err)]))
+                        
+                        page.insert_text((margin + 15, pos_y), f"{rys}:", fontsize=11, fontname=f_bold)
+                        pos_y += 16
+                        for b in bledy:
+                            wrapped_blad = wrap_text(str(b), 85)
+                            for idx, line in enumerate(wrapped_blad):
+                                pos_y, page = check_new_page(pos_y, report_pdf, page)
+                                prefix = "- " if idx == 0 else "  "
+                                page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                                pos_y += 14
+                        pos_y += 5
+                    else:
+                        wrapped_err = wrap_text(str(err), 85)
+                        for idx, line in enumerate(wrapped_err):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
+                            prefix = "- " if idx == 0 else "  "
+                            page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                            pos_y += 14
+                        pos_y += 5
+
+            pos_y, page = check_new_page(810, report_pdf, page)
+            page.insert_text((margin, 820), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
                              fontsize=9, fontname=f_main, color=(0.5, 0.5, 0.5))
 
             report_pdf.save(save_path)
             report_pdf.close()
             
-            QMessageBox.information(self, "Sukces", f"Raport został zapisany pomyślnie:\n{save_path}")
+            QMessageBox.information(self, "Sukces", f"Raport zostal zapisany pomyslnie:\n{save_path}")
 
         except Exception as e:
             import traceback
             traceback.print_exc()
-            QMessageBox.critical(self, "Błąd Eksportu", f"Błąd podczas generowania raportu:\n{str(e)}")
+            QMessageBox.critical(self, "Blad Eksportu", f"Blad podczas generowania raportu:\n{str(e)}")

@@ -5,14 +5,12 @@ import datetime
 class saving_files:
     def __init__(self, index_path=None):
         if index_path is None:
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            project_root = os.path.dirname(os.path.dirname(base_dir))
-            self.index_path = os.path.join(project_root, "data", "config", "index.json")
+            app_data = os.environ.get('APPDATA', os.path.expanduser('~'))
+            self.index_path = os.path.join(app_data, "DiplomaChecker", "index.json")
         else:
             self.index_path = index_path
         
         os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
-        
         self.data = self._load_index()
 
     def _load_index(self):

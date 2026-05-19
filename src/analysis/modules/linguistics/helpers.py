@@ -1,23 +1,61 @@
 '''
-Funkcje pomocnicze do analizy lingwistycznej.
+Plik zawiera funkje pomocnicze używane wielokrotnie w module lingwistycznym, zebrane w jednym miejscu.
+Uruchamiane są tu modele spacy, language_tool, morfeusz, spellchecker, 
+następnie tylko przekazywane do odpowiednich funkcji.
 '''
 import os
 import dataclasses
 import json
 import morfeusz2
 from lingua import Language, LanguageDetectorBuilder
-from src.analysis.extraction.schema import *
+from analysis.extraction.schema import *
 from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
 import spacy
+from spellchecker import SpellChecker
+from common.path import resource_path
 
 morf = morfeusz2.Morfeusz()
+spell = SpellChecker()
+spell.word_frequency.load_text_file(resource_path(os.path.join("src", "analysis", "modules", "linguistics", "word_whitelist.txt")))
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
-nlp_en = spacy.load('en_core_web_lg')
-nlp_pl = spacy.load('pl_core_news_lg')
+import os
+import sys
+import spacy
+
+import sys
+import os
+import spacy
+from pathlib import Path
+
+def get_nlp(model_name):
+    """Bezpieczne ładowanie dowolnego modelu spaCy w .exe i kodzie źródłowym"""
+    if getattr(sys, 'frozen', False):
+        base_path = Path(getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))).resolve()
+        
+        model_path = base_path / "_internal" / model_name
+        if not model_path.exists():
+            model_path = base_path / model_name
+
+        if model_path.exists():
+            config_path = model_path / "config.cfg"
+            if not config_path.exists():
+                subdirs = [d for d in model_path.iterdir() if d.is_dir()]
+                for subdir in subdirs:
+                    if (subdir / "config.cfg").exists():
+                        model_path = subdir
+                        break
+            
+            print(f"[SPA CY] Ładowanie modelu z absolutnej ścieżki: {model_path.resolve()}")
+            return spacy.load(model_path.resolve())
+            
+    return spacy.load(model_name)
+
+nlp_pl = get_nlp("pl_core_news_lg")
+nlp_en = get_nlp("en_core_web_lg")
 
 @functools.cache
 def lemmatization(word_base, text_language):
@@ -49,13 +87,45 @@ def get_match_info(block, offset, length):
     start_page = None
     end_page = None
     lines = defaultdict(list)
-    for word in block.words:
-        if word.start_char < end_offset and word.end_char > offset:
-            word_idxs.append(word.word_index)
-            lines[(word.page_number, word.line)].append(word)
-            if start_page is None:
-                start_page = word.page_number
-            end_page = word.page_number
+
+    if block.type == "list":
+        item_offset = 0
+        for item in block.items:
+            if not item.text:
+                continue
+            item_end = item_offset + len(item.text)
+            if item_offset >= end_offset:
+                break
+            if item_end > offset:
+                local_start = max(0, offset - item_offset)
+                local_end = min(len(item.text), end_offset - item_offset)
+                item_text = item.text.lower()
+                search_from = 0
+                for word in item.words:
+                    word_text = word.text.lower()
+                    idx = item_text.find(word_text, search_from)
+                    if idx == -1:
+                        word_start = word.start_char
+                        word_end = word.end_char
+                    else:
+                        word_start = idx
+                        word_end = idx + len(word.text)
+                        search_from = idx + len(word.text)
+                    if word_start < local_end and word_end > local_start:
+                        word_idxs.append(word.word_index)
+                        lines[(word.page_number, word.line)].append(word)
+                        if start_page is None:
+                            start_page = word.page_number
+                        end_page = word.page_number
+            item_offset += len(item.text) + 1
+    else:
+        for word in block.words:
+            if word.start_char < end_offset and word.end_char > offset:
+                word_idxs.append(word.word_index)
+                lines[(word.page_number, word.line)].append(word)
+                if start_page is None:
+                    start_page = word.page_number
+                end_page = word.page_number
 
     error_coordinate = []
     for (page, line), words in sorted(lines.items()):
@@ -81,7 +151,7 @@ def extract_errors_to_json(matches, name):
             all_matches.append(dataclasses.asdict(match))
     else:
         all_matches = dataclasses.asdict(matches)
-    output_path = os.path.join(os.path.dirname(__file__), name)
+    output_path = resource_path(os.path.join("analysis", "modules", "linguistics", name))
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(all_matches, f, ensure_ascii=False, indent=4)

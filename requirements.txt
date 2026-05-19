@@ -24,6 +24,7 @@ language-tool-python==3.2.2
 spacy==3.8.11
 lingua-language-detector==2.2.0
 morfeusz2==1.99.12
+pyspellchecker==0.9.0
 
 # Spacy models
 # Komendy do ściągnięcia modeli:
