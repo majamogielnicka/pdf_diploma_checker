@@ -29,7 +29,7 @@ def check_exeptions(matches, blocks, proper_names, main_font):
                 potential_exeption = False
                 inside_quotes = check_quotes(match.offset, match.offset + match.error_length, text)
                 if not inside_quotes:
-                    if match.category in {"TYPOS", "SPELLING" ,"COMPOUNDING"}:
+                    if match.category in {"TYPOS", "SPELLING" ,"COMPOUNDING", "SYNTAX"}:
                         if remove_errors_different_font(match, block, main_font):
                             continue
                         try:
