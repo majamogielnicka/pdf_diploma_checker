@@ -484,7 +484,7 @@ class RedactionValidator:
         if not block.words:
             return
 
-        szewc_words = block.words[-szewc_which:]
+        szewc_words = block.words[:szewc_which]
         first_word = szewc_words[0]
         last_word = szewc_words[-1]
         found_text = " ".join([w.text for w in szewc_words])
