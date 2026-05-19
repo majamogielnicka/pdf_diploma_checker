@@ -114,7 +114,6 @@ class AnalysisPipeline:
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
-                # Bezpieczne pobranie ocen składowych (odporne na zwracanie int zamiast krotki)
                 content_res = get_content_grade(purpose, summaries)
                 if isinstance(content_res, tuple) and len(content_res) == 2:
                     content_grade_val, off_topic_headings = content_res
@@ -169,7 +168,28 @@ class AnalysisPipeline:
             except Exception as e:
                 print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
                 return None, None, "Błąd analizy SOTA/LLM."
-
+        def task_linguistics():
+            try:
+                from analysis.extraction.extraction_json import extractPDF
+                from analysis.extraction.converter_linguistics_clean import PDFMapper
+                import importlib.util
+                mapper = PDFMapper()
+                ling_path = os.path.join(LINGUISTICS_DIR, "run_linguistics.py")
+                spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_linguistics", ling_path)
+                ling_module = importlib.util.module_from_spec(spec)
+                ling_module.__package__ = "analysis.modules.linguistics"
+                sys.modules["analysis.modules.linguistics.run_linguistics"] = ling_module
+                spec.loader.exec_module(ling_module)
+                
+                raw_blocks = mapper.map_to_schema(doc_obj)
+                ling_matches = ling_module.run_linguistics(raw_blocks, config_path)
+                print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
+                return ling_matches
+            except Exception as e:
+                print(f"[PIPELINE] Błąd lingwistyki: {e}")
+                import traceback
+                traceback.print_exc()
+                return []
                 
         def task_redaction():
             try:
