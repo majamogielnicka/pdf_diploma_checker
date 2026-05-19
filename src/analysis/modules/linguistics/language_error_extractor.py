@@ -81,7 +81,7 @@ def language_tool_analisys(blocks):
                             continue
                         elif not any(letter.isalpha() for letter in match.matched_text):
                             continue
-                    if match.category in {"TYPOS", "SPELLING", "COMPOUNDING"}:
+                    if match.category in {"TYPOS", "SPELLING", "COMPOUNDING", "SYNTAX"}:
                         word = contents[match.offset:match.offset + match.error_length].strip(string.punctuation + string.whitespace)
                         if typo_check(word):
                             continue
