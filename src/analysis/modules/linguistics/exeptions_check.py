@@ -6,6 +6,7 @@ from collections import defaultdict
 import re
 from .helpers import lemmatization
 from .proper_check import check_if_proper
+from .typos_final_filter import refine_typos
 import string
  
 def check_exeptions(matches, blocks, proper_names, main_font):
@@ -49,7 +50,8 @@ def check_exeptions(matches, blocks, proper_names, main_font):
                         continue
                 if not inside_quotes and not potential_exeption:
                     valid_errors.append(match)
-    exeptions = []    
+    exeptions = []  
+    valid_errors = refine_typos(valid_errors, blocks) #fallback od redakcji
     for lemma, match_list in potential_exeptions.items():
         if len(match_list) > 2:
             exeptions.extend(match_list)

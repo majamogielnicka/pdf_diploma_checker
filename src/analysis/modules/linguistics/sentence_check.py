@@ -95,7 +95,11 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
                     if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
                         is_subject = True
                 if not is_subject:
-                    root = next((tok for tok in sentence if tok.dep_ == "ROOT"), None)
+                    root = None
+                    for tok in sentence:
+                        if tok.dep_ == "ROOT":
+                            root = tok
+                            break
                     if root and root.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in root.morph:
                         is_subject = True
                     elif root:
