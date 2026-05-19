@@ -216,7 +216,7 @@ def check_bibliography(blocks, producer, bibliography_dict, bibtex_check_bool = 
 
     matches = check_coherence_iso(matches, bib_context, bib_blocks)
     if producer and re.search(r'latex|tex', producer, re.IGNORECASE) and bibtex_check_bool:
-        matches.append(check_bibtex(matches, bib_context, bib_blocks))
+        matches.extend(check_bibtex(matches, bib_context, bib_blocks))
     return matches
 
 def first_match(content, patterns):

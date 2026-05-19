@@ -12,7 +12,7 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
     if block.type in {"math", "code_snippet", "toc", "tot", "tof", "acronyms"}:
         return True
     if is_diff:
-        if all((word.italic or word.bold) for word in matched_words):
+        if any((word.italic or word.bold) for word in matched_words):
             return True
         else: 
             return False
