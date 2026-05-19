@@ -132,7 +132,7 @@ def language_tool_analisys(blocks):
 
 def typo_check(typo_text):
     analysis = morf.analyse(typo_text)
-    words = typo_text.split()
+    words = typo_text.lower().split()
     for interpretation in analysis:
         tag = interpretation[2][2]
         if tag != "ign":
