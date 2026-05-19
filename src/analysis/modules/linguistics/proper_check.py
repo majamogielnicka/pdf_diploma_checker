@@ -9,7 +9,7 @@ from .helpers import lemmatization
 def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
     target_words_ids = set(match.word_idxs) if isinstance(match.word_idxs, list) else {match.word_idxs}
     matched_words = [word for word in block.words if word.word_index in target_words_ids]
-    if block.type in {"math", "code_snippet", "toc", "tot", "tof"}:
+    if block.type in {"math", "code_snippet", "toc", "tot", "tof", "acronyms"}:
         return True
     if is_diff:
         if all((word.italic or word.bold) for word in matched_words):

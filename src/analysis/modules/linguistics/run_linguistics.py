@@ -51,7 +51,6 @@ def run_linguistics(raw_blocks, config_path=None):
     bib_matches = check_bibliography(blocks, raw_blocks.metadata["producer"], bibliography_dict, bibtex_check_bool = check_bibtex)
     acronyms_with_definitions, proper_names = check_first_definition(blocks, proper_names, extracted_acronyms)
     acronym_matches, proper_names = check_if_was_defined(blocks, acronyms_with_definitions, proper_names)
-    proper_names = set(proper_names)
     decimal_matches, decimal_counter = decimal_check(blocks)
     dash_matches, dash_counter = dash_check(blocks)
     language_matches, whitespace_counter = language_tool_analisys(blocks)

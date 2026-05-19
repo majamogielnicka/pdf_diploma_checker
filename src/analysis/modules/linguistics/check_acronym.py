@@ -98,4 +98,5 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                         reported_acronyms.add(clean_text)
                         proper_names.append((clean_text, clean_text))
                         matches.append(add_match(word.text, block.block_id, page, page, [word.word_index], [{"page": page, "coordinates": list(word.bbox)}], category, message))
+    proper_names = set(proper_names)
     return matches, proper_names

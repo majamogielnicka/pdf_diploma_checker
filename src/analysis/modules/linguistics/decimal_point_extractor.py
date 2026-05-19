@@ -12,7 +12,7 @@ def decimal_check(blocks):
     checked_matches = []
     chapter_numbers = set()
     for block in blocks:
-        if block.block.type in {"math", "code_snippet", "toc", "tot", "tof"}:
+        if block.block.type in {"math", "code_snippet", "toc", "tot", "tof", "acronyms"}:
             continue
         if block.block.type == "list":
             if block.block.is_bibliography == True:
