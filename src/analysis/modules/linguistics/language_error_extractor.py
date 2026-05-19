@@ -77,12 +77,11 @@ def language_tool_analisys(blocks):
                 new_matches = []
                 for match in matches:
                     if (match.category == 'TYPOGRAPHY' or match.category == 'PUNCTUATION'): 
-                        #print(f'{match.category} {match.rule_id} {match.matched_text} {text_language}')
                         if block.block.type != "paragraph":
                             continue
                         elif not any(letter.isalpha() for letter in match.matched_text):
                             continue
-                    if match.category in {"TYPOS", "SPELLING", "COMPOUNDING"}:
+                    if match.category in {"TYPOS", "SPELLING", "COMPOUNDING", "SYNTAX"}:
                         word = contents[match.offset:match.offset + match.error_length].strip(string.punctuation + string.whitespace)
                         if typo_check(word):
                             continue
@@ -132,7 +131,7 @@ def language_tool_analisys(blocks):
 
 def typo_check(typo_text):
     analysis = morf.analyse(typo_text)
-    words = typo_text.split()
+    words = typo_text.lower().split()
     for interpretation in analysis:
         tag = interpretation[2][2]
         if tag != "ign":

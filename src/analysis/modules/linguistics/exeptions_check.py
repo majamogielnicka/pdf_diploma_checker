@@ -6,9 +6,10 @@ from collections import defaultdict
 import re
 from .helpers import lemmatization
 from .proper_check import check_if_proper
+from .typos_final_filter import refine_typos
 import string
  
-def check_exeptions(matches, blocks, proper_names):
+def check_exeptions(matches, blocks, proper_names, main_font):
     potential_exeptions = defaultdict(list)
     valid_errors = []
     blocks_to_check = defaultdict(list)
@@ -28,7 +29,9 @@ def check_exeptions(matches, blocks, proper_names):
                 potential_exeption = False
                 inside_quotes = check_quotes(match.offset, match.offset + match.error_length, text)
                 if not inside_quotes:
-                    if match.category in {"TYPOS", "SPELLING" ,"COMPOUNDING"}:
+                    if match.category in {"TYPOS", "SPELLING" ,"COMPOUNDING", "SYNTAX"}:
+                        if remove_errors_different_font(match, block, main_font):
+                            continue
                         try:
                             if any(letter == '-' for letter in match.content):
                                 continue
@@ -37,7 +40,7 @@ def check_exeptions(matches, blocks, proper_names):
                             elif match.offset + len(match.content) < len(text) and text[match.offset + len(match.content)] == '-':
                                 continue
                         except:
-                            print(f'błędne koordynaty: {match.content} {match.offset}')
+                            pass
                         lemma, is_found = lemmatization(word, block.language)
                         if check_if_proper(block.block, match, proper_names, lemma):
                             continue
@@ -47,7 +50,8 @@ def check_exeptions(matches, blocks, proper_names):
                         continue
                 if not inside_quotes and not potential_exeption:
                     valid_errors.append(match)
-    exeptions = []    
+    exeptions = []  
+    valid_errors = refine_typos(valid_errors, blocks) #fallback od redakcji
     for lemma, match_list in potential_exeptions.items():
         if len(match_list) > 2:
             exeptions.extend(match_list)
@@ -56,6 +60,16 @@ def check_exeptions(matches, blocks, proper_names):
 
     return valid_errors
 
+
+def remove_errors_different_font(match, block, main_font):
+    if not main_font or not match.word_idxs:
+        return False
+    words_by_idx = {w.word_index: w for w in block.block.words}
+    for idx in match.word_idxs:
+        word = words_by_idx.get(idx)
+        if word is not None and word.font != main_font:
+            return True
+    return False
 
 def check_quotes(start, end, text, return_spans=False):
     spans = []
