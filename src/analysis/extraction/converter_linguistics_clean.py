@@ -838,7 +838,6 @@ class PDFMapper:
                                 word.incorrect_bibliography = 1
     
     def _extract_acronyms_to_schema(self, new_doc):
-        import re
         
         # BAZA AKRONIMU 
         acr_dash_pattern = r'^(?![a-ząćęłńóśźż]{3,})(?!\d+\s+[-–—−‐:=])(.{1,40}?)\s+[-–—−‐:=]\s+'
