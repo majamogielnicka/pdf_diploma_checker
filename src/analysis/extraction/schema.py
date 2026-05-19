@@ -113,6 +113,7 @@ class AcronymItem:
     pages: str           
     bbox: List[float] = field(default_factory=list)
     words: List[WordInfo] = field(default_factory=list)
+    src_page: int = 0
 
 @dataclass
 class TOCItem: # Informacje o elementach spisu treści (TODO)

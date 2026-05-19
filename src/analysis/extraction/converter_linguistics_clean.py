@@ -838,12 +838,14 @@ class PDFMapper:
                                 word.incorrect_bibliography = 1
     
     def _extract_acronyms_to_schema(self, new_doc):
+        import re
         
         # BAZA AKRONIMU 
         acr_dash_pattern = r'^(?![a-ząćęłńóśźż]{3,})(?!\d+\s+[-–—−‐:=])(.{1,40}?)\s+[-–—−‐:=]\s+'
         acr_space_pattern = r'^(?=[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\u0370-\u03FF]*[A-Za-zĄĆĘŁŃÓŚŹŻ\u0370-\u03FF])(?:[A-ZĄĆĘŁŃÓŚŹŻ0-9\u0370-\u03FF]|[a-ząćęłńóśźż][A-ZĄĆĘŁŃÓŚŹŻ\u0370-\u03FF])[A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\u0370-\u03FF]{0,20}'
         mc = r'\u0370-\u03FF\u2100-\u214F\u2200-\u22FF\U0001D400-\U0001D7FF'
         
+        # BAZA SYMBOLI
         math_symbol_pattern = r'^([A-Za-zĄĆĘŁŃÓŚŹŻ0-9\-/\^\|_=<>\.,\(\)\*\s' + mc + r']{1,30})\s+[-–—−‐:=]?\s*(?=[a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ])'
 
         in_acronym_section = False
@@ -858,7 +860,7 @@ class PDFMapper:
             
             pattern_target = r'\b(ACRONYM|ACRONYMS|SKRÓT|SKRÓTY|SKRÓTÓW|ABBREVIATION|ABBREVIATIONS|OZNACZEŃ|OZNACZENIA|SYMBOL|SYMBOLI|SYMBOLE)\b'
             
-            #sprawdzanie czy blok jest spisem akronimów
+            # sprawdzanie czy blok jest spisem akronimów
             is_header = False
             if block_type == "heading":
                 is_header = True
@@ -879,6 +881,7 @@ class PDFMapper:
             if in_acronym_section:
                 fallback_blocks.append(block)
                 
+                # Nadpisywanie typu bloków na "acronyms"
                 if block_type != "heading":
                     if isinstance(block, dict):
                         block["type"] = "acronyms"
@@ -980,18 +983,31 @@ class PDFMapper:
                     current_line_words.append(word)
                 else:
                     current_line_words.sort(key=get_x0)
-                    reconstructed_lines.append(" ".join([get_text(w) for w in current_line_words]))
+                    line_str = " ".join([get_text(w) for w in current_line_words])
+                    # Zapisywanie tekstu razem z zapamiętaną stroną
+                    reconstructed_lines.append((line_str, current_page))
+                    
                     current_line_words = [word]
                     current_y = y0
                     current_page = page
                     
             if current_line_words:
                 current_line_words.sort(key=get_x0)
-                reconstructed_lines.append(" ".join([get_text(w) for w in current_line_words]))
+                line_str = " ".join([get_text(w) for w in current_line_words])
+                reconstructed_lines.append((line_str, current_page))
                 
         else:
             for block in fallback_blocks:
-                if getattr(block, "type", None) in ["acronyms", "paragraph", "math", "list", "text", "table", "heading"]:
+                b_type = getattr(block, "type", None) if not isinstance(block, dict) else block.get("type", getattr(block, "block_type", None))
+                
+                # Wyciągnięcie numeru strony z bloku, jeśli jest dostępny
+                try:
+                    b_page = block.get("page_number") if isinstance(block, dict) else getattr(block, "page_number", 0)
+                    b_page = int(b_page) if b_page is not None else 0
+                except:
+                    b_page = 0
+                
+                if b_type in ["acronyms", "paragraph", "math", "list", "text", "table", "heading"]:
                     content = getattr(block, "content", "")
                     if not content: continue
                     for raw_line in content.split('\n'):
@@ -1002,13 +1018,14 @@ class PDFMapper:
                             if set(raw_line.strip()).issubset({'-', '|', ' '}):
                                 continue
                         raw_line = raw_line.replace('$', '')
-                        reconstructed_lines.append(raw_line)
+                        reconstructed_lines.append((raw_line, b_page))
 
         final_lines = []
         
-        uses_dashes = any(re.search(acr_dash_pattern, l.strip()) for l in reconstructed_lines)
+        # Sprawdzamy myślniki pobierając tylko tekst 
+        uses_dashes = any(re.search(acr_dash_pattern, l[0].strip()) for l in reconstructed_lines)
 
-        for raw_line in reconstructed_lines:
+        for raw_line, line_page in reconstructed_lines:
             raw_line = raw_line.strip()
             if not raw_line: continue
             
@@ -1039,11 +1056,14 @@ class PDFMapper:
                             is_new = True
 
                 if is_new or not final_lines:
-                    final_lines.append(part)
+                    final_lines.append([part, line_page])
                 else:
-                    final_lines[-1] += " " + part
+                    final_lines[-1][0] += " " + part
 
-        for line in final_lines:
+        for line_data in final_lines:
+            line = line_data[0]
+            line_page = line_data[1]  # Wyciągamy przechwyconą stronę do zapisu!
+            
             match = None
             if uses_dashes:
                 match = re.match(acr_dash_pattern + r'(.*)$', line)
@@ -1085,7 +1105,8 @@ class PDFMapper:
                     definition=definition,
                     pages=pages,
                     bbox=[],  
-                    words=[]  
+                    words=[],
+                    src_page=line_page  
                 )
                 new_doc.reference_sections.acronyms.append(new_item)
 # Funkcje zewnętrzne
@@ -1121,3 +1142,8 @@ def get_plain_text(pdf_path):
 def get_acronyms_lut(doc) -> dict:
     return {item.acronym: item.definition for item in doc.reference_sections.acronyms}
 
+def get_acronym_pages(doc) -> list[int]:
+    """Zwraca unikalną posortowaną listę stron, na których znajduje się spis akronimów."""
+    pages = [item.src_page for item in doc.reference_sections.acronyms]
+    valid_pages = sorted(list(set(p for p in pages if p > 0)))
+    return valid_pages
