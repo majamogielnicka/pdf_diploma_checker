@@ -39,6 +39,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
     current_heading = ""
     for b in blocks:
         block = b.block
+        if block.type == "list" and block.is_bibliography: 
+            continue
         if block.type == "heading":
             current_heading = block.content.upper()
             continue
@@ -58,6 +60,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
             upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
             for item in block.items:
                 item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
+                if not item_text:
+                    continue
                 effective_text = item_text
                 starts_with_quote = item_text[0] in quote_marks
                 if starts_with_quote:
@@ -152,6 +156,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                 second_to_last = False
 
                 full_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
+                if not full_text:
+                    continue
 
                 if len(block.items) == 1:
                     last_item = True
