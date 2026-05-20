@@ -105,6 +105,7 @@ linux
 ubuntu
 debian
 windows
+venv
 macos
 aws
 azure
