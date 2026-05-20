@@ -106,15 +106,15 @@ class AnalysisPipeline:
                 from analysis.extraction.converter_linguistics_clean import PDFMapper
                 import importlib.util
                 mapper = PDFMapper()
-                ling_path = os.path.join(LINGUISTICS_DIR, "run_mock_data.py")
-                spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_mock_data", ling_path)
+                ling_path = os.path.join(LINGUISTICS_DIR, "run_linguistics.py")
+                spec = importlib.util.spec_from_file_location("analysis.modules.linguistics.run_linguistics", ling_path)
                 ling_module = importlib.util.module_from_spec(spec)
                 ling_module.__package__ = "analysis.modules.linguistics"
-                sys.modules["analysis.modules.linguistics.run_mock_data"] = ling_module
+                sys.modules["analysis.modules.linguistics.run_linguistics"] = ling_module
                 spec.loader.exec_module(ling_module)
                 
                 raw_blocks = mapper.map_to_schema(doc_obj)
-                ling_matches = ling_module.run_linguistics(raw_blocks)
+                ling_matches, sentence_analysis = ling_module.run_linguistics(raw_blocks)
                 print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
                 return ling_matches
             except Exception as e:
