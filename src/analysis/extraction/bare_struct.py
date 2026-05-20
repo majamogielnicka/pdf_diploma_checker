@@ -56,14 +56,14 @@ class TocEntry:
 
 @dataclass
 class TofEntry:
-    number: int
+    number: str
     title: str
     page: int
     bbox: tuple
     src_page: int
 @dataclass
 class TotEntry:
-    number: int
+    number: str
     title: str
     page: int
     bbox: tuple

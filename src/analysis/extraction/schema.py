@@ -20,6 +20,7 @@ class WordInfo: # Położenie XY oraz relatywne słowa
     bbox: List[float]
     page_number: int
     line: int = 0
+    incorrect_bibliography: int = 0
     
 @dataclass
 class HeadingInfo: # Informacje o nagłówkach (TODO)
@@ -106,6 +107,15 @@ class Bibliography: # Informacje o sekcji bibliografii (TODO)
     items: List[BibItem]
 
 @dataclass
+class AcronymItem:
+    acronym: str         
+    definition: str      
+    pages: str           
+    bbox: List[float] = field(default_factory=list)
+    words: List[WordInfo] = field(default_factory=list)
+    src_page: int = 0
+
+@dataclass
 class TOCItem: # Informacje o elementach spisu treści (TODO)
     item_id: str
     level: int
@@ -136,6 +146,7 @@ class ReferenceSections: # Informacje o wszystkich sekcjach referencyjnych (TODO
     bibliography: List[Bibliography] = field(default_factory=list)
     table_of_contents: List[TOCItem] = field(default_factory=list)
     code_snippets: List[CodeSnippet] = field(default_factory=list)
+    acronyms: List[AcronymItem] = field(default_factory=list)
 
 @dataclass
 class FinalDocument: # Ostateczna struktura dokumentu
@@ -169,10 +180,12 @@ class DocumentPatterns:
         "letter_with_bracket": re.compile(r"^[a-z]\)\s?"),
         "bullet": re.compile(r"^[••●○■]"),
         "dash": re.compile(r"^[-−\u2013\u2014]"),
-        "number_in_brackets": re.compile(r"^\[\d+\]\s?")
+        "number_in_brackets": re.compile(r"^\[\d+\]\s?"),
+        "listing": re.compile(r"^\d+\s")
     }
     ACRONYM_PATTERN = re.compile(r'^([A-ZĄĆĘŁŃÓŚŹŻ0-9]{2,}\b|\S{1,15}\s*[-–—−‐:=]\s+)')
     ACRONYM_SEP = re.compile(r'^\S{1,15}\s*[-–—−‐:=]\s+')
+    ACRONYM_EXTRACT_PATTERN = re.compile(r'^([A-Z][A-Z0-9]{1,7})\s+([a-zA-Z].+?)\.\s*([\d,\-\s\u2013\u2014]+)$')
 
 # Klasyfikacja typu bloku (paragraf lub lista) na podstawie tego czy zaczyna się od typowych elementów dla listy
 def classify_block_content(text: str, active_marker: str = None):

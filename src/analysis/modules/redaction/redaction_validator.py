@@ -6,6 +6,7 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 '''
 
 from analysis.extraction.bare_struct import DocumentData, TocData, TofData, TotData
+from analysis.extraction.converter_linguistics_clean import get_acronym_pages
 from analysis.extraction.schema import FinalDocument
 from common.errors.error_struct import Error, FileError, Module
 from dataclasses import dataclass
@@ -133,7 +134,9 @@ class RedactionValidator:
         self.remove_errors_from_toc_tof_tot()
         self.remove_errors_from_images()
         self.remove_errors_from_tables()
+        self.remove_errors_from_acronyms_symbols()
         self.replace_global_errors()
+
 
         return self.errors
     
@@ -255,6 +258,29 @@ class RedactionValidator:
 
         self.errors = filtered_errors
 
+    def remove_errors_from_acronyms_symbols(self):
+        from analysis.extraction.converter_linguistics_clean import PDFMapper, get_acronym_pages
+
+        mapper = PDFMapper()
+        linguistics_doc = mapper.map_to_schema(self.document_data)
+
+        # Proste zebranie stron – jeśli funkcja lub obiekt zwróci brak danych, dajemy []
+        pages = get_acronym_pages(linguistics_doc) if linguistics_doc else []
+        if pages is None:
+            pages = []
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
+        errors_fixed = []
+        for error in self.errors:
+            is_in_acronyms = error.page_number in pages
+            is_exluded = error.category in errors_excluded
+
+            if is_in_acronyms and is_exluded:
+                continue
+
+            errors_fixed.append(error)
+        self.errors = errors_fixed
+
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
         orphans = []
@@ -372,6 +398,16 @@ class RedactionValidator:
             comments="Wykryto niepoprawne odwołanie do bibliografii - element nie występuje w spisie bibliografii lub ten nie istnieje."
         )
 
+    def check_widows(self):
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "type", "") == "paragraph":    
+                # Flaga: wdowy
+                widow_which =  getattr(block, "is_widow", 0)
+                if widow_which > 0:    
+                    error = self._handle_widow(block, widow_which)
+                    if error:
+                        self.errors.append(error)
+
     def check_bibliography_summary(self):
         bib_entries = []
 
@@ -398,16 +434,6 @@ class RedactionValidator:
                 comments="Podsumowanie: Lista wszystkich pozycji wykrytych w spisie bibliograficznym."
             )
             self.errors.append(summary_error)
-
-    def check_widows(self):
-        for block in self.document_data_linguistics.logical_blocks:
-            if getattr(block, "type", "") == "paragraph":    
-                # Flaga: wdowy
-                widow_which =  getattr(block, "is_widow", 0)
-                if widow_which > 0:    
-                    error = self._handle_widow(block, widow_which)
-                    if error:
-                        self.errors.append(error)
                 
     def _handle_widow(self, block, widow_which):
         if not block.words:
@@ -483,7 +509,7 @@ class RedactionValidator:
         if not block.words:
             return
 
-        szewc_words = block.words[-szewc_which:]
+        szewc_words = block.words[:szewc_which]
         first_word = szewc_words[0]
         last_word = szewc_words[-1]
         found_text = " ".join([w.text for w in szewc_words])
