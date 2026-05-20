@@ -695,10 +695,11 @@ class PDFReader(QMainWindow):
             font_path = resource_path(os.path.join("ui", "assets", "Roboto-Regular.ttf"))
             font_bold_path = resource_path(os.path.join("ui", "assets", "Roboto-Bold.ttf"))
 
-            # Przechwytujemy rzeczywiste nazwy referencyjne zwracane przez PyMuPDF
             if os.path.exists(font_path) and os.path.exists(font_bold_path):
-                f_main = page.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
-                f_bold = page.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
+                page.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
+                page.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
+                f_main = "roboto"
+                f_bold = "roboto-bold"
             else:
                 f_main = "helv"
                 f_bold = "hebo"
@@ -710,10 +711,11 @@ class PDFReader(QMainWindow):
                 if y_coord > 750:
                     new_p = pdf_doc.new_page()
                     if os.path.exists(font_path) and os.path.exists(font_bold_path):
-                        # Na nowej stronie rejestrujemy czcionki i aktualizujemy zmienne globalne funkcji
+                        new_p.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
+                        new_p.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
                         nonlocal f_main, f_bold
-                        f_main = new_p.insert_font(fontname="roboto", fontfile=font_path, encoding=0)
-                        f_bold = new_p.insert_font(fontname="roboto-bold", fontfile=font_bold_path, encoding=0)
+                        f_main = "roboto"
+                        f_bold = "roboto-bold"
                     return 50, new_p
                 return y_coord, current_page
             
