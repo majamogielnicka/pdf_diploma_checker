@@ -165,7 +165,7 @@ class RedactionValidator:
                     error.bounding_box = (round(new_x1, 2), 5, round(new_x2, 2), 45)
 
     def remove_errors_from_title_page(self):
-        for error in self.errors:
+        for error in self.errors[:]:
             if error.page_number == 0:
                 self.errors.remove(error)
 
