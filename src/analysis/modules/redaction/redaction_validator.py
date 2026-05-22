@@ -118,7 +118,7 @@ class RedactionValidator:
             self.check_toc()
             self.check_tof()
             self.check_tot()
-
+            self.check_list_order()
 
         #--------------------advanced redaction check
         if advanced_redaction_check:
@@ -130,13 +130,12 @@ class RedactionValidator:
             #self.check_korytarze()
             self.check_bibliography_summary()
 
-        self.remove_errors_from_title_page()
         self.remove_errors_from_toc_tof_tot()
         self.remove_errors_from_images()
         self.remove_errors_from_tables()
         self.remove_errors_from_acronyms_symbols()
+        self.remove_errors_from_title_page()
         self.replace_global_errors()
-
 
         return self.errors
     
@@ -1047,5 +1046,79 @@ class RedactionValidator:
 
         if not errors_found:
             logging.info("Redaction: justowanie zgodne z wymaganiami")
-
+            
         return not errors_found
+    
+    
+    def check_list_order(self):
+
+        if self.document_data.toc and self.document_data.toc.entries:
+            error_found_toc = False
+            entries_toc = self.document_data.toc.entries
+            
+            for i in range(1, len(entries_toc)):
+                current_entry_toc = entries_toc[i]
+                previous_entry_toc = entries_toc[i - 1]
+
+                if current_entry_toc.page < previous_entry_toc.page:
+                    error_found_toc = True
+                    break
+
+            if error_found_toc:    
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "toc_order_error",
+                    page_number = self.document_data.toc.page_nums[0],
+                    bounding_box = (0,0,0,0),
+                    text = None,
+                    comments = f"Wykryto malejącą numerację w spisie treści. Kolejne wpisy spisu treści powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                ))
+
+
+        if self.document_data.tof and self.document_data.tof.entries:
+            error_found_tof = False
+            entries_tof = self.document_data.tof.entries
+            
+            for i in range(1, len(entries_tof)):
+                current_entry_tof = entries_tof[i]
+                previous_entry_tof = entries_tof[i - 1]
+
+                if current_entry_tof.page < previous_entry_tof.page:
+                    error_found_tof = True
+                    break
+
+            if error_found_tof:    
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "tof_order_error",
+                    page_number = self.document_data.tof.page_nums[0],
+                    bounding_box = (0,0,0,0),
+                    text = None,
+                    comments = f"Wykryto malejącą numerację w spisie figur. Kolejne wpisy spisu figur powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                ))
+                
+        if self.document_data.tot and self.document_data.tot.entries:
+            error_found_tot = False
+            entries_tot = self.document_data.tot.entries
+            
+            for i in range(1, len(entries_tot)):
+                current_entry_tot = entries_tot[i]
+                previous_entry_tot = entries_tot[i - 1]
+
+                if current_entry_tot.page < previous_entry_tot.page:
+                    error_found_tot = True
+                    break
+
+            if error_found_tot:    
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "tot_order_error",
+                    page_number = self.document_data.tot.page_nums[0],
+                    bounding_box = (0,0,0,0),
+                    text = None,
+                    comments = f"Wykryto malejącą numerację w spisie tabel. Kolejne wpisy spisu tabel powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                ))
+        return 
