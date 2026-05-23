@@ -124,10 +124,12 @@ class DocumentData:
     tof: TofData | None = None
     tot: TotData | None = None
 
-    def _to_dict(self):  #zeby latwo bylo przeniesc do jsona
+    def _to_dict(self):
+        '''Ta funkcja zamienia całą struklurę danych na słownik, który potem można łatwo zapisać do jsona.'''
         return asdict(self)
     
     def to_json(self, file_path: str, indent: int = 4) -> None:
+        '''Ta funkcja zapisuje dane dokumentu do pliku JSON.'''
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(self._to_dict(), f, ensure_ascii=False, indent=indent)
@@ -137,10 +139,12 @@ class DocumentData:
             print(f"blad zapisu do pliku json: {e}")
 
     def get_page_count(self) -> int:
+        '''Ta funkcja zwraca liczbę stron w dokumencie, z pominięciem strony tytułowej.'''
         return len(self.pages) - 1 # -1, jako że strona tytułowa ma się nie zaliczać do licznika stron.
     
     #zwraca słownik z nazwami czcionek i ich ilością wystąpień
     def get_font_usage(self) -> Dict[str, int]: 
+        '''Ta funkcja zwraca słownik, gdzie kluczami są nazwy czcionek, a wartościami liczba ich wystąpień w dokumencie.'''
         font_usage = {}
         for page in self.pages:
             for block in page.text_blocks:
@@ -151,6 +155,7 @@ class DocumentData:
     
     #zwraca słownik z rozmiarami czcionek i ich ilością wystąpień
     def get_font_size_usage(self) -> Dict[float, int]: 
+        '''Ta funkcja zwraca słownik, gdzie kluczami są rozmiary czcionek, a wartościami liczba ich wystąpień w dokumencie.'''
         font_usage = {}
         for page in self.pages:
             for block in page.text_blocks:
@@ -160,6 +165,7 @@ class DocumentData:
         return font_usage
     
     def get_most_common_font(self) -> str | None:
+        '''Ta funkcja zwraca najpopularniejszą czcionkę w dokumencie.'''
         font_usage = self.get_font_usage()
         if not font_usage:
             return None
@@ -167,6 +173,7 @@ class DocumentData:
         return most_common_font
 
     def get_most_common_font_size(self) -> float | None:
+        '''Ta funkcja zwraca najpopularniejszy rozmiar czcionki w dokumencie.'''
         font_size_usage = self.get_font_size_usage()
         if not font_size_usage:
             return None
@@ -174,18 +181,21 @@ class DocumentData:
         return most_common_font_size
 
     def get_margins(self) -> Dict[str, float]:
+        '''Ta funkcja zwraca słownik, gdzie kluczami są numery stron, a wartościami są marginesy dla każdej strony.'''
         margins = {}
         for page in self.pages:
             margins[page.number] = page.margins
         return margins
 
     def get_page_dimensions(self) -> Dict[int, tuple]:
+        '''Ta funkcja zwraca słownik, gdzie kluczami są numery stron, a wartościami są wymiary dla każdej strony.'''
         dimensions = {}
         for page in self.pages:
             dimensions[page.number] = (page.width, page.height)
         return dimensions
     
     def get_dominant_line_spacing(self) -> float | None:
+        '''Ta funkcja zwraca najczęściej występujący odstęp między liniami w dokumencie.'''
         spacing_counts = {}
         for page in self.pages:
             for block in page.text_blocks:
@@ -199,8 +209,8 @@ class DocumentData:
         dominant_spacing = max(spacing_counts, key=spacing_counts.get)
         return dominant_spacing
     
-    '''Zwraca span o danym span_id wraz z line, block i page do których span należy'''
     def get_span_by_id(self, span_id: int) -> tuple | None:
+        '''Ta funkcja zwraca span o danym span_id wraz z line, block i page do których span należy'''
         first_idx_in_page = []
         for page in self.pages:
             if page.text_blocks:
