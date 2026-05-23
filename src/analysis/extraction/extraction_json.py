@@ -1388,6 +1388,7 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
     keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
                 "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków",
                 "spis wykresów", "table of graphs"]
+    anti_keywords = ["spis tabel", "spis tablic", "list of tables", "tot", "wykaz tabel", "bibliografia", "bibliography"]
     all_entries = []
     tof_pages = []
     is_detecting = False
@@ -1405,30 +1406,51 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                     y_groups[y_center] = []
                 y_groups[y_center].append(line)
 
+        has_keyword_on_top = False
+        has_anti_keyword_on_top = False
+        top_lines_text = ""
+        
+        for y in sorted(y_groups.keys()):
+            first_line_in_group = y_groups[y][0]
+            if first_line_in_group.bbox[1] < (page_obj.height * 0.15):
+                lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
+                for l in lines_on_y:
+                    top_lines_text += " ".join([s.text.strip() for s in l.spans if s.text.strip()]) + " "
+            else:
+                break
+                
+        top_text_low = top_lines_text.lower()
+        if any(word in top_text_low for word in keywords):
+            has_keyword_on_top = True
+        if any(word in top_text_low for word in anti_keywords):
+            has_anti_keyword_on_top = True
+
+        if has_keyword_on_top:
+            is_detecting = True
+        elif is_detecting:
+            if has_anti_keyword_on_top or (tof_pages and page_obj.number != (tof_pages[-1] + 1)):
+                is_detecting = False
+
         page_entries = []
         cut_obj_num = ""
         cut_title = ""
         for y in sorted(y_groups.keys()):
             lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
-            
             fragments = []
             for l in lines_on_y:
                 for s in l.spans:
                     txt = s.text.strip()
                     if txt:
                         fragments.append(txt)
-            
             if not fragments:
                 continue
 
             line_full_text = " ".join(fragments)
-
             if line_full_text.lower() in keywords:
                 page_text += line_full_text + " "
                 continue
 
             page_text += line_full_text + " "
-
             match_full = re.search(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
             match_start = re.match(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
@@ -1438,38 +1460,32 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_raw).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TofEntry(number=obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif match_start:
                 cut_obj_num = match_start.group(1)
                 cut_title = match_start.group(2)
-
             elif match_end and cut_obj_num:
                 title_part, p_num = match_end.groups()
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_part).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TofEntry(number=cut_obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif cut_obj_num:
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 cut_title = base_title + sep + line_full_text
 
-        low_page_text = page_text.lower()
-        if any(word in low_page_text for word in keywords):
-            is_detecting = True
-        
         if is_detecting and page_entries:
-            all_entries.extend(page_entries)
-            if page_obj.number not in tof_pages:
-                tof_pages.append(page_obj.number)
+            if len(tof_pages) == 0 and len(page_entries) < 2:
+                is_detecting = False
+            else:
+                all_entries.extend(page_entries)
+                if page_obj.number not in tof_pages:
+                    tof_pages.append(page_obj.number)
         elif is_detecting and not page_entries:
             is_detecting = False
 
@@ -1480,6 +1496,9 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
 def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Tables
     """ Funkcja wykrywająca spisy tabel """
     keywords = ["spis tabel", "spis tablic", "list of tables", "tot", "wykaz tabel"]
+    anti_keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
+                    "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków",
+                    "spis wykresów", "table of graphs", "bibliografia", "bibliography"]
     all_entries = []
     tot_pages = []
     is_detecting = False
@@ -1497,30 +1516,51 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
                     y_groups[y_center] = []
                 y_groups[y_center].append(line)
 
+        has_keyword_on_top = False
+        has_anti_keyword_on_top = False
+        top_lines_text = ""
+        
+        for y in sorted(y_groups.keys()):
+            first_line_in_group = y_groups[y][0]
+            if first_line_in_group.bbox[1] < (page_obj.height * 0.15):
+                lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
+                for l in lines_on_y:
+                    top_lines_text += " ".join([s.text.strip() for s in l.spans if s.text.strip()]) + " "
+            else:
+                break
+                
+        top_text_low = top_lines_text.lower()
+        if any(word in top_text_low for word in keywords):
+            has_keyword_on_top = True
+        if any(word in top_text_low for word in anti_keywords):
+            has_anti_keyword_on_top = True
+
+        if has_keyword_on_top:
+            is_detecting = True
+        elif is_detecting:
+            if has_anti_keyword_on_top or (tot_pages and page_obj.number != (tot_pages[-1] + 1)):
+                is_detecting = False
+
         page_entries = []
         cut_obj_num = ""
         cut_title = ""
         for y in sorted(y_groups.keys()):
             lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
-            
             fragments = []
             for l in lines_on_y:
                 for s in l.spans:
                     txt = s.text.strip()
                     if txt:
                         fragments.append(txt)
-            
             if not fragments:
                 continue
 
             line_full_text = " ".join(fragments)
-
             if line_full_text.lower() in keywords:
                 page_text += line_full_text + " "
                 continue
 
             page_text += line_full_text + " "
-
             match_full = re.search(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
             match_start = re.match(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
@@ -1530,38 +1570,32 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_raw).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TotEntry(number=obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif match_start:
                 cut_obj_num = match_start.group(1)
                 cut_title = match_start.group(2)
-
             elif match_end and cut_obj_num:
                 title_part, p_num = match_end.groups()
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_part).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TotEntry(number=cut_obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif cut_obj_num:
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 cut_title = base_title + sep + line_full_text
 
-        low_page_text = page_text.lower()
-        if any(word in low_page_text for word in keywords):
-            is_detecting = True
-        
         if is_detecting and page_entries:
-            all_entries.extend(page_entries)
-            if page_obj.number not in tot_pages:
-                tot_pages.append(page_obj.number)
+            if len(tot_pages) == 0 and len(page_entries) < 2:
+                is_detecting = False
+            else:
+                all_entries.extend(page_entries)
+                if page_obj.number not in tot_pages:
+                    tot_pages.append(page_obj.number)
         elif is_detecting and not page_entries:
             is_detecting = False
 

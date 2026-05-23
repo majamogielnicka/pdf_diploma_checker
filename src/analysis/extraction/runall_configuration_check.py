@@ -4,13 +4,12 @@ import sys
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parents[2]
 SRC_DIR = PROJECT_ROOT / "src"
 
-sys.path.insert(0, str(PROJECT_ROOT))  # Naprawia importy typu: from src.analysis...
-sys.path.insert(0, str(SRC_DIR))       # Naprawia importy typu: from analysis...
+sys.path.insert(0, str(PROJECT_ROOT)) 
+sys.path.insert(0, str(SRC_DIR))  
 
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.modules.redaction.redaction_validator import RedactionValidator
