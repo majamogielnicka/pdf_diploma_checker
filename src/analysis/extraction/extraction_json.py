@@ -1386,9 +1386,9 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
 def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: #Table of Figures
     """ Funkcja wykrywająca spisy rysunków """
     keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
-                "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków",
+                "list of figures", "table of figures", "wykaz rysunkow", "wykaz rysunków",
                 "spis wykresów", "table of graphs"]
-    anti_keywords = ["spis tabel", "spis tablic", "list of tables", "tot", "wykaz tabel", "bibliografia", "bibliography"]
+    anti_keywords = ["spis tabel", "spis tablic", "list of tables", "wykaz tabel", "bibliografia", "bibliography"]
     all_entries = []
     tof_pages = []
     is_detecting = False
@@ -1495,9 +1495,9 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
 
 def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Tables
     """ Funkcja wykrywająca spisy tabel """
-    keywords = ["spis tabel", "spis tablic", "list of tables", "tot", "wykaz tabel"]
+    keywords = ["spis tabel", "spis tablic", "list of tables", "wykaz tabel"]
     anti_keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
-                    "list of figures", "table of figures", "tof", "wykaz rysunkow", "wykaz rysunków",
+                    "list of figures", "table of figures", "wykaz rysunkow", "wykaz rysunków",
                     "spis wykresów", "table of graphs", "bibliografia", "bibliography"]
     all_entries = []
     tot_pages = []
