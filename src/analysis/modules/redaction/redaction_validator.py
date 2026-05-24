@@ -517,14 +517,14 @@ class RedactionValidator:
         right_x = last_word.bbox[2]
         top_y = min([w.bbox[1] for w in szewc_words])
         bottom_y = max([w.bbox[3] for w in szewc_words])
-        bekart_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
+        szewc_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
         
         return Error(
             id=self._get_next_id(), 
             module=self.module,
             category="shoemaker", 
-            page_number=first_word.page_number - 1,
-            bounding_box=bekart_bbox, 
+            page_number=first_word.page_number,
+            bounding_box=szewc_bbox, 
             text=found_text,
             comments="Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie."
         )
@@ -1005,51 +1005,52 @@ class RedactionValidator:
 
         for page in doc_data.pages:
             for block in page.text_blocks:
-                lines = block.lines
-            
-                if len(lines) <= 1:
-                    continue
-            
-                for i in range(len(lines) - 1):
-                    line = lines[i]
-
-                    if not line.spans:
+                if self.is_paragraph(block):
+                    lines = block.lines
+                
+                    if len(lines) <= 1:
                         continue
+                
+                    for i in range(len(lines) - 1):
+                        line = lines[i]
 
-                    is_justified = (
-                        line.alignement == "justified" 
-                    )
+                        if not line.spans:
+                            continue
 
-                    if expected_justified and not is_justified:
-                        self.errors.append(Error(
-                            id = self._get_next_id(),
-                            module = self.module,
-                            category = "justification",
-                            page_number = page.number,
-                            bounding_box = line.bbox,
-                            text = None,
-                            comments = f"Wykryto brak justowania w akapicie (linia {i+1})"
-                        ))
-                        errors_found = True
+                        is_justified = (
+                            line.alignement == "justified" 
+                        )
 
-                    elif not expected_justified and is_justified:
-                        self.errors.append(Error(
-                            id = self._get_next_id(),
-                            module = self.module,
-                            category = "justification",
-                            page_number = page.number,
-                            bounding_box = line.bbox,
-                            text = None,
-                            comments = f"Wykryto niepoprawne justowanie w akapicie (linia {i+1})"
-                        ))
-                        errors_found = True
+                        if expected_justified and not is_justified:
+                            self.errors.append(Error(
+                                id = self._get_next_id(),
+                                module = self.module,
+                                category = "justification",
+                                page_number = page.number,
+                                bounding_box = line.bbox,
+                                text = None,
+                                comments = f"Wykryto brak justowania w akapicie (linia {i+1})"
+                            ))
+                            errors_found = True
+
+                        elif not expected_justified and is_justified:
+                            self.errors.append(Error(
+                                id = self._get_next_id(),
+                                module = self.module,
+                                category = "justification",
+                                page_number = page.number,
+                                bounding_box = line.bbox,
+                                text = None,
+                                comments = f"Wykryto niepoprawne justowanie w akapicie (linia {i+1})"
+                            ))
+                            errors_found = True
 
         if not errors_found:
             logging.info("Redaction: justowanie zgodne z wymaganiami")
             
         return not errors_found
     
-    
+
     def check_list_order(self):
 
         if self.document_data.toc and self.document_data.toc.entries:
@@ -1122,3 +1123,19 @@ class RedactionValidator:
                     comments = f"Wykryto malejącą numerację w spisie tabel. Kolejne wpisy spisu tabel powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
                 ))
         return 
+    
+    def is_paragraph(self, block):
+        """
+        Funkcja sprawdzająca, czy bloki to paragraph
+        """
+        block_type = getattr(block, "type", "")
+        if block_type is None:
+            block_type = ""
+            
+        block_type_lower = block_type.lower()
+        types = ["paragraph"]
+        
+        if any(i_type in block_type_lower for i_type in types):
+            return True
+            
+        return False

@@ -1131,7 +1131,7 @@ def get_plain_text(pdf_path):
         if not text:
             continue
 
-        if block_type in {"list", "table_description", "img_decription", "math"}:
+        if block_type in {"list", "table_description", "img_description", "math"}:
             continue
 
         parts.append(text)
