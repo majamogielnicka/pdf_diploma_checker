@@ -10,10 +10,11 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.analysis.extraction.extraction_json import extractPDF
 from src.analysis.modules.redaction.redaction_validator import RedactionValidator
-from src.analysis.extraction.converter_linguistics import PDFMapper
+from src.analysis.extraction.converter_linguistics_clean import PDFMapper
 
+# tu paths nie zmieniam bo to nie do exe tylko do testowania
 def main():
-    pdf_path = PROJECT_ROOT / "data" / "zusz.pdf"
+    pdf_path = PROJECT_ROOT / "data" / "jago.pdf"
 
     if not Path(pdf_path).exists():
         print(f"Błąd: Nie znaleziono pliku PDF pod adresem: {pdf_path}")
@@ -24,7 +25,8 @@ def main():
         doc_data = extractPDF(pdf_path)
 
         print("Mapowanie danych do schematu lingwistycznego...")
-        doc_data_linguistics = PDFMapper.map_to_schema(doc_data)
+        mapper = PDFMapper()
+        doc_data_linguistics = mapper.map_to_schema(doc_data)
 
         print("\n--- WALIDACJA REDAKCJI ---")
 

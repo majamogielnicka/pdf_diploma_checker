@@ -1,15 +1,13 @@
 import sys
-from pathlib import Path
+import os
 import time
 
-BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parents[3]
-SRC_DIR = PROJECT_ROOT / "src"
+_src_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
+for _p in (os.path.dirname(_src_dir), _src_dir):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-for p in (PROJECT_ROOT, SRC_DIR):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+from common.path import resource_path
 
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
@@ -61,14 +59,42 @@ def calculate_embedding_grade(purpose, summaries):
     s_emb = 100.0 - p_off
     grade = 0.60 * s_emb
 
-    return round(grade, 2)
+    return {
+        "grade": round(grade, 2),
+        "max_grade": 60.0,
+        "s_emb": s_emb,
+        "threshold": threshold,
+        "total_sections": total_sections,
+        "off_topic_sections": off_topic_sections,
+        "p_off": p_off,
+        "items": items,
+    }
 
 
 def get_content_grade(purpose, summaries):
-    return calculate_embedding_grade(
+    embedding_result = calculate_embedding_grade(
         purpose=purpose,
         summaries=summaries
     )
+    
+    grade = embedding_result.get("grade", 0.0)
+    items = embedding_result.get("items", [])
+    
+    # Extract off-topic heading labels (items below threshold)
+    off_topic_headings = [
+        (
+            item.get("display")
+            or item.get("heading")
+            or item.get("title")
+            or item.get("subtitle")
+            or f"Sekcja {idx + 1}"
+        )
+        for idx, item in enumerate(items)
+        if item.get("below_threshold", False)
+    ]
+    
+    # Return (grade, off_topic_heading_labels)
+    return (grade, off_topic_headings)
 
 def get_overall_grade(purpose_grade, embedding_grade, sota_grade):
     overall_grade = 0.2 * sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade
@@ -100,25 +126,20 @@ def main():
     subtitles = get_subtitles(raw_doc)
     summaries = get_summaries(subtitles, LANGUAGE)
 
-    result = get_content_grade(
+    grade, off_topic_headings = get_content_grade(
         purpose=purpose,
         summaries=summaries
     )
 
-    purpose_grade = get_purpose_grade(plain_text, purpose, LANGUAGE)
+    purpose_score, purpose_reason = get_purpose_grade(plain_text, purpose, LANGUAGE)
 
     print("CEL PRACY:")
     print(purpose)
     print()
     print("OCENA EMBEDDINGOWA:")
-    print(f"{result['grade']} / {result['max_grade']}")
-    print(f"OCENA REALIZACJI CELU: ", purpose_grade )
-    print()
-    print(f"S_emb: {result['s_emb']}")
-    print(f"Próg: {result['threshold']}")
-    print(f"Liczba podrozdziałów: {result['total_sections']}")
-    print(f"Poniżej progu: {result['off_topic_sections']}")
-    print(f"P_off: {result['p_off']}%")
+    print(f"Ocena: {grade}")
+    print(f"OCENA REALIZACJI CELU: {purpose_score} - {purpose_reason}")
+    print(f"Off-topic headings indices: {off_topic_headings}")
 
 
 

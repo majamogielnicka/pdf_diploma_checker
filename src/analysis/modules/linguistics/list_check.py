@@ -9,7 +9,6 @@ import re
 def add_list_error(items_by_id, num, block_id, category):
 
     Category_and_message = {
-        "LIST_MARKER": "Zastosowano niepoprawny marker wyliczenia.",
         "LIST_CASING": "Niepoprawna wielkość litery na początku elementu wyliczenia.",
         "LIST_ENDING": "Niepoprawne zakończenie elementu wyliczenia.",
     }
@@ -40,6 +39,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
     current_heading = ""
     for b in blocks:
         block = b.block
+        if block.type == "list" and block.is_bibliography: 
+            continue
         if block.type == "heading":
             current_heading = block.content.upper()
             continue
@@ -55,15 +56,12 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
 
             for item in block.items:
                 items_by_id[item.item_id] = item
-                if (item.marker_type == "number_with_bracket" or item.marker_type == "letter_with_dot") and language == "pl":
-                    error = add_list_error(items_by_id, item.item_id, block.block_id, "LIST_MARKER")
-                    if error:
-                        matches.append(error)
-                    marker_error_ids.add(item.item_id)
             quote_close = {'"', '»', '”', '’', '"', ')'}
             upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
             for item in block.items:
                 item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
+                if not item_text:
+                    continue
                 effective_text = item_text
                 starts_with_quote = item_text[0] in quote_marks
                 if starts_with_quote:
@@ -158,6 +156,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                 second_to_last = False
 
                 full_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
+                if not full_text:
+                    continue
 
                 if len(block.items) == 1:
                     last_item = True

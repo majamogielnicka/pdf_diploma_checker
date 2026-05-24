@@ -1,15 +1,23 @@
 '''
-Analiza składni zdań, wydobywanie form osobowych oraz zdań w praragrafach niezawierających podmiotu lub orzeczenia.
+Analiza składni zdań, wydobywanie pierwszej formy osobowej z tekstu i oznaczanie jako błąd
+jeśli w pliku json nie jest wskazane inaczej oraz wydobywanie i 
+oznaczanie jako błąd zdań w praragrafach niezawierających podmiotu lub orzeczenia.
 '''
-from spacy.symbols import VERB
-from src.analysis.extraction.schema import *
+from analysis.extraction.schema import *
 from .exeptions_check import check_quotes
 from .helpers import get_match_info, morf, language, nlp_pl, nlp_en
 from .linguistics_types import Error_type, Analisys_type
 from .proper_check import check_if_proper
 import re
 
-def sentence_check(blocks):
+#ostateczny fallback przy edge case złego wykrycia podpisów, aby nie tworzyć FP z NO_VERB, NO_SUBJECT.
+DESCRIPTION_WHITELIST= {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "tabelach", "tab",
+                     "wykres", "wykresu", "wykresom", "wykresowi", "wykresem", "wykresie", "wykresach", "wyk", "rozdziale", "rozdział", "rozdziały", "rozdziału", "rozdziałem", "rozdziałach", "roz", "rozdz", "rozdziałów", 
+                     "obraz", "obr", "obrazie", "obrazu", "obrazowi", "obrazach", "obrazem","obrazom", 
+                     "wzór", "wzoru", "wzorowi", "wzory", "wzorom", "wzorach", "wzorami", "wzorem", "wzorze",
+                     "równanie", "równaniu", "równaniach", "równaniami", "równaniom", "równania", "równaniem", "rów", "listing"}
+
+def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=None):
     sentence_count = 0
     passive_count = 0
     active_count = 0
@@ -44,7 +52,7 @@ def sentence_check(blocks):
                 for token in sentence:
                     if token.morph.get("Person"):
                         is_subject = True
-                        if token.morph.get("Person")[0] == '1':
+                        if check_first_person and token.morph.get("Person")[0] == '1':
                             to_add = True
                             if block.language == 'pl':
                                 to_add = morfeusz_check(token.text)
@@ -66,7 +74,7 @@ def sentence_check(blocks):
                                 word_idxs = word_idxs,
                                 error_coordinate= error_coordinate
                                 )   
-                                if not check_quotes(match, text) and not check_if_proper(block.block, match, is_diff = True):
+                                if not check_quotes(match.offset, match.offset + match.error_length, text) and not check_if_proper(block.block, match, is_diff = True):
                                     checked_matches.append(match)
                     if token.dep_ in {'nsubj', 'nsubj:pass', 'nsubjpass', 'attr'}:
                         is_subject = True
@@ -86,8 +94,27 @@ def sentence_check(blocks):
                     #dla zdań biernych, gdy parser nie wykryje podmiotu
                     if any(tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph for tok in sentence):
                         is_subject = True
+                if not is_subject:
+                    root = None
+                    for tok in sentence:
+                        if tok.dep_ == "ROOT":
+                            root = tok
+                            break
+                    if root and root.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in root.morph:
+                        is_subject = True
+                    elif root:
+                        nom_children = [
+                            tok for tok in root.children
+                            if tok.pos_ in {"NOUN", "PROPN"} and "Case=Nom" in tok.morph
+                        ]
+                        if nom_children:
+                            is_subject = True
+                if not is_subject and acronyms_with_definitions:
+                    if any(tok.text in acronyms_with_definitions for tok in sentence):
+                        is_subject = True
                 match_list = []
-
+                if description_exclude_backup(sentence.text):
+                    continue
                 if not is_subject:
                     #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.
                     match_list.append(("NO_SUBJECT", "Brak podmiotu w zdaniu."))
@@ -108,7 +135,7 @@ def sentence_check(blocks):
                     error_coordinate= error_coordinate
                     )
                     #sprawdzanie czy zdanie jest cytatem, aby nie uwzględniać ich jako błędów.
-                    if not check_quotes(match, text) and not check_if_proper(block.block, match) and not definicion(block.block, word_idxs, text):
+                    if not check_quotes(match.offset, match.offset + match.error_length, text) and not check_if_proper(block.block, match, is_diff=True) and not definicion(block.block, word_idxs, sentence.text):
                         checked_matches.append(match)
                 if passive:
                     passive_count += 1
@@ -142,12 +169,22 @@ def morfeusz_check(text):
             return True
     return False
 
-def definicion(block, word_idxs, text):
-    pattern = r'\w\s*[:-–]'
-    is_colon = re.search(pattern, text)
-    if is_colon:
+def definicion(block, word_idxs, sentence_text):
+    if not word_idxs:
+        return False
+    pattern = r'^\s*\w[\w\s]*[:-–]'
+    words_by_idx = {w.word_index: w for w in block.words}
+    target_word = words_by_idx.get(word_idxs[0])
+    if target_word and target_word.bold and re.match(pattern, sentence_text):
         return True
-    else:
-        if block.words[word_idxs[0]].bold == True:
-            return True
+    return False
+
+def description_exclude_backup(sentence_text):
+    words = sentence_text.split()
+    if len(words) < 3:
+        return True
+    if words[0].lower() in DESCRIPTION_WHITELIST and not words[1].isalpha():
+        return True
+    elif not words[0].isalpha() and words[1][0].isupper():
+        return True
     return False
