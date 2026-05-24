@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
     QPushButton, QFrame, QProgressBar, QWidget, QFileDialog
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QThread, QSize
+from PySide6.QtCore import Qt, Signal, QThread, QSize
 from PySide6.QtGui import QPixmap, QIcon
 import styles
 
@@ -103,20 +103,28 @@ class PipelineWorker(QThread):
     finished_success = Signal(dict) 
     finished_error = Signal(str) 
 
-    def __init__(self, pdf_path, config_path, use_llm):
+    def __init__(self, pdf_path, config_path, use_llm, language):
         super().__init__()
         self.pdf_path = pdf_path
         self.config_path = config_path
         self.use_llm = use_llm
+        self.language = language
 
     def run(self):
         try:
+            self.progress_update.emit(5, "Sprawdzanie i pobieranie wymagań językowych...")
+            from setup import download_specific_language
+            download_specific_language(self.language)
+
+            self.progress_update.emit(10, "Uruchamianie silnika analizy...")
             from app.entry import run_analysis_for_pdf
+            
             raport_koncowy = run_analysis_for_pdf(
                 pdf_path=self.pdf_path, 
                 config_path=self.config_path,
                 progress_callback=self.progress_update.emit,
-                use_llm=self.use_llm
+                use_llm=self.use_llm,
+                language=self.language
             )
             
             raport_z_obiektami = getattr(raport_koncowy, "linguistics_errors", [])
@@ -204,7 +212,7 @@ class AnalysisDialog(QDialog):
         super().__init__(parent)
         self.pdf_path = pdf_path
         self.setWindowTitle("Przeanalizuj dokument")
-        self.setFixedSize(600, 520)
+        self.setFixedSize(600, 560) 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet(styles.DIALOG_STYLE)
         
@@ -214,7 +222,7 @@ class AnalysisDialog(QDialog):
     def setup_ui(self):
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(30, 20, 30, 30)
-        self.main_layout.setSpacing(15)
+        self.main_layout.setSpacing(12)
 
         header = QHBoxLayout()
         self.title_label = QLabel("Przeanalizuj dokument")
@@ -232,24 +240,24 @@ class AnalysisDialog(QDialog):
         self.config_widget.setStyleSheet("border: none;")
         config_layout = QVBoxLayout(self.config_widget)
         config_layout.setContentsMargins(0, 0, 0, 0)
-        config_layout.setSpacing(15)
+        config_layout.setSpacing(12)
 
         self.json_frame = ConfigDropFrame()
         self.json_frame.setStyleSheet(styles.JSON_FRAME_STYLE)
-        self.json_frame.setFixedHeight(260)
+        self.json_frame.setFixedHeight(220)
         json_inner_layout = QVBoxLayout(self.json_frame)
-        json_inner_layout.setSpacing(8)
+        json_inner_layout.setSpacing(6)
 
         self.json_icon = QLabel("{JSON}")
-        self.json_icon.setFixedSize(70, 70)
+        self.json_icon.setFixedSize(60, 60)
         self.json_icon.setAlignment(Qt.AlignCenter)
         self.json_icon.setStyleSheet("""
             QLabel {
                 background-color: #BDDCFF; 
                 color: #1E8CFA;            
                 font-weight: bold; 
-                font-size: 16px;           
-                border-radius: 35px;
+                font-size: 15px;           
+                border-radius: 30px;
                 border: none;
             }
         """)
@@ -273,19 +281,56 @@ class AnalysisDialog(QDialog):
         self.badge_container.setVisible(False)
         config_layout.addWidget(self.badge_container)
 
+        lang_section = QVBoxLayout()
+        lang_section.setSpacing(4)
+        lang_title = QLabel("Język pisania pracy:")
+        lang_title.setStyleSheet("font-size: 13px; font-weight: bold; color: #333;")
+        
+        lang_buttons_layout = QHBoxLayout()
+        self.btn_lang_pl = QPushButton("Polski (PL)")
+        self.btn_lang_pl.setCheckable(True)
+        self.btn_lang_pl.setChecked(True)
+        self.btn_lang_pl.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_lang_pl.setFixedHeight(45)
+        
+        self.btn_lang_en = QPushButton("Angielski (EN)")
+        self.btn_lang_en.setCheckable(True)
+        self.btn_lang_en.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_lang_en.setFixedHeight(45)
+        
+        self.btn_lang_pl.clicked.connect(lambda: self.btn_lang_en.setChecked(False))
+        self.btn_lang_en.clicked.connect(lambda: self.btn_lang_pl.setChecked(False))
+        
+        lang_buttons_layout.addWidget(self.btn_lang_pl)
+        lang_buttons_layout.addWidget(self.btn_lang_en)
+        lang_section.addWidget(lang_title)
+        lang_section.addLayout(lang_buttons_layout)
+        config_layout.addLayout(lang_section)
+
+        mode_section = QVBoxLayout()
+        mode_section.setSpacing(4)
+        mode_title = QLabel("Tryb analizy:")
+        mode_title.setStyleSheet("font-size: 13px; font-weight: bold; color: #333;")
+
         modes_layout = QHBoxLayout()
         self.btn_szybki = QPushButton("Tryb szybki")
         self.btn_szybki.setCheckable(True)
         self.btn_szybki.setChecked(True)
         self.btn_szybki.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_szybki.setFixedHeight(45)
+        
         self.btn_dokladny = QPushButton("Tryb dokładny")
         self.btn_dokladny.setCheckable(True)
         self.btn_dokladny.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_dokladny.setFixedHeight(45)
+        
         self.btn_szybki.clicked.connect(lambda: self.btn_dokladny.setChecked(False))
         self.btn_dokladny.clicked.connect(lambda: self.btn_szybki.setChecked(False))
         modes_layout.addWidget(self.btn_szybki)
         modes_layout.addWidget(self.btn_dokladny)
-        config_layout.addLayout(modes_layout)
+        mode_section.addWidget(mode_title)
+        mode_section.addLayout(modes_layout)
+        config_layout.addLayout(mode_section)
 
         self.main_layout.addWidget(self.config_widget)
 
@@ -333,7 +378,7 @@ class AnalysisDialog(QDialog):
         while self.badge_layout.count():
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
-        self.json_frame.setFixedHeight(190)
+        self.json_frame.setFixedHeight(150)
         badge = FileBadge(os.path.basename(path))
         badge.removed.connect(self._remove_config_file)
         self.badge_layout.addWidget(badge)
@@ -345,18 +390,18 @@ class AnalysisDialog(QDialog):
         while self.badge_layout.count():
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
-        self.json_frame.setFixedHeight(260)
+        self.json_frame.setFixedHeight(220)
 
     def _start_analysis(self):
-        if not self.config_file_path:
-            pass
         self.config_widget.setVisible(False)
         self.analyze_btn.setVisible(False)
         self.progress_widget.setVisible(True)
         self.title_label.setText("Analizowanie...")
         
         czy_dokladny = self.btn_dokladny.isChecked()
-        self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=czy_dokladny)
+        wybrany_jezyk = "pl" if self.btn_lang_pl.isChecked() else "en"
+        
+        self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=czy_dokladny, language=wybrany_jezyk)
         self.worker.progress_update.connect(self._update_progress)
         self.worker.finished_success.connect(self._on_analysis_success)
         self.worker.finished_error.connect(lambda msg: self.reject())
