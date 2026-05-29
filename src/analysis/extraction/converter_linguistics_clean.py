@@ -414,7 +414,9 @@ class PDFMapper:
         #self.last_y1 = None
         bottom_thresh = page.height - self.BOTTOM_MARGIN_OFFSET
         table_bboxes = [t.bbox for t in page.tables]
-        
+
+        img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+        tab_pattern = re.compile(r"^(tabela|tab\.)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
 
         margins = calculate_margins([{"bbox": b.bbox} for b in page.text_blocks], page.width, page.height)
         x0_margin = margins["left"]            
@@ -427,6 +429,12 @@ class PDFMapper:
 
             temp_text = "".join(s.text for l in block.lines for s in l.spans).strip().lower()
             x0, y0, x1, y1 = block.bbox
+
+            raw_block_text_for_check = "".join(s.text for l in block.lines for s in l.spans).strip()
+            is_visual_caption = bool(img_pattern.match(raw_block_text_for_check) or tab_pattern.match(raw_block_text_for_check))
+            if is_visual_caption and self.paragraph_buffer:
+                self._empty_paragraph_buffer("odcięcie - wykryto blok podpisu")
+                self.curr_line = 0
 
             # Filtr kontynuacji listy
             is_valid_list_cont = False
@@ -494,8 +502,6 @@ class PDFMapper:
 
                 # Detekcja nowego akapitu
                 is_new_paragraph, debug_reason = self._detect_paragraph_break(current_y0, current_y1, line_x0, x0_margin, full_text, is_valid_list_cont)
-
-                
 
                 if is_new_paragraph:
                     if full_text.strip():
@@ -567,6 +573,10 @@ class PDFMapper:
             else:
                 self._empty_list_buffer()
                 self.paragraph_buffer.append({'content': full_text, 'words': words_info, 'block_id': block.block_id})
+                
+                if is_visual_caption:
+                    self._empty_paragraph_buffer("odcięcie - koniec bloku podpisu")
+                    self.curr_line = 0
 
         for table in page.tables:
             ve = VisualElement(
@@ -716,17 +726,17 @@ class PDFMapper:
             if tab_pattern.match(content):
                 block.type = "table_description"
             elif img_pattern.match(content):
-                block.type = "img_description"
+                block.type = "image_description"
 
     def _pair_descriptions_with_visuals(self, new_doc):
         """
-        Post-processing: Przypisuje znalezione opisy (table_description, img_description)
+        Post-processing: Przypisuje znalezione opisy (table_description, image_description)
         do najbliższych im obiektów wizualnych na tej samej stronie.
         """
         visuals = new_doc.floating_elements.visual_elements
 
         for block in self.logical_blocks:
-            if getattr(block, "type", None) not in ["table_description", "img_description"]:
+            if getattr(block, "type", None) not in ["table_description", "image_description"]:
                 continue
 
             words = getattr(block, "words", [])
@@ -1131,7 +1141,7 @@ def get_plain_text(pdf_path):
         if not text:
             continue
 
-        if block_type in {"list", "table_description", "img_description", "math"}:
+        if block_type in {"list", "table_description", "image_description", "math"}:
             continue
 
         parts.append(text)
