@@ -17,7 +17,7 @@ if str(BASE_DIR) not in sys.path:
 from src.analysis.extraction.extraction_json import extractPDF
 
 #input_path = PROJECT_ROOT / "data"  / "mock_data"/ "mock1.pdf"
-input_path = PROJECT_ROOT / "data"  / "prace" / "most_important" / "inż_4_.pdf"
+input_path = PROJECT_ROOT / "data"  / "prace" / "other" / "zusz.pdf"
 
 output_path = PROJECT_ROOT / "src" / "output.json"
 
@@ -54,10 +54,18 @@ else:
 
 
 # -----------------------przykład dla converter_linguistics.py-----------------------
-# ZMIENIONO: Dostosowanie ścieżki importu mapper'a
 from src.analysis.extraction.converter_linguistics_clean import PDFMapper, get_acronyms_lut
-import pprint
+import json
+from dataclasses import asdict
 
 mapper = PDFMapper()
 
 output_path_linguistics = PROJECT_ROOT / "src" / "output_linguistics.json"
+mapped_doc = mapper.map_to_schema(doc_data)
+
+if mapped_doc is not None:
+    with open(output_path_linguistics, "w", encoding="utf-8") as f:
+        json.dump(asdict(mapped_doc), f, ensure_ascii=False, indent=4)
+    print("[converter_linguistics] JSON lingwistyczny wygenerowany")
+else:
+    print("[converter_linguistics] nie wygenerowano pliku JSON")
