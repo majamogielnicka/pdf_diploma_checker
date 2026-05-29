@@ -9,6 +9,31 @@ from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import QGraphicsDropShadowEffect 
 from PySide6.QtGui import QColor
 import styles
+from common.path import resource_path
+
+class PDFDropFrame(QFrame):
+    fileDropped = Signal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            # Sprawdzamy, czy to na pewno PDF
+            if urls and urls[0].toLocalFile().lower().endswith('.pdf'):
+                event.acceptProposedAction()
+                return
+        event.ignore()
+
+    def dropEvent(self, event):
+        urls = event.mimeData().urls()
+        if urls:
+            path = urls[0].toLocalFile()
+            if path.lower().endswith('.pdf'):
+                self.fileDropped.emit(path)
+                event.acceptProposedAction()
 
 class StartPage(QWidget):
     fileDropped = Signal(str)
@@ -67,7 +92,8 @@ class StartPage(QWidget):
         content_layout.setContentsMargins(30, 30, 30, 30)
         content_layout.setSpacing(20)
 
-        self.upload_frame = QFrame()
+        self.upload_frame = PDFDropFrame()
+        self.upload_frame.fileDropped.connect(self.fileDropped.emit)
         self.upload_frame.setStyleSheet(styles.UPLOAD_ZONE_STYLE)
         self.upload_frame.setFixedHeight(250)
         
@@ -76,8 +102,7 @@ class StartPage(QWidget):
         
         self.pdf_icon = QLabel()
         
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        icon_path = os.path.join(current_dir, "assets", "pdf_file.svg")
+        icon_path = resource_path(os.path.join("ui", "assets","pdf_file.svg"))
         
         if os.path.exists(icon_path):
             self.pdf_icon.setPixmap(QIcon(icon_path).pixmap(QSize(50, 50)))
@@ -236,8 +261,7 @@ class StartPage(QWidget):
         row_l = QHBoxLayout(row)
         row_l.setContentsMargins(5, 10, 5, 10)
         
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        icon_path = os.path.join(current_dir, "assets", "pdf_file.svg")
+        icon_path =  resource_path(os.path.join("ui", "assets", "pdf_file.svg"))
         if os.path.exists(icon_path):
             icon_widget = QSvgWidget(icon_path)
             icon_widget.setFixedSize(30, 36) 
@@ -297,7 +321,7 @@ class StartPage(QWidget):
             icon_circle.setFixedSize(20, 20)
             
             current_dir = os.path.dirname(os.path.abspath(__file__))
-            tick_path = os.path.join(current_dir, "assets", "tick.svg")
+            tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
             if os.path.exists(tick_path):
                 from PySide6.QtGui import QIcon
                 icon_circle.setPixmap(QIcon(tick_path).pixmap(QSize(12, 12)))
@@ -333,7 +357,7 @@ class StartPage(QWidget):
             icon_circle.setFixedSize(20, 20)
             
             current_dir = os.path.dirname(os.path.abspath(__file__))
-            cross_path = os.path.join(current_dir, "assets", "cross.svg")
+            cross_path =  resource_path(os.path.join("ui", "assets","cross.svg"))
             if os.path.exists(cross_path):
                 from PySide6.QtGui import QIcon
                 icon_circle.setPixmap(QIcon(cross_path).pixmap(QSize(10, 10)))

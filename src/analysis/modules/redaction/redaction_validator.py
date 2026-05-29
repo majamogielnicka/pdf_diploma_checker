@@ -5,9 +5,10 @@ pdf'a pod względem błędów z redakcji i "zaawansowanej" redakcji.
 
 '''
 
-from src.analysis.extraction.bare_struct import DocumentData
-from src.analysis.extraction.schema import FinalDocument
-from src.common.errors.error_struct import Error, FileError, Module
+from analysis.extraction.bare_struct import DocumentData, TocData, TofData, TotData
+from analysis.extraction.converter_linguistics_clean import get_acronym_pages
+from analysis.extraction.schema import FinalDocument
+from common.errors.error_struct import Error, FileError, Module
 from dataclasses import dataclass
 from typing import List
 import json
@@ -107,7 +108,7 @@ class RedactionValidator:
             self.check_margins(self.document_data)
             self.check_orientation(self.document_data)
             self.check_fonts(self.document_data)
-            #self.check_justification(self.document_data)
+            self.check_justification(self.document_data)
             self.check_format(self.document_data)
 
         #--------------------basic redaction check
@@ -115,6 +116,8 @@ class RedactionValidator:
             self.check_blank_page()
             self.check_footers()
             self.check_toc()
+            self.check_tof()
+            self.check_tot()
 
 
         #--------------------advanced redaction check
@@ -123,10 +126,17 @@ class RedactionValidator:
             self.check_widows()
             self.check_bekarts()
             self.check_szewce()
+            self.check_bibliography()
             #self.check_korytarze()
+            self.check_bibliography_summary()
 
         self.remove_errors_from_title_page()
+        self.remove_errors_from_toc_tof_tot()
+        self.remove_errors_from_images()
+        self.remove_errors_from_tables()
+        self.remove_errors_from_acronyms_symbols()
         self.replace_global_errors()
+
 
         return self.errors
     
@@ -160,6 +170,117 @@ class RedactionValidator:
             if error.page_number == 0:
                 self.errors.remove(error)
 
+    def remove_errors_from_toc_tof_tot(self):
+        if self.document_data.toc and self.document_data.toc.page_nums:
+            toc_pages = self.document_data.toc.page_nums
+        else:
+            toc_pages = []
+
+        if self.document_data.tof and self.document_data.tof.page_nums:
+            tof_pages = self.document_data.tof.page_nums
+        else:
+            tof_pages = []
+
+        if self.document_data.tot and self.document_data.tot.page_nums:
+            tot_pages = self.document_data.tot.page_nums
+        else:
+            tot_pages = []
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
+        errors_fixed = []
+        for error in self.errors:
+            is_in_toc = error.page_number in toc_pages
+            is_in_tof = error.page_number in tof_pages
+            is_in_tot = error.page_number in tot_pages
+            is_exluded = error.category in errors_excluded
+
+            if (is_in_toc or is_in_tof or is_in_tot) and is_exluded:
+                continue
+
+            errors_fixed.append(error)
+        self.errors = errors_fixed
+
+    def remove_errors_from_images(self):
+        def is_inside(error_bbox, image_bbox):
+            return (
+                error_bbox[0] >= image_bbox[0] - 10 and
+                error_bbox[1] >= image_bbox[1] - 10 and
+                error_bbox[2] <= image_bbox[2] + 10 and
+                error_bbox[3] <= image_bbox[3] + 10
+            )
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
+        filtered_errors = []
+
+        for error in self.errors:
+            error_to_remove = False
+
+            if error.category in errors_excluded:
+                for page in self.document_data.pages:
+                    if error.page_number == page.number:
+                        for image in page.images:
+                            if is_inside(error.bounding_box, image.bbox):
+                                error_to_remove = True
+                                break
+                        break 
+            
+            if not error_to_remove:
+                filtered_errors.append(error)
+
+        self.errors = filtered_errors
+                                
+    def remove_errors_from_tables(self):
+        def is_inside(error_bbox, table_bbox):
+            return (
+                error_bbox[0] >= table_bbox[0] - 10 and
+                error_bbox[1] >= table_bbox[1] - 10 and
+                error_bbox[2] <= table_bbox[2] + 10 and
+                error_bbox[3] <= table_bbox[3] + 10
+            )
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
+        filtered_errors = []
+
+        for error in self.errors:
+            error_to_remove = False
+
+            if error.category in errors_excluded:
+                for page in self.document_data.pages:
+                    if error.page_number == page.number:
+                        for table in page.tables:
+                            if is_inside(error.bounding_box, table.bbox):
+                                error_to_remove = True
+                                break
+                        break 
+            
+            if not error_to_remove:
+                filtered_errors.append(error)
+
+        self.errors = filtered_errors
+
+    def remove_errors_from_acronyms_symbols(self):
+        from analysis.extraction.converter_linguistics_clean import PDFMapper, get_acronym_pages
+
+        mapper = PDFMapper()
+        linguistics_doc = mapper.map_to_schema(self.document_data)
+
+        # Proste zebranie stron – jeśli funkcja lub obiekt zwróci brak danych, dajemy []
+        pages = get_acronym_pages(linguistics_doc) if linguistics_doc else []
+        if pages is None:
+            pages = []
+
+        errors_excluded = ["orphan", "corridor", "widow", "shoe_maker", "justification"]
+        errors_fixed = []
+        for error in self.errors:
+            is_in_acronyms = error.page_number in pages
+            is_exluded = error.category in errors_excluded
+
+            if is_in_acronyms and is_exluded:
+                continue
+
+            errors_fixed.append(error)
+        self.errors = errors_fixed
+
     def check_orphans(self):
         '''Zwraca listę sierot (spans)'''
         orphans = []
@@ -186,11 +307,11 @@ class RedactionValidator:
                         self.errors.append(Error(
                             id = self._get_next_id(),
                             module = self.module,
-                            category = "orphan_span",
+                            category = "orphan",
                             page_number = page.number,
                             bounding_box = last_span.bbox,
                             text = last_span.text,
-                            comments = "Wykryto sierotę - pojedynczy znak na końcu linii, który może zostać oderwany od reszty tekstu podczas redakcji."
+                            comments = "Wykryto sierotę - spójnik na końcu linii."
                         ))
         return orphans
     
@@ -223,11 +344,11 @@ class RedactionValidator:
                                 self.errors.append(Error(
                                     id = self._get_next_id(),
                                     module = self.module,
-                                    category = "korytarz",
+                                    category = "corridor",
                                     page_number = page.number,
                                     bounding_box = (x1, span.bbox[1] - 15, x2, span.bbox[3]),
                                     text = None,
-                                    comments = "Wykryto korytarz (nakładające się przerwy między wyrazami w sąsiednich liniach)."
+                                    comments = "Wykryto korytarz - nakładające się przerwy między wyrazami w sąsiednich liniach."
                                 ))
                     
                     paths_to_check = []
@@ -255,6 +376,27 @@ class RedactionValidator:
                 ))
 
         return blank_pages
+    
+    def check_bibliography(self):        
+        for block in self.document_data_linguistics.logical_blocks:
+            words = getattr(block, "words", [])
+            for word in words:
+                # Flaga: niepoprawne odwołanie do bibliografii
+                if getattr(word, "incorrect_bibliography", 0) == 1:        
+                    error = self._handle_bibliography(word)
+                    if error:
+                        self.errors.append(error)
+
+    def _handle_bibliography(self, word):
+        return Error(
+            id=self._get_next_id(), 
+            module=self.module,
+            category="incorrect bibiography refference", 
+            page_number=word.page_number,
+            bounding_box=word.bbox, 
+            text=word.text,
+            comments="Wykryto niepoprawne odwołanie do bibliografii - element nie występuje w spisie bibliografii lub ten nie istnieje."
+        )
 
     def check_widows(self):
         for block in self.document_data_linguistics.logical_blocks:
@@ -265,6 +407,33 @@ class RedactionValidator:
                     error = self._handle_widow(block, widow_which)
                     if error:
                         self.errors.append(error)
+
+    def check_bibliography_summary(self):
+        bib_entries = []
+
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "is_bibliography", False) and hasattr(block, "items"):
+                for item in block.items:
+                    text_content = item.text.strip()
+                    if text_content:
+                        marker = item.words[0].text if item.words else ""
+                        bib_entries.append(f"{marker} {text_content}\n")
+                        
+                        #bib_entries.append(text_content)
+
+        if bib_entries:
+            summary_text = "\n".join(bib_entries)
+            
+            summary_error = Error(
+                id=self._get_next_id(),
+                module=self.module,
+                category="bibliography_summary",
+                page_number=3,  
+                bounding_box=(0, 0, 0, 0),  
+                text=summary_text,
+                comments="Podsumowanie: Lista wszystkich pozycji wykrytych w spisie bibliograficznym."
+            )
+            self.errors.append(summary_error)
                 
     def _handle_widow(self, block, widow_which):
         if not block.words:
@@ -288,7 +457,7 @@ class RedactionValidator:
             page_number=last_word.page_number,
             bounding_box=widow_bbox, 
             text=found_text,
-            comments="Wykryto wdowę"
+            comments="Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu."
         )
     
     def check_bekarts(self):
@@ -319,11 +488,11 @@ class RedactionValidator:
         return Error(
             id=self._get_next_id(), 
             module=self.module,
-            category="bekart", 
+            category="bastard", 
             page_number=last_word.page_number,
             bounding_box=bekart_bbox, 
             text=found_text,
-            comments="Wykryto bękarta"
+            comments="Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie."
         )
     
     def check_szewce(self):
@@ -340,7 +509,7 @@ class RedactionValidator:
         if not block.words:
             return
 
-        szewc_words = block.words[-szewc_which:]
+        szewc_words = block.words[:szewc_which]
         first_word = szewc_words[0]
         last_word = szewc_words[-1]
         found_text = " ".join([w.text for w in szewc_words])
@@ -354,11 +523,11 @@ class RedactionValidator:
         return Error(
             id=self._get_next_id(), 
             module=self.module,
-            category="szewc", 
+            category="shoemaker", 
             page_number=first_word.page_number - 1,
             bounding_box=bekart_bbox, 
             text=found_text,
-            comments="Wykryto szewca"
+            comments="Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie."
         )
     
     def check_toc(self):
@@ -378,24 +547,6 @@ class RedactionValidator:
             self.errors.append(error)
             is_toc = False
             return None, is_toc
-
-        if is_toc:
-            is_ftr_error = False
-            for error in self.errors:
-                if error.category == "No_footer" or error.category == "Wrong_page_number":
-                    is_ftr_error = True
-            if is_ftr_error:
-                self.errors.append(Error(
-                    id = self._get_next_id(),
-                    module = self.module,
-                    category = "TOC_invalid",
-                    page_number = 1,
-                    bounding_box = (0,0,0,0), 
-                    text = None,
-                    comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści."
-                ))
-                #return wrong_entries, is_toc
-
 
         for entry in self.document_data.toc.entries:
             expected_page = entry.page
@@ -429,8 +580,167 @@ class RedactionValidator:
                 wrong_entries.append(entry)
 
         return wrong_entries, is_toc
+    
+    def check_tot(self):
+        wrong_entries = []
         
+        if self.document_data.tot == None:
+            error = Error(
+                id = self._get_next_id(),
+                module=self.module,
+                category = "lack_of_TOT",
+                page_number = 1,
+                bounding_box = (0,0,0,0), 
+                text = None,
+                comments = f"Wykryto brak spisu tabel."
+            )
+            self.errors.append(error)
+            return 
+
+        for entry in self.document_data.tot.entries:
+            expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
+            correct_page = False
+
+            for page in self.document_data.pages:
+                if page.number == entry.page:
+                    for table in page.tables:
+                        if not table.description:
+                            continue
+                        table_desc = " ".join(table.description.lower().strip().split())
+                        
+                        if expected_title in table_desc or table_desc in expected_title:
+                            correct_page = True
+                            break
+
+                if correct_page: 
+                    break
+
+            if not correct_page:
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="TOT_mismatch",
+                    page_number=entry.src_page,
+                    bounding_box=entry.bbox,
+                    text=entry.title,
+                    comments=f"Tabela o tytule '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                ))
+                wrong_entries.append(entry)
+
+        return wrong_entries
+
+    def check_tof(self):
+        wrong_entries = []
+
+        if self.document_data.tof == None:
+            error = Error(
+                id = self._get_next_id(),
+                module=self.module,
+                category = "lack_of_TOF",
+                page_number = 1,
+                bounding_box = (0,0,0,0), 
+                text = None,
+                comments = f"Wykryto brak spisu rysunków."
+            )
+            self.errors.append(error)
+            is_toc = False
+            return None, is_toc
+
+        for entry in self.document_data.tof.entries:
+            expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
+            correct_page = False
+
+            for page in self.document_data.pages:
+                if page.number == entry.page:
+                    for image in page.images:
+                        if not image.description:
+                            continue
+                            
+                        image_desc = " ".join(image.description.lower().strip().split())
+                        
+                        if expected_title in image_desc or image_desc in expected_title:
+                            correct_page = True
+                            break
+                if correct_page: 
+                    break
+
+            if not correct_page:
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="TOF_mismatch",
+                    page_number=entry.src_page,
+                    bounding_box=entry.bbox,
+                    text=entry.title,
+                    comments=f"Rysunek o tytule '{entry.title}' nie znajduje się na wskazanej stronie (Strona {entry.page})."
+                ))
+                wrong_entries.append(entry)
+
+        return wrong_entries
+    
     def check_footers(self):
+        first_chapter_page = None
+
+        keywords = [
+            "streszczenie", "abstract", "wstęp", "wstep", "introduction",
+            "spis treści", "spis tresci", "table of contents", "table of content", "toc",
+            "spis rysunków", "spis rysunkow", "list of figures", "tof",
+            "spis tabel", "spis tablic", "list of tables", "tot",
+            "wykaz skrótów", "wykaz skrotow", "list of abbreviations"
+        ]
+
+        font_sizes = []
+        for page in self.document_data.pages:
+            for block in page.text_blocks:
+                for line in block.lines:
+                    for span in line.spans:
+                        if span.text and span.text.strip() and hasattr(span, "size"):
+                            font_sizes.append(span.size)
+        
+        main_font_size = 12.0
+        if font_sizes:
+            font_sizes.sort()
+            main_font_size = font_sizes[len(font_sizes) // 2]
+
+        for page in self.document_data.pages:
+            if page.number > 10:
+                break
+
+            line_counter = 0
+            found_keyword = False
+            
+            for block in page.text_blocks:
+                for line in block.lines:
+                    line_text_lower = ""
+                    max_span_size = 0.0
+                    
+                    for span in line.spans:
+                        if span.text:
+                            line_text_lower += span.text.lower() + " "
+                            if hasattr(span, "size") and span.size > max_span_size:
+                                max_span_size = span.size
+                    
+                    line_text_lower = line_text_lower.strip()
+                    if not line_text_lower:
+                        continue
+                        
+                    line_counter += 1
+                    
+                    if line_counter <= 4:
+                        if max_span_size >= (main_font_size + 1.5):
+                            if any(word == line_text_lower or line_text_lower.startswith(word) for word in keywords):
+                                found_keyword = True
+                                break
+                if found_keyword:
+                    break
+            
+            if found_keyword:
+                if page.number > 0:
+                    first_chapter_page = page.number
+                    break
+
+        if first_chapter_page is None and self.document_data.toc and self.document_data.toc.entries:
+            first_chapter_page = self.document_data.toc.entries[0].page
 
         for page in self.document_data.pages:
             footer_block = None
@@ -439,16 +749,16 @@ class RedactionValidator:
                 if block.block_type == "footer":
                     footer_block = block
                     
-            if page.number == 1:
+            if first_chapter_page is not None and page.number < first_chapter_page:
                 if footer_block:
                     self.errors.append(Error(
                         id = self._get_next_id(),
                         module = self.module,
-                        category = "Footer_on_1st_page",
-                        page_number = 1,
+                        category = "Footer_on_forbidden_page",
+                        page_number = page.number,
                         bounding_box = footer_block.bbox, 
-                        text = "1",
-                        comments = "Wykryto numerację na stronie, która nie powinna się tam znaleźć."
+                        text = "Footer detected",
+                        comments = f"Wykryto numerację na stronie {page.number}, która znajduje się przed pierwszym rozdziałem lub nagłówkiem (oczekiwano od strony {first_chapter_page})."
                     ))
             else: 
                 if footer_block is None:
@@ -480,8 +790,22 @@ class RedactionValidator:
                                 text=raw_text,
                                 comments=f"Błędny numer strony. Wykryto: {detected_num}, oczekiwano: {page.number}."
                             ))
+
+        is_ftr_error = False
+        for error in self.errors:
+            if error.category == "No_footer" or error.category == "Wrong_page_number":
+                is_ftr_error = True
+        if is_ftr_error:
+            self.errors.append(Error(
+                id = self._get_next_id(),
+                module = self.module,
+                category = "numeration_invalid",
+                page_number = 1,
+                bounding_box = (0,0,0,0), 
+                text = None,
+                comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści, rysunków oraz tabel."
+            ))
         return None
-    
     #------------------config checks-----------------------
     #funckje w tym bloku zwracają True jeśli wszystko ok, False jeśli wykryto błąd
     def check_interline_spacing(self, doc_data: DocumentData) -> bool:
@@ -701,7 +1025,7 @@ class RedactionValidator:
                         self.errors.append(Error(
                             id = self._get_next_id(),
                             module = self.module,
-                            category = "config_file",
+                            category = "justification",
                             page_number = page.number,
                             bounding_box = line.bbox,
                             text = None,
@@ -713,7 +1037,7 @@ class RedactionValidator:
                         self.errors.append(Error(
                             id = self._get_next_id(),
                             module = self.module,
-                            category = "config_file",
+                            category = "justification",
                             page_number = page.number,
                             bounding_box = line.bbox,
                             text = None,

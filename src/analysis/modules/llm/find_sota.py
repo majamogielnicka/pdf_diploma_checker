@@ -5,7 +5,6 @@ from evaluate_sota import get_llm
 PROMPT_EVALUATE_PL = """Jesteś ekspertem analizującym strukturę prac naukowych... [treść promptu]"""
 PROMPT_EVALUATE_EN = """You are an expert analyzing the structure of academic papers... [treść promptu]"""
 
-# ZMIANA: Funkcja przyjmuje gotowe bloki tekstu
 def get_sota_chapter(blocks: list, language: str = "pl"):
     """
     Skanuje przekazane bloki i zwraca tuple: (id, tytul, metoda_wyboru, liczba_cytowan, WYEKSTRAKTOWANY_TEKST).
@@ -25,7 +24,6 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
     sota_chapter = None
     metoda = "Nie znaleziono"
     
-    # KROK 1: Tytuł
     for block in valid_blocks:
         title_lower = block.title.lower() if block.title else ""
         if any(kw in title_lower for kw in SOTA_KEYWORDS):
@@ -33,11 +31,24 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
             metoda = "KROK 1 (Słowa kluczowe w tytule)"
             break
 
-    # KROK 2: Analiza AI
     if not sota_chapter:
+        blocks_with_cites = []
+        for block in valid_blocks:
+            c_count = len(set(extract_citations(block.content)))
+            blocks_with_cites.append((c_count, block))
+            
+        blocks_with_cites.sort(key=lambda x: x[0], reverse=True)
+        top_candidates = [b[1] for b in blocks_with_cites[:3] if b[0] > 0]
+        
+        if not top_candidates:
+            valid_blocks.sort(key=lambda b: len(b.content), reverse=True)
+            top_candidates = valid_blocks[:3]
+
+        print(f"\n[AI] Szukam SOTA. Analizuję tylko {len(top_candidates)} najbardziej prawdopodobnych kandydatów...")
         llm = get_llm()
         llm_candidates = []
-        for block in valid_blocks:
+        
+        for block in top_candidates:
             truncated_content = block.content[:4000]
             prompt = PROMPT_EVALUATE_PL.format(title=block.title or "Brak", content=truncated_content) if language == "pl" else PROMPT_EVALUATE_EN.format(title=block.title or "None", content=truncated_content)
             try:
@@ -49,7 +60,8 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
                 score = data.get("pewnosc_procentowa", 0)
                 if score >= 90 and data.get("czy_sota"):
                     llm_candidates.append({"block": block, "score": score})
-            except: continue
+            except: 
+                continue
         
         if llm_candidates:
             perfect = [c for c in llm_candidates if c["score"] == 100]
@@ -61,7 +73,6 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
                 sota_chapter = best["block"]
                 metoda = f"KROK 2 (Analiza AI - {best['score']}% + Cytowania)"
 
-    # KROK 3: Zliczanie ilości cytowań
     if not sota_chapter:
         best_block = None
         max_c = -1
@@ -76,7 +87,6 @@ def get_sota_chapter(blocks: list, language: str = "pl"):
 
     if sota_chapter:
         unique_citations = len(set(extract_citations(sota_chapter.content)))
-        # ZMIANA: Zwracamy dodatkowo zawartość tekstową rozdziału (sota_chapter.content)
         return str(sota_chapter.id), str(sota_chapter.title or "Bez tytułu"), metoda, unique_citations, sota_chapter.content
     
     return None, None, "Nie znaleziono", 0, ""

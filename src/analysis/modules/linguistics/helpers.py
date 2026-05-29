@@ -14,16 +14,48 @@ from collections import defaultdict
 import functools
 import spacy
 from spellchecker import SpellChecker
+from common.path import resource_path
 
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
-spell.word_frequency.load_text_file(os.path.join(os.path.dirname(__file__), 'word_whitelist.txt'))
+spell.word_frequency.load_text_file(resource_path(os.path.join("src", "analysis", "modules", "linguistics", "word_whitelist.txt")))
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
-nlp_en = spacy.load('en_core_web_lg')
-nlp_pl = spacy.load('pl_core_news_lg')
+import os
+import sys
+import spacy
 
+import sys
+import os
+import spacy
+from pathlib import Path
+
+def get_nlp(model_name):
+    """Bezpieczne ładowanie dowolnego modelu spaCy w .exe i kodzie źródłowym"""
+    if getattr(sys, 'frozen', False):
+        base_path = Path(getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))).resolve()
+        
+        model_path = base_path / "_internal" / model_name
+        if not model_path.exists():
+            model_path = base_path / model_name
+
+        if model_path.exists():
+            config_path = model_path / "config.cfg"
+            if not config_path.exists():
+                subdirs = [d for d in model_path.iterdir() if d.is_dir()]
+                for subdir in subdirs:
+                    if (subdir / "config.cfg").exists():
+                        model_path = subdir
+                        break
+            
+            print(f"[SPA CY] Ładowanie modelu z absolutnej ścieżki: {model_path.resolve()}")
+            return spacy.load(model_path.resolve())
+            
+    return spacy.load(model_name)
+
+nlp_pl = get_nlp("pl_core_news_lg")
+nlp_en = get_nlp("en_core_web_lg")
 
 @functools.cache
 def lemmatization(word_base, text_language):
@@ -119,7 +151,7 @@ def extract_errors_to_json(matches, name):
             all_matches.append(dataclasses.asdict(match))
     else:
         all_matches = dataclasses.asdict(matches)
-    output_path = os.path.join(os.path.dirname(__file__), name)
+    output_path = resource_path(os.path.join("analysis", "modules", "linguistics", name))
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(all_matches, f, ensure_ascii=False, indent=4)

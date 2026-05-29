@@ -1,21 +1,28 @@
 import os
 import sys
 import concurrent.futures
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EXTRACTION_DIR = os.path.join(BASE_DIR, "analysis", "extraction")
-COMMON_DIR = os.path.join(BASE_DIR, "common")
+COMMON_DIR     = os.path.join(BASE_DIR, "common")
 LINGUISTICS_DIR = os.path.join(BASE_DIR, "analysis", "modules", "linguistics")
-LLM_DIR = os.path.join(BASE_DIR, "analysis", "modules", "llm")
-REDACTION_DIR = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
+LLM_DIR         = os.path.join(BASE_DIR, "analysis", "modules", "llm")
+REDACTION_DIR   = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
+
+from common.path import resource_path
+from analysis.modules.linguistics import run_mock_data as ling_module
+
 
 for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from service import ExtractionService
-from linguistics_service import LinguisticsService
-from models import FinalReport, ModuleResult
+from analysis.extraction.service import ExtractionService
+from analysis.modules.linguistics.linguistics_service import LinguisticsService
+from common.models import FinalReport, ModuleResult
 
 
 class AnalysisPipeline:
@@ -62,25 +69,85 @@ class AnalysisPipeline:
                 from analysis.modules.llm.get_purpose import get_purpose
                 from analysis.modules.llm.get_summary import get_summaries
                 from analysis.modules.llm.get_subtitles import get_subtitles
-                from run_sota import get_final_sota_report
-                from analysis.modules.llm.get_content import get_content
-                from analysis.modules.llm.config import THESIS_PATH, LANGUAGE
+                from analysis.modules.llm.run_sota import get_final_sota_report
+                from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH, LLAVA_MMPROJ_PATH, LLAVA_MODEL_PATH
+                from analysis.modules.llm.image_analysis.run_image import analyze_images
+                from analysis.extraction.converter_linguistics_clean import PDFMapper
+                from analysis.modules.llm.image_analysis.image_quality_checker import get_full_image_quality_json
+                from analysis.modules.llm.image_analysis.font_checker import get_font_consistency_report
 
+                mapper = PDFMapper()
+                mapped_doc = mapper.map_to_schema(doc_obj)
+                raw_image_report = analyze_images(doc_obj, mapped_doc)
                 plain_txt_purpose = get_plain_text(pdf_path)
                 txt_for_llm = extractPDF_llm(pdf_path)
+
+                total_images = len(raw_image_report)
+                bad_images_count = 0
+                image_details_lines = []
+
+                for item in raw_image_report:
+                    img_id = item.get("obrazek", item.get("id", "Nieznany"))
+                    is_correct = item.get("poprawnosc_danych", "True")
+                    errors = item.get("bledy", "None")
+                    
+                    if isinstance(errors, list):
+                        errors = " ".join(errors)
+                    
+                    if is_correct == "False" or is_correct is False:
+                        bad_images_count += 1
+                        status_text = "Wykryto rozbieznosci"
+                    else:
+                        status_text = "Poprawny"
+                        
+                    image_details_lines.append(f"Rysunek {img_id}: {status_text} - Szczegoly: {errors}")
+
+                image_summary_data = {
+                    "total": total_images,
+                    "bad_count": bad_images_count,
+                    "good_count": total_images - bad_images_count,
+                    "details": image_details_lines
+                }
 
                 language = "pl"
                 purpose = get_purpose(plain_txt_purpose, language)
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
-                content_g = get_content_grade(purpose, summaries)
-                purpose_g = get_purpose_grade(txt_for_llm, purpose, language)
+                content_res = get_content_grade(purpose, summaries)
+                if isinstance(content_res, tuple) and len(content_res) == 2:
+                    content_grade_val, off_topic_headings = content_res
+                else:
+                    content_grade_val = content_res if isinstance(content_res, (int, float)) else 0.0
+                    off_topic_headings = []
+
+                purpose_res = get_purpose_grade(txt_for_llm, purpose, language)
+                if isinstance(purpose_res, tuple) and len(purpose_res) == 2:
+                    purpose_score, purpose_reason = purpose_res
+                else:
+                    purpose_score = purpose_res if isinstance(purpose_res, (int, float)) else 0
+                    purpose_reason = "Brak uzasadnienia (błąd lub limit czasu CPU)"
                 
-                extracted_blocks = get_content(pdf_path)
-                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(extracted_blocks, language)
+                quality_errors = get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False)
+                font_errors = get_font_consistency_report(doc_obj, mapped_doc, verbose=False)
+                
+                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
         
-                score = get_overall_grade(purpose_g, content_g, res_score)
+                score = get_overall_grade(purpose_score, content_grade_val, res_score)
+                
+                total_sections = len(summaries) if summaries else 1
+                bad_sections = len(off_topic_headings)
+                p_off_val = (bad_sections / total_sections) * 100.0 if total_sections > 0 else 0.0
+
+                content_grade_dict = {
+                    "grade": round(score, 2),
+                    "max_grade": 100.0,
+                    "off_topic_sections": bad_sections,
+                    "p_off": round(p_off_val, 2),
+                    "off_topic_headings": off_topic_headings,
+                    "purpose_reason": purpose_reason
+                }
+
                 result = {
                     "id": res_id,
                     "tytul": res_title,
@@ -90,16 +157,17 @@ class AnalysisPipeline:
                     "r1": r1,
                     "r2": r2,
                     "r3": r3,
-                    "content_grade": score
+                    "content_grade": content_grade_dict,
+                    "image_analysis": image_summary_data,
+                    "jakosc_obrazkow": quality_errors,
+                    "czcionki_obrazkow": font_errors
                 }
-                
                 
                 return result, score, "Analiza LLM zakończona pomyślnie."
             
             except Exception as e:
                 print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
                 return None, None, "Błąd analizy SOTA/LLM."
-
         def task_linguistics():
             try:
                 from analysis.extraction.extraction_json import extractPDF
@@ -114,7 +182,7 @@ class AnalysisPipeline:
                 spec.loader.exec_module(ling_module)
                 
                 raw_blocks = mapper.map_to_schema(doc_obj)
-                ling_matches, sentence_analysis = ling_module.run_linguistics(raw_blocks)
+                ling_matches = ling_module.run_linguistics(raw_blocks, config_path)
                 print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
                 return ling_matches
             except Exception as e:
@@ -122,7 +190,7 @@ class AnalysisPipeline:
                 import traceback
                 traceback.print_exc()
                 return []
-
+                
         def task_redaction():
             try:
                 from analysis.modules.redaction.redaction_validator import RedactionValidator
@@ -146,18 +214,19 @@ class AnalysisPipeline:
                 traceback.print_exc()
                 return []
         report_progress(30, "Rozpoczynam analizy...")
+
+        redaction_errors = task_redaction()
+        report_progress(50, "Redakcja zakończona. Uruchamiam pozostałe analizy...")
         
-        workers_count = 3 if use_llm else 2
+        workers_count = 2 if use_llm else 1
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers_count) as executor:
             future_ling = executor.submit(task_linguistics)
-            future_redaction = executor.submit(task_redaction)
-
+    
             if use_llm:
                 future_llm = executor.submit(task_llm)
 
             ling_matches = future_ling.result()
-            redaction_errors = future_redaction.result()
 
             if use_llm:
                 llm_result, content_grade_result, llm_summary_text = future_llm.result()

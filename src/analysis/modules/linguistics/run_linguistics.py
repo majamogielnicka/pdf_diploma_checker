@@ -23,6 +23,7 @@ from analysis.extraction.extraction_json import extractPDF
 from analysis.modules.linguistics.bibliography_check import check_bibliography
 from analysis.extraction.converter_linguistics_clean import PDFMapper
 import json
+from common.path import resource_path
 import os
 
 def remove_errors_inside_images(matches, raw_blocks):
@@ -70,7 +71,6 @@ def run_linguistics(raw_blocks, config_path=None):
         except ValueError as e:
             print(f"niepoprawny typ danych w konfiguracji lingwistyki: {e}")
     blocks = get_context(raw_blocks)
-    # extract_errors_to_json(blocks, "final_document.json")
     extracted_acronyms = raw_blocks.reference_sections.acronyms
     proper_names, bibliography_dict = get_proper_names(blocks)
     bib_matches = check_bibliography(blocks, raw_blocks.metadata["producer"], bibliography_dict, bibtex_check_bool = check_bibtex)
@@ -85,12 +85,11 @@ def run_linguistics(raw_blocks, config_path=None):
     language_style_matches, sentence_analisys = sentence_check(blocks, check_first_person=check_first_person, acronyms_with_definitions=acronyms_with_definitions)
     matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches + bib_matches
     matches = remove_errors_inside_images(matches, raw_blocks)
-    # extract_errors_to_json(matches, "errors.json")
-    return matches, sentence_analisys
+    return matches
 
 #plik pomocniczy do uruchamiania analizy bez GUI
 if __name__ == "__main__":
-    pdf_file = "analysis/modules/linguistics/jabi.pdf"
+    pdf_file = resource_path(os.path.join("analysis", "modules", "linguistics", "jabi.pdf"))
     try:
         document = extractPDF(str(pdf_file))
         mapper = PDFMapper()

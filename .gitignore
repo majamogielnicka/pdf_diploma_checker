@@ -15,3 +15,8 @@ src/analysis/modules/linguistics/final_document.json
 src/analysis/modules/linguistics/final_document_raw.json
 src/analysis/modules/linguistics/errors.json
 data
+build/
+dist/
+**/build/
+**/dist/
+*.spec

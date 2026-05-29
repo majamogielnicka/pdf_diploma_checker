@@ -158,7 +158,6 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
         passive_ratio= f"{passive_ratio}%",
         verbless_ratio= f"{verbless_ratio}%"
     )
-    # print(f'active: {analisys.active_ratio}, {active_count} passive: {analisys.passive_ratio}, {passive_count} verbless: {analisys.verbless_ratio}, {verbless_count} count: {sentence_count}')
     return checked_matches, analisys
 
 def morfeusz_check(text):
@@ -185,9 +184,7 @@ def description_exclude_backup(sentence_text):
     if len(words) < 3:
         return True
     if words[0].lower() in DESCRIPTION_WHITELIST and not words[1].isalpha():
-        # print(f'{sentence_text} excluded')
         return True
     elif not words[0].isalpha() and words[1][0].isupper():
-        # print(f'{sentence_text} excluded')
         return True
     return False
