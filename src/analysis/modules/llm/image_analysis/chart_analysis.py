@@ -31,7 +31,6 @@ def extract_images(doc_obj):
                 if match:
                     prefix = match.group(1).capitalize()
                     
-                    # Normalizacja przedrostków, aby JSON wyglądał spójnie i profesjonalnie
                     if prefix.startswith("Rys") and prefix != "Rysunek":
                         prefix = "Rys."
                     elif prefix.startswith("Wys"):
@@ -39,11 +38,11 @@ def extract_images(doc_obj):
                     elif prefix.startswith("Fot") and prefix != "Fotografia":
                         prefix = "Fot."
                     else:
-                        prefix = prefix.replace(".", "") # Usuwa kropki np. z pełnego słowa 'Wykres'
+                        prefix = prefix.replace(".", "")
                         
                     label = f"{prefix} {match.group(2)}"
                 else:
-                    label = f"Obrazek {idx}" # Fallback dla obrazków bez widocznego podpisu
+                    label = f"Obrazek {idx}"
                 
                 with open(img_path, "rb") as f:
                     unique_images[img_path] = {
@@ -70,16 +69,18 @@ class LlavaChartEngine:
         base64_img = base64.b64encode(image_bytes).decode('utf-8')
         data_uri = f"data:image/jpeg;base64,{base64_img}"
 
-        prompt = """Look at this image. First, determine if it is an actual data chart/plot with X and Y axes. Then answer the following 6 questions:
-        1. is_actual_chart_with_axes: Does this image clearly show a data chart with mathematical axes?
-        2. embedded_title: Is there a main title printed INSIDE the chart graphic itself?
-        3. has_axis_units: Do the axis labels contain units enclosed in square brackets?
-        4. axis_ends_with_dot: Do the axis labels incorrectly end with a period/dot?
-        5. has_axis_arrows: Are there arrows at the very ends of the standard X and Y axes lines?
-        6. is_polish: Is the text inside the chart written in Polish?"""
+        prompt = """Look at this image extracted from a scientific paper. 
+        First, strictly classify the image type. A 'data chart' MUST have numerical/mathematical X and Y axes (like a line plot, bar chart, or scatter plot). 
+        Photographs, 3D CAD models, block diagrams, flowcharts, circuits, and schematic drawings are NOT data charts.
+        
+        Answer these 3 questions:
+        1. is_actual_chart_with_axes: Is this strictly a mathematical data chart with X and Y axes? (Answer FALSE for 3D models, photos, block diagrams, flowcharts, etc.)
+        2. embedded_title: Is there a LARGE, centered main text title printed INSIDE the chart graphic itself at the VERY TOP? (WARNING: Do NOT count axis labels, axis numbers, or legends at the bottom as a title. If the top center is empty, answer FALSE).
+        3. has_axis_units: Do the X or Y axis labels contain units enclosed in square brackets like [s], [V], [m]? (If there are no axes, answer false).
+        """
 
         grammar_text = r'''
-        root ::= "{" ws "\"is_actual_chart_with_axes\":" ws boolean "," ws "\"embedded_title\":" ws boolean "," ws "\"has_axis_units\":" ws boolean "," ws "\"axis_ends_with_dot\":" ws boolean "," ws "\"has_axis_arrows\":" ws boolean "," ws "\"is_polish\":" ws boolean "}"
+        root ::= "{" ws "\"is_actual_chart_with_axes\":" ws boolean "," ws "\"embedded_title\":" ws boolean "," ws "\"has_axis_units\":" ws boolean "}"
         boolean ::= "true" | "false"
         ws ::= [ \t\n]*
         '''
@@ -95,7 +96,7 @@ class LlavaChartEngine:
                     ]
                 }],
                 temperature=0.0,
-                max_tokens=100,
+                max_tokens=50,
                 grammar=grammar
             )
             return json.loads(response["choices"][0]["message"]["content"].strip())
@@ -118,15 +119,9 @@ def get_chart_correctness_report(doc_obj):
             bledy = []
             
             if analysis.get("embedded_title") is True:
-                bledy.append("Wykres posiada tytuł wewnątrz obrazka.")
+                bledy.append("Wykres posiada tytuł wewnątrz obrazka (powinien być tylko w podpisie).")
             if analysis.get("has_axis_units") is False:
-                bledy.append("Brak jednostek w nawiasach kwadratowych na osiach wykresu.")
-            if analysis.get("axis_ends_with_dot") is True:
-                bledy.append("Opisy osi błędnie kończą się kropką.")
-            if analysis.get("has_axis_arrows") is True:
-                bledy.append("Oś X lub Y posiada strzałkę na końcu.")
-            if analysis.get("is_polish") is False:
-                bledy.append("Tekst na wykresie nie jest w języku polskim.")
+                bledy.append("Brak jednostek w nawiasach kwadratowych na osiach wykresu (np. [s], [m]).")
 
             if bledy:
                 bad_charts_report.append({
