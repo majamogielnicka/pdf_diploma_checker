@@ -33,7 +33,7 @@ MODEL_PATH = MODELS_DIR / "gemma-3-12b-it-Q4_K_M.gguf"
 LLAVA_MODEL_PATH = MODELS_DIR / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
 LLAVA_MMPROJ_PATH = MODELS_DIR / "mmproj-model-f16.gguf"
 
-THESIS_PATH =  Path(r"D:\ZSD\data\llm_mock\zusz_z_podtytulami_testowymi.pdf")
+THESIS_PATH =  Path(r"D:\ZSD\data\most_important/inż_2_.pdf")
 LANGUAGE = "pl" #LUB "en"
 
 if __name__ == "__main__":
