@@ -15,7 +15,6 @@ sys.path.append(str(current_dir.parents[3]))
 import config
 
 def extract_images(doc_obj):
-    # Potężny Regex łapiący różnorodne podpisy (Rys., rys., Wykres, Schemat, Fot., wys., Wys.)
     caption_pattern = re.compile(
         r"(?i)(rys(?:unek|\.)?|wykres|schemat|fot(?:ografia|\.)?|wys\.?)\s*(\d+(?:\.\d+)*)"
     )
