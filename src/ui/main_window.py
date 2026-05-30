@@ -271,12 +271,12 @@ class PDFReader(QMainWindow):
             self.last_report = getattr(dialog, 'final_report', None)
             
             if hasattr(dialog, 'final_report') and dialog.final_report:
-                bledy = dialog.final_report.get("bledy", [])
+                errors = dialog.final_report.get("errors", [])
                 sota_data = dialog.final_report.get("sota", None)
 
-                self.pdf_view.add_errors(bledy)
+                self.pdf_view.add_errors(errors)
                 self.update_sota_panel(sota_data)
-                self.manager.zapisz_bledy(path, bledy)
+                self.manager.zapisz_errors(path, errors)
                 self.manager.zapisz_wynik_ai(path, sota_data)
                 
             self.stack.setCurrentIndex(1)
@@ -342,9 +342,9 @@ class PDFReader(QMainWindow):
             return
             
         try:
-            bledy = self.manager.pobierz_bledy(self.current_pdf_path)
-            if bledy:
-                self.pdf_view.add_errors(bledy) 
+            errors = self.manager.pobierz_errors(self.current_pdf_path)
+            if errors:
+                self.pdf_view.add_errors(errors) 
                 self.pdf_view.update_markers_pos() 
         except Exception as e:
             print(f"Błąd podczas wczytywania błędów: {e}")
@@ -446,28 +446,28 @@ class PDFReader(QMainWindow):
                 off_topic = 0
 
             cg_frame = QFrame()
-            cg_frame.setStyleSheet("QFrame { background-color: #F0F7FF; border: 2px solid #90C8FF; border-radius: 8px; }")
+            cg_frame.setStyleSheet(styles.CONTENT_GRADE_FRAME)
             cg_layout = QVBoxLayout(cg_frame)
             cg_layout.setContentsMargins(15, 12, 15, 12)
             cg_layout.setSpacing(4)
 
             cg_title = QLabel("Ogólna ocena pracy")
-            cg_title.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none; background: transparent;")
-            
+            cg_title.setStyleSheet(styles.CONTENT_GRADE_TITLE)
+
             cg_val = QLabel(f"{grade} <span style='font-size: 16px; color: #666;'>/ {max_grade} pkt</span>")
-            cg_val.setStyleSheet("color: #0056b3; font-size: 32px; font-weight: bold; border: none; background: transparent;")
+            cg_val.setStyleSheet(styles.CONTENT_GRADE_VALUE)
 
             detale_lbl = QLabel(f"Podrozdziały poza tematem: <b>{off_topic}</b> ({p_off}%)")
-            detale_lbl.setStyleSheet("color: #666; font-size: 12px; border: none; background: transparent;")
+            detale_lbl.setStyleSheet(styles.CONTENT_GRADE_DETAILS)
 
             cg_layout.addWidget(cg_title)
             cg_layout.addWidget(cg_val)
             cg_layout.addWidget(detale_lbl)
             l.addWidget(cg_frame)
         else:
-            brak_label = QLabel("Brak danych analizy merytorycznej (Tryb szybki)")
-            brak_label.setStyleSheet("color: #7f8c8d; font-style: italic; border: none; padding-left: 2px;")
-            l.addWidget(brak_label)
+            none_label = QLabel("Brak danych analizy merytorycznej (Tryb szybki)")
+            none_label.setStyleSheet("color: #7f8c8d; font-style: italic; border: none; padding-left: 2px;")
+            l.addWidget(none_label)
 
         def create_badge_row(label_text, is_met):
             row_widget = QWidget()
@@ -476,7 +476,8 @@ class PDFReader(QMainWindow):
 
             lbl = QLabel(label_text)
             lbl.setWordWrap(True)
-            lbl.setStyleSheet("color: #444; font-size: 13px; border: none;")
+            lbl.setStyleSheet(styles.ROW_LABEL_CLEAN)
+            
 
             badge = QFrame()
             badge.setFixedHeight(26)
@@ -488,54 +489,54 @@ class PDFReader(QMainWindow):
             icon_circle.setAlignment(Qt.AlignCenter)
 
             if is_met:
-                badge.setStyleSheet("QFrame { background-color: #D1EEDC; border-radius: 13px; border: none; }")
+                badge.setStyleSheet(styles.BADGE_FRAME_SUCCESS)
                 tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
                 if os.path.exists(tick_path):
                     icon_circle.setPixmap(QIcon(tick_path).pixmap(QSize(12, 12)))
                 else:
                     icon_circle.setText("V")
-                icon_circle.setStyleSheet("QLabel { background-color: #2CA05A; color: white; border-radius: 10px; font-weight: bold; }")
+                icon_circle.setStyleSheet(styles.BADGE_ICON_SUCCESS)
                 text_lbl = QLabel("Tak")
             else:
-                badge.setStyleSheet("QFrame { background-color: #F8D7DA; border-radius: 13px; border: none; }")
+                badge.setStyleSheet(styles.BADGE_FRAME_ERROR)
                 cross_path = resource_path(os.path.join("ui", "assets", "cross.svg"))
                 if os.path.exists(cross_path):
                     icon_circle.setPixmap(QIcon(cross_path).pixmap(QSize(10, 10)))
                 else:
                     icon_circle.setText("X")
-                icon_circle.setStyleSheet("QLabel { background-color: #DC3545; color: white; border-radius: 10px; font-weight: bold; }")
+                icon_circle.setStyleSheet(styles.BADGE_ICON_ERROR)
                 text_lbl = QLabel("Nie")
 
-            text_lbl.setStyleSheet("color: #000; font-weight: bold; font-size: 12px; border: none; background: transparent;")
+            text_lbl.setStyleSheet(styles.BADGE_TEXT_DEFAULT)
             badge_layout.addWidget(icon_circle)
             badge_layout.addWidget(text_lbl)
             row_layout.addWidget(lbl, stretch=1)
             row_layout.addWidget(badge, alignment=Qt.AlignRight)
             return row_widget
 
-        grafiki_container = QWidget()
-        grafiki_layout = QVBoxLayout(grafiki_container)
-        grafiki_layout.setContentsMargins(0, 4, 0, 0)
-        grafiki_layout.setSpacing(6)
+        graphics_container = QWidget()
+        graphics_layout = QVBoxLayout(graphics_container)
+        graphics_layout.setContentsMargins(0, 4, 0, 0)
+        graphics_layout.setSpacing(6)
 
         grafiki_header = QLabel("Weryfikacja rysunków i grafik")
         grafiki_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
-        grafiki_layout.addWidget(grafiki_header)
+        graphics_layout.addWidget(grafiki_header)
 
-        jakosc_err = sota_data.get('jakosc_obrazkow', [])
-        czcionki_err = sota_data.get('czcionki_obrazkow', [])
+        quality_errors = sota_data.get('jakosc_obrazkow', [])
+        font_errors = sota_data.get('czcionki_obrazkow', [])
 
-        if not jakosc_err:
-            grafiki_layout.addWidget(create_badge_row("Jakość obrazów (rozdzielczość/czytelność)", True))
+        if not quality_errors:
+            graphics_layout.addWidget(create_badge_row("Jakość obrazów (rozdzielczość/czytelność)", True))
         else:
-            grafiki_layout.addWidget(create_badge_row(f"Jakość obrazów (Błędy: {len(jakosc_err)})", False))
+            graphics_layout.addWidget(create_badge_row(f"Jakość obrazów (Błędy: {len(quality_errors)})", False))
 
-        if not czcionki_err:
-            grafiki_layout.addWidget(create_badge_row("Spójność czcionek na rysunkach", True))
+        if not font_errors:
+            graphics_layout.addWidget(create_badge_row("Spójność czcionek na rysunkach", True))
         else:
-            grafiki_layout.addWidget(create_badge_row(f"Spójność czcionek (Błędy: {len(czcionki_err)})", False))
+            graphics_layout.addWidget(create_badge_row(f"Spójność czcionek (Błędy: {len(font_errors)})", False))
         
-        l.addWidget(grafiki_container)
+        l.addWidget(graphics_container)
 
         stats_data = sota_data.get("statystyki_zdan")
         if stats_data:
@@ -549,7 +550,7 @@ class PDFReader(QMainWindow):
             stats_vbox.addWidget(stats_header)
 
             stats_frame = QFrame()
-            stats_frame.setStyleSheet("QFrame { background-color: #F9F9F9; border: 1px solid #D3D3D3; border-radius: 8px; }")
+            stats_frame.setStyleSheet(styles.STATS_FRAME_STYLE)
             stats_layout = QVBoxLayout(stats_frame)
             stats_layout.setContentsMargins(12, 10, 12, 10)
             stats_layout.setSpacing(6)
@@ -559,13 +560,9 @@ class PDFReader(QMainWindow):
                 row_l = QHBoxLayout(row)
                 row_l.setContentsMargins(0, 0, 0, 0)
                 lbl_name = QLabel(name)
-                lbl_name.setStyleSheet("color: #555; font-size: 12px; border: none; background: transparent;")
+                lbl_name.setStyleSheet(styles.STATS_ROW_NAME)
                 lbl_val = QLabel(f"<b>{val}</b>")
-                lbl_val.setStyleSheet("color: #0056b3; font-size: 12px; border: none; background: transparent;")
-                row_l.addWidget(lbl_name)
-                row_l.addStretch()
-                row_l.addWidget(lbl_val)
-                return row
+                lbl_val.setStyleSheet(styles.STATS_ROW_VALUE)
 
             stats_layout.addWidget(create_stat_row("Strona czynna (zalecana):", stats_data.get("active_ratio", "0%")))
             stats_layout.addWidget(create_stat_row("Strona bierna:", stats_data.get("passive_ratio", "0%")))
@@ -611,11 +608,11 @@ class PDFReader(QMainWindow):
         try:
             doc = fitz.open(self.current_pdf_path)
             
-            bledy_do_zapisu = []
+            errors_do_zapisu = []
             if hasattr(self, 'last_report') and self.last_report:
-                bledy_do_zapisu = self.last_report.get("bledy", [])
+                errors_do_zapisu = self.last_report.get("errors", [])
 
-            for err in bledy_do_zapisu:
+            for err in errors_do_zapisu:
                 try:
                     page_num = int(err.get("strona", 1))
                     if 0 <= page_num < len(doc):
@@ -885,16 +882,16 @@ class PDFReader(QMainWindow):
             page.insert_text((margin, pos_y), "Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
             pos_y += 25
 
-            jakosc_err = sota_data.get('jakosc_obrazkow', [])
-            if not jakosc_err:
+            quality_errors = sota_data.get('jakosc_obrazkow', [])
+            if not quality_errors:
                 page.insert_text((margin, pos_y), "Wszystkie obrazy mają odpowiednią jakość i czytelność.", 
                                  fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                 pos_y += 25
             else:
-                page.insert_text((margin, pos_y), f"Wykryto problemy z jakością w {len(jakosc_err)} obrazach:", 
+                page.insert_text((margin, pos_y), f"Wykryto problemy z jakością w {len(quality_errors)} obrazach:", 
                                  fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
                 pos_y += 20
-                for err in jakosc_err:
+                for err in quality_errors:
                     pos_y, page = check_new_page(pos_y, report_pdf, page)
                     rys = err.get("rysunek", "Nieznany rysunek")
                     fmt = err.get("format", "Brak formatu")
@@ -915,24 +912,24 @@ class PDFReader(QMainWindow):
             page.insert_text((margin, pos_y), "Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
             pos_y += 25
 
-            czcionki_err = sota_data.get('czcionki_obrazkow', [])
-            if not czcionki_err:
+            font_errors = sota_data.get('czcionki_obrazkow', [])
+            if not font_errors:
                 page.insert_text((margin, pos_y), "Brak wykrytych problemów ze spójnością czcionek na rysunkach.", 
                                  fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                 pos_y += 25
             else:
-                page.insert_text((margin, pos_y), f"Wykryto problemy z czcionkami w {len(czcionki_err)} elementach:", 
+                page.insert_text((margin, pos_y), f"Wykryto problemy z czcionkami w {len(font_errors)} elementach:", 
                                  fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
                 pos_y += 20
-                for err in czcionki_err:
+                for err in font_errors:
                     if isinstance(err, dict):
                         pos_y, page = check_new_page(pos_y, report_pdf, page)
                         rys = err.get("rysunek", "Nieznany rysunek")
-                        bledy = err.get("bledy", err.get("powody_odrzucenia", [str(err)]))
+                        errors = err.get("errors", err.get("powody_odrzucenia", [str(err)]))
                         
                         page.insert_text((margin + 15, pos_y), f"{rys}:", fontsize=11, fontname=f_bold)
                         pos_y += 16
-                        for b in bledy:
+                        for b in errors:
                             wrapped_blad = wrap_text(str(b), 85)
                             for idx, line in enumerate(wrapped_blad):
                                 pos_y, page = check_new_page(pos_y, report_pdf, page)

@@ -12,17 +12,7 @@ class ErrorMarker(QPushButton):
         self.data = error_data
         self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(255, 0, 0, 180);
-                border: 2px solid white;
-                border-radius: 8px;
-                color: white;
-                font-weight: bold;
-                padding: 0px;
-            }
-            QPushButton:hover { background-color: red; }
-        """)
+        self.setStyleSheet(styles.ERROR_MARKER_STYLE)
         self.setText("!")
         self.clicked.connect(self.show_details)
 
@@ -45,16 +35,7 @@ class CommentMarker(QPushButton):
         self.data = comment_data
         self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(0, 120, 255, 180);
-                border: 2px solid white;
-                border-radius: 8px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover { background-color: blue; }
-        """)
+        self.setStyleSheet(styles.COMMENT_MARKER_STYLE)
         self.setText("C")
         self.clicked.connect(self.show_details)
 
@@ -67,12 +48,7 @@ class HighlightBox(QFrame):
     def __init__(self, rect_data, parent=None):
         super().__init__(parent)
         self.data = rect_data
-        self.setStyleSheet("""
-            QFrame {
-                background-color: rgba(0, 150, 255, 70);
-                border: none;
-            }
-        """)
+        self.setStyleSheet(styles.HIGHLIGHT_BOX_DEFAULT)
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
 
 class SelectablePdfView(QPdfView):
@@ -129,8 +105,7 @@ class SelectablePdfView(QPdfView):
             if w > 0:
                 box = HighlightBox(err, self.viewport())
                 box.is_error = True
-                box.setStyleSheet("background-color: rgba(255, 0, 0, 60); border: none;")
-                self.highlight_boxes.append(box)
+                box.setStyleSheet(styles.HIGHLIGHT_BOX_ERROR)
 
         self.update_markers_pos()
 
@@ -399,6 +374,7 @@ class SelectablePdfView(QPdfView):
             
             box = HighlightBox(comment_data, self.viewport())
             box.is_error = False
+            box.setStyleSheet(styles.HIGHLIGHT_BOX_COMMENT)
             self.highlight_boxes.append(box)
 
             marker = CommentMarker(comment_data, self.viewport())

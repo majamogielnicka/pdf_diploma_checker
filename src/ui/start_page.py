@@ -222,12 +222,10 @@ class StartPage(QWidget):
         header_row = QWidget()
         header_layout = QHBoxLayout(header_row)
         header_layout.setContentsMargins(5, 0, 0, 5) 
-        
-        header_style = "color: #333; font-size: 13px; font-weight: normal; border: none; background: transparent;"
-        
-        h_name = QLabel("nazwa pliku"); h_name.setStyleSheet(header_style)
-        h_config = QLabel("plik konfiguracyjny"); h_config.setStyleSheet(header_style)
-        h_date = QLabel("data dodania"); h_date.setStyleSheet(header_style)
+
+        h_name = QLabel("nazwa pliku"); h_name.setStyleSheet(styles.TABLE_HEADER_ROW_TEXT)
+        h_config = QLabel("plik konfiguracyjny"); h_config.setStyleSheet(styles.TABLE_HEADER_ROW_TEXT)
+        h_date = QLabel("data dodania"); h_date.setStyleSheet(styles.TABLE_HEADER_ROW_TEXT)
         
         header_layout.addWidget(QLabel(""), 0)
         header_layout.addWidget(h_name)
@@ -278,22 +276,12 @@ class StartPage(QWidget):
         text_vbox.setSpacing(2)
         
         name_btn = QPushButton(name)
-        name_btn.setStyleSheet("""
-            QPushButton {
-                text-align: left; 
-                font-weight: bold; 
-                font-size: 14px; 
-                color: #000; 
-                border: none; 
-                background: transparent;
-            }
-            QPushButton:hover { text-decoration: underline; }
-        """)
+        name_btn.setStyleSheet(styles.TABLE_ROW_NAME_BUTTON)
         name_btn.setCursor(Qt.PointingHandCursor)
         name_btn.clicked.connect(lambda _, p=path: self.openRequested.emit(p))
         
         subtitle = QLabel("Plik PDF")
-        subtitle.setStyleSheet("color: #666; font-size: 12px; border: none; background: transparent;")
+        subtitle.setStyleSheet(styles.TABLE_ROW_SUBTITLE)
         
         text_vbox.addWidget(name_btn)
         text_vbox.addWidget(subtitle)
@@ -309,18 +297,12 @@ class StartPage(QWidget):
         badge_layout.setSpacing(4)
 
         if has_config:
-            badge.setStyleSheet("""
-                QFrame {
-                    background-color: #D1EEDC;
-                    border-radius: 13px;
-                }
-            """)
+            badge.setStyleSheet(styles.BADGE_FRAME_SUCCESS)
             
             icon_circle = QLabel()
             icon_circle.setAlignment(Qt.AlignCenter)
             icon_circle.setFixedSize(20, 20)
             
-            current_dir = os.path.dirname(os.path.abspath(__file__))
             tick_path = resource_path(os.path.join("ui", "assets", "tick.svg"))
             if os.path.exists(tick_path):
                 from PySide6.QtGui import QIcon
@@ -328,35 +310,21 @@ class StartPage(QWidget):
             else:
                 icon_circle.setText("✓")
                 
-            icon_circle.setStyleSheet("""
-                QLabel {
-                    background-color: #2CA05A;
-                    color: white;
-                    border-radius: 10px;
-                    font-weight: bold;
-                    font-size: 13px;
-                }
-            """)
+            icon_circle.setStyleSheet(styles.BADGE_ICON_SUCCESS)
             
             text_lbl = QLabel("załączony")
-            text_lbl.setStyleSheet("color: #000; font-size: 12px; border: none; background: transparent;")
+            text_lbl.setStyleSheet(styles.BADGE_TEXT_DEFAULT)
             
             badge_layout.addWidget(icon_circle)
             badge_layout.addWidget(text_lbl)
             
         else:
-            badge.setStyleSheet("""
-                QFrame {
-                    background-color: #F8D7DA; 
-                    border-radius: 14px; 
-                }
-            """)
+            badge.setStyleSheet(styles.BADGE_FRAME_ERROR)
             
             icon_circle = QLabel()
             icon_circle.setAlignment(Qt.AlignCenter)
             icon_circle.setFixedSize(20, 20)
             
-            current_dir = os.path.dirname(os.path.abspath(__file__))
             cross_path =  resource_path(os.path.join("ui", "assets","cross.svg"))
             if os.path.exists(cross_path):
                 from PySide6.QtGui import QIcon
@@ -364,18 +332,10 @@ class StartPage(QWidget):
             else:
                 icon_circle.setText("✕")
                 
-            icon_circle.setStyleSheet("""
-                QLabel {
-                    background-color: #DC3545; 
-                    color: white;
-                    border-radius: 10px; 
-                    font-weight: bold;
-                    font-size: 13px;
-                }
-            """)
+            icon_circle.setStyleSheet(styles.BADGE_ICON_ERROR)
             
             text_lbl = QLabel("brak")
-            text_lbl.setStyleSheet("color: #721C24; font-size: 14px; border: none; background: transparent;")
+            text_lbl.setStyleSheet(styles.BADGE_TEXT_ERROR)
             
             badge_layout.addWidget(icon_circle)
             badge_layout.addWidget(text_lbl)
@@ -384,29 +344,20 @@ class StartPage(QWidget):
         status_layout.addStretch()
 
         date_lbl = QLabel(str(date))
-        date_lbl.setStyleSheet("color: #333; border: none; background: transparent; font-size: 13px;")
+        date_lbl.setStyleSheet(styles.TABLE_ROW_DATE)
         
         del_btn = QPushButton("Usuń")
-        del_btn.setStyleSheet("""
-            QPushButton {
-                color: #D32F2F; 
-                font-weight: bold; 
-                border: none; 
-                background: transparent; 
-                font-size: 13px;
-            }
-            QPushButton:hover { text-decoration: underline; }
-        """)
+        del_btn.setStyleSheet(styles.DELETE_BTN_STYLE)
         del_btn.setCursor(Qt.PointingHandCursor)
         del_btn.clicked.connect(lambda checked=False, p=path: self.deleteRequested.emit(p))
+        
         status_container.setFixedWidth(200)
         date_lbl.setFixedWidth(100)
         del_btn.setFixedWidth(50)
+        
         row_l.addWidget(icon_widget)
         row_l.addWidget(text_container)
-        
         row_l.addStretch() 
-        
         row_l.addWidget(status_container)
         row_l.addWidget(date_lbl)
         row_l.addWidget(del_btn, alignment=Qt.AlignRight)

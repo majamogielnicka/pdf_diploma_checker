@@ -15,13 +15,7 @@ class FileBadge(QFrame):
 
     def __init__(self, filename, parent=None):
         super().__init__(parent)
-        self.setStyleSheet("""
-            QFrame {
-                border: 1px solid #C4C4C4;
-                border-radius: 8px;
-                background-color: #FFFFFF;
-            }
-        """)
+        self.setStyleSheet(styles.FILE_BADGE_FRAME)
         self.setFixedHeight(70)
         
         layout = QHBoxLayout(self)
@@ -37,19 +31,19 @@ class FileBadge(QFrame):
             self.icon_label.setText("📄")
             self.icon_label.setStyleSheet("font-size: 24px; border: none;")
         self.icon_label.setFixedSize(40, 40)
-        self.icon_label.setStyleSheet("border: none;")
+        self.icon_label.setStyleSheet(styles.FILE_BADGE_INNER_LABELS)
 
         text_container = QWidget()
-        text_container.setStyleSheet("border: none;")
+        text_container.setStyleSheet(styles.FILE_BADGE_INNER_LABELS)
         text_layout = QVBoxLayout(text_container)
         text_layout.setContentsMargins(0, 0, 0, 0)
         text_layout.setSpacing(2)
 
         self.name_label = QLabel(filename)
-        self.name_label.setStyleSheet("font-weight: bold; font-size: 14px; color: #000; border: none;")
-        
+        self.name_label.setStyleSheet(styles.FILE_BADGE_NAME_LABEL)
+
         self.info_label = QLabel("Plik konfiguracyjny JSON")
-        self.info_label.setStyleSheet("color: #666; font-size: 12px; border: none;")
+        self.info_label.setStyleSheet(styles.FILE_BADGE_INFO_LABEL)
         
         text_layout.addWidget(self.name_label)
         text_layout.addWidget(self.info_label)
@@ -65,10 +59,7 @@ class FileBadge(QFrame):
             self.del_btn.setText("usun")
         
         self.del_btn.setCursor(Qt.PointingHandCursor)
-        self.del_btn.setStyleSheet("""
-            QPushButton { border: none; background: transparent; }
-            QPushButton:hover { background-color: #f0f0f0; border-radius: 4px; }
-        """)
+        self.del_btn.setStyleSheet(styles.ICON_BUTTON_STYLE)
         self.del_btn.clicked.connect(self.removed.emit)
 
         layout.addWidget(self.icon_label)
@@ -119,7 +110,7 @@ class PipelineWorker(QThread):
             self.progress_update.emit(10, "Uruchamianie silnika analizy...")
             from app.entry import run_analysis_for_pdf
             
-            raport_koncowy = run_analysis_for_pdf(
+            final_report = run_analysis_for_pdf(
                 pdf_path=self.pdf_path, 
                 config_path=self.config_path,
                 progress_callback=self.progress_update.emit,
@@ -127,33 +118,33 @@ class PipelineWorker(QThread):
                 language=self.language
             )
             
-            raport_z_obiektami = getattr(raport_koncowy, "linguistics_errors", [])
+            report_objects = getattr(final_report, "linguistics_errors", [])
             ui_report = []
-            for blad in raport_z_obiektami:
+            for error in report_objects:
                 
-                if isinstance(blad, dict):
-                    numer_strony = blad.get('page', blad.get('page_number', blad.get('page_start', 1)))
-                    bbox = blad.get('bbox', blad.get('bounding_box', None))
-                    pojedyncze_x = blad.get('x', None)
-                    pojedyncze_y = blad.get('y', None)
-                    err_coord = blad.get('error_coordinate', None) 
+                if isinstance(error, dict):
+                    page_nr = error.get('page', error.get('page_number', error.get('page_start', 1)))
+                    bbox = error.get('bbox', error.get('bounding_box', None))
+                    single_x = error.get('x', None)
+                    single_y = error.get('y', None)
+                    err_coord = error.get('error_coordinate', None) 
                     
-                    kategoria = blad.get('category', blad.get('ruleId', 'Błąd językowy'))
-                    tekst = blad.get('content', blad.get('text', blad.get('matched_text', '[Brak tekstu]')))
-                    komentarz = blad.get('message', blad.get('msg', blad.get('comments', 'Znaleziono błąd.')))
+                    category = error.get('category', error.get('ruleId', 'Błąd językowy'))
+                    text = error.get('content', error.get('text', error.get('matched_text', '[Brak textu]')))
+                    comment = error.get('message', error.get('msg', error.get('comments', 'Znaleziono błąd.')))
                 else:
-                    numer_strony = getattr(blad, 'page', getattr(blad, 'page_number', getattr(blad, 'page_start', 1)))
-                    bbox = getattr(blad, 'bbox', getattr(blad, 'bounding_box', None))
-                    pojedyncze_x = getattr(blad, 'x', None)
-                    pojedyncze_y = getattr(blad, 'y', None)
-                    err_coord = getattr(blad, 'error_coordinate', None)
+                    page_nr = getattr(error, 'page', getattr(error, 'page_number', getattr(error, 'page_start', 1)))
+                    bbox = getattr(error, 'bbox', getattr(error, 'bounding_box', None))
+                    single_x = getattr(error, 'x', None)
+                    single_y = getattr(error, 'y', None)
+                    err_coord = getattr(error, 'error_coordinate', None)
                     
-                    kategoria = getattr(blad, 'category', getattr(blad, 'ruleId', 'Błąd językowy'))
-                    tekst = getattr(blad, 'content', getattr(blad, 'text', getattr(blad, 'matched_text', '[Brak tekstu]')))
-                    komentarz = getattr(blad, 'message', getattr(blad, 'msg', getattr(blad, 'comments', 'Znaleziono błąd.')))
+                    category = getattr(error, 'category', getattr(error, 'ruleId', 'Błąd językowy'))
+                    text = getattr(error, 'content', getattr(error, 'text', getattr(error, 'matched_text', '[Brak textu]')))
+                    comment = getattr(error, 'message', getattr(error, 'msg', getattr(error, 'comments', 'Znaleziono błąd.')))
 
-                if not isinstance(numer_strony, int) or numer_strony <= 0:
-                    numer_strony = 1
+                if not isinstance(page_nr, int) or page_nr <= 0:
+                    page_nr = 1
                 
                 x, y, w, h = 50.0, 50.0, 20.0, 20.0 
                 
@@ -167,7 +158,7 @@ class PipelineWorker(QThread):
                             w, h = float(x2 - x1), float(y2 - y1)
                         
                         if first_coord.get("page", -1) != -1:
-                            numer_strony = first_coord["page"]
+                            page_nr = first_coord["page"]
                             
                 elif isinstance(bbox, (list, tuple)):
                     if len(bbox) == 4:
@@ -177,30 +168,30 @@ class PipelineWorker(QThread):
                     elif len(bbox) == 2:
                         x, y = float(bbox[0]), float(bbox[1])
                         
-                elif pojedyncze_x is not None and pojedyncze_y is not None:
-                    x, y = float(pojedyncze_x), float(pojedyncze_y)
+                elif single_x is not None and single_y is not None:
+                    x, y = float(single_x), float(single_y)
                 
                 if w <= 0: w = 20.0
                 if h <= 0: h = 20.0
 
                 ui_report.append({
-                    "strona": numer_strony,
-                    "kategoria": str(kategoria),
-                    "znaleziony_tekst": str(tekst),
-                    "komentarz": str(komentarz),
-                    "wspolrzedne": {
+                    "page": page_nr,
+                    "category": str(category),
+                    "found_text": str(text),
+                    "comment": str(comment),
+                    "coords": {
                         "x": x, "y": y, "w": w, "h": h
                     }
                 })
             
-            sota_data = getattr(raport_koncowy, "llm_result", None)
+            sota_data = getattr(final_report, "llm_result", None)
 
-            dane_dla_ui = {
-                "bledy": ui_report,
+            ui_data = {
+                "errors": ui_report,
                 "sota": sota_data if isinstance(sota_data, dict) else None
             }
             
-            self.finished_success.emit(dane_dla_ui)
+            self.finished_success.emit(ui_data)
             
         except Exception as e:
             import traceback
@@ -251,16 +242,7 @@ class AnalysisDialog(QDialog):
         self.json_icon = QLabel("{JSON}")
         self.json_icon.setFixedSize(60, 60)
         self.json_icon.setAlignment(Qt.AlignCenter)
-        self.json_icon.setStyleSheet("""
-            QLabel {
-                background-color: #BDDCFF; 
-                color: #1E8CFA;            
-                font-weight: bold; 
-                font-size: 15px;           
-                border-radius: 30px;
-                border: none;
-            }
-        """)
+        self.json_icon.setStyleSheet(styles.JSON_ICON_CIRCLE)
         self.drop_label = QLabel("Przeciągnij tu plik konfiguracyjny", styleSheet="font-weight: bold; border: none;")
         self.add_json_btn = QPushButton("+ Dodaj plik konfiguracyjny")
         self.add_json_btn.setStyleSheet(styles.BLUE_BUTTON_STYLE)
@@ -398,10 +380,10 @@ class AnalysisDialog(QDialog):
         self.progress_widget.setVisible(True)
         self.title_label.setText("Analizowanie...")
         
-        czy_dokladny = self.btn_dokladny.isChecked()
-        wybrany_jezyk = "pl" if self.btn_lang_pl.isChecked() else "en"
+        is_detailed = self.btn_dokladny.isChecked()
+        choosen_lg = "pl" if self.btn_lang_pl.isChecked() else "en"
         
-        self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=czy_dokladny, language=wybrany_jezyk)
+        self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=is_detailed, language=choosen_lg)
         self.worker.progress_update.connect(self._update_progress)
         self.worker.finished_success.connect(self._on_analysis_success)
         self.worker.finished_error.connect(lambda msg: self.reject())
