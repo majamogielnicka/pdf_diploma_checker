@@ -1303,8 +1303,13 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
     all_entries = []
     toc_pages = []
     base_x = None
+    
+    is_detecting = True
 
-    for page_obj in pages[:10]:
+    for page_obj in pages[:15]:
+        if not is_detecting:
+            break
+
         y_groups = {}
         for block in page_obj.text_blocks:
             for line in block.lines:
@@ -1372,6 +1377,8 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
             all_entries.extend(page_entries)
             if page_obj.number not in toc_pages:
                 toc_pages.append(page_obj.number)
+        elif len(toc_pages) > 0:
+            is_detecting = False
 
     if all_entries:
         return TocData(page_nums=toc_pages, entries=all_entries, text="Wykryto wizualnie ")
