@@ -1,14 +1,16 @@
 import sys
-import os
+from pathlib import Path
 import requests
 from llama_cpp import Llama
 
-_src_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
-for _p in (os.path.dirname(_src_dir), _src_dir):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parents[3]
+SRC_DIR = PROJECT_ROOT / "src"
 
-from common.path import resource_path
+for p in (PROJECT_ROOT, SRC_DIR):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
 
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
 from analysis.modules.llm.config import MODEL_PATH, LANGUAGE, THESIS_PATH
@@ -389,7 +391,7 @@ def select_best_goal(candidates, language):
     return rewritten_purpose
 
 
-def get_purpose(full_text, language="pl"):
+def get_purpose(full_text, language):
     full_text = normalize_text(full_text)
 
     if not full_text:

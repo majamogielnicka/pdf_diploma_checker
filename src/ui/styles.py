@@ -170,15 +170,20 @@ MODE_BTN_STYLE = """
     QPushButton {
         border: 1.5px solid #C4C4C4;
         border-radius: 8px;
-        padding: 25px;
+        padding: 5px 15px; /* Zmniejszony padding z góry/dołu (5px zamiast 25px) */
         background-color: white;
         font-size: 14px;
-        color: #333;
+        color: #333333;
+        text-align: center;
     }
-    QPushButton:hover { background-color: #f9f9f9; }
+    QPushButton:hover { 
+        background-color: #f9f9f9; 
+    }
     QPushButton:checked { 
         border: 2px solid #2196F3; 
         background-color: #F2F7FD; 
+        color: #1E8CFA; /* Wyraźny niebieski kolor tekstu dla zaznaczonego przycisku */
+        font-weight: bold;
     }
 """
 

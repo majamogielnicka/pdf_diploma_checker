@@ -419,17 +419,13 @@ class PDFReader(QMainWindow):
                 self.right_panel.layout().removeItem(item)
 
         if not sota_data:
-            brak_label = QLabel("Brak danych analizy merytorycznej (Tryb szybki)")
-            brak_label.setStyleSheet("color: #7f8c8d; font-style: italic; border: none; margin-top: 15px;")
-            self.right_panel.layout().addWidget(brak_label)
-            self.right_panel.layout().addStretch()
-            return
+            sota_data = {}
 
         content = QWidget()
         content.setStyleSheet("background: transparent; border: none;")
         l = QVBoxLayout(content)
-        l.setContentsMargins(0, 15, 0, 0)
-        l.setSpacing(15)
+        l.setContentsMargins(0, 10, 0, 0) 
+        l.setSpacing(12)                  
 
         content_grade = sota_data.get('content_grade')
         if content_grade is not None:
@@ -452,32 +448,31 @@ class PDFReader(QMainWindow):
             cg_frame = QFrame()
             cg_frame.setStyleSheet("QFrame { background-color: #F0F7FF; border: 2px solid #90C8FF; border-radius: 8px; }")
             cg_layout = QVBoxLayout(cg_frame)
-            cg_layout.setContentsMargins(15, 15, 15, 15)
-            cg_layout.setSpacing(5)
+            cg_layout.setContentsMargins(15, 12, 15, 12)
+            cg_layout.setSpacing(4)
 
-            cg_title = QLabel("Ogolna ocena pracy")
+            cg_title = QLabel("Ogólna ocena pracy")
             cg_title.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none; background: transparent;")
             
             cg_val = QLabel(f"{grade} <span style='font-size: 16px; color: #666;'>/ {max_grade} pkt</span>")
             cg_val.setStyleSheet("color: #0056b3; font-size: 32px; font-weight: bold; border: none; background: transparent;")
 
-            detale_lbl = QLabel(f"Podrozdzialy poza tematem: <b>{off_topic}</b> ({p_off}%)")
+            detale_lbl = QLabel(f"Podrozdziały poza tematem: <b>{off_topic}</b> ({p_off}%)")
             detale_lbl.setStyleSheet("color: #666; font-size: 12px; border: none; background: transparent;")
 
             cg_layout.addWidget(cg_title)
             cg_layout.addWidget(cg_val)
             cg_layout.addWidget(detale_lbl)
             l.addWidget(cg_frame)
-
-            sep = QFrame()
-            sep.setFrameShape(QFrame.HLine)
-            sep.setStyleSheet("background-color: #D3D3D3; margin-top: 5px; margin-bottom: 5px;")
-            l.addWidget(sep)
+        else:
+            brak_label = QLabel("Brak danych analizy merytorycznej (Tryb szybki)")
+            brak_label.setStyleSheet("color: #7f8c8d; font-style: italic; border: none; padding-left: 2px;")
+            l.addWidget(brak_label)
 
         def create_badge_row(label_text, is_met):
             row_widget = QWidget()
             row_layout = QHBoxLayout(row_widget)
-            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.setContentsMargins(0, 2, 0, 2)
 
             lbl = QLabel(label_text)
             lbl.setWordWrap(True)
@@ -518,34 +513,76 @@ class PDFReader(QMainWindow):
             row_layout.addWidget(badge, alignment=Qt.AlignRight)
             return row_widget
 
-        grafiki_header = QLabel("Weryfikacja rysunkow i grafik")
+        grafiki_container = QWidget()
+        grafiki_layout = QVBoxLayout(grafiki_container)
+        grafiki_layout.setContentsMargins(0, 4, 0, 0)
+        grafiki_layout.setSpacing(6)
+
+        grafiki_header = QLabel("Weryfikacja rysunków i grafik")
         grafiki_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
-        l.addWidget(grafiki_header)
+        grafiki_layout.addWidget(grafiki_header)
 
         jakosc_err = sota_data.get('jakosc_obrazkow', [])
         czcionki_err = sota_data.get('czcionki_obrazkow', [])
 
         if not jakosc_err:
-            l.addWidget(create_badge_row("Jakosc obrazow (rozdzielczosc/czytelnosc)", True))
+            grafiki_layout.addWidget(create_badge_row("Jakość obrazów (rozdzielczość/czytelność)", True))
         else:
-            l.addWidget(create_badge_row(f"Jakosc obrazow (Bledy: {len(jakosc_err)})", False))
+            grafiki_layout.addWidget(create_badge_row(f"Jakość obrazów (Błędy: {len(jakosc_err)})", False))
 
         if not czcionki_err:
-            l.addWidget(create_badge_row("Spojnosc czcionek na rysunkach", True))
+            grafiki_layout.addWidget(create_badge_row("Spójność czcionek na rysunkach", True))
         else:
-            l.addWidget(create_badge_row(f"Spojnosc czcionek (Bledy: {len(czcionki_err)})", False))
+            grafiki_layout.addWidget(create_badge_row(f"Spójność czcionek (Błędy: {len(czcionki_err)})", False))
+        
+        l.addWidget(grafiki_container)
 
-        l.addSpacing(15)
-        self.raport_btn = QPushButton("Pobierz dokladny raport")
+        stats_data = sota_data.get("statystyki_zdan")
+        if stats_data:
+            stats_container = QWidget()
+            stats_vbox = QVBoxLayout(stats_container)
+            stats_vbox.setContentsMargins(0, 4, 0, 0)
+            stats_vbox.setSpacing(6)
+
+            stats_header = QLabel("Statystyki składniowe zdań")
+            stats_header.setStyleSheet("color: #333; font-size: 14px; font-weight: bold; border: none;")
+            stats_vbox.addWidget(stats_header)
+
+            stats_frame = QFrame()
+            stats_frame.setStyleSheet("QFrame { background-color: #F9F9F9; border: 1px solid #D3D3D3; border-radius: 8px; }")
+            stats_layout = QVBoxLayout(stats_frame)
+            stats_layout.setContentsMargins(12, 10, 12, 10)
+            stats_layout.setSpacing(6)
+
+            def create_stat_row(name, val):
+                row = QWidget()
+                row_l = QHBoxLayout(row)
+                row_l.setContentsMargins(0, 0, 0, 0)
+                lbl_name = QLabel(name)
+                lbl_name.setStyleSheet("color: #555; font-size: 12px; border: none; background: transparent;")
+                lbl_val = QLabel(f"<b>{val}</b>")
+                lbl_val.setStyleSheet("color: #0056b3; font-size: 12px; border: none; background: transparent;")
+                row_l.addWidget(lbl_name)
+                row_l.addStretch()
+                row_l.addWidget(lbl_val)
+                return row
+
+            stats_layout.addWidget(create_stat_row("Strona czynna (zalecana):", stats_data.get("active_ratio", "0%")))
+            stats_layout.addWidget(create_stat_row("Strona bierna:", stats_data.get("passive_ratio", "0%")))
+            stats_layout.addWidget(create_stat_row("Równoważniki zdań:", stats_data.get("verbless_ratio", "0%")))
+            
+            stats_vbox.addWidget(stats_frame)
+            l.addWidget(stats_container)
+
+        l.addStretch()
+        
+        self.raport_btn = QPushButton("Pobierz dokładny raport")
         self.raport_btn.setCursor(Qt.PointingHandCursor)
         self.raport_btn.setStyleSheet(styles.RAPORT_BTN_STYLE)
         self.raport_btn.clicked.connect(self.generate_detailed_report)
         l.addWidget(self.raport_btn)
 
-        self.right_panel.layout().addWidget(content)
-        self.right_panel.layout().addStretch()
-
-       
+        self.right_panel.layout().addWidget(content)   
 
     def zoom_in(self):
         self.pdf_view.setZoomFactor(self.pdf_view.zoomFactor() * 1.1)
@@ -755,7 +792,7 @@ class PDFReader(QMainWindow):
                     p_off = 0
                     off_topic_headings = []
 
-                page.insert_text((margin, pos_y), "1. Ogólna ocena merytoryczna", 
+                page.insert_text((margin, pos_y), "Ogólna ocena merytoryczna", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 page.insert_text((margin, pos_y), f"Wynik punktowy: {grade} / {max_g} pkt", 
@@ -783,7 +820,7 @@ class PDFReader(QMainWindow):
                     pos_y += 15
 
             pos_y, page = check_new_page(pos_y, report_pdf, page)
-            page.insert_text((margin, pos_y), "2. Weryfikacja merytoryczna rozdziału teoretycznego", 
+            page.insert_text((margin, pos_y), "Weryfikacja merytoryczna rozdziału teoretycznego", 
                              fontsize=14, fontname=f_bold)
             pos_y += 25
             
@@ -814,7 +851,7 @@ class PDFReader(QMainWindow):
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             img_data = sota_data.get("image_analysis")
             if img_data:
-                page.insert_text((margin, pos_y), "3. Analiza spójności grafik i wykresów (AI)", 
+                page.insert_text((margin, pos_y), "Analiza spójności grafik i wykresów (AI)", 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 
@@ -845,7 +882,7 @@ class PDFReader(QMainWindow):
                         pos_y += 4
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-            page.insert_text((margin, pos_y), "4. Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
+            page.insert_text((margin, pos_y), "Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
             pos_y += 25
 
             jakosc_err = sota_data.get('jakosc_obrazkow', [])
@@ -875,7 +912,7 @@ class PDFReader(QMainWindow):
                     pos_y += 5
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-            page.insert_text((margin, pos_y), "5. Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
+            page.insert_text((margin, pos_y), "Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
             pos_y += 25
 
             czcionki_err = sota_data.get('czcionki_obrazkow', [])
@@ -911,6 +948,32 @@ class PDFReader(QMainWindow):
                             page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
                             pos_y += 14
                         pos_y += 5
+
+            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
+            page.insert_text((margin, pos_y), "5. Analiza statystyczna struktury zdań", fontsize=14, fontname=f_bold)
+            pos_y += 22
+
+            stats_data = sota_data.get("statystyki_zdan")
+            if stats_data:
+                page.insert_text((margin + 15, pos_y), "Struktura gramatyczna i stylistyczna badanej pracy dyplomowej:", fontsize=10, fontname=f_main, color=(0.3, 0.3, 0.3))
+                pos_y += 18
+
+                struktura_zdan = [
+                    (f"Zdania w stronie czynnej: {stats_data.get('active_ratio', '0%')}", "Zalecana forma wypowiedzi w tekstach naukowych podnosząca dynamicę wywodu."),
+                    (f"Zdania w stronie biernej: {stats_data.get('passive_ratio', '0%')}", "Stosowana przy opisie procedur badawczych oraz stanu wiedzy."),
+                    (f"Równoważniki zdań: {stats_data.get('verbless_ratio', '0%')}", "Konstrukcje bezorzecznikowe, dopuszczalne głównie w nagłówkach i spisach.")
+                ]
+
+                for label, opis in struktura_zdan:
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    page.insert_text((margin + 15, pos_y), label, fontsize=10, fontname=f_bold)
+                    pos_y += 14
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    page.insert_text((margin + 25, pos_y), opis, fontsize=9, fontname=f_main, color=(0.4, 0.4, 0.4))
+                    pos_y += 16
+            else:
+                page.insert_text((margin + 15, pos_y), "Brak dostępnych danych statystycznych (uruchom analizę w Trybie Dokładnym).", fontsize=10, fontname=f_main, color=(0.5, 0.5, 0.5))
+                pos_y += 20
 
             pos_y, page = check_new_page(810, report_pdf, page)
             page.insert_text((margin, 820), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
