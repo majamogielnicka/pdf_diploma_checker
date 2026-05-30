@@ -75,7 +75,7 @@ class LlavaChartEngine:
         
         Answer these 3 questions:
         1. is_actual_chart_with_axes: Is this strictly a mathematical data chart with X and Y axes? (Answer FALSE for 3D models, photos, block diagrams, flowcharts, etc.)
-        2. embedded_title: Is there a main text title printed INSIDE the chart graphic itself (usually at the top)?
+        2. embedded_title: Is there a LARGE, centered main text title printed INSIDE the chart graphic itself at the VERY TOP? (WARNING: Do NOT count axis labels, axis numbers, or legends at the bottom as a title. If the top center is empty, answer FALSE).
         3. has_axis_units: Do the X or Y axis labels contain units enclosed in square brackets like [s], [V], [m]? (If there are no axes, answer false).
         """
 
