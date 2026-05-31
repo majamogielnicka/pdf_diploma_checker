@@ -10,7 +10,7 @@ def dash_check(blocks):
     dash_counter = 0
     
     for block in blocks:
-        if block.block.type in {"acronyms", "keywords", "math", "code_snippet", "toc", "tof", "tot"}:
+        if block.block.type in {"keywords", "math", "code_snippet"}:
             continue
         if block.block.type == "list":
             if block.block.is_bibliography:
@@ -24,7 +24,41 @@ def dash_check(blocks):
 
         has_en_dash = bool(re.search(r'–', text))
         has_em_dash = bool(re.search(r'—', text))
-        
+
+        if unit.type in {"acronyms", "toc", "tof", "tot"}:
+            for word in unit.words:
+                if word.text == '-':
+                    errors.append(Error_type(
+                        content='-',
+                        category="PUNCTUATION",
+                        message="Błąd: dywiz zamiast półpauzy w definicji.",
+                        offset=word.start_char,
+                        error_length=1,
+                        block_id=unit.block_id,
+                        page_start=word.page_number,
+                        page_end=word.page_number,
+                        word_idxs=[word.word_index],
+                        error_coordinate=[{"page": word.page_number, "coordinates": list(word.bbox)}]
+                    ))
+
+        else:
+            #" - " lub " -" lub "- "
+            hyphen_space_regex = r'(\s-\s|\s-|-\s)'
+            for m in re.finditer(hyphen_space_regex, text):
+                start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
+                errors.append(Error_type(
+                    content=m.group(),
+                    category="PUNCTUATION",
+                    message="Błąd: Spacje wokół dywizu.",
+                    offset=m.start(),
+                    error_length=len(m.group()),
+                    block_id=unit.block_id,
+                    page_start=start_page,
+                    page_end=end_page,
+                    word_idxs=word_idxs,
+                    error_coordinate= error_coordinare
+                ))
+
         if has_en_dash and has_em_dash:
             # blad spojnosci jak raz sie uzwa tego i tego
             match = re.search(r'—', text)
@@ -42,23 +76,6 @@ def dash_check(blocks):
                     word_idxs=word_idxs,
                     error_coordinate= error_coordinare
                 ))
-
-        #" - " lub " -" lub "- "
-        hyphen_space_regex = r'(\s-\s|\s-|-\s)'
-        for m in re.finditer(hyphen_space_regex, text):
-            start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
-            errors.append(Error_type(
-                content=m.group(),
-                category="PUNCTUATION",
-                message="Błąd: Spacje wokół dywizu.",
-                offset=m.start(),
-                error_length=len(m.group()),
-                block_id=unit.block_id,
-                page_start=start_page,
-                page_end=end_page,
-                word_idxs=word_idxs,
-                error_coordinate= error_coordinare
-            ))
 
         #litera, myślnik i litera bez spacji
         dash_no_space_regex = r'([a-zA-Z\d])[–—]([a-zA-Z])|([a-zA-Z])[–—]([a-zA-Z\d])'
@@ -116,7 +133,8 @@ def dash_check(blocks):
                     word_idxs=word_idxs,
                     error_coordinate= error_coordinare
                 ))
-        
+            
+
         dash_counter += len(errors)
         checked_matches.extend(errors)
 

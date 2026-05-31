@@ -15,6 +15,8 @@ import functools
 import spacy
 from spellchecker import SpellChecker
 from common.path import resource_path
+import sys
+from pathlib import Path
 
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
@@ -22,14 +24,6 @@ spell.word_frequency.load_text_file(resource_path(os.path.join("src", "analysis"
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
-import os
-import sys
-import spacy
-
-import sys
-import os
-import spacy
-from pathlib import Path
 
 def get_nlp(model_name):
     """Bezpieczne ładowanie dowolnego modelu spaCy w .exe i kodzie źródłowym"""
@@ -87,8 +81,7 @@ def get_match_info(block, offset, length):
     start_page = None
     end_page = None
     lines = defaultdict(list)
-
-    if block.type == "list":
+    if isinstance(block, ListBlock):
         item_offset = 0
         for item in block.items:
             if not item.text:
@@ -118,6 +111,7 @@ def get_match_info(block, offset, length):
                             start_page = word.page_number
                         end_page = word.page_number
             item_offset += len(item.text) + 1
+
     else:
         for word in block.words:
             if word.start_char < end_offset and word.end_char > offset:
@@ -163,7 +157,7 @@ def get_context(blocks):
     for block in blocks.logical_blocks:
         if not block.words:
             continue
-        if block.words[-1].page_number != 1:
+        if block.words[-1].page_number not in {0, 1}:
             if isinstance(block, ParagraphBlock):
                 contents = block.content
             elif isinstance(block, ListBlock):
