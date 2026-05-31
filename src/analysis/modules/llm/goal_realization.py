@@ -13,7 +13,7 @@ for _p in (os.path.dirname(_src_dir), _src_dir):
 
 from common.path import resource_path
 
-from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH
+from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH, N_GPU_LAYERS
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
 from analysis.modules.llm.get_purpose import get_purpose
@@ -21,7 +21,6 @@ from analysis.modules.llm.get_purpose import get_purpose
 
 N_CTX = 4096
 N_THREADS = None
-N_GPU_LAYERS = 0
 MAX_NEW_TOKENS = 350
 
 MAX_END_FRAGMENT_CHARS = 9000
@@ -369,6 +368,13 @@ def check_goal_realization(text, purpose, language):
             "reason": str(e),
             "evidence": "",
         }
+
+
+def get_score_from_goal_result(goal_result):
+    try:
+        return int(goal_result.get("score", 0))
+    except (TypeError, ValueError):
+        return 0
 
 
 def main():

@@ -10,7 +10,7 @@ class LlavaEngine:
             model_path=model_path,
             chat_handler=self.chat_handler,
             n_ctx=4096,
-            n_gpu_layers=-1,
+            n_gpu_layers=config.N_GPU_LAYERS,
             logits_all=True,
             verbose=False 
         )

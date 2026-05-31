@@ -36,7 +36,7 @@ def calculate_embedding_grade(purpose, summaries):
     if total_sections == 0:
         return {
             "grade": 0.0,
-            "max_grade": 60.0,
+            "max_grade": 100.0,
             "s_emb": 0.0,
             "threshold": threshold,
             "total_sections": 0,
@@ -57,11 +57,11 @@ def calculate_embedding_grade(purpose, summaries):
 
     p_off = (off_topic_sections / total_sections) * 100.0
     s_emb = 100.0 - p_off
-    grade = 0.60 * s_emb
+    grade = s_emb
 
     return {
         "grade": round(grade, 2),
-        "max_grade": 60.0,
+        "max_grade": 100.0,
         "s_emb": s_emb,
         "threshold": threshold,
         "total_sections": total_sections,
@@ -97,7 +97,7 @@ def get_content_grade(purpose, summaries):
     return (grade, off_topic_headings)
 
 def get_overall_grade(purpose_grade, embedding_grade, sota_grade):
-    overall_grade = 0.2 * sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade
+    overall_grade = 0.2* sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade 
     return overall_grade
 
 

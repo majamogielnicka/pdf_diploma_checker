@@ -3,7 +3,7 @@ import re
 from typing import Dict, Any, List
 from llama_cpp import Llama
 
-from config import MODEL_PATH
+from config import MODEL_PATH, N_GPU_LAYERS
 
 CHUNK_SIZE = 2500 
 
@@ -16,7 +16,7 @@ def get_llm():
         _llm_instance = Llama(
             model_path=str(MODEL_PATH),
             n_ctx=4096,
-            n_gpu_layers=-1,
+            n_gpu_layers=N_GPU_LAYERS,
             verbose=False
         )
     return _llm_instance

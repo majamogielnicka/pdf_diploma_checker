@@ -13,7 +13,7 @@ for p in (PROJECT_ROOT, SRC_DIR):
         sys.path.insert(0, p_str)
 
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
-from analysis.modules.llm.config import MODEL_PATH, LANGUAGE, THESIS_PATH
+from analysis.modules.llm.config import MODEL_PATH, LANGUAGE, THESIS_PATH, N_GPU_LAYERS
 
 
 MODEL_NAME = str(MODEL_PATH)
@@ -24,7 +24,6 @@ MAX_CHUNKS = 40
 
 N_CTX = 4096
 N_THREADS = 8
-N_GPU_LAYERS = -1
 
 _IS_MAIN_SCRIPT = __name__ == "__main__"
 

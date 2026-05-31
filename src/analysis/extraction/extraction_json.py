@@ -5,7 +5,7 @@ W przyszłości proponuje to przenieść jako metody struktury zamiast oddzielny
 import os
 import fitz  # PyMuPDF
 import statistics
-from typing import Dict
+from typing import Dict, List
 import re
 import sys
 
@@ -1050,6 +1050,44 @@ def extractPDF(file_path: str) -> DocumentData:
     document_data.tot = extract_TOT(document_data.pages, document_data.toc.page_nums if document_data.toc else [])
     doc.close()
     return document_data
+
+
+def get_raster_figure_numbers(document_data: DocumentData) -> List[str]:
+    """
+    Zwraca listę numerów rysunków dla grafik rastrowych (np. ["1.2", "1.3"]).
+
+    Numer jest wyciągany z pola `description` obrazów o `image_type == "raster"`.
+    Obsługiwane prefiksy: rys, rys., rysunek, fig, fig., figure, wykres, fot, foto, photo, image.
+    """
+    if not document_data or not getattr(document_data, "pages", None):
+        return []
+
+    number_pattern = re.compile(
+        r"(?i)\b(?:rys(?:unek)?|fig(?:ure)?|wykres|fot(?:o)?|photo|image)\.?\s*(\d+(?:\.\d+)*)"
+    )
+
+    raster_numbers: List[str] = []
+    seen = set()
+
+    for page in document_data.pages:
+        for img in getattr(page, "images", []):
+            if str(getattr(img, "image_type", "")).lower().strip() != "raster":
+                continue
+
+            description = str(getattr(img, "description", "") or "")
+            if not description:
+                continue
+
+            match = number_pattern.search(description)
+            if not match:
+                continue
+
+            fig_number = match.group(1)
+            if fig_number not in seen:
+                seen.add(fig_number)
+                raster_numbers.append(fig_number)
+
+    return raster_numbers
 
 #Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
 #o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na
