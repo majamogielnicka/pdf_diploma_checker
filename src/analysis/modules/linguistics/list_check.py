@@ -80,6 +80,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                     if not is_known:
                         for proper in proper_names:
                             proper_text = proper[0] if isinstance(proper, tuple) else proper
+                            if not proper_text or not proper_text.strip():
+                                continue
                             first_word = proper_text.split()[0]
                             if re.match(re.escape(first_word) + r'\s', effective_text):
                                 neutral_id.append(item.item_id)
@@ -158,7 +160,6 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                 full_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
                 if not full_text:
                     continue
-
                 if len(block.items) == 1:
                     last_item = True
                 else:
@@ -170,6 +171,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                 if item.marker_type =="number_with_dot" or item.marker_type == "letter_with_dot":
                     if is_upper_and_dot(full_text):
                         continue
+                    elif full_text.endswith(':'):
+                        continue
                     elif item.item_id in neutral_id:
                         match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
                         if match:
@@ -179,6 +182,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                     else:
                         ending_error_ids.append(item.item_id)
                 else: 
+                    if len(full_text.split()) < 3:
+                        continue
                     if item.item_id in neutral_id:
                         match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
                         if match:

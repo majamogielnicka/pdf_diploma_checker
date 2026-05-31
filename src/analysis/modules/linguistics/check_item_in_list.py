@@ -34,13 +34,15 @@ def check_item(full_text, last_item, second_to_last, text_language, sentence_sty
         full_text = full_text.rstrip(STRIP_CLOSE) or full_text
 
     is_en = True if text_language == "en" else False
+    if full_text.endswith(':'):
+        return True
     if has_verb(full_text, text_language) and sentence_style:
         return is_upper_and_dot(full_text)
     else:
         if not full_text[0].islower() and not is_en:
             if dominant_ending in {',', ';'}:
                 if last_item:
-                    return full_text.endswith('.')
+                    return full_text.endswith(('.', ':'))
                 return full_text[-1] == dominant_ending
             return full_text.endswith('.')
         if marker_type in ("dash", "bullet") and not has_verb(full_text, text_language) and ',' not in full_text[:-2]:
@@ -53,12 +55,12 @@ def check_item(full_text, last_item, second_to_last, text_language, sentence_sty
                 return full_text.endswith('.')
             elif dominant_ending in {',', ';'}:
                 if last_item:
-                    return full_text.endswith('.')
+                    return full_text.endswith(('.', ':'))
                 return full_text[-1] == dominant_ending
             else:
                 return full_text[-1].isalnum()
         if last_item:
-            return full_text.endswith(".") or (is_en and full_text[-1].isalnum())
+            return full_text.endswith((".", ':')) or (is_en and full_text[-1].isalnum())
         if second_to_last and is_en:
-            return full_text.endswith(("; and", "; or", ",", ";", ", and", ", or")) or full_text[-1].isalnum()
-        return full_text.endswith((";", ",")) or (is_en and full_text[-1].isalnum())
+            return full_text.endswith(("; and", "; or", ",", ";", ", and", ", or", ":")) or full_text[-1].isalnum()
+        return full_text.endswith((";", ",", ":")) or (is_en and full_text[-1].isalnum())
