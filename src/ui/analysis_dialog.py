@@ -11,6 +11,7 @@ import styles
 from common.path import resource_path
 
 class FileBadge(QFrame):
+    """ Widget displaying info about JSON config file with a delete button"""
     removed = Signal()
 
     def __init__(self, filename, parent=None):
@@ -69,6 +70,7 @@ class FileBadge(QFrame):
 
 
 class ConfigDropFrame(QFrame):
+    """drag-and-drop for JSON files"""
     fileDropped = Signal(str)
 
     def __init__(self, parent=None):
@@ -76,6 +78,7 @@ class ConfigDropFrame(QFrame):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
+        """accepts only .json"""
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
             if urls and urls[0].toLocalFile().lower().endswith('.json'):
@@ -84,12 +87,14 @@ class ConfigDropFrame(QFrame):
         event.ignore()
 
     def dropEvent(self, event):
+        """Handles the drop event and gets the file path of the dropped JSON"""
         urls = event.mimeData().urls()
         if urls:
             file_path = urls[0].toLocalFile()
             self.fileDropped.emit(file_path)
 
 class PipelineWorker(QThread):
+    """thread that handles the background processing of the PDF analysis"""
     progress_update = Signal(int, str) 
     finished_success = Signal(dict) 
     finished_error = Signal(str) 
@@ -102,6 +107,7 @@ class PipelineWorker(QThread):
         self.language = language
 
     def run(self):
+        """Runs the analysis, downloads language files, parses coordinates/bounding boxes and gives results"""
         try:
             self.progress_update.emit(5, "Sprawdzanie i pobieranie wymagań językowych...")
             from setup import download_specific_language
@@ -199,6 +205,7 @@ class PipelineWorker(QThread):
             self.finished_error.emit(str(e))
 
 class AnalysisDialog(QDialog):
+    """dialog window allowing configuration and running the document analysis. Allows JSON file upload, language selection, and analysis mode switching"""
     def __init__(self, pdf_path, parent=None):
         super().__init__(parent)
         self.pdf_path = pdf_path
@@ -211,6 +218,7 @@ class AnalysisDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
+        """Sets up the layout"""
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(30, 20, 30, 30)
         self.main_layout.setSpacing(12)
@@ -351,10 +359,12 @@ class AnalysisDialog(QDialog):
         self.json_frame.fileDropped.connect(self._set_config_file)
 
     def _open_file_dialog(self):
+        """Opens a standard dialog to select a config JSON file manually"""
         path, _ = QFileDialog.getOpenFileName(self, "Wybierz plik konfiguracyjny", "", "JSON Files (*.json)")
         if path: self._set_config_file(path)
 
     def _set_config_file(self, path):
+        """displays the selected configuration file badge and stores the file path"""
         self.config_file_path = path
         
         while self.badge_layout.count():
@@ -367,6 +377,7 @@ class AnalysisDialog(QDialog):
         self.badge_container.setVisible(True)
 
     def _remove_config_file(self):
+        """Clears the stored configuration file path and hides the file badge from the UI"""
         self.config_file_path = None
         self.badge_container.setVisible(False)
         while self.badge_layout.count():
@@ -375,6 +386,7 @@ class AnalysisDialog(QDialog):
         self.json_frame.setFixedHeight(220)
 
     def _start_analysis(self):
+        """progress state, instantiates, and starts the PipelineWorker thread"""
         self.config_widget.setVisible(False)
         self.analyze_btn.setVisible(False)
         self.progress_widget.setVisible(True)
@@ -390,16 +402,19 @@ class AnalysisDialog(QDialog):
         self.worker.start()
 
     def _on_analysis_success(self, final_report):
+        """when the background thread completes successfully closes the dialog"""
         self.final_report = final_report
         self.accept()
 
     def _cancel_analysis(self):
+        """Terminates the running background worker thread"""
         if hasattr(self, 'worker') and self.worker.isRunning():
             self.worker.terminate()
             self.worker.wait()
         self._reset_ui_state()
 
     def _reset_ui_state(self):
+        """Resets progress indicators and switches the UI view back"""
         self.pbar.setValue(0)
         self.progress_label.setText("Przygotowywanie do analizy...")
         self.progress_widget.setVisible(False)
@@ -409,5 +424,6 @@ class AnalysisDialog(QDialog):
         self.title_label.setText("Przeanalizuj dokument")
 
     def _update_progress(self, value, text):
+        """Updates the progress bar value and the description label text"""
         self.pbar.setValue(value)
         self.progress_label.setText(text)
