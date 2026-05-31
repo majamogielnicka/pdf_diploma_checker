@@ -287,6 +287,11 @@ gru
 rnn
 cnn
 gan
+xor
+c/c++
+c++/c
+python3
+html
 bert
 gpt
 llm
@@ -354,4 +359,14 @@ wielowymiarowym
 wielowymiarowi
 wielowymiarowych
 wielowymiarowymi
-
+kΩ
+Ω
+MΩ
+GΩ
+mΩ
+gpa
+scraping
+scrapingu
+captcha
+kolaboratywne
+kolaboracja

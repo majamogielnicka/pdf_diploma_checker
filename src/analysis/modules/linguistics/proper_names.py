@@ -121,4 +121,13 @@ def get_proper_names(blocks):
                         keyword_lemma, _ = lemmatization(keyword, block.language)
                     keywords_lemma.append((keyword, keyword_lemma))
                 proper_names.extend(keywords_lemma)
+
+        if block.block.type == "acronyms":
+            for word in block.contents.split():
+                word = word.strip("(),.:;[]\n\t ")
+                if len(word) < 2:
+                    continue
+                word_lemma, _ = lemmatization(word, block.language)
+                proper_names.append((word, word_lemma))
+
     return proper_names, bibliography

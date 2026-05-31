@@ -16,7 +16,7 @@ def potential_acronym(text):
     "WSTĘP", "CEL", "PRACY", "TEORIA", "PRZEGLĄD", "ROZWIĄZAŃ", "OPIS", 
     "WYNIKI", "ZAKOŃCZENIE", "DODATEK", "INSTRUKCJA", "PROGRAMISTY", 
     "DYPLOMU", "UŻYTKOWNIKA", "BIBLIOGRAFIA", "SPIS", "TREŚCI", "RYSUNKÓW", 
-    "TABEL", "LISTA", "SYMBOLI"
+    "TABEL", "LISTA", "SYMBOLI", "TAK", "NIE", "APLIKACJI", "TESTY"
     }
     clean_text = text.strip("():;,.!?[]\n\t \"„”«»“‟‘’")
     if re.match(r'^([A-Z]\.){1,}[A-Z]?$', clean_text):
@@ -28,6 +28,14 @@ def potential_acronym(text):
     if clean_text.isdigit():
         return False
     if clean_text in TITLE_PAGE_PHRASES:
+        return False
+    if '_' in clean_text:
+        return False
+    if re.search(r'[+#]', clean_text):
+        return False
+    if re.search(r'[A-Z]{2,}\d+$', clean_text):
+        return False
+    if re.search(r'[<>*/\\]', clean_text):
         return False
     if clean_text.isupper() and any(char.isalpha() for char in clean_text):
         return True
@@ -44,7 +52,8 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
     
     GLOBAL_ACRONYMS = {
         "USA", "EU", "UN", "NATO", "WHO", "UNESCO", "ONZ", "UE", "PL", "EN", 
-        "IT", "PC", "USB", "GPS", "WiFi", "PDF", "PhD", "MSc", "BSc", "SI", "CEO", "MIN", "MAX"
+        "IT", "PC", "USB", "GPS", "WiFi", "PDF", "PhD", "MSc", "BSc", "SI", "CEO", "MIN", "MAX", 
+        "3D", "2D", "°C", "CO2", "H2O", "NVIDIA"
     }
     QUOTE_MARKS = {'"', '„', '”', '«', '»', '“', '‟', '‘', '’'}
     category = "ACRONYM_UNDEFINED"
@@ -76,8 +85,8 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                     if typo_check(clean_text):
                         continue
                 if block.type == "heading":
-                    heading_word_count = len([w for w in block.content.split() if w.strip()])
-                    if heading_word_count <= 3:
+                    words = [w for w in block.content.split() if w.strip()]
+                    if all(w.isupper() for w in words):
                         continue
                 if clean_text in GLOBAL_ACRONYMS:
                     continue
