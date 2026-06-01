@@ -301,3 +301,18 @@ HIGHLIGHT_BOX_COMMENT = "background-color: rgba(0, 120, 255, 60); border: none;"
 HIGHLIGHT_BOX_DEFAULT = "background-color: rgba(0, 150, 255, 70); border: none;"
 OFF_TOPIC_TITLE_STYLE = "font-size: 11px; font-weight: bold; color: #D32F2F; margin-top: 8px; background: transparent; border: none;"
 OFF_TOPIC_ITEM_STYLE = "color: #C62828; font-size: 11px; padding-left: 5px; background: transparent; border: none;"
+
+HEADER_FRAME_STYLE = "background-color: #FFFFFF; border: none;"
+HEADER_TITLE_STYLE = HEADER_TEXT + " background: transparent;"
+PDF_ICON_LABEL_STYLE = "QLabel { background-color: #BDDCFF; border-radius: 35px; border: none; }"
+DRAG_TEXT_STYLE = "font-weight: bold; font-size: 14px; border: none; background: transparent;"
+OR_LABEL_STYLE = "border:none; background: transparent;"
+DOCS_CARD_STYLE = "QFrame#DocsCard { background-color: #FFFFFF; border: 1px solid #C4C4C4; border-radius: 8px; }"
+SECTION_TITLE_STYLE = "font-size: 18px; font-weight: bold; color: #333; border: none; background: transparent;"
+TABLE_CONTAINER_STYLE = "border: none; background: transparent;"
+START_PAGE_SCROLL_STYLE = """
+    QScrollArea { border: none; background: transparent; }
+    QScrollBar:vertical { border: none; background: transparent; width: 10px; margin: 0px; }
+    QScrollBar::handle:vertical { background: #C4C4C4; min-height: 30px; border-radius: 5px; }
+    QScrollBar::handle:vertical:hover { background: #A0A0A0; }
+"""
