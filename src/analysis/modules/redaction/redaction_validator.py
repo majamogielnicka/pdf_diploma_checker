@@ -303,7 +303,7 @@ class RedactionValidator:
                         if last_span.size < self.document_data.get_most_common_font_size() * 0.8:
                             continue
 
-                        rect = (last_span.bbox[2] + 3, last_span.bbox[1] + 1, page.width - 1, last_span.bbox[3] - 1)
+                        rect = (last_span.bbox[2] + 3, last_span.bbox[1] + 1, page.width - 1, last_span.bbox[3] - 1) #tested
                         if self.document_data.is_rect_intersecting(rect, page) != []:
                             continue
 
