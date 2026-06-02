@@ -210,3 +210,21 @@ class DocumentData:
                             if span.span_id == span_id:
                                 return span, line, block, page 
         return None
+
+    def is_rect_intersecting(self, rect: tuple, page: PageData, ignore: List[int] = None) -> List[tuple]:
+        '''This function checks which spans intersects with the given rectangle and returns a list of those spans along with their associated lines, blocks, and pages.
+        The ignore parameter can be used to specify span_ids that should be ignored during the intersection check.'''
+        if ignore is None:
+            ignore = []
+        intersecting_spans = []
+        rx0, ry0, rx1, ry1 = rect
+        for block in page.text_blocks:
+            for line in block.lines:
+                for span in line.spans:
+                    if span.span_id in ignore:
+                        continue
+                    sx0, sy0, sx1, sy1 = span.bbox
+                
+                    if rx0 <= sx1 and sx0 <= rx1 and ry0 <= sy1 and sy0 <= ry1:
+                        intersecting_spans.append((span, line, block, page))
+        return intersecting_spans

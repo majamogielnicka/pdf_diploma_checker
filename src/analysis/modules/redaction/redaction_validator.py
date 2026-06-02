@@ -281,7 +281,7 @@ class RedactionValidator:
         self.errors = errors_fixed
 
     def check_orphans(self):
-        '''Zwraca listę sierot (spans)'''
+        '''This function checks every line in the document for orphans.'''
         orphans = []
         for page in self.document_data.pages:
             for block in page.text_blocks:
@@ -302,6 +302,11 @@ class RedactionValidator:
 
                         if last_span.size < self.document_data.get_most_common_font_size() * 0.8:
                             continue
+
+                        rect = (last_span.bbox[2] + 3, last_span.bbox[1] + 1, page.width - 1, last_span.bbox[3] - 1)
+                        if self.document_data.is_rect_intersecting(rect, page) != []:
+                            continue
+
                         orphans.append(last_span)
                         self.errors.append(Error(
                             id = self._get_next_id(),
