@@ -17,7 +17,7 @@ if str(BASE_DIR) not in sys.path:
 from analysis.extraction.extraction_json import extractPDF
 
 #input_path = PROJECT_ROOT / "data"  / "mock_data"/ "mock1.pdf"
-input_path = PROJECT_ROOT / "data"  / "zupr.pdf"
+input_path = PROJECT_ROOT / "data"  / "inż_2_.pdf"
 
 output_path = PROJECT_ROOT / "src" / "output.json"
 
