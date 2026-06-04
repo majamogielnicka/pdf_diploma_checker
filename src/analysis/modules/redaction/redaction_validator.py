@@ -118,6 +118,7 @@ class RedactionValidator:
             self.check_toc()
             self.check_tof()
             self.check_tot()
+            self.check_raster_images()
 
 
         #--------------------advanced redaction check
@@ -376,6 +377,26 @@ class RedactionValidator:
                 ))
 
         return blank_pages
+    
+    def check_raster_images(self):
+        """
+        Sprawdza czy na stronie są grafiki rastrowe (image_type == 'raster'),
+        a jeśli są to dodaje obok nich komentarz.
+        """
+        for page in self.document_data.pages:
+            for img in page.images:
+                # Sprawdzamy typ obrazu przypisany przy ekstrakcji
+                if getattr(img, "image_type", "") == "raster":
+                    
+                    self.errors.append(Error(
+                        id=self._get_next_id(),
+                        module=self.module,
+                        category="raster_image",
+                        page_number=page.number,
+                        bounding_box=img.bbox, 
+                        text=img.description,   
+                        comments="Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki."
+                    ))
     
     def check_bibliography(self):        
         for block in self.document_data_linguistics.logical_blocks:
