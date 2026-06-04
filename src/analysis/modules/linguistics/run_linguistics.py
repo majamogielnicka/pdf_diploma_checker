@@ -16,7 +16,7 @@ from analysis.modules.linguistics.exeptions_check import *
 from analysis.modules.linguistics.list_check import check_coherence_in_list
 from analysis.modules.linguistics.sentence_check import *
 from analysis.modules.linguistics.proper_names import get_proper_names
-from analysis.modules.linguistics.helpers import extract_errors_to_json, get_context
+from analysis.modules.linguistics.helpers import extract_errors_to_json, get_context, extract_chapter_numbers
 from analysis.modules.linguistics.first_definition import check_first_definition
 from analysis.modules.linguistics.check_acronym import check_if_was_defined
 from analysis.extraction.extraction_json import extractPDF
@@ -71,6 +71,8 @@ def run_linguistics(raw_blocks, config_path=None):
         except ValueError as e:
             print(f"niepoprawny typ danych w konfiguracji lingwistyki: {e}")
     blocks = get_context(raw_blocks)
+    # extract_errors_to_json(blocks, "document.json")
+    chapter_nums = extract_chapter_numbers(blocks)
     extracted_acronyms = raw_blocks.reference_sections.acronyms
     proper_names, bibliography_dict = get_proper_names(blocks)
     bib_matches = check_bibliography(blocks, raw_blocks.metadata["producer"], bibliography_dict, bibtex_check_bool = check_bibtex)
@@ -82,9 +84,10 @@ def run_linguistics(raw_blocks, config_path=None):
     list_matches = check_coherence_in_list(blocks, proper_names, acronyms_with_definitions)
     main_font = raw_blocks.metadata.get("main_font")
     checked_exeptions = check_exeptions(language_matches, blocks, proper_names, main_font)
-    language_style_matches, sentence_analisys = sentence_check(blocks, check_first_person=check_first_person, acronyms_with_definitions=acronyms_with_definitions)
+    language_style_matches, sentence_analisys = sentence_check(blocks, check_first_person=check_first_person, acronyms_with_definitions=acronyms_with_definitions, chapter_nums=chapter_nums)
     matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches + bib_matches
     matches = remove_errors_inside_images(matches, raw_blocks)
+    # extract_errors_to_json(matches, "errors.json")
     return matches
 
 #plik pomocniczy do uruchamiania analizy bez GUI

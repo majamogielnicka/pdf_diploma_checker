@@ -31,7 +31,7 @@ def dash_check(blocks):
                     errors.append(Error_type(
                         content='-',
                         category="PUNCTUATION",
-                        message="Błąd: dywiz zamiast półpauzy w definicji.",
+                        message="Dywiz zamiast półpauzy w definicji.",
                         offset=word.start_char,
                         error_length=1,
                         block_id=unit.block_id,
@@ -49,7 +49,7 @@ def dash_check(blocks):
                 errors.append(Error_type(
                     content=m.group(),
                     category="PUNCTUATION",
-                    message="Błąd: Spacje wokół dywizu.",
+                    message="Dywiz zamiast półpauzy lub spacje wokół dywizu w nazwie łączonej.",
                     offset=m.start(),
                     error_length=len(m.group()),
                     block_id=unit.block_id,
