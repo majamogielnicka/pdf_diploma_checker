@@ -14,10 +14,10 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 
-from src.analysis.extraction.extraction_json import extractPDF
+from analysis.extraction.extraction_json import extractPDF
 
 #input_path = PROJECT_ROOT / "data"  / "mock_data"/ "mock1.pdf"
-input_path = PROJECT_ROOT / "data"  / "prace" / "other" / "zusz.pdf"
+input_path = PROJECT_ROOT / "data"  / "zupr.pdf"
 
 output_path = PROJECT_ROOT / "src" / "output.json"
 
@@ -54,7 +54,7 @@ else:
 
 
 # -----------------------przykład dla converter_linguistics.py-----------------------
-from src.analysis.extraction.converter_linguistics_clean import PDFMapper, get_acronyms_lut
+from analysis.extraction.converter_linguistics_clean import PDFMapper, get_acronyms_lut
 import json
 from dataclasses import asdict
 

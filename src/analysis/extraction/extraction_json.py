@@ -98,25 +98,32 @@ def analyze_line_alignment(line: TextLine, page_width: float, margins: Dict[str,
     
 def fix_latex(text):
     replace = { #Słownik znaków do podmiany.
-        "´s": "ś",
-        "´S": "Ś",
-        "´c": "ć",
-        "´C": "Ć",
-        "´z": "ź",
-        "´Z": "Ź",
-        "˙z": "ż",
-        "˙Z": "Ż",
-        "´n": "ń",
-        "´N": "Ń",
-        "´o": "ó",
-        "´O": "Ó",
-        "˛a": "ą",
-        "˛A": "Ą",
-        "˛e": "ę",
-        "˛E": "Ę",
+        #"´s": "ś",
+        #"´S": "Ś",
+        #"´c": "ć",
+        #"´C": "Ć",
+        #"´z": "ź",
+        #"´Z": "Ź",
+        #"˙z": "ż",
+        #"˙Z": "Ż",
+        #"´n": "ń",
+        #"´N": "Ń",
+        #"´o": "ó",
+        #"´O": "Ó",
+        #"˛a": "ą",
+        #"˛A": "Ą",
+        #"˛e": "ę",
+        #"˛E": "Ę",
+        "ﬀ": "ff",   
+        "ﬁ": "fi",   
+        "ﬂ": "fl",   
+        "ﬃ": "ffi",  
+        "ﬄ": "ffl",  
+        "ﬅ": "ft",   
+        "ﬆ": "st",   
     }
-    #for wrong, right in replace.items():
-        #text = text.replace(wrong, right)
+    for wrong, right in replace.items():
+        text = text.replace(wrong, right)
     return text
 
 def find_table_description(table_bbox, text_blocks, priority_side=None):
