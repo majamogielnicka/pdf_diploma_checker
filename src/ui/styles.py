@@ -316,3 +316,48 @@ START_PAGE_SCROLL_STYLE = """
     QScrollBar::handle:vertical { background: #C4C4C4; min-height: 30px; border-radius: 5px; }
     QScrollBar::handle:vertical:hover { background: #A0A0A0; }
 """
+
+THUMB_AREA_STYLE = """
+    QScrollArea { 
+        border: none; 
+        background-color: #E0E0E0; 
+    }
+    QScrollBar:vertical { 
+        border: none; 
+        background: transparent; 
+        width: 10px; 
+        margin: 0px; 
+    }
+    QScrollBar::handle:vertical { 
+        background: #C4C4C4; 
+        min-height: 30px; 
+        border-radius: 5px; 
+    }
+    QScrollBar::handle:vertical:hover { 
+        background: #A0A0A0; 
+    }
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { 
+        height: 0px; 
+    }
+    QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { 
+        background: none; 
+    }
+"""
+
+BACK_BTN_STYLE = """
+    QPushButton {
+        font-size: 20px; 
+        border: none; 
+        background: transparent;
+    }
+"""
+
+OVERLAY_STYLE = "background-color: rgba(0, 0, 0, 160);"
+
+HIGHLIGHT_BOX_CUSTOM_COMMENT_STYLE = "background-color: rgba(0, 120, 255, 60); border: none;"
+
+AI_NONE_LABEL_STYLE = "color: #7f8c8d; font-style: italic; border: none; padding-left: 2px;"
+
+GRAPHICS_HEADER_STYLE = "color: #333; font-size: 14px; font-weight: bold; border: none;"
+
+STATS_HEADER_STYLE = "color: #333; font-size: 14px; font-weight: bold; border: none;"
