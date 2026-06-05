@@ -33,7 +33,7 @@ def fix_sentence_limits(doc):
             continue
         prev = doc[i - 1]
         if token != doc[-1]:
-            if prev.text in (',', ':', ';'):
+            if prev.text in (',', ':', ';') and not token.is_title:
                 token.is_sent_start = False
             elif token.text in (',', ':', ';'):
                 token.is_sent_start = False

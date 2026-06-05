@@ -17,7 +17,7 @@ DESCRIPTION_WHITELIST= {"wersja", "wersji", "wersjom", "wersjach", "wersję", "w
                      "wzór", "wzoru", "wzorowi", "wzory", "wzorom", "wzorach", "wzorami", "wzorem", "wzorze",
                      "równanie", "równaniu", "równaniach", "równaniami", "równaniom", "równania", "równaniem", "rów", "listing"}
 
-def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=None):
+def sentence_check(blocks, chapter_nums, check_first_person=True, acronyms_with_definitions=None):
     '''
     Funkcja parsuje zdania w paragrafach tekstu. Za pomocą zależności spacy przypisuje zdaniu formę aktywną,
     bierną bądź równoważnika zdania - zwraca statystyki dla paragrafów z całego dokumentu,
@@ -123,7 +123,7 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
                     if any(tok.text in acronyms_with_definitions for tok in sentence):
                         is_subject = True
                 match_list = []
-                if description_exclude_backup(sentence.text, sentence_before):
+                if description_exclude_backup(sentence.text, sentence_before, chapter_nums):
                     continue
                 if not is_subject:
                     #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.
@@ -200,7 +200,7 @@ def definicion(block, word_idxs, sentence_text):
         return True
     return False
 
-def description_exclude_backup(sentence_text, sentence_before):
+def description_exclude_backup(sentence_text, sentence_before, chapter_nums):
     '''
     Funkcja pomocnicza, wykluczająca błędy braku podmiotu/orzeczenia w wypadku błędnie sparsowanych podpisów.
     '''
@@ -208,12 +208,16 @@ def description_exclude_backup(sentence_text, sentence_before):
     words_before = sentence_before.split()
     if len(words) < 3:
         return True
+    if any(word.strip(" .:") in chapter_nums for word in words[:2]):
+        return True
+    if any(word.strip(" .:") in chapter_nums for word in words_before[-2:]):
+        return True
     if words[0].lower().strip() in DESCRIPTION_WHITELIST and not words[1].isalpha():
         return True
-    elif not words[0].isalpha() and words[1][0].isupper():
+    if not words[0].isalpha() and words[1][0].isupper():
         return True
-    elif len(words_before) >1:
-        if words_before[0].lower().strip() in DESCRIPTION_WHITELIST and not words_before[1].isalpha():
+    if len(words_before) > 1:
+        if words_before[0].lower().strip(" :.") in DESCRIPTION_WHITELIST and not words_before[1].isalpha():
             return True
     return False
 
