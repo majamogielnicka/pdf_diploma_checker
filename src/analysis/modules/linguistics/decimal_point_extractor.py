@@ -7,7 +7,7 @@ from .helpers import get_match_info
 from .exeptions_check import check_quotes
 from .proper_check import check_if_proper
 
-def decimal_check(blocks):
+def decimal_check(blocks, chapter_nums):
     counter = 0
     checked_matches = []
     chapter_numbers = set()
@@ -39,16 +39,16 @@ def decimal_check(blocks):
                 error_coordinate= error_coordinate,
             ))
         if block.block.type == 'paragraph':
-            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 1)
+            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 1, chapter_nums)
             checked_matches.extend(checked_match)
         else:
-            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 2)
+            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 2, chapter_nums)
             checked_matches.extend(checked_match)
         counter += decimal_counter
 
     return checked_matches, counter
 
-def check_decimal_matches(potential_matches, block, chapter_numbers, error_tolerance):
+def check_decimal_matches(potential_matches, block, chapter_numbers, error_tolerance, chapter_nums):
     decimal_counter = 0
     black_list = {"%", "$", "€", "£", "zł", "usd", "eur", "gbp", "°"}
     white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabele", "tabelę", "tabeli", "tabelom", "tabelach", "tab",
@@ -87,7 +87,8 @@ def check_decimal_matches(potential_matches, block, chapter_numbers, error_toler
             chapter_numbers.add(match.content)
         elif block.block.type == "heading" and match.word_idxs and (match.word_idxs[0] == 0 or match.word_idxs[0] == 1):
             is_error = 0
-
+        if match.content.strip(" .:,") in chapter_nums and is_error<2:
+            is_error = 0
         if is_error>= error_tolerance:
             if is_error == 2:
                 error_message = "Niepoprawny separator dziesiętny"
