@@ -78,7 +78,11 @@ class PDFMapper:
 
     @staticmethod
     def is_math(words: list[WordInfo]) -> bool:
-        if not words: return False
+        if not words: return 0
+
+        full_text_with_spaces = " ".join(w.text for w in words)
+        if re.search(r'(?:\.\s*){4,}', full_text_with_spaces):
+            return 0
 
         spaces_count = sum(w.text.count(" ") for w in words) + (len(words) - 1)
     
@@ -86,15 +90,15 @@ class PDFMapper:
 
         if total_chars_with_spaces > 0:
             space_density = spaces_count / total_chars_with_spaces
-        if space_density > 0.25:  
-            return True
+        if space_density > 0.3:  
+            return 1
 
         math_font_count = sum(1 for w in words if any(mf in w.font.lower() for mf in ['math', 'cmmi', 'cmr', 'cmsy', 'symbol']))
         if len(words) > 0 and (math_font_count / len(words)) > 0.4:
-            return True
+            return 2
         
         full_text = "".join(w.text for w in words).replace(" ", "")
-        if not full_text: return False
+        if not full_text: return 0
 
         math_chars_pattern = r'[0-9=\+\-\*/<>\∑\∫\∏\√\∞\≈\≠\≡\≤\≥\{\}\(\)\[\]\|\α-\ω\Α-\Ω]'
         math_chars_count = len(re.findall(math_chars_pattern, full_text))
@@ -103,7 +107,10 @@ class PDFMapper:
 
         ratio = (math_chars_count + single_letter_count) / len(full_text)
         
-        return ratio > 0.35 
+        if ratio > 0.35:
+            return 0
+        else:
+            return 0
     
     @staticmethod
     def is_inside_table(block_bbox: list, table_bboxes: list) -> bool:
@@ -197,9 +204,9 @@ class PDFMapper:
         block_type = "acronyms" if is_acronym_block else "paragraph"
 
         if block_type == "paragraph":
-            if PDFMapper.is_math(combined_words):  
-                block_type = "math"
-            elif PDFMapper.is_header(combined_words):
+            #if PDFMapper.is_math(combined_words):  
+            #    block_type = "math"
+            if PDFMapper.is_header(combined_words):
                 block_type = "heading"
             elif PDFMapper.is_keywords(combined_words):
                 block_type = "keywords"
@@ -542,13 +549,14 @@ class PDFMapper:
                         
                 if is_new_paragraph:
                     if full_text.strip():
-                        if self.is_math(words_info):
+                        is_math_type = self.is_math(words_info)
+                        if not getattr(self, "in_bibliography_section", False) and is_math_type > 0:
                             math_bbox = [
                                 min(w.bbox[0] for w in words_info), min(w.bbox[1] for w in words_info),
                                 max(w.bbox[2] for w in words_info), max(w.bbox[3] for w in words_info)
                             ]
                             new_doc.floating_elements.page_artifacts.append(PageArtifact(
-                                artifact_id=f"math_{block.block_id}_{self.curr_line}", type="math",
+                                artifact_id=f"math_{block.block_id}_{self.curr_line}", type=f"math_{is_math_type}",
                                 page_number=page.number, text=full_text, bbox=math_bbox
                             ))
                         else:
@@ -578,13 +586,14 @@ class PDFMapper:
             full_text = full_text.strip()
             if not full_text or len(full_text) < 2: continue
 
-            if self.is_math(words_info):
+            is_math_type = self.is_math(words_info)
+            if not getattr(self, "in_bibliography_section", False) and is_math_type > 0:
                 math_bbox = [
                     min(w.bbox[0] for w in words_info), min(w.bbox[1] for w in words_info),
                     max(w.bbox[2] for w in words_info), max(w.bbox[3] for w in words_info)
                 ]
                 new_doc.floating_elements.page_artifacts.append(PageArtifact(
-                    artifact_id=f"math_{block.block_id}", type="math",
+                    artifact_id=f"math_{block.block_id}", type=f"math_{is_math_type}",
                     page_number=page.number, text=full_text, bbox=math_bbox
                 ))
                 continue
@@ -662,18 +671,31 @@ class PDFMapper:
             nxt = self.logical_blocks[i+1]
 
             if getattr(curr, "type", None) == "heading" and getattr(nxt, "type", None) == "heading":
-                separator = " "
-                old_len = len(curr.content) + len(separator)
-                curr.content += separator + nxt.content
                 
-                for word in nxt.words:
-                    word.start_char += old_len
-                    word.end_char += old_len
-                    word.word_index += len(curr.words)
-                    curr.words.append(word)
+                if not getattr(curr, "words", []) or not getattr(nxt, "words", []):
+                    i += 1
+                    continue
                 
-                self.logical_blocks.pop(i + 1)
-                continue 
+                curr_font = curr.words[0].font
+                nxt_font = nxt.words[0].font
+                curr_size = curr.words[0].size
+                nxt_size = nxt.words[0].size
+                
+                font_matches = (curr_font == nxt_font) and (abs(curr_size - nxt_size) < 1.0)
+
+                if font_matches: 
+                    separator = " "
+                    old_len = len(curr.content) + len(separator)
+                    curr.content += separator + nxt.content
+                    
+                    for word in nxt.words:
+                        word.start_char += old_len
+                        word.end_char += old_len
+                        word.word_index += len(curr.words)
+                        curr.words.append(word)
+                    
+                    self.logical_blocks.pop(i + 1)
+                    continue 
             i += 1
 
     def _assign_captions_to_visuals(self, pages, new_doc):
