@@ -55,7 +55,7 @@ from PySide6.QtWidgets import QGraphicsDropShadowEffect
 from PySide6.QtGui import QColor
 from select_text import SelectablePdfView, CommentMarker, HighlightBox
 from start_page import StartPage
-from saving_files import saving_files
+from saving_files import SavingFiles
 import styles
 from analysis_dialog import AnalysisDialog
 from pipeline import AnalysisPipeline
@@ -85,7 +85,7 @@ class PDFReader(QMainWindow):
         super().__init__()
         self.setWindowTitle("Diploma checker")
         self.resize(1300, 600)
-        self.manager = saving_files()
+        self.manager = SavingFiles()
         self.own_comments = []
         self.document = QPdfDocument(self)
         

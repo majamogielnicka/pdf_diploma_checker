@@ -18,7 +18,7 @@ class ErrorMarker(QPushButton):
         self.clicked.connect(self.show_details)
 
     def show_details(self):
-        """Displays a formatted tooltip with details about the error""""""
+        """Displays a formatted tooltip with details about the error"""
         opis = self.data.get('komentarz', 'Brak szczegółowego opisu błędu')
         kat = self.data.get('kategoria', 'Błąd')
         tekst = self.data.get('znaleziony_tekst', '')
@@ -43,7 +43,7 @@ class CommentMarker(QPushButton):
         self.clicked.connect(self.show_details)
 
     def show_details(self):
-    """displays the user's comment text"""
+        """displays the user's comment text"""
         info = (f"<b>Twój komentarz:</b> {self.data.get('tekst_komentarza', '')}<br>"
                 f"<b>Fragment:</b> {self.data.get('znaleziony_tekst', '')}")
         QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
@@ -208,7 +208,7 @@ class SelectablePdfView(QPdfView):
             marker.raise_()
 
     def resizeEvent(self, event):
-    """Handles the widget resize event by triggering a recalculation"""
+        """Handles the widget resize event by triggering a recalculation"""
         super().resizeEvent(event)
         self.update_selection_box_pos()
         self.update_markers_pos()
