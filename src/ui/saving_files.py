@@ -3,6 +3,7 @@ import os
 import datetime
 
 class SavingFiles:
+    """A class used to manage a JSON-based file index"""
     def __init__(self, index_path=None):
         if index_path is None:
             app_data = os.environ.get('APPDATA', os.path.expanduser('~'))
@@ -14,6 +15,7 @@ class SavingFiles:
         self.data = self._load_index()
 
     def _load_index(self):
+        """Loads the index data from the JSON file on disk. Creates a new index if the file is missing or corrupt."""
         if not os.path.exists(self.index_path) or os.path.getsize(self.index_path) == 0:
             return self._create_initial_index()
         
@@ -32,11 +34,13 @@ class SavingFiles:
             return self._create_initial_index()
 
     def _create_initial_index(self):
+        """Creates and saves a basic, empty index structure on the disk."""
         initial_data = {"documents": [], "rule_configurations": []}
         self._save_to_disk(initial_data)
         return initial_data
 
     def _save_to_disk(self, data):
+        """Saves the provided data to the disk in JSON format using secure UTF-8 encoding."""
         try:
             with open(self.index_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
@@ -44,6 +48,7 @@ class SavingFiles:
             print(f"Error writing to file: {e}")
 
     def add_document(self, name, path, document_type="PDF"):
+        """Adds a new document to the index, provided that a document with the same path does not already exist."""
         if any(doc['local_path'] == path for doc in self.data["documents"]):
             return
             
@@ -58,10 +63,12 @@ class SavingFiles:
         self._save_to_disk(self.data)
 
     def delete_document(self, path):
+        """Removes a document from the index based on its local path and updates the file on disk."""
         self.data["documents"] = [doc for doc in self.data["documents"] if doc['local_path'] != path]
         self._save_to_disk(self.data)
 
     def save_comment(self, path, comment_data):
+        """Appends a new comment to the list of comments associated with the specified document path."""
         for doc in self.data["documents"]:
             if doc['local_path'] == path:
                 if "comments" not in doc:
@@ -71,12 +78,14 @@ class SavingFiles:
                 return
 
     def get_comments(self, path):
+        """Retrieves the list of comments assigned to the specified document."""
         for doc in self.data["documents"]:
             if doc['local_path'] == path:
                 return doc.get("comments", [])
         return []
 
     def save_errors(self, path, errors):
+        """Saves a list of errors detected during the analysis of the specified document"""
         for doc in self.data["documents"]:
             if doc['local_path'] == path:
                 doc["analysis_errors"] = errors
@@ -84,12 +93,14 @@ class SavingFiles:
                 return
 
     def get_errors(self, path):
+        """Retrieves the list of analysis errors assigned to the specified document."""
         for doc in self.data["documents"]:
             if doc['local_path'] == path:
                 return doc.get("analysis_errors", [])
         return []
     
     def save_ai_result(self, path, sota_data):
+        """Saves the AI model processing results for a specific document."""
         for doc in self.data["documents"]:
             if doc['local_path'] == path:
                 doc["sota_result"] = sota_data

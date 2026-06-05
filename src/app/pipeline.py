@@ -181,7 +181,7 @@ class AnalysisPipeline:
                 spec.loader.exec_module(ling_module)
                 
                 raw_blocks = mapper.map_to_schema(doc_obj)
-                for block in raw_blocks:
+                for block in raw_blocks.logical_blocks:
                     block.language = language
                 ling_matches, sentence_analysis = ling_module.run_linguistics(raw_blocks)
                 print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
