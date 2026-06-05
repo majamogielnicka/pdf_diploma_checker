@@ -2,7 +2,8 @@ import json
 import os
 import datetime
 
-class saving_files:
+class SavingFiles:
+    """A class used to manage a JSON-based file index"""
     def __init__(self, index_path=None):
         if index_path is None:
             app_data = os.environ.get('APPDATA', os.path.expanduser('~'))
@@ -14,6 +15,7 @@ class saving_files:
         self.data = self._load_index()
 
     def _load_index(self):
+        """Loads the index data from the JSON file on disk. Creates a new index if the file is missing or corrupt."""
         if not os.path.exists(self.index_path) or os.path.getsize(self.index_path) == 0:
             return self._create_initial_index()
         
@@ -21,77 +23,86 @@ class saving_files:
             with open(self.index_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 
-            if "prace" not in data:
-                data["prace"] = []
-            if "konfiguracje_regul" not in data:
-                data["konfiguracje_regul"] = []
+            if "documents" not in data:
+                data["documents"] = []
+            if "rule_configurations" not in data:
+                data["rule_configurations"] = []
                 
             return data
         except (json.JSONDecodeError, Exception) as e:
-            print(f"Błąd odczytu index.json: {e}")
+            print(f"Error reading index.json: {e}")
             return self._create_initial_index()
 
     def _create_initial_index(self):
-        initial_data = {"prace": [], "konfiguracje_regul": []}
+        """Creates and saves a basic, empty index structure on the disk."""
+        initial_data = {"documents": [], "rule_configurations": []}
         self._save_to_disk(initial_data)
         return initial_data
 
     def _save_to_disk(self, data):
+        """Saves the provided data to the disk in JSON format using secure UTF-8 encoding."""
         try:
             with open(self.index_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
         except Exception as e:
-            print(f"Błąd zapisu do pliku: {e}")
+            print(f"Error writing to file: {e}")
 
-    def dodaj_prace(self, nazwa, sciezka, typ="PDF"):
-        if any(p['sciezka_lokalna'] == sciezka for p in self.data["prace"]):
+    def add_document(self, name, path, document_type="PDF"):
+        """Adds a new document to the index, provided that a document with the same path does not already exist."""
+        if any(doc['local_path'] == path for doc in self.data["documents"]):
             return
             
-        nowy_wpis = {
-            "nazwa_pliku": nazwa,
-            "sciezka_lokalna": sciezka,
-            "typ": typ,
-            "data_dodania": datetime.date.today().strftime("%Y-%m-%d"),
-            "komentarze": []
+        new_entry = {
+            "file_name": name,
+            "local_path": path,
+            "type": document_type,
+            "date_added": datetime.date.today().strftime("%Y-%m-%d"),
+            "comments": []
         }
-        self.data["prace"].append(nowy_wpis)
+        self.data["documents"].append(new_entry)
         self._save_to_disk(self.data)
 
-    def usun_prace(self, sciezka):
-        self.data["prace"] = [p for p in self.data["prace"] if p['sciezka_lokalna'] != sciezka]
+    def delete_document(self, path):
+        """Removes a document from the index based on its local path and updates the file on disk."""
+        self.data["documents"] = [doc for doc in self.data["documents"] if doc['local_path'] != path]
         self._save_to_disk(self.data)
 
-    def zapisz_komentarz(self, sciezka, comment_data):
-        for p in self.data["prace"]:
-            if p['sciezka_lokalna'] == sciezka:
-                if "komentarze" not in p:
-                    p["komentarze"] = []
-                p["komentarze"].append(comment_data)
+    def save_comment(self, path, comment_data):
+        """Appends a new comment to the list of comments associated with the specified document path."""
+        for doc in self.data["documents"]:
+            if doc['local_path'] == path:
+                if "comments" not in doc:
+                    doc["comments"] = []
+                doc["comments"].append(comment_data)
                 self._save_to_disk(self.data)
                 return
 
-    def pobierz_komentarze(self, sciezka):
-        for p in self.data["prace"]:
-            if p['sciezka_lokalna'] == sciezka:
-                return p.get("komentarze", [])
+    def get_comments(self, path):
+        """Retrieves the list of comments assigned to the specified document."""
+        for doc in self.data["documents"]:
+            if doc['local_path'] == path:
+                return doc.get("comments", [])
         return []
 
-    def zapisz_bledy(self, sciezka, bledy):
-        for p in self.data["prace"]:
-            if p['sciezka_lokalna'] == sciezka:
-                p["bledy_analizy"] = bledy
+    def save_errors(self, path, errors):
+        """Saves a list of errors detected during the analysis of the specified document"""
+        for doc in self.data["documents"]:
+            if doc['local_path'] == path:
+                doc["analysis_errors"] = errors
                 self._save_to_disk(self.data)
                 return
 
-    def pobierz_bledy(self, sciezka):
-        for p in self.data["prace"]:
-            if p['sciezka_lokalna'] == sciezka:
-                return p.get("bledy_analizy", [])
+    def get_errors(self, path):
+        """Retrieves the list of analysis errors assigned to the specified document."""
+        for doc in self.data["documents"]:
+            if doc['local_path'] == path:
+                return doc.get("analysis_errors", [])
         return []
     
-    def zapisz_wynik_ai(self, sciezka, sota_data):
-        for p in self.data["prace"]:
-            if p['sciezka_lokalna'] == sciezka:
-                p["wynik_sota"] = sota_data
+    def save_ai_result(self, path, sota_data):
+        """Saves the AI model processing results for a specific document."""
+        for doc in self.data["documents"]:
+            if doc['local_path'] == path:
+                doc["sota_result"] = sota_data
                 self._save_to_disk(self.data)
                 return

@@ -31,7 +31,7 @@ class AnalysisPipeline:
         self.linguistics_service = LinguisticsService()
         self.llm_service = None
 
-    def run(self, input_document, progress_callback=None, use_llm=True, config_path=None):
+    def run(self, input_document, progress_callback=None, use_llm=True, config_path=None, language="pl"):
         def report_progress(value, text):
             if progress_callback:
                 progress_callback(value, text)
@@ -109,7 +109,6 @@ class AnalysisPipeline:
                     "details": image_details_lines
                 }
 
-                language = "pl"
                 purpose = get_purpose(plain_txt_purpose, language)
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
@@ -182,14 +181,22 @@ class AnalysisPipeline:
                 spec.loader.exec_module(ling_module)
                 
                 raw_blocks = mapper.map_to_schema(doc_obj)
-                ling_matches = ling_module.run_linguistics(raw_blocks, config_path)
+                for block in raw_blocks.logical_blocks:
+                    block.language = language
+                ling_matches, sentence_analysis = ling_module.run_linguistics(raw_blocks)
                 print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
-                return ling_matches
+                stats = {
+                    "active_ratio": getattr(sentence_analysis, "active_ratio", "0%"),
+                    "passive_ratio": getattr(sentence_analysis, "passive_ratio", "0%"),
+                    "verbless_ratio": getattr(sentence_analysis, "verbless_ratio", "0%")
+                }
+                return ling_matches, stats
             except Exception as e:
                 print(f"[PIPELINE] Błąd lingwistyki: {e}")
                 import traceback
                 traceback.print_exc()
-                return []
+                return [], {"active_ratio": "0%", "passive_ratio": "0%", "verbless_ratio": "0%"}
+
                 
         def task_redaction():
             try:
@@ -226,7 +233,7 @@ class AnalysisPipeline:
             if use_llm:
                 future_llm = executor.submit(task_llm)
 
-            ling_matches = future_ling.result()
+            ling_matches, ling_stats = future_ling.result()
 
             if use_llm:
                 llm_result, content_grade_result, llm_summary_text = future_llm.result()
@@ -252,7 +259,10 @@ class AnalysisPipeline:
             ],
             recommendations=[]
         )
-        
+        if final_report.llm_result is None:
+            final_report.llm_result = {}
+        final_report.llm_result["statystyki_zdan"] = ling_stats
+
         final_report.linguistics_errors = wszystkie_bledy
         
         return final_report
