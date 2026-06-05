@@ -179,6 +179,7 @@ class AnalysisPipeline:
                     )
 
                 score = get_overall_grade(purpose_score, content_grade_val, res_score)
+                print(f"Purpose Score: {purpose_score}, Content Grade: {content_grade_val}, SOTA Score: {res_score}, Overall Score: {score}")
                 
                 total_sections = len(summaries) if summaries else 1
                 bad_sections = len(off_topic_headings)
