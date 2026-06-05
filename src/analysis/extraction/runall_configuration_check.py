@@ -11,13 +11,13 @@ SRC_DIR = PROJECT_ROOT / "src"
 sys.path.insert(0, str(PROJECT_ROOT)) 
 sys.path.insert(0, str(SRC_DIR))  
 
-from src.analysis.extraction.extraction_json import extractPDF
-from src.analysis.modules.redaction.redaction_validator import RedactionValidator
-from src.analysis.extraction.converter_linguistics_clean import PDFMapper
+from analysis.extraction.extraction_json import extractPDF
+from analysis.modules.redaction.redaction_validator import RedactionValidator
+from analysis.extraction.converter_linguistics_clean import PDFMapper
 
 def main():
 
-    pdf_path = PROJECT_ROOT / "data" / "prace" /"PraceDyplomowe"/"Praca_dyplomowa_magisterka_165718.pdf"
+    pdf_path = PROJECT_ROOT / "data"  / "cyza.pdf"
     output_report_path = PROJECT_ROOT / "raport_bledow_redakcji.txt"
 
     possible_config_paths = [

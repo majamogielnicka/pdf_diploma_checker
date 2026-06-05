@@ -422,6 +422,7 @@ class PDFMapper:
         self._tag_visual_descriptions()
         self._pair_descriptions_with_visuals(new_doc)
         self._verify_bibliography_references()
+        self._verify_caption_sources(new_doc)
 
         new_doc.metadata["main_font"] = old_doc.get_most_common_font()
 
@@ -1236,6 +1237,42 @@ class PDFMapper:
                     src_page=line_page  
                 )
                 new_doc.reference_sections.acronyms.append(new_item)
+
+    def _verify_caption_sources(self, new_doc):
+        """
+        Post-processing: Sprawdza, czy podpisy tabel i rysunków zawierają
+        odwołanie do źródła (np. [1]) lub słowa kluczowe (np. "źródło:", "opracowanie własne").
+        """
+        citation_pattern = re.compile(r'\[\s*\d+[\d\s,\-]*\]')
+        
+        source_pattern = re.compile(r'\b(źródło|zródło|zrodlo|source|opracowanie własne|na podstawie)\b', re.IGNORECASE)
+
+        for block in self.logical_blocks:
+            if getattr(block, "type", None) in ["image_description", "table_description"]:
+                content = getattr(block, "content", "")
+                if not content:
+                    continue
+                
+                has_citation = bool(citation_pattern.search(content))
+                has_keyword = bool(source_pattern.search(content))
+
+                if not (has_citation or has_keyword):
+                    block.incorrect_caption = 1
+                else:
+                    block.incorrect_caption = 0
+
+        for visual in new_doc.floating_elements.visual_elements:
+            caption_dict = getattr(visual, "caption", {})
+            if caption_dict and isinstance(caption_dict, dict):
+                content = caption_dict.get("text", "")
+                if content:
+                    has_citation = bool(citation_pattern.search(content))
+                    has_keyword = bool(source_pattern.search(content))
+
+                    if not (has_citation or has_keyword):
+                        visual.incorrect_caption = 1
+                    else:
+                        visual.incorrect_caption = 0
 # Funkcje zewnętrzne
 
 MULTISPACE_RE = re.compile(r"\s+")

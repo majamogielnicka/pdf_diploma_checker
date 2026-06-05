@@ -129,6 +129,7 @@ class RedactionValidator:
             self.check_bibliography()
             #self.check_korytarze()
             self.check_bibliography_summary()
+            self.check_caption_sources()
 
         self.remove_errors_from_toc_tof_tot()
         self.remove_errors_from_images()
@@ -533,6 +534,47 @@ class RedactionValidator:
             text=found_text,
             comments="Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie."
         )
+    
+    def check_caption_sources(self):
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "incorrect_caption", 0) == 1:
+                
+                if getattr(block, "words", []):
+                    left_x = min(w.bbox[0] for w in block.words)
+                    top_y = min(w.bbox[1] for w in block.words)
+                    right_x = max(w.bbox[2] for w in block.words)
+                    bottom_y = max(w.bbox[3] for w in block.words)
+                    caption_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
+                    page_num = block.words[0].page_number
+                else:
+                    caption_bbox = (0, 0, 0, 0)
+                    page_num = 1
+
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="missing_caption_source",
+                    page_number=page_num,
+                    bounding_box=caption_bbox,
+                    text=getattr(block, "content", ""),
+                    comments="Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne')."
+                ))
+
+        for visual in self.document_data_linguistics.floating_elements.visual_elements:
+            if getattr(visual, "incorrect_caption", 0) == 1:
+                
+                caption_dict = getattr(visual, "caption", {})
+                caption_text = caption_dict.get("text", "") if isinstance(caption_dict, dict) else ""
+                
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="missing_caption_source",
+                    page_number=getattr(visual, "page_number", 1),
+                    bounding_box=getattr(visual, "bbox", (0, 0, 0, 0)),
+                    text=caption_text,
+                    comments="Tabela/Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie."
+                ))
     
     def check_toc(self):
         wrong_entries = []

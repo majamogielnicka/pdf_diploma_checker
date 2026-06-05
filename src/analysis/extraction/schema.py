@@ -39,6 +39,7 @@ class ParagraphBlock: # Informacje o blokach tekstowych, które mogą być parag
     is_szewc: int = 0
     debug_empty: str = ""
     words: List[WordInfo] = field(default_factory=list)
+    incorrect_caption: int = 0
 
 @dataclass
 class ListItem:
@@ -83,6 +84,7 @@ class VisualElement: # Informacje o elementach wizualnych, takich jak wykresy, r
     caption: Dict[str, Any] # text, label_type, number, description, bbox
     table_data: Optional[List[List[str]]] = None
     format: Optional[Dict[str, int]] = None # num_rows, num_columns
+    incorrect_caption: int = 0
 
 @dataclass
 class Equation: # Informacje o równaniach, zarówno w tekście, jak i jako elementy pływające (TODO)
