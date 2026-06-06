@@ -1116,7 +1116,38 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             flags = raw_span["flags"]
 
             if span_words:
-                for x in span_words:
+                raw_text_stripped = raw_span["text"].strip()
+                
+                first_word_text = span_words[0][4]
+                last_word_text = span_words[-1][4]
+                
+                missing_start = ""
+                missing_end = ""
+                
+                start_match = re.match(r'^([(),.;:!?\[\]\{\}"”„]+)', raw_text_stripped)
+                end_match = re.search(r'([(),.;:!?\[\]\{\}"”„]+)$', raw_text_stripped)
+                
+                if start_match and not first_word_text.startswith(start_match.group(1)):
+                    missing_start = start_match.group(1)
+                if end_match and not last_word_text.endswith(end_match.group(1)):
+                    missing_end = end_match.group(1)
+
+                for idx, orig_x in enumerate(span_words):
+                    x = list(orig_x)
+                    if idx == 0 and missing_start:
+                        is_closing_punct = all(c in '.,;:!?)]}”' for c in missing_start)
+                        if is_closing_punct and len(spans) > 0:
+                            spans[-1].text += missing_start
+                            p_box = spans[-1].bbox
+                            spans[-1].bbox = (p_box[0], p_box[1], p_box[2] + 4.0, p_box[3])
+                        else:
+                            x[4] = missing_start + x[4]
+                            x[0] -= 4.0
+
+                    if idx == len(span_words) - 1 and missing_end:
+                        x[4] = x[4] + missing_end
+                        x[2] += 4.0
+
                     current_span_id += 1
                     spans.append(TextSpan(
                         span_id=current_span_id,
