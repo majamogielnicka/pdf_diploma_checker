@@ -784,68 +784,103 @@ class PDFMapper:
 
     def _tag_visual_descriptions(self):
         """
-        Post-processing: Szuka bloków tekstowych będących opisami tabel lub obrazów
-        na podstawie zawartości tekstu i odległości od innych bloków.
+        Post-processing: Szuka bloków tekstowych będących opisami tabel lub obrazów,
+        skleja wielolinijkowe podpisy i weryfikuje je na podstawie przestrzeni.
         """
-        
-        img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
-        tab_pattern = re.compile(r"^(tabela|tab\.)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+        img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat|figure|fig\.|image|scheme|diagram)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+        tab_pattern = re.compile(r"^(tabela|tab\.|table)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
         
         reference_verbs = re.compile(r"\b(przedstawia|pokazuje|obrazuje|zawiera|zilustrowano|prezentuje|widać|zestawiono)\b", re.IGNORECASE)
 
-        for i, block in enumerate(self.logical_blocks):
+        i = 0
+        while i < len(self.logical_blocks):
+            block = self.logical_blocks[i]
+            
             if getattr(block, "type", None) not in ["paragraph", "heading"]:
+                i += 1
                 continue
 
             content = getattr(block, "content", "").strip()
             words = getattr(block, "words", [])
 
             if not content or not words:
+                i += 1
                 continue
 
-            unique_lines = set(w.line for w in words)
-            if len(unique_lines) > 2:
-                continue  
-
             if reference_verbs.search(content):
+                i += 1
                 continue
 
             is_table_desc = bool(tab_pattern.match(content))
             is_img_desc = bool(img_pattern.match(content))
 
             if not (is_table_desc or is_img_desc):
+                i += 1
                 continue
 
-            page_num = words[0].page_number
-            curr_y0 = min(w.bbox[1] for w in words)
-            curr_y1 = max(w.bbox[3] for w in words)
+            while i + 1 < len(self.logical_blocks):
+                next_b = self.logical_blocks[i+1]
+                next_w = getattr(next_b, "words", [])
+                
+                if getattr(next_b, "type", None) != "paragraph" or not next_w:
+                    break
+                    
+                if next_w[0].page_number != words[-1].page_number:
+                    break
+                    
+                curr_y1 = max(w.bbox[3] for w in block.words)
+                next_y0 = min(w.bbox[1] for w in next_w)
+                vertical_gap = next_y0 - curr_y1
+                
+                if vertical_gap > 28 or vertical_gap < -10:
+                    break
+                    
+                unique_lines_curr = len(set(w.line for w in block.words))
+                unique_lines_next = len(set(w.line for w in next_w))
+                if (unique_lines_curr + unique_lines_next) > 5:
+                    break
+                    
+                separator = " "
+                if block.content.rstrip().endswith('-'):
+                    separator = ""
+                    block.content = block.content.rstrip()[:-1]
+                
+                old_len = len(block.content) + len(separator)
+                block.content += separator + getattr(next_b, "content", "").strip()
+                
+                for w in next_w:
+                    w.start_char += old_len
+                    w.end_char += old_len
+                    w.word_index += len(block.words)
+                    block.words.append(w)
+                    
+                self.logical_blocks.pop(i + 1)
+
+            page_num = block.words[0].page_number
+            curr_y0 = min(w.bbox[1] for w in block.words)
+            curr_y1 = max(w.bbox[3] for w in block.words)
 
             gap_above = float('inf')
             gap_below = float('inf')
 
-            for j in range(i - 1, -1, -1):
-                prev_b = self.logical_blocks[j]
-                prev_w = getattr(prev_b, "words", [])
+            if i > 0:
+                prev_w = getattr(self.logical_blocks[i-1], "words", [])
                 if prev_w and prev_w[0].page_number == page_num:
                     prev_y1 = max(w.bbox[3] for w in prev_w)
                     gap_above = curr_y0 - prev_y1
-                    break
 
-            for j in range(i + 1, len(self.logical_blocks)):
-                next_b = self.logical_blocks[j]
-                next_w = getattr(next_b, "words", [])
+            if i + 1 < len(self.logical_blocks):
+                next_w = getattr(self.logical_blocks[i+1], "words", [])
                 if next_w and next_w[0].page_number == page_num:
                     next_y0 = min(w.bbox[1] for w in next_w)
                     gap_below = next_y0 - curr_y1
-                    break
 
             if gap_above < 35 and gap_below < 35:
+                i += 1
                 continue
 
-            if is_table_desc:
-                block.type = "table_description"
-            elif is_img_desc:
-                block.type = "image_description"
+            block.type = "table_description" if is_table_desc else "image_description"
+            i += 1
 
     def _pair_descriptions_with_visuals(self, new_doc):
         """
@@ -1248,7 +1283,7 @@ class PDFMapper:
         source_pattern = re.compile(r'\b(źródło|zródło|zrodlo|source|opracowanie własne|na podstawie)\b', re.IGNORECASE)
 
         for block in self.logical_blocks:
-            if getattr(block, "type", None) in ["image_description", "table_description"]:
+            if getattr(block, "type", None) in ["image_description"]:
                 content = getattr(block, "content", "")
                 if not content:
                     continue

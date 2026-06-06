@@ -101,34 +101,34 @@ class RedactionValidator:
         self.errors.clear() #metody indywidualnie wrzucaja errory na stos
         self.id_counter = 0
         #--------------------config check
-        if self.config is not None and config_ckeck:
-            self.check_interline_spacing(self.document_data)
-            self.check_page_count(self.document_data)
-            self.check_font_size(self.document_data)
-            self.check_margins(self.document_data)
-            self.check_orientation(self.document_data)
-            self.check_fonts(self.document_data)
-            self.check_justification(self.document_data)
-            self.check_format(self.document_data)
+        #if self.config is not None and config_ckeck:
+            #self.check_interline_spacing(self.document_data)
+            #self.check_page_count(self.document_data)
+            #self.check_font_size(self.document_data)
+            #self.check_margins(self.document_data)
+            #self.check_orientation(self.document_data)
+            #self.check_fonts(self.document_data)
+            #self.check_justification(self.document_data)
+            #self.check_format(self.document_data)
 
         #--------------------basic redaction check
-        if basic_redaction_check:
-            self.check_blank_page()
-            self.check_footers()
-            self.check_toc()
-            self.check_tof()
-            self.check_tot()
-            self.check_list_order()
+        #if basic_redaction_check:
+            #self.check_blank_page()
+            #self.check_footers()
+            #self.check_toc()
+            #self.check_tof()
+            #self.check_tot()
+            #self.check_list_order()
 
         #--------------------advanced redaction check
         if advanced_redaction_check:
-            self.check_orphans()
-            self.check_widows()
-            self.check_bekarts()
-            self.check_szewce()
-            self.check_bibliography()
+            #self.check_orphans()
+            #self.check_widows()
+            #self.check_bekarts()
+            #self.check_szewce()
+            #self.check_bibliography()
             #self.check_korytarze()
-            self.check_bibliography_summary()
+            #self.check_bibliography_summary()
             self.check_caption_sources()
 
         self.remove_errors_from_toc_tof_tot()
@@ -573,7 +573,7 @@ class RedactionValidator:
                     page_number=getattr(visual, "page_number", 1),
                     bounding_box=getattr(visual, "bbox", (0, 0, 0, 0)),
                     text=caption_text,
-                    comments="Tabela/Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie."
+                    comments="Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie."
                 ))
     
     def check_toc(self):

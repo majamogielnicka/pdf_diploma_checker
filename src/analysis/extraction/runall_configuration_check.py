@@ -17,7 +17,7 @@ from analysis.extraction.converter_linguistics_clean import PDFMapper
 
 def main():
 
-    pdf_path = PROJECT_ROOT / "data"  / "cyza.pdf"
+    pdf_path = PROJECT_ROOT / "data"  / "zupr.pdf"
     output_report_path = PROJECT_ROOT / "raport_bledow_redakcji.txt"
 
     possible_config_paths = [
