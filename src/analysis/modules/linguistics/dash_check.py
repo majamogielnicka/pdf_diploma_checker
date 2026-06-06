@@ -45,6 +45,12 @@ def dash_check(blocks):
             #" - " lub " -" lub "- "
             hyphen_space_regex = r'(\s-\s|\s-(?=\D|$)|-\s)'
             for m in re.finditer(hyphen_space_regex, text):
+                if unit.type == "heading":
+                    pos_before = m.start() - 1
+                    pos_after = m.end()
+                    if (pos_before >= 0 and text[pos_before].isalpha() and
+                            pos_after < len(text) and text[pos_after].isalpha()):
+                        continue
                 start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
                 errors.append(Error_type(
                     content=m.group(),
