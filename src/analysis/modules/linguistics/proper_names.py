@@ -130,4 +130,10 @@ def get_proper_names(blocks):
                 word_lemma, _ = lemmatization(word, block.language)
                 proper_names.append((word, word_lemma))
 
+        if block.block.type == "paragraph":
+            for word in block.block.words:
+                if word.italic:
+                    text = word.text
+                    word_lemma, _ = lemmatization(text, block.language)
+                    proper_names.append((text, word_lemma))
     return proper_names, bibliography
