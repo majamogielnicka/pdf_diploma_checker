@@ -58,10 +58,8 @@ from start_page import StartPage
 from saving_files import saving_files
 import styles
 from analysis_dialog import AnalysisDialog
-from pipeline import AnalysisPipeline
 
 from PySide6.QtWidgets import QFrame
-from entry import run_analysis_for_pdf
 from common.path import resource_path
 
 class AnalysisWorker(QObject):

@@ -2,12 +2,11 @@ import os
 import sys
 from pathlib import Path
 
-"""
-Skrypt zawiera wszystkie niezbędne konfiguracje ścieżek do modeli
-do analizy merytorycznej. Uruchamiany jako skrypt główny pozwala sprawdzić
-czy wszystko jest poprawnie skonfigurowane
-Skrypt powstał w celu jednego importu dla wszystkich skryptów i prostej konfiguracji w jednym pliku, 
-wraz ze sprawdzeniem poprawności ścieżek
+"""Central configuration for LLM analysis modules.
+
+This module defines model paths and runtime settings shared by the
+content-analysis pipeline. When executed directly, it prints a quick
+configuration check for key paths.
 """
 
 BASE_DIR = Path(__file__).resolve().parent
