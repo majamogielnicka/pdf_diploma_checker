@@ -16,6 +16,11 @@ import config
 from reference_matcher import ReferenceMatcher
 
 def dump_diagnostics_to_file(pdf_path, output_filename="wynik_teksty.txt"):
+    '''
+    wejscie: pdf_path i opcjonalny output_filename w formacie stringów (ścieżki do plików).
+    wyjscie: brak (zapisuje plik tekstowy na dysku).
+    opis: Przeprowadza ekstrakcję tekstu z PDF i zrzuca do pliku akapity oraz odwołania do rysunków w celach diagnostycznych.
+    '''
     print(f"Rozpoczynam zrzucanie tekstów dla pliku: {pdf_path}")
     print(f"Trwa ekstrakcja... To może chwilę potrwać.")
     

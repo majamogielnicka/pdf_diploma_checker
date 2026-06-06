@@ -16,6 +16,11 @@ except ImportError:
 
 
 def check_image_quality(doc_obj, pdf_path, dpi_threshold=75):
+    '''
+    wejscie: doc_obj (obiekt PDF), pdf_path (string) oraz opcjonalny dpi_threshold (int, domyślnie 75).
+    wyjscie: lista słowników raportująca obrazki, które nie spełniają progu zagęszczenia pikseli.
+    opis: Matematycznie weryfikuje rozdzielczość obrazków poprzez wyliczanie ich wartości DPI.
+    '''
     low_quality_report = []
     
     caption_pattern = re.compile(r"(?:^|\n)\s*rys(?:unek|\.)?\s*(\d+(?:\.\d+)?)", re.IGNORECASE)

@@ -1,6 +1,11 @@
 import llama_cpp
 
 def check_cuda():
+    '''
+    wejscie: brak.
+    wyjscie: brak (wyświetla komunikaty w konsoli).
+    opis: Sprawdza, czy biblioteka llama.cpp jest poprawnie skompilowana z obsługą karty graficznej (CUDA).
+    '''
     print("Sprawdzanie informacji o systemie z llama.cpp...")
     sys_info = llama_cpp.llama_print_system_info().decode('utf-8')
     

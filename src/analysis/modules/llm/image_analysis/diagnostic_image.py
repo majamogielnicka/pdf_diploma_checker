@@ -18,6 +18,11 @@ sys.path.append(str(current_dir.parents[3]))
 import config 
 from reference_matcher import ReferenceMatcher
 def run_diagnostics(pdf_path):
+    '''
+    wejscie: pdf_path w formacie stringa (ścieżka do dokumentu PDF).
+    wyjscie: brak (wypisuje statystyki i podsumowanie w konsoli).
+    opis: Analizuje proces dopasowywania akapitów do obrazków i testuje skuteczność filtrów odrzucających zbędny tekst.
+    '''
     print(f"Rozpoczynam zoptymalizowaną diagnostykę dla: {pdf_path}")
     
     from analysis.extraction.extraction_json import extractPDF

@@ -3,9 +3,20 @@ import re
 
 class DocumentParser:
     def __init__(self, file_path):
+        '''
+        wejscie: file_path w formacie stringa (ścieżka do pliku PDF).
+        wyjscie: brak (inicjalizacja instancji klasy).
+        opis: Tworzy instancję parsera dla wskazanego dokumentu PDF.
+        '''
         self.file_path = file_path
 
     def parse(self):
+        '''
+        wejscie: brak.
+        wyjscie: krotka w formacie (lista stringów, lista słowników [{"id": str, "bytes": bytes}]).
+        opis: Wydobywa z dokumentu wszystkie bloki tekstowe jako akapity oraz obrazki z przypisaną do nich numeracją.
+        '''
+        
         doc = fitz.open(self.file_path)
         paragraphs = []
         images = []

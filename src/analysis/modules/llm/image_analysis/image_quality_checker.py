@@ -10,10 +10,11 @@ from quality_analysis import check_image_quality
 from llava_quality_checker import get_llava_quality_report
 
 def get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False):
-    """
-    Czysta funkcja do użycia w Twoim głównym pipeline.
-    Zwraca ostateczny raport jako listę słowników (JSON).
-    """
+    '''
+    wejscie: doc_obj (obiekt PDF), mapped_doc (struktura dokumentu) i verbose (flaga logiczna).
+    wyjscie: lista słowników zawierających informacje o znalezionych błędach czcionek.
+    opis: Główna funkcja koordynująca analizę wszystkich obrazków pod kątem proporcji tekstu.
+    '''
     if verbose: print("[1/2] Test matematyczny DPI (próg 75)...")
     dpi_report = check_image_quality(doc_obj, str(pdf_path), dpi_threshold=75)
     

@@ -15,6 +15,11 @@ sys.path.append(str(current_dir.parents[3]))
 import config
 
 def extract_images(doc_obj):
+    '''
+    wejscie: doc_obj w formacie obiektu dokumentu z parsera PDF.
+    wyjscie: lista słowników w formacie [{"label": str, "bytes": bytes}] zawierająca etykiety i dane obrazków.
+    opis: Ekstrahuje obrazki z dokumentu PDF i normalizuje ich podpisy (np. "Wykres 5.1").
+    '''
     caption_pattern = re.compile(
         r"(?i)(rys(?:unek|\.)?|wykres|schemat|fot(?:ografia|\.)?|wys\.?)\s*(\d+(?:\.\d+)*)"
     )
@@ -54,7 +59,13 @@ def extract_images(doc_obj):
     return [{"label": v["label"], "bytes": v["bytes"]} for v in unique_images.values()]
 
 class LlavaChartEngine:
+    
     def __init__(self, model_path=str(config.LLAVA_MODEL_PATH), mmproj_path=str(config.LLAVA_MMPROJ_PATH)):
+        '''
+        wejscie: model_path i mmproj_path w formacie stringów (ścieżki do plików modelu).
+        wyjscie: brak (inicjalizacja instancji klasy).
+        opis: Konfiguruje i ładuje do pamięci model wizyjny LLaVA.
+        '''
         self.chat_handler = Llava15ChatHandler(clip_model_path=mmproj_path)
         self.llm = Llama(
             model_path=model_path,
@@ -66,6 +77,11 @@ class LlavaChartEngine:
         )
 
     def analyze_chart(self, image_bytes):
+        '''
+        wejscie: image_bytes w formacie surowych bajtów obrazu.
+        wyjscie: słownik w formacie JSON/dict z odpowiedziami modelu lub None w przypadku błędu.
+        opis: Klasyfikuje obraz i sprawdza obecność osi, jednostek oraz niepożądanego tytułu.
+        '''
         base64_img = base64.b64encode(image_bytes).decode('utf-8')
         data_uri = f"data:image/jpeg;base64,{base64_img}"
 
@@ -104,6 +120,11 @@ class LlavaChartEngine:
             return None
 
 def get_chart_correctness_report(doc_obj):
+    '''
+    wejscie: doc_obj w formacie obiektu dokumentu z parsera PDF.
+    wyjscie: ciąg znaków w formacie JSON zawierający listę błędów dla poszczególnych rysunków.
+    opis: Główna funkcja orkiestrująca analizę wszystkich wykresów w dokumencie i generująca końcowy raport.
+    '''
     images = extract_images(doc_obj)
     bad_charts_report = []
 

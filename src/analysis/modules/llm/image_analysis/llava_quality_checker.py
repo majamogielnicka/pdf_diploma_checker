@@ -14,6 +14,11 @@ sys.path.append(str(current_dir.parents[3]))
 import config
 
 def extract_images_for_quality(doc_obj, mapped_doc):
+    '''
+    wejscie: doc_obj (obiekt PDF) oraz mapped_doc (zmapowana struktura dokumentu).
+    wyjscie: lista słowników w formacie [{"id": str, "bytes": bytes}] przygotowana do oceny jakości.
+    opis: Pobiera z dokumentu obrazki mające przypisaną numerację w celu weryfikacji ich czytelności.
+    ''' 
     paragraphs = []
     for block in mapped_doc.logical_blocks:
         text = getattr(block, "content", "").strip()
@@ -49,6 +54,11 @@ def extract_images_for_quality(doc_obj, mapped_doc):
 
 class LlavaQualityEngine:
     def __init__(self, model_path=str(config.LLAVA_MODEL_PATH), mmproj_path=str(config.LLAVA_MMPROJ_PATH)):
+        '''
+        wejscie: model_path i mmproj_path w formacie stringów (ścieżki do plików modelu).
+        wyjscie: brak (inicjalizacja instancji klasy).
+        opis: Uruchamia instancję modelu LLaVA przygotowaną do sprawdzania czytelności obrazów.
+        '''
         self.chat_handler = Llava15ChatHandler(clip_model_path=mmproj_path)
         self.llm = Llama(
             model_path=model_path, 
@@ -60,6 +70,11 @@ class LlavaQualityEngine:
         )
 
     def assess_quality(self, image_bytes):
+        '''
+        wejscie: image_bytes w formacie surowych bajtów obrazu.
+        wyjscie: słownik w formacie dict z kluczami "czytelny" (bool) oraz "powod" (str).
+        opis: Ocenia wizualnie za pomocą sztucznej inteligencji, czy dane na obrazku są rozmazane lub niewyraźne.
+        '''
         base64_img = base64.b64encode(image_bytes).decode('utf-8')
         data_uri = f"data:image/jpeg;base64,{base64_img}"
         
@@ -93,6 +108,11 @@ class LlavaQualityEngine:
             return {"czytelny": False, "powod": f"Błąd weryfikacji wizualnej AI: {str(e)}"}
 
 def get_llava_quality_report(doc_obj, mapped_doc, verbose=False):
+    '''
+    wejscie: doc_obj (obiekt PDF), mapped_doc (struktura dokumentu) i verbose (flaga logiczna).
+    wyjscie: lista słowników reprezentujących znalezione błędy związane ze słabą czytelnością obrazków.
+    opis: Przeprowadza pełną analizę czytelności wszystkich zidentyfikowanych wykresów i rysunków w pliku.
+    '''
     images = extract_images_for_quality(doc_obj, mapped_doc)
     bad_images_report = []
     

@@ -15,11 +15,19 @@ def is_toc_like(text):
     Niszczarka Spisów Treści:
     Sprawdza, czy blok tekstu wygląda jak Spis Treści (TOC),
     szukając ciągów kropek kończących się numerem strony, np. "...... 34" lub ". . . 34"
+    wejscie: text w formacie stringa.
+    wyjscie: wartość logiczna (bool).
+    opis: Weryfikuje za pomocą Regexów, czy przekazany tekst jest fragmentem spisu treści (TOC), aby pominąć go w analizie.
     """
     toc_lines = len(re.findall(r"(?:\.{3,}|\.\s\.\s\.)[\s\.]*\d+", text))
     return toc_lines >= 2
 
 def adapt_extraction_to_blocks(mapped_doc):
+    '''
+    wejscie: mapped_doc (zmapowany dokument lingwistyczny z ekstraktora PDF).
+    wyjscie: lista obiektów klasy ChapterBlock łączących tekst i nagłówki.
+    opis: Agreguje luźne bloki tekstu w logicznie połączone rozdziały, odrzucając automatycznie m.in. spisy treści.
+    '''     
     blocks = []
     current_title = "Początek"
     current_content = []
@@ -67,6 +75,11 @@ def adapt_extraction_to_blocks(mapped_doc):
 
 
 def get_final_sota_report(mapped_doc, language: str = LANGUAGE):
+    '''
+    wejscie: mapped_doc (struktura dokumentu z PDF) oraz opcjonalny language (string).
+    wyjscie: krotka zawierająca ostateczne dane raportu (id_rozdzialu, tytul, wynik_procentowy, metoda_wykrycia, ilosc_cytowan, R1, R2, R3).
+    opis: Funkcja orkiestrująca, która zespaja cały pipeline SOTA – od odnalezienia rozdziału aż po jego ewaluację przez model LLM.
+    '''
     
     sota_blocks = adapt_extraction_to_blocks(mapped_doc)
 

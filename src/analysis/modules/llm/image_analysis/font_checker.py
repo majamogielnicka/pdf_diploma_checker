@@ -62,6 +62,11 @@ class LlavaFontEngine:
         )
 
     def check_font_consistency(self, image_bytes):
+        '''
+        wejscie: image_bytes w formacie surowych bajtów obrazu.
+        wyjscie: słownik w formacie dict z kluczami "consistent" (bool) i "reason" (str).
+        opis: Analizuje obraz pod kątem występowania drastycznie niespójnych wielkości tekstu.
+        '''
         base64_img = base64.b64encode(image_bytes).decode('utf-8')
         data_uri = f"data:image/jpeg;base64,{base64_img}"
 
@@ -97,9 +102,11 @@ class LlavaFontEngine:
             return {"consistent": False, "reason": f"Błąd przetwarzania AI: {str(e)}"}
 
 def get_font_consistency_report(doc_obj, mapped_doc, verbose=False):
-    """
-    Funkcja główna. Zwraca listę obrazków, które mają niespójne czcionki.
-    """
+    '''
+    wejscie: doc_obj (obiekt PDF), mapped_doc (struktura dokumentu) i verbose (flaga logiczna).
+    wyjscie: lista słowników zawierających informacje o znalezionych błędach czcionek.
+    opis: Główna funkcja koordynująca analizę wszystkich obrazków pod kątem proporcji tekstu.
+    '''
     images = extract_images_for_fonts(doc_obj, mapped_doc)
     bad_fonts_report = []
 

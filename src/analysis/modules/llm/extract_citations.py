@@ -25,6 +25,9 @@ def analyze_sota_citations(blocks, pdf_path, sota_ids, output_dir="."):
     """
     Analizuje cytowania w podanych blokach tekstowych.
     Zamiast używać 'get_content', funkcja operuje na gotowych 'blocks'.
+    wejscie: text w formacie stringa (np. treść rozdziału).
+    wyjscie: lista stringów reprezentujących unikalne formaty odwołań bibliograficznych.
+    opis: Skanuje tekst za pomocą wyrażeń regularnych (Regex) i wyciąga z niego wszelkie przypisy naukowe (numeryczne, harwardzkie, MLA, itp.).
     """
     output_lines = []
     output_lines.append(f"Przetwarzanie cytowań dla pliku: {pdf_path}")

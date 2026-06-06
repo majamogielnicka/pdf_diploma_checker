@@ -4,6 +4,11 @@ import config
 
 class ConsistencyChecker:
     def __init__(self, model_path=str(config.MODEL_PATH)):
+        '''
+        wejscie: model_path w formacie stringa (ścieżka do modelu LLM).
+        wyjscie: brak (inicjalizacja instancji klasy).
+        opis: Ładuje lokalny model językowy do sprawdzania spójności tekstu z danymi.
+        '''
         self.llm = Llama(
             model_path=model_path,
             n_ctx=4096,
@@ -12,6 +17,11 @@ class ConsistencyChecker:
         )
 
     def check(self, paragraph, image_data):
+        '''
+        wejscie: paragraph (string z tekstem) oraz image_data (dane wyciągnięte z obrazka).
+        wyjscie: słownik w formacie dict z kluczami "poprawnosc_danych" oraz "bledy".
+        opis: Weryfikuje za pomocą modelu AI, czy opis w akapicie pokrywa się z danymi na wykresie.
+        '''
         prompt = f"""
         Dane z obrazka: {image_data}
         Akapit z pracy: {paragraph}

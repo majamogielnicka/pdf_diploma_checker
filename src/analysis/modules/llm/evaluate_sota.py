@@ -10,7 +10,11 @@ CHUNK_SIZE = 2500
 _llm_instance = None
 
 def get_llm():
-    """Funkcja gwarantująca, że model załaduje się do pamięci tylko raz."""
+    '''
+    wejscie: brak.
+    wyjscie: instancja modelu Llama z biblioteki llama_cpp.
+    opis: Ładuje i zwraca model językowy AI, gwarantując (wzorzec Singleton), że zostanie załadowany do pamięci VRAM tylko raz.
+    '''
     global _llm_instance
     if _llm_instance is None:
         _llm_instance = Llama(
@@ -22,10 +26,19 @@ def get_llm():
     return _llm_instance
 
 def chunk_text(text: str, chunk_size: int = CHUNK_SIZE) -> List[str]:
-    """Dzieli długi tekst na mniejsze fragmenty."""
+    '''
+    wejscie: text (string z treścią rozdziału) oraz opcjonalny chunk_size (int, maksymalna długość fragmentu).
+    wyjscie: lista stringów (podzielonych fragmentów tekstu).
+    opis: Dzieli długi tekst na mniejsze porcje, aby nie przekroczyć limitu okna kontekstowego modelu LLM.
+    ''' 
     return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
 
 def ask_llm(prompt: str, content: str) -> bool:
+    '''
+    wejscie: prompt (string z instrukcją dla AI) oraz content (string z fragmentem tekstu do analizy).
+    wyjscie: wartość logiczna (bool) wyciągnięta z JSON-a.
+    opis: Zadaje modelowi AI konkretne pytanie oceniające jakość przeglądu literatury i zwraca wyciągnięty z JSON-a wynik true/false.
+    '''
     full_prompt = f"{prompt}\n\nTekst fragmentu rozdziału:\n{content}\n\nZwróć odpowiedź WYŁĄCZNIE w formacie JSON według wzoru:\n{{\"uzasadnienie\": \"krótkie wyjaśnienie\", \"wynik\": true lub false}}"
     
     try:
@@ -94,11 +107,21 @@ Reguła R3: Czy fragment zawiera BEZPOŚREDNIE PORÓWNANIE co najmniej dwóch NA
     return evaluate_condition_over_chunks(prompt, chunks)
 
 def get_sota_status(score: int) -> str:
+    '''
+    wejscie: score (int reprezentujący sumę spełnionych kryteriów).
+    wyjscie: string z tekstowym opisem statusu.
+    opis: Mapuje punktację liczbową na czytelny komunikat o stopniu realizacji założeń rozdziału SOTA.
+    '''
     if score >= 2: return "Pełna realizacja SOTA"
     elif score == 1: return "Częściowa realizacja SOTA"
     return "Brak poprawnej sekcji SOTA"
 
 def calculate_sota_percentage(score: int) -> int:
+    '''
+    wejscie: score (int reprezentujący sumę spełnionych kryteriów).
+    wyjscie: wartość całkowita (int) reprezentująca wynik w procentach (0, 50, 100).
+    opis: Przelicza punkty spełnionych kryteriów oceny SOTA na wartość procentową do raportu.
+    '''
     if score >= 2: return 100
     elif score == 1: return 50
     return 0
