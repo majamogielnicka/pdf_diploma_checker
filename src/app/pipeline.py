@@ -156,7 +156,8 @@ class AnalysisPipeline:
                     "total": total_images,
                     "bad_count": bad_images_count,
                     "good_count": total_images - bad_images_count,
-                    "details": image_details_lines
+                    "details": image_details_lines,
+                    "raster_numbers": raster_figure_numbers
                 }
                 
                 quality_errors = get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False)
