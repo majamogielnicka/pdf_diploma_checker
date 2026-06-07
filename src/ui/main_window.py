@@ -121,7 +121,7 @@ class PDFReader(QMainWindow):
         self.worker = AnalysisWorker(pdf_path, config_path)
         self.worker.moveToThread(self.analysis_thread)
 
-        self.analysis_thread.started.connect(self.worker.run)        
+        self.analysis_thread.started.connect(self.analysis_worker.run)       
         self.analysis_thread.start()
 
     def resizeEvent(self, event):
@@ -266,7 +266,7 @@ class PDFReader(QMainWindow):
 
         if result == QDialog.Accepted:
             self.load_pdf(path)
-            self.manager.dodaj_prace(os.path.basename(path), path, "PDF")
+            self.manager.add_document(os.path.basename(path), path, "PDF")
             self.refresh_file_list()
             self.last_report = getattr(dialog, 'final_report', None)
             
@@ -276,8 +276,8 @@ class PDFReader(QMainWindow):
 
                 self.pdf_view.add_errors(errors)
                 self.update_report_panel(report_data)
-                self.manager.zapisz_errors(path, errors)
-                self.manager.zapisz_wynik_ai(path, report_data)
+                self.manager.save_errors(path, errors)
+                self.manager.save_ai_result(path, report_data)
                 
             self.stack.setCurrentIndex(1)
             print("Analiza zakończona, widok przełączony.")
@@ -298,7 +298,7 @@ class PDFReader(QMainWindow):
         )
         
         if reply == QMessageBox.Yes:
-            self.manager.usun_prace(path)
+            self.manager.delete_document(path)
             self.refresh_file_list()
 
     def load_pdf(self, path):
@@ -338,7 +338,7 @@ class PDFReader(QMainWindow):
             report_data = None
             for p in self.manager.data.get("prace", []):
                 if p['sciezka_lokalna'] == self.current_pdf_path:
-                    report_data = p.get("wynik_sota") 
+                    report_data = p.get("sota_result") 
                     break
             self.update_report_panel(report_data)
             
@@ -352,7 +352,7 @@ class PDFReader(QMainWindow):
             return
             
         try:
-            errors = self.manager.pobierz_errors(self.current_pdf_path)
+            errors = self.manager.get_errors(self.current_pdf_path)
             if errors:
                 self.pdf_view.add_errors(errors) 
                 self.pdf_view.update_markers_pos() 
@@ -592,6 +592,9 @@ class PDFReader(QMainWindow):
                 lbl_name.setStyleSheet(styles.STATS_ROW_NAME)
                 lbl_val = QLabel(f"<b>{val}</b>")
                 lbl_val.setStyleSheet(styles.STATS_ROW_VALUE)
+                row_l.addWidget(lbl_name)
+                row_l.addWidget(lbl_val)
+                return row
 
             stats_layout.addWidget(create_stat_row("Strona czynna (zalecana):", stats_data.get("active_ratio", "0%")))
             stats_layout.addWidget(create_stat_row("Strona bierna:", stats_data.get("passive_ratio", "0%")))
@@ -717,7 +720,7 @@ class PDFReader(QMainWindow):
         """Passes a newly created runtime comment annotation map structure over to the 
         file index data persistence system."""
         if hasattr(self, 'current_pdf_path') and self.current_pdf_path:
-            self.manager.zapisz_komentarz(self.current_pdf_path, comment_data)
+            self.manager.save_comment(self.current_pdf_path, comment_data)
 
     def load_custom_comments(self):
         """Flushes all drawing visual highlights, gathers annotated history registries linked 
@@ -726,7 +729,7 @@ class PDFReader(QMainWindow):
         if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
             return
 
-        saved_comments = self.manager.pobierz_komentarze(self.current_pdf_path)
+        saved_comments = self.manager.get_comments(self.current_pdf_path)
         for c_data in saved_comments:
             coords = c_data.get("wspolrzedne", {})
             if coords.get("w", 0) > 0:
@@ -750,7 +753,7 @@ class PDFReader(QMainWindow):
         if hasattr(self, 'current_pdf_path'):
             for p in self.manager.data.get("prace", []):
                 if p['sciezka_lokalna'] == self.current_pdf_path:
-                    report_data = p.get("wynik_sota")
+                    report_data = p.get("sota_result")
                     break
 
         if not report_data:
