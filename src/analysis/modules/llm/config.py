@@ -14,11 +14,18 @@ def get_app_dir():
     if getattr(sys, "frozen", False):
         return Path(sys.executable).resolve().parent
 
-    return Path(__file__).resolve().parents[4]
+EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
+OUTPUT_DIR = Path(resource_path(os.path.join("analysis", "modules", "llm", "wyniki")))
+THESIS_DIR = Path.home() / "theses"
 
+#JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
+MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
+N_GPU_LAYERS = 25
+LLAVA_MODEL_PATH=Path.home() / "models" / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
+LLAVA_MMPROJ_PATH=Path.home() / "models" / "mmproj-model-f16.gguf"
 
-APP_DIR = get_app_dir()
-APP_CONFIG_PATH = APP_DIR / "app_config.json"
+THESIS_PATH = THESIS_DIR / "jost2.pdf"
+LANGUAGE = "en" #LUB "en"
 
 
 def load_app_config():

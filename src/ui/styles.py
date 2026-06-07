@@ -361,3 +361,15 @@ AI_NONE_LABEL_STYLE = "color: #7f8c8d; font-style: italic; border: none; padding
 GRAPHICS_HEADER_STYLE = "color: #333; font-size: 14px; font-weight: bold; border: none;"
 
 STATS_HEADER_STYLE = "color: #333; font-size: 14px; font-weight: bold; border: none;"
+
+RASTER_TAG_STYLE = """
+    QLabel {
+        background-color: #E3F2FD;
+        color: #0D47A1;
+        border: 1px solid #BBDEFB;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 10px;
+        font-weight: bold;
+    }
+"""

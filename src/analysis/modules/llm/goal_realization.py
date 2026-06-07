@@ -427,6 +427,13 @@ def get_score_from_goal_result(goal_result):
         return 0
 
 
+def get_score_from_goal_result(goal_result):
+    try:
+        return int(goal_result.get("score", 0))
+    except (TypeError, ValueError):
+        return 0
+
+
 def main():
     """Run workflow for purpose realization assessment."""
 

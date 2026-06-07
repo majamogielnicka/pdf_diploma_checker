@@ -32,6 +32,39 @@ class AnalysisPipeline:
         self.llm_service = None
 
     def run(self, input_document, progress_callback=None, use_llm=True, config_path=None, language="pl"):
+        def cleanup_text_llm_instances():
+            """Zwalnia instancje LLM z modułów tekstowych, by ograniczyć użycie VRAM przed SOTA."""
+            try:
+                from analysis.modules.llm import get_summary as _get_summary_mod
+                from analysis.modules.llm import goal_realization as _goal_realization_mod
+                from analysis.modules.llm import get_purpose as _get_purpose_mod
+
+                llm_obj = getattr(_get_summary_mod, "_LLM", None)
+                if llm_obj is not None:
+                    close_fn = getattr(llm_obj, "close", None)
+                    if callable(close_fn):
+                        close_fn()
+                    _get_summary_mod._LLM = None
+
+                llm_obj = getattr(_goal_realization_mod, "_LLM", None)
+                if llm_obj is not None:
+                    close_fn = getattr(llm_obj, "close", None)
+                    if callable(close_fn):
+                        close_fn()
+                    _goal_realization_mod._LLM = None
+
+                model_cache = getattr(_get_purpose_mod, "_LLAMA_MODELS", None)
+                if isinstance(model_cache, dict):
+                    for model in list(model_cache.values()):
+                        close_fn = getattr(model, "close", None)
+                        if callable(close_fn):
+                            close_fn()
+                    model_cache.clear()
+            except Exception:
+                pass
+
+            gc.collect()
+
         def report_progress(value, text):
             if progress_callback:
                 progress_callback(value, text)
@@ -110,7 +143,6 @@ class AnalysisPipeline:
                 return ling_matches, stats
 
             except Exception as e:
-                print(f"[PIPELINE] Błąd lingwistyki: {e}")
                 import traceback
                 traceback.print_exc()
 
@@ -147,7 +179,6 @@ class AnalysisPipeline:
                 return redaction_errors
 
             except Exception as e:
-                print(f"[PIPELINE] Błąd analizy redakcyjnej: {e}")
                 import traceback
                 traceback.print_exc()
 

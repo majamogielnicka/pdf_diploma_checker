@@ -65,7 +65,7 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
                                 match = Error_type(
                                 content= token.text,
                                 category= "PERSONAL_FORM",
-                                message= f"Użycie {token.morph.get("Person")[0]} formy osobowej.",
+                                message= f"Użycie {token.morph.get('Person')[0]} formy osobowej.",
                                 offset= token.idx,
                                 error_length= len(token),
                                 block_id = block.block.block_id,

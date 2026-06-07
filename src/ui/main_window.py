@@ -121,7 +121,7 @@ class PDFReader(QMainWindow):
         self.worker = AnalysisWorker(pdf_path, config_path)
         self.worker.moveToThread(self.analysis_thread)
 
-        self.analysis_thread.started.connect(self.worker.run)        
+        self.analysis_thread.started.connect(self.analysis_worker.run)       
         self.analysis_thread.start()
 
     def resizeEvent(self, event):
@@ -266,7 +266,7 @@ class PDFReader(QMainWindow):
 
         if result == QDialog.Accepted:
             self.load_pdf(path)
-            self.manager.dodaj_prace(os.path.basename(path), path, "PDF")
+            self.manager.add_document(os.path.basename(path), path, "PDF")
             self.refresh_file_list()
             self.last_report = getattr(dialog, 'final_report', None)
             
@@ -276,8 +276,8 @@ class PDFReader(QMainWindow):
 
                 self.pdf_view.add_errors(errors)
                 self.update_report_panel(report_data)
-                self.manager.zapisz_errors(path, errors)
-                self.manager.zapisz_wynik_ai(path, report_data)
+                self.manager.save_errors(path, errors)
+                self.manager.save_ai_result(path, report_data)
                 
             self.stack.setCurrentIndex(1)
             print("Analiza zakończona, widok przełączony.")
@@ -298,7 +298,7 @@ class PDFReader(QMainWindow):
         )
         
         if reply == QMessageBox.Yes:
-            self.manager.usun_prace(path)
+            self.manager.delete_document(path)
             self.refresh_file_list()
 
     def load_pdf(self, path):
@@ -338,7 +338,7 @@ class PDFReader(QMainWindow):
             report_data = None
             for p in self.manager.data.get("prace", []):
                 if p['sciezka_lokalna'] == self.current_pdf_path:
-                    report_data = p.get("wynik_sota") 
+                    report_data = p.get("sota_result") 
                     break
             self.update_report_panel(report_data)
             
@@ -352,7 +352,7 @@ class PDFReader(QMainWindow):
             return
             
         try:
-            errors = self.manager.pobierz_errors(self.current_pdf_path)
+            errors = self.manager.get_errors(self.current_pdf_path)
             if errors:
                 self.pdf_view.add_errors(errors) 
                 self.pdf_view.update_markers_pos() 
@@ -564,7 +564,32 @@ class PDFReader(QMainWindow):
             graphics_layout.addWidget(create_badge_row("Spójność czcionek na rysunkach", True))
         else:
             graphics_layout.addWidget(create_badge_row(f"Spójność czcionek (Błędy: {len(font_errors)})", False))
+        img_data = report_data.get("image_analysis", {})
+        raster_nums = img_data.get("raster_numbers", [])
         
+        if raster_nums:
+            raster_widget = QWidget()
+            raster_box_layout = QVBoxLayout(raster_widget)
+            raster_box_layout.setContentsMargins(5, 5, 5, 5)
+            raster_box_layout.setSpacing(4)
+            
+            raster_title = QLabel("Wykryte rysunki rastrowe w dokumencie:")
+            raster_title.setStyleSheet("color: #555; font-size: 11px; font-weight: bold; background: transparent;")
+            raster_box_layout.addWidget(raster_title)
+            tags_container = QWidget()
+            tags_layout = QHBoxLayout(tags_container)
+            tags_layout.setContentsMargins(0, 0, 0, 0)
+            tags_layout.setSpacing(6)
+            tags_layout.setAlignment(Qt.AlignLeft)
+            
+            for num in raster_nums:
+                num_tag = QLabel(f"Rys. {num}")
+                num_tag.setStyleSheet(styles.RASTER_TAG_STYLE)
+                tags_layout.addWidget(num_tag)
+            
+            tags_layout.addStretch()
+            raster_box_layout.addWidget(tags_container)
+            graphics_layout.addWidget(raster_widget)
         l.addWidget(graphics_container)
 
         stats_data = report_data.get("statystyki_zdan")
@@ -592,6 +617,9 @@ class PDFReader(QMainWindow):
                 lbl_name.setStyleSheet(styles.STATS_ROW_NAME)
                 lbl_val = QLabel(f"<b>{val}</b>")
                 lbl_val.setStyleSheet(styles.STATS_ROW_VALUE)
+                row_l.addWidget(lbl_name)
+                row_l.addWidget(lbl_val)
+                return row
 
             stats_layout.addWidget(create_stat_row("Strona czynna (zalecana):", stats_data.get("active_ratio", "0%")))
             stats_layout.addWidget(create_stat_row("Strona bierna:", stats_data.get("passive_ratio", "0%")))
@@ -717,7 +745,7 @@ class PDFReader(QMainWindow):
         """Passes a newly created runtime comment annotation map structure over to the 
         file index data persistence system."""
         if hasattr(self, 'current_pdf_path') and self.current_pdf_path:
-            self.manager.zapisz_komentarz(self.current_pdf_path, comment_data)
+            self.manager.save_comment(self.current_pdf_path, comment_data)
 
     def load_custom_comments(self):
         """Flushes all drawing visual highlights, gathers annotated history registries linked 
@@ -726,7 +754,7 @@ class PDFReader(QMainWindow):
         if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
             return
 
-        saved_comments = self.manager.pobierz_komentarze(self.current_pdf_path)
+        saved_comments = self.manager.get_comments(self.current_pdf_path)
         for c_data in saved_comments:
             coords = c_data.get("wspolrzedne", {})
             if coords.get("w", 0) > 0:
@@ -750,7 +778,7 @@ class PDFReader(QMainWindow):
         if hasattr(self, 'current_pdf_path'):
             for p in self.manager.data.get("prace", []):
                 if p['sciezka_lokalna'] == self.current_pdf_path:
-                    report_data = p.get("wynik_sota")
+                    report_data = p.get("sota_result")
                     break
 
         if not report_data:
@@ -888,6 +916,7 @@ class PDFReader(QMainWindow):
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             img_data = report_data.get("image_analysis")
+            
             if img_data:
                 page.insert_text((margin, pos_y), "Analiza spójności grafik i wykresów (AI)", 
                                  fontsize=14, fontname=f_bold)
@@ -905,7 +934,18 @@ class PDFReader(QMainWindow):
                 page.insert_text((margin, pos_y), f"Rysunki poprawne: {img_data.get('good_count', 0)}", 
                                  fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                 pos_y += 25
-                
+                raster_nums = img_data.get("raster_numbers", [])
+                if raster_nums:
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    str_raster_nums = ", ".join([f"Rys. {n}" for n in raster_nums])
+                    
+                    wrapped_raster = wrap_text(f"Zidentyfikowane grafiki rastrowe podlegające badaniu: {str_raster_nums}", 85)
+                    for line in wrapped_raster:
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
+                        page.insert_text((margin, pos_y), line, fontsize=10, fontname=f_bold, color=(0.05, 0.27, 0.63))
+                        pos_y += 14
+                    pos_y += 10
+                    
                 if img_data.get("details", []):
                     page.insert_text((margin, pos_y), "Lista szczegółowa rozbieżności:", fontsize=12, fontname=f_bold)
                     pos_y += 20

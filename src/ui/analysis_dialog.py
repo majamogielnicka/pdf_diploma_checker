@@ -57,7 +57,7 @@ class FileBadge(QFrame):
             self.del_btn.setIcon(QIcon(trash_path))
             self.del_btn.setIconSize(QSize(20, 20))
         else:
-            self.del_btn.setText("usun")
+            self.del_btn.setText("usuń")
         
         self.del_btn.setCursor(Qt.PointingHandCursor)
         self.del_btn.setStyleSheet(styles.ICON_BUTTON_STYLE)
