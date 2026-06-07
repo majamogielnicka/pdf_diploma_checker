@@ -28,7 +28,7 @@ from analysis.extraction.schema import PageArtifact, is_acronym, find_table_desc
 class PDFMapper:
     
     # Stałe
-    TOP_MARGIN_THRESH = 50
+    TOP_MARGIN_THRESH = 70
     BOTTOM_MARGIN_OFFSET = 75
     MARGIN_INDENT_THRESH = 20
     MIN_VERTICAL_GAP = 11.5
@@ -78,14 +78,27 @@ class PDFMapper:
 
     @staticmethod
     def is_math(words: list[WordInfo]) -> bool:
-        if not words: return False
+        if not words: return 0
+
+        full_text_with_spaces = " ".join(w.text for w in words)
+        if re.search(r'(?:\.\s*){4,}', full_text_with_spaces):
+            return 0
+
+        spaces_count = sum(w.text.count(" ") for w in words) + (len(words) - 1)
+    
+        total_chars_with_spaces = sum(len(w.text) for w in words) + (len(words) - 1)
+
+        if total_chars_with_spaces > 0:
+            space_density = spaces_count / total_chars_with_spaces
+        if space_density > 0.3:  
+            return 1
 
         math_font_count = sum(1 for w in words if any(mf in w.font.lower() for mf in ['math', 'cmmi', 'cmr', 'cmsy', 'symbol']))
         if len(words) > 0 and (math_font_count / len(words)) > 0.4:
-            return True
+            return 2
         
         full_text = "".join(w.text for w in words).replace(" ", "")
-        if not full_text: return False
+        if not full_text: return 0
 
         math_chars_pattern = r'[0-9=\+\-\*/<>\∑\∫\∏\√\∞\≈\≠\≡\≤\≥\{\}\(\)\[\]\|\α-\ω\Α-\Ω]'
         math_chars_count = len(re.findall(math_chars_pattern, full_text))
@@ -94,7 +107,10 @@ class PDFMapper:
 
         ratio = (math_chars_count + single_letter_count) / len(full_text)
         
-        return ratio > 0.35 
+        if ratio > 0.35:
+            return 0
+        else:
+            return 0
     
     @staticmethod
     def is_inside_table(block_bbox: list, table_bboxes: list) -> bool:
@@ -188,12 +204,13 @@ class PDFMapper:
         block_type = "acronyms" if is_acronym_block else "paragraph"
 
         if block_type == "paragraph":
+            #if PDFMapper.is_math(combined_words):  
+            #    block_type = "math"
             if PDFMapper.is_header(combined_words):
                 block_type = "heading"
             elif PDFMapper.is_keywords(combined_words):
                 block_type = "keywords"
-            elif PDFMapper.is_math(combined_words):  
-                block_type = "math"
+            
 
         # Przypisanie wdowy, szewca i bękarta tylko do bloku typu paragraf
         if block_type == "paragraph":
@@ -405,16 +422,19 @@ class PDFMapper:
         self._tag_visual_descriptions()
         self._pair_descriptions_with_visuals(new_doc)
         self._verify_bibliography_references()
+        self._verify_caption_sources(new_doc)
 
         new_doc.metadata["main_font"] = old_doc.get_most_common_font()
 
         return new_doc
 
     def _process_page(self, page, new_doc):
-        #self.last_y1 = None
+        self.last_y1 = None
         bottom_thresh = page.height - self.BOTTOM_MARGIN_OFFSET
         table_bboxes = [t.bbox for t in page.tables]
-        
+
+        img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+        tab_pattern = re.compile(r"^(tabela|tab\.)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
 
         margins = calculate_margins([{"bbox": b.bbox} for b in page.text_blocks], page.width, page.height)
         x0_margin = margins["left"]            
@@ -428,28 +448,31 @@ class PDFMapper:
             temp_text = "".join(s.text for l in block.lines for s in l.spans).strip().lower()
             x0, y0, x1, y1 = block.bbox
 
+            raw_block_text_for_check = "".join(s.text for l in block.lines for s in l.spans).strip()
+            is_visual_caption = bool(img_pattern.match(raw_block_text_for_check) or tab_pattern.match(raw_block_text_for_check))
+            if is_visual_caption and self.paragraph_buffer:
+                self._empty_paragraph_buffer("odcięcie - wykryto blok podpisu")
+                self.curr_line = 0
+
             # Filtr kontynuacji listy
             is_valid_list_cont = False
-            if self.list_buffer:
-                raw_block_text = "".join(s.text for l in block.lines for s in l.spans).strip()
-                current_block_type, _ = classify_block_content(raw_block_text, current_marker)
-                allowed_gap = self.MIN_VERTICAL_GAP_LIST if current_block_type == "list" else self.MIN_VERTICAL_GAP
+            if self.list_buffer and not is_visual_caption:
                 last_item = self.list_buffer[-1]
-                if self.is_continuation(last_item['bbox'], list(block.bbox)):
+                is_page_transition = (self.last_y1 is None) or (y0 < self.last_y1 - 10)
+                last_x0 = last_item['bbox'][0]
+                
+                x_tolerance = 30 if is_page_transition else 20
+                
+                if abs(last_x0 - x0) < x_tolerance or x0 > last_x0:
                     is_valid_list_cont = True
-                    if self.last_y1 is not None and (y0 - self.last_y1) > allowed_gap: 
-                        is_valid_list_cont = False
                     
-                    text_x0 = last_item['bbox'][0]
-                    if 'words' in last_item and len(last_item['words']) > 0:
-                        for w in last_item['words']:
-                            if w.bbox[0] > last_item['bbox'][0] + 3:
-                                text_x0 = w.bbox[0]
-                                break
-                    if x0 < text_x0 - 5:
+                    if not is_page_transition and self.last_y1 is not None:
+                        if (y0 - self.last_y1) > self.MIN_VERTICAL_GAP_LIST: 
+                            is_valid_list_cont = False
+                    
+                    strict_x_offset = 20 if is_page_transition else 5
+                    if x0 < last_x0 - strict_x_offset:
                         is_valid_list_cont = False
-
-            # Artefakty (stopki / nagłówki)
             if y1 < self.TOP_MARGIN_THRESH or y0 > bottom_thresh:
                 new_artifact = PageArtifact(
                     artifact_id=block.block_id, type="nr strony (tymczasowo uproszczone)", 
@@ -470,10 +493,33 @@ class PDFMapper:
                 
                 if line_type == "list" and full_text.strip():
                     prev_type, prev_marker = classify_block_content(full_text, current_marker)
+                    
                     if prev_type == "paragraph":
-                        self.paragraph_buffer.append({'content': full_text.strip(), 'words': words_info.copy(), 'block_id': block.block_id})
-                        self._empty_paragraph_buffer("odcięcie wstępu od listy")
+                        if is_valid_list_cont and self.list_buffer:
+                            last_item_data = self.list_buffer[-1]
+                            connector = "" if last_item_data['item'].text.rstrip().endswith('-') else " "
+                            cont_base = len(last_item_data['item'].text) + len(connector)
+                            
+                            for word in words_info:
+                                word.start_char += cont_base
+                                word.end_char += cont_base
+                                
+                            last_item_data['item'].text += connector + full_text.strip()
+                            last_item_data['item'].words.extend(words_info)
+                            
+                            b = list(block.bbox)
+                            last_item_data['item'].bbox = [
+                                min(last_item_data['item'].bbox[0], b[0]), min(last_item_data['item'].bbox[1], b[1]),
+                                max(last_item_data['item'].bbox[2], b[2]), max(last_item_data['item'].bbox[3], b[3])
+                            ]
+                            last_item_data['bbox'] = last_item_data['item'].bbox
+                        else:
+                            self.paragraph_buffer.append({'content': full_text.strip(), 'words': words_info.copy(), 'block_id': block.block_id})
+                            self._empty_paragraph_buffer("odcięcie wstępu od listy")
+                        
                         full_text, words_info, self.curr_line = "", [], 0
+                        is_valid_list_cont = False 
+                        
                     elif prev_type == "list":
                         cleaned_text = strip_list_marker(full_text, prev_marker)
                         self.list_buffer.append({
@@ -481,7 +527,7 @@ class PDFMapper:
                             'words': words_info.copy(), 'block_id': block.block_id, 'bbox': list(block.bbox), 'original_text': full_text
                         })
                         self._adjust_item_word_positions(self.list_buffer[-1]['item'].words)
-                        full_text, words_info = "", []
+                        full_text, words_info, self.curr_line = "", [], 0
 
                 line_x0 = block.bbox[0]
                 if line.spans:
@@ -495,25 +541,41 @@ class PDFMapper:
                 # Detekcja nowego akapitu
                 is_new_paragraph, debug_reason = self._detect_paragraph_break(current_y0, current_y1, line_x0, x0_margin, full_text, is_valid_list_cont)
 
-                
-
+                if is_new_paragraph and full_text.strip():
+                    curr_type, _ = classify_block_content(full_text, current_marker)
+                    next_line_type, _ = classify_block_content(tmp_line_text, current_marker)
+                    
+                    if curr_type == "list" and next_line_type != "list":
+                        is_new_paragraph = False
+                        
                 if is_new_paragraph:
                     if full_text.strip():
-                        prev_type, prev_marker = classify_block_content(full_text, current_marker)
-            
-                        if prev_type == "list":
-                            cleaned_text = strip_list_marker(full_text, prev_marker)
-                            self.list_buffer.append({
-                                'item': ListItem(item_id=block.block_id, marker_type=prev_marker, text=cleaned_text, bbox=list(block.bbox), words=words_info.copy()),
-                                'words': words_info.copy(), 'block_id': block.block_id, 'bbox': list(block.bbox), 'original_text': full_text
-                            })
-                            self._adjust_item_word_positions(self.list_buffer[-1]['item'].words)
+                        is_math_type = self.is_math(words_info)
+                        if not getattr(self, "in_bibliography_section", False) and is_math_type > 0:
+                            math_bbox = [
+                                min(w.bbox[0] for w in words_info), min(w.bbox[1] for w in words_info),
+                                max(w.bbox[2] for w in words_info), max(w.bbox[3] for w in words_info)
+                            ]
+                            new_doc.floating_elements.page_artifacts.append(PageArtifact(
+                                artifact_id=f"math_{block.block_id}_{self.curr_line}", type=f"math_{is_math_type}",
+                                page_number=page.number, text=full_text, bbox=math_bbox
+                            ))
                         else:
-                            if self.list_buffer:
-                                self._empty_list_buffer()
-                            self.paragraph_buffer.append({'content': full_text.strip(), 'words': words_info.copy(), 'block_id': block.block_id})
+                            prev_type, prev_marker = classify_block_content(full_text, current_marker)
                 
-                        full_text, words_info = "", []
+                            if prev_type == "list":
+                                cleaned_text = strip_list_marker(full_text, prev_marker)
+                                self.list_buffer.append({
+                                    'item': ListItem(item_id=block.block_id, marker_type=prev_marker, text=cleaned_text, bbox=list(block.bbox), words=words_info.copy()),
+                                    'words': words_info.copy(), 'block_id': block.block_id, 'bbox': list(block.bbox), 'original_text': full_text
+                                })
+                                self._adjust_item_word_positions(self.list_buffer[-1]['item'].words)
+                            else:
+                                if self.list_buffer and not is_visual_caption:
+                                    self._empty_list_buffer()
+                                self.paragraph_buffer.append({'content': full_text.strip(), 'words': words_info.copy(), 'block_id': block.block_id})
+                        
+                    full_text, words_info = "", []
         
                     if self.paragraph_buffer:
                         self._empty_paragraph_buffer(debug_reason)
@@ -524,6 +586,18 @@ class PDFMapper:
             
             full_text = full_text.strip()
             if not full_text or len(full_text) < 2: continue
+
+            is_math_type = self.is_math(words_info)
+            if not getattr(self, "in_bibliography_section", False) and is_math_type > 0:
+                math_bbox = [
+                    min(w.bbox[0] for w in words_info), min(w.bbox[1] for w in words_info),
+                    max(w.bbox[2] for w in words_info), max(w.bbox[3] for w in words_info)
+                ]
+                new_doc.floating_elements.page_artifacts.append(PageArtifact(
+                    artifact_id=f"math_{block.block_id}", type=f"math_{is_math_type}",
+                    page_number=page.number, text=full_text, bbox=math_bbox
+                ))
+                continue
 
             if self.is_header(words_info):
                 self._empty_paragraph_buffer("wykryto nagłówek")
@@ -537,6 +611,8 @@ class PDFMapper:
 
                 self.logical_blocks.append(ParagraphBlock(block_id=block.block_id, content=full_text, words=words_info, type="heading", debug_empty="wykryto nagłówek"))
                 continue
+
+            
 
             block_type, marker_type = classify_block_content(full_text, current_marker)
 
@@ -567,6 +643,10 @@ class PDFMapper:
             else:
                 self._empty_list_buffer()
                 self.paragraph_buffer.append({'content': full_text, 'words': words_info, 'block_id': block.block_id})
+                
+                if is_visual_caption:
+                    self._empty_paragraph_buffer("odcięcie - koniec bloku podpisu")
+                    self.curr_line = 0
 
         for table in page.tables:
             ve = VisualElement(
@@ -592,18 +672,31 @@ class PDFMapper:
             nxt = self.logical_blocks[i+1]
 
             if getattr(curr, "type", None) == "heading" and getattr(nxt, "type", None) == "heading":
-                separator = " "
-                old_len = len(curr.content) + len(separator)
-                curr.content += separator + nxt.content
                 
-                for word in nxt.words:
-                    word.start_char += old_len
-                    word.end_char += old_len
-                    word.word_index += len(curr.words)
-                    curr.words.append(word)
+                if not getattr(curr, "words", []) or not getattr(nxt, "words", []):
+                    i += 1
+                    continue
                 
-                self.logical_blocks.pop(i + 1)
-                continue 
+                curr_font = curr.words[0].font
+                nxt_font = nxt.words[0].font
+                curr_size = curr.words[0].size
+                nxt_size = nxt.words[0].size
+                
+                font_matches = (curr_font == nxt_font) and (abs(curr_size - nxt_size) < 1.0)
+
+                if font_matches: 
+                    separator = " "
+                    old_len = len(curr.content) + len(separator)
+                    curr.content += separator + nxt.content
+                    
+                    for word in nxt.words:
+                        word.start_char += old_len
+                        word.end_char += old_len
+                        word.word_index += len(curr.words)
+                        curr.words.append(word)
+                    
+                    self.logical_blocks.pop(i + 1)
+                    continue 
             i += 1
 
     def _assign_captions_to_visuals(self, pages, new_doc):
@@ -691,42 +784,113 @@ class PDFMapper:
 
     def _tag_visual_descriptions(self):
         """
-        Post-processing: Szuka bloków tekstowych będących opisami tabel lub obrazów
-        na podstawie zawartości tekstu i długości (max 2 oryginalne linie z PDF).
+        Post-processing: Szuka bloków tekstowych będących opisami tabel lub obrazów,
+        skleja wielolinijkowe podpisy i weryfikuje je na podstawie przestrzeni.
         """
+        img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat|figure|fig\.|image|scheme|diagram)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+        tab_pattern = re.compile(r"^(tabela|tab\.|table)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
         
-        img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
-        tab_pattern = re.compile(r"^(tabela|tab\.)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
+        reference_verbs = re.compile(r"\b(przedstawia|pokazuje|obrazuje|zawiera|zilustrowano|prezentuje|widać|zestawiono)\b", re.IGNORECASE)
 
-        for block in self.logical_blocks:
+        i = 0
+        while i < len(self.logical_blocks):
+            block = self.logical_blocks[i]
+            
             if getattr(block, "type", None) not in ["paragraph", "heading"]:
+                i += 1
                 continue
 
             content = getattr(block, "content", "").strip()
             words = getattr(block, "words", [])
 
             if not content or not words:
+                i += 1
                 continue
 
-            unique_lines = set(w.line for w in words)
-            
-            if len(unique_lines) > 2:
-                continue  
+            if reference_verbs.search(content):
+                i += 1
+                continue
 
-            if tab_pattern.match(content):
-                block.type = "table_description"
-            elif img_pattern.match(content):
-                block.type = "img_description"
+            is_table_desc = bool(tab_pattern.match(content))
+            is_img_desc = bool(img_pattern.match(content))
+
+            if not (is_table_desc or is_img_desc):
+                i += 1
+                continue
+
+            while i + 1 < len(self.logical_blocks):
+                next_b = self.logical_blocks[i+1]
+                next_w = getattr(next_b, "words", [])
+                
+                if getattr(next_b, "type", None) != "paragraph" or not next_w:
+                    break
+                    
+                if next_w[0].page_number != words[-1].page_number:
+                    break
+                    
+                curr_y1 = max(w.bbox[3] for w in block.words)
+                next_y0 = min(w.bbox[1] for w in next_w)
+                vertical_gap = next_y0 - curr_y1
+                
+                if vertical_gap > 28 or vertical_gap < -10:
+                    break
+                    
+                unique_lines_curr = len(set(w.line for w in block.words))
+                unique_lines_next = len(set(w.line for w in next_w))
+                if (unique_lines_curr + unique_lines_next) > 5:
+                    break
+                    
+                separator = " "
+                if block.content.rstrip().endswith('-'):
+                    separator = ""
+                    block.content = block.content.rstrip()[:-1]
+                
+                old_len = len(block.content) + len(separator)
+                block.content += separator + getattr(next_b, "content", "").strip()
+                
+                for w in next_w:
+                    w.start_char += old_len
+                    w.end_char += old_len
+                    w.word_index += len(block.words)
+                    block.words.append(w)
+                    
+                self.logical_blocks.pop(i + 1)
+
+            page_num = block.words[0].page_number
+            curr_y0 = min(w.bbox[1] for w in block.words)
+            curr_y1 = max(w.bbox[3] for w in block.words)
+
+            gap_above = float('inf')
+            gap_below = float('inf')
+
+            if i > 0:
+                prev_w = getattr(self.logical_blocks[i-1], "words", [])
+                if prev_w and prev_w[0].page_number == page_num:
+                    prev_y1 = max(w.bbox[3] for w in prev_w)
+                    gap_above = curr_y0 - prev_y1
+
+            if i + 1 < len(self.logical_blocks):
+                next_w = getattr(self.logical_blocks[i+1], "words", [])
+                if next_w and next_w[0].page_number == page_num:
+                    next_y0 = min(w.bbox[1] for w in next_w)
+                    gap_below = next_y0 - curr_y1
+
+            if gap_above < 35 and gap_below < 35:
+                i += 1
+                continue
+
+            block.type = "table_description" if is_table_desc else "image_description"
+            i += 1
 
     def _pair_descriptions_with_visuals(self, new_doc):
         """
-        Post-processing: Przypisuje znalezione opisy (table_description, img_description)
+        Post-processing: Przypisuje znalezione opisy (table_description, image_description)
         do najbliższych im obiektów wizualnych na tej samej stronie.
         """
         visuals = new_doc.floating_elements.visual_elements
 
         for block in self.logical_blocks:
-            if getattr(block, "type", None) not in ["table_description", "img_description"]:
+            if getattr(block, "type", None) not in ["table_description", "image_description"]:
                 continue
 
             words = getattr(block, "words", [])
@@ -1108,6 +1272,42 @@ class PDFMapper:
                     src_page=line_page  
                 )
                 new_doc.reference_sections.acronyms.append(new_item)
+
+    def _verify_caption_sources(self, new_doc):
+        """
+        Post-processing: Sprawdza, czy podpisy tabel i rysunków zawierają
+        odwołanie do źródła (np. [1]) lub słowa kluczowe (np. "źródło:", "opracowanie własne").
+        """
+        citation_pattern = re.compile(r'\[\s*\d+[\d\s,\-]*\]')
+        
+        source_pattern = re.compile(r'\b(źródło|zródło|zrodlo|source|opracowanie własne|na podstawie)\b', re.IGNORECASE)
+
+        for block in self.logical_blocks:
+            if getattr(block, "type", None) in ["image_description"]:
+                content = getattr(block, "content", "")
+                if not content:
+                    continue
+                
+                has_citation = bool(citation_pattern.search(content))
+                has_keyword = bool(source_pattern.search(content))
+
+                if not (has_citation or has_keyword):
+                    block.incorrect_caption = 1
+                else:
+                    block.incorrect_caption = 0
+
+        for visual in new_doc.floating_elements.visual_elements:
+            caption_dict = getattr(visual, "caption", {})
+            if caption_dict and isinstance(caption_dict, dict):
+                content = caption_dict.get("text", "")
+                if content:
+                    has_citation = bool(citation_pattern.search(content))
+                    has_keyword = bool(source_pattern.search(content))
+
+                    if not (has_citation or has_keyword):
+                        visual.incorrect_caption = 1
+                    else:
+                        visual.incorrect_caption = 0
 # Funkcje zewnętrzne
 
 MULTISPACE_RE = re.compile(r"\s+")
@@ -1131,7 +1331,7 @@ def get_plain_text(pdf_path):
         if not text:
             continue
 
-        if block_type in {"list", "table_description", "img_decription", "math"}:
+        if block_type in {"list", "table_description", "image_description", "math"}:
             continue
 
         parts.append(text)

@@ -18,7 +18,7 @@ from common.path import resource_path
 
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
-spell.word_frequency.load_text_file(resource_path(os.path.join("src", "analysis", "modules", "linguistics", "word_whitelist.txt")))
+spell.word_frequency.load_text_file(resource_path(os.path.join("analysis", "modules", "linguistics", "word_whitelist.txt")))
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
