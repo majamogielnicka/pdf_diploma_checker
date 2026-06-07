@@ -1,4 +1,4 @@
-from models import InputDocument
+from common.models import InputDocument
 from pipeline import AnalysisPipeline
 
 def run_analysis_for_pdf(pdf_path, config_path=None, progress_callback=None, use_llm=True, language="pl"):

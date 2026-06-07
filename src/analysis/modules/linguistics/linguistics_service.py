@@ -1,4 +1,4 @@
-from models import ModuleResult
+from common.models import ModuleResult
 
 
 class LinguisticsService:
