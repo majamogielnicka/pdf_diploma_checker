@@ -17,7 +17,7 @@ class FileBadge(QFrame):
     def __init__(self, filename, parent=None):
         super().__init__(parent)
         self.setStyleSheet(styles.FILE_BADGE_FRAME)
-        self.setFixedHeight(70)
+        self.setFixedHeight(90)
         
         layout = QHBoxLayout(self)
         layout.setContentsMargins(15, 10, 15, 10)
@@ -210,7 +210,7 @@ class AnalysisDialog(QDialog):
         super().__init__(parent)
         self.pdf_path = pdf_path
         self.setWindowTitle("Przeanalizuj dokument")
-        self.setFixedSize(600, 560) 
+        self.setFixedSize(700, 560) 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet(styles.DIALOG_STYLE)
         

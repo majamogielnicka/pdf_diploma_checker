@@ -19,9 +19,9 @@ class ErrorMarker(QPushButton):
 
     def show_details(self):
         """Displays a formatted tooltip with details about the error"""
-        opis = self.data.get('komentarz', 'Brak szczegółowego opisu błędu')
-        kat = self.data.get('kategoria', 'Błąd')
-        tekst = self.data.get('znaleziony_tekst', '')
+        opis = self.data.get('comment', 'Brak szczegółowego opisu błędu')
+        kat = self.data.get('category', 'Błąd')
+        tekst = self.data.get('found_text', '')
 
         info = (f"<b>Kategoria:</b> {kat}<br>"
                 f"<b>Opis:</b> {opis}<br>")
@@ -98,17 +98,107 @@ class SelectablePdfView(QPdfView):
         for err in errors_list:
             marker = ErrorMarker(err, self.viewport())
             self.markers.append(marker)
-            
-            coords = err.get("wspolrzedne", {})
+            coords = err.get("coords", err.get("wspolrzedne", {}))
             w = coords.get("w", 0)
-            h = coords.get("h", 0)
             
             if w > 0:
                 box = HighlightBox(err, self.viewport())
                 box.is_error = True
                 box.setStyleSheet(styles.HIGHLIGHT_BOX_ERROR)
+                self.highlight_boxes.append(box)
 
         self.update_markers_pos()
+
+    def update_markers_pos(self):
+        """Recalculates and updates the pixel positions of all markers and highlight boxes 
+        relative to the PDF document coordinates, factoring in the current zoom level, 
+        scrollbar values, and page margins."""
+        doc = self.document()
+        if not doc or doc.pageCount() == 0: return
+
+        dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
+        zoom = self.zoomFactor()
+        
+        scroll_x = self.horizontalScrollBar().value()
+        scroll_y = self.verticalScrollBar().value()
+        viewport_w = self.viewport().width()
+
+        all_markers = self.markers + self.comment_markers
+
+        for marker in all_markers:
+            data = marker.data
+            page_idx = data.get("page", data.get("strona", 1))
+            coords = data.get("coords", data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0}))
+            
+            if page_idx < 0 or page_idx >= doc.pageCount():
+                continue
+
+            target_page_y_px = self.documentMargins().top()
+            for i in range(page_idx):
+                size_pt = doc.pagePointSize(i)
+                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
+                target_page_y_px += page_h_px + self.pageSpacing()
+
+            size_pt = doc.pagePointSize(page_idx)
+            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
+            
+            if self.horizontalScrollBar().maximum() > 0:
+                x_start_px = self.documentMargins().left()
+            else:
+                x_start_px = (viewport_w - page_w_px) // 2
+
+            local_x_px = int((coords.get("x", 0) * zoom * (dpi_x / 72.0)) + 0.5)
+            local_y_px = int((coords.get("y", 0) * zoom * (dpi_y / 72.0)) + 0.5)
+            px_w = int((coords.get("w", 0) * zoom * (dpi_x / 72.0)) + 0.5)
+
+            px_x = x_start_px + local_x_px - scroll_x
+            px_y = target_page_y_px + local_y_px - scroll_y
+            
+            if px_w > 0:
+                marker_x = px_x + (px_w // 2) - 8 
+            else:
+                marker_x = px_x - 8
+                
+            marker_y = px_y - 12
+            
+            marker.move(int(marker_x), int(marker_y))
+            marker.show()
+        for box in self.highlight_boxes:
+            data = box.data
+            page_idx = data.get("page", data.get("strona", 1))
+            coords = data.get("coords", data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0}))
+            
+            if page_idx < 0 or page_idx >= doc.pageCount():
+                continue
+                
+            target_page_y_px = self.documentMargins().top()
+            for i in range(page_idx):
+                size_pt = doc.pagePointSize(i)
+                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
+                target_page_y_px += page_h_px + self.pageSpacing()
+
+            size_pt = doc.pagePointSize(page_idx)
+            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
+            
+            if self.horizontalScrollBar().maximum() > 0:
+                x_start_px = self.documentMargins().left()
+            else:
+                x_start_px = (viewport_w - page_w_px) // 2
+
+            local_x_px = coords.get("x", 0) * zoom * (dpi_x / 72.0)
+            local_y_px = coords.get("y", 0) * zoom * (dpi_y / 72.0)
+            px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
+            px_h = coords.get("h", 0) * zoom * (dpi_y / 72.0)
+
+            px_x = x_start_px + local_x_px - scroll_x
+            px_y = target_page_y_px + local_y_px - scroll_y
+
+            if px_w > 0 and px_h > 0:
+                box.setGeometry(int(px_x), int(px_y), int(px_w), int(px_h))
+                box.show()
+                
+        for marker in all_markers:
+            marker.raise_()
 
     def clear_comments(self):
         """Removes all comments"""
@@ -124,88 +214,6 @@ class SelectablePdfView(QPdfView):
                 new_boxes.append(b)
         self.highlight_boxes = new_boxes
 
-    def update_markers_pos(self):
-        """Recalculates and updates the pixel positions of all markers and highlight boxes 
-        relative to the PDF document coordinates, factoring in the current zoom level, 
-        scrollbar values, and page margins."""
-        doc = self.document()
-        if not doc or doc.pageCount() == 0: return
-
-        dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
-        zoom = self.zoomFactor()
-        
-        all_markers = self.markers + self.comment_markers
-
-        for marker in all_markers:
-            data = marker.data
-            page_idx = data.get("strona", 1)
-            page_idx = data.get("strona", 1)
-            coords = data.get("wspolrzedne", {"x": 0, "y": 0})
-            
-            target_page_y_px = self.documentMargins().top()
-            for i in range(page_idx):
-                size_pt = doc.pagePointSize(i)
-                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
-                target_page_y_px += page_h_px + self.pageSpacing()
-
-            size_pt = doc.pagePointSize(page_idx)
-            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
-            viewport_w = self.viewport().width()
-            x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
-
-            local_x_px = int((coords.get("x", 0) * zoom * (dpi_x / 72.0)) + 0.5)
-            local_y_px = int((coords.get("y", 0) * zoom * (dpi_y / 72.0)) + 0.5)
-            px_w = int((coords.get("w", 0) * zoom * (dpi_x / 72.0)) + 0.5)
-            px_h = int((coords.get("h", 0) * zoom * (dpi_y / 72.0)) + 0.5)
-
-            px_x = x_start_px + local_x_px - self.horizontalScrollBar().value()
-            px_y = target_page_y_px + local_y_px - self.verticalScrollBar().value()
-            
-            px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
-            
-            odstep_od_gory = -12 
-            
-            if px_w > 0:
-                marker_x = px_x + (px_w / 2) - 8 
-            else:
-                marker_x = px_x - 8
-                
-            marker_y = px_y - odstep_od_gory
-            
-            marker.move(int(marker_x), int(marker_y))
-            marker.show()
-        for box in self.highlight_boxes:
-            data = box.data
-            page_idx = data.get("strona", 1)
-            page_idx = data.get("strona", 1)
-            coords = data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0})
-            
-            target_page_y_px = self.documentMargins().top()
-            
-            for i in range(page_idx):
-                size_pt = doc.pagePointSize(i)
-                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
-                target_page_y_px += page_h_px + self.pageSpacing()
-
-            size_pt = doc.pagePointSize(page_idx)
-            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
-            viewport_w = self.viewport().width()
-            x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
-
-            local_x_px = coords.get("x", 0) * zoom * (dpi_x / 72.0)
-            local_y_px = coords.get("y", 0) * zoom * (dpi_y / 72.0)
-            px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
-            px_h = coords.get("h", 0) * zoom * (dpi_y / 72.0)
-
-            px_x = x_start_px + local_x_px - self.horizontalScrollBar().value()
-            px_y = target_page_y_px + local_y_px - self.verticalScrollBar().value()
-
-            if px_w > 0 and px_h > 0:
-                box.setGeometry(int(px_x), int(px_y), int(px_w), int(px_h))
-                box.show()
-                
-        for marker in all_markers:
-            marker.raise_()
 
     def resizeEvent(self, event):
         """Handles the widget resize event by triggering a recalculation"""

@@ -82,6 +82,7 @@ class AnalysisWorker(QObject):
         except Exception as e:
             self.error.emit(str(e))
 
+
 class PDFReader(QMainWindow):
     """The main window component of the Diploma Checker application. 
     Manages the user interface flow, PDF rendering, background background workers, and view states."""
@@ -268,96 +269,34 @@ class PDFReader(QMainWindow):
             self.load_pdf(path)
             self.manager.add_document(os.path.basename(path), path, "PDF")
             self.refresh_file_list()
-            self.last_report = getattr(dialog, 'final_report', None)
             
-            if hasattr(dialog, 'final_report') and dialog.final_report:
-                errors = dialog.final_report.get("errors", [])
-                report_data = dialog.final_report.get("sota", None)
-
-                self.pdf_view.add_errors(errors)
-                self.update_report_panel(report_data)
-                self.manager.save_errors(path, errors)
-                self.manager.save_ai_result(path, report_data)
-                
-            self.stack.setCurrentIndex(1)
-            print("Analiza zakończona, widok przełączony.")
-    
-    def refresh_file_list(self):
-        """Synchronizes the start page file registry grid with the underlying data store 
-        managed by SavingFiles."""
-        pliki = self.manager.data.get("prace", [])
-        self.start_page.render_doc_list(pliki)
-
-    def delete_document(self, path):
-        """Removes a document from the system index and updates the start page dashboard 
-        to reflect the changes."""
-        reply = QMessageBox.question(
-            self, 'Potwierdzenie', 
-            "Czy na pewno chcesz usunąć ten dokument z listy?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            self.manager.delete_document(path)
-            self.refresh_file_list()
-
-    def load_pdf(self, path):
-        """Opens a PDF file using the QPdfDocument backend, connects rendering signals, 
-        and triggers the generation of page thumbnails."""
-        if not os.path.exists(path):
-            QMessageBox.critical(self, "Błąd", f"Nie odnaleziono pliku:\n{path}")
-            return
-        self.current_pdf_path = path
-        self.document.load(path)
-        current_error = self.document.error()
-        if current_error == QPdfDocument.Error.IncorrectPassword:
-            QMessageBox.warning(self, "Plik zabezpieczony", "Ten PDF wymaga hasła.")
-            return
-        elif self.document.status() == QPdfDocument.Status.Error:
-            QMessageBox.critical(self, "Błąd", "Nie udało się załadować pliku PDF.")
-            return
-
-        if self.document.pageCount() > 0:
-            self.title_label.setText(os.path.basename(path))
-            self.total_pages_label.setText(f" / {self.document.pageCount()} ")
-            self.generate_thumbnails()
-            self.pdf_view.setZoomFactor(1.0)
-            self.zoom_label.setText("100%")
-        
-            self.load_template_errors()
-            self.load_ai_analysis()
-            self.load_custom_comments()
-
-    def load_ai_analysis(self):
-        """Extracts saved advanced AI evaluation details from the storage map matching 
-        the current open file hash path and applies them to the sidebar dashboard panels."""
-        if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
-            return
-            
-        try:
+            final_rep_obj = getattr(dialog, 'final_report', None)
+            errors = []
             report_data = None
-            for p in self.manager.data.get("prace", []):
-                if p['sciezka_lokalna'] == self.current_pdf_path:
-                    report_data = p.get("sota_result") 
-                    break
-            self.update_report_panel(report_data)
             
-        except Exception as e:
-            print(f"Błąd podczas wczytywania analizy AI: {e}")
+            if isinstance(final_rep_obj, dict):
+                errors = final_rep_obj.get("errors", [])
+                report_data = final_rep_obj.get("sota", None)
+            elif final_rep_obj is not None:
+                errors = getattr(final_rep_obj, "linguistics_errors", [])
+                report_data = getattr(final_rep_obj, "llm_result", None)
 
-    def load_template_errors(self):
-        """Queries structural layout validation flags and text template compliance anomalies from 
-        the database manager and draws them as highlights in the graphics scene view."""
-        if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
-            return
+            self.manager.save_errors(path, errors)
+            self.manager.save_ai_result(path, report_data)
             
-        try:
-            errors = self.manager.get_errors(self.current_pdf_path)
+            self.stack.setCurrentIndex(1)
+            
             if errors:
-                self.pdf_view.add_errors(errors) 
-                self.pdf_view.update_markers_pos() 
-        except Exception as e:
-            print(f"Błąd podczas wczytywania błędów: {e}")
+                self.pdf_view.add_errors(errors)
+                if hasattr(self.pdf_view, 'update_markers_pos'):
+                    self.pdf_view.update_markers_pos()
+                else:
+                    self.pdf_view.update() 
+
+            if report_data:
+                self.update_report_panel(report_data)
+            else:
+                self.load_ai_analysis()
 
     def generate_thumbnails(self):
         """Clears out old page cache containers and renders dynamic thumbnail image previews 
@@ -494,7 +433,7 @@ class PDFReader(QMainWindow):
 
             l.addWidget(cg_frame)
         else:
-            none_label = QLabel("Brak danych analizy merytorycznej (Tryb szybki)")
+            none_label = QLabel("Brak danych analizy merytorycznej")
             none_label.setStyleSheet(styles.AI_NONE_LABEL_STYLE)
             l.addWidget(none_label)
 
@@ -671,23 +610,23 @@ class PDFReader(QMainWindow):
         try:
             doc = fitz.open(self.current_pdf_path)
             
-            errors_do_zapisu = []
-            if hasattr(self, 'last_report') and self.last_report:
-                errors_do_zapisu = self.last_report.get("errors", [])
+            errors_do_zapisu = self.manager.get_errors(self.current_pdf_path)
 
             for err in errors_do_zapisu:
                 try:
-                    page_num = int(err.get("strona", 1))
+                    page_num = int(err.get("page", err.get("strona", 1)))
                     if 0 <= page_num < len(doc):
                         page = doc[page_num]
-                        coords = err.get("wspolrzedne", {})
+                        coords = err.get("coords", err.get("wspolrzedne", {}))
                         
-                        x, y = float(coords.get("x", 0)), float(coords.get("y", 0))
-                        w, h = float(coords.get("w", 0)), float(coords.get("h", 0))
+                        x = float(coords.get("x", 0))
+                        y = float(coords.get("y", 0))
+                        w = float(coords.get("w", 0))
+                        h = float(coords.get("h", 0))
                         
-                        kat = str(err.get('kategoria', 'Błąd'))
-                        msg = str(err.get('komentarz', ''))
-                        txt = str(err.get('znaleziony_tekst', ''))
+                        kat = str(err.get('category', err.get('kategoria', 'Błąd')))
+                        msg = str(err.get('comment', err.get('komentarz', '')))
+                        txt = str(err.get('found_text', err.get('znaleziony_tekst', '')))
                         opis = f"[{kat}]\n{msg}\n\nTekst: {txt}"
                         
                         if w > 0 and h > 0:
@@ -704,39 +643,40 @@ class PDFReader(QMainWindow):
                             annot.set_info({"title": "Weryfikacja"})
                             annot.update()
                 except Exception as e:
-                    print(f"Błąd przy eksporcie błędu: {e}")
+                    print(f"Błąd przy eksporcie błędu automatycznego: {e}")
 
-            if hasattr(self.pdf_view, 'comment_markers'):
-                for marker in self.pdf_view.comment_markers:
-                    try:
-                        notatka = marker.data
-                        page_idx = notatka["strona"]
-                        if 0 <= page_idx < len(doc):
-                            page = doc[page_idx]
-                            coords = notatka["wspolrzedne"]
-                            x, y = coords["x"], coords["y"]
-                            w, h = coords.get("w", 0), coords.get("h", 0)
-                            tresc_komentarza = notatka['tekst_komentarza']
+            saved_comments = self.manager.get_comments(self.current_pdf_path)
+            for notatka in saved_comments:
+                try:
+                    page_idx = int(notatka.get("strona", 1))
+                    if 0 <= page_idx < len(doc):
+                        page = doc[page_idx]
+                        coords = notatka.get("wspolrzedne", {})
+                        x = float(coords.get("x", 0))
+                        y = float(coords.get("y", 0))
+                        w = float(coords.get("w", 0))
+                        h = float(coords.get("h", 0))
+                        tresc_komentarza = notatka.get('tekst_komentarza', '')
 
-                            if w > 0 and h > 0:
-                                rect = fitz.Rect(x, y, x + w, y + h)
-                                hl = page.add_highlight_annot(rect)
-                                hl.set_colors(stroke=(0.85, 0.92, 1.0)) 
-                                hl.set_opacity(0.5)
-                                hl.set_info({"title": "Mój komentarz", "content": tresc_komentarza})
-                                hl.update()
-                            else:
-                                point = fitz.Point(x, y - 15)
-                                annot = page.add_text_annot(point, tresc_komentarza, icon="Note")
-                                annot.set_colors(stroke=(1, 1, 1)) 
-                                annot.set_info({"title": "Mój komentarz"})
-                                annot.update()
-                    except Exception as e:
-                        print(f"Błąd przy eksporcie notatki: {e}")
+                        if w > 0 and h > 0:
+                            rect = fitz.Rect(x, y, x + w, y + h)
+                            hl = page.add_highlight_annot(rect)
+                            hl.set_colors(stroke=(0.85, 0.92, 1.0)) 
+                            hl.set_opacity(0.5)
+                            hl.set_info({"title": "Mój komentarz", "content": tresc_komentarza})
+                            hl.update()
+                        else:
+                            point = fitz.Point(x, y - 15)
+                            annot = page.add_text_annot(point, tresc_komentarza, icon="Note")
+                            annot.set_colors(stroke=(0.2, 0.6, 1.0)) 
+                            annot.set_info({"title": "Mój komentarz"})
+                            annot.update()
+                except Exception as e:
+                    print(f"Błąd przy eksporcie notatki użytkownika: {e}")
 
             doc.save(save_path)
             doc.close()
-            QMessageBox.information(self, "Sukces", "PDF został zapisany")
+            QMessageBox.information(self, "Sukces", f"PDF z uwagami został zapisany:\n{save_path}")
                         
         except Exception as e:
             QMessageBox.critical(self, "Błąd", f"Błąd eksportu:\n{str(e)}")
@@ -776,8 +716,8 @@ class PDFReader(QMainWindow):
         TrueType text streams, criteria checkpoints, image tracking logs, and syntax metrics."""
         report_data = None
         if hasattr(self, 'current_pdf_path'):
-            for p in self.manager.data.get("prace", []):
-                if p['sciezka_lokalna'] == self.current_pdf_path:
+            for p in self.manager.data.get("documents", []):
+                if p.get('local_path') == self.current_pdf_path:
                     report_data = p.get("sota_result")
                     break
 
@@ -945,7 +885,7 @@ class PDFReader(QMainWindow):
                         page.insert_text((margin, pos_y), line, fontsize=10, fontname=f_bold, color=(0.05, 0.27, 0.63))
                         pos_y += 14
                     pos_y += 10
-                    
+
                 if img_data.get("details", []):
                     page.insert_text((margin, pos_y), "Lista szczegółowa rozbieżności:", fontsize=12, fontname=f_bold)
                     pos_y += 20
@@ -1066,3 +1006,67 @@ class PDFReader(QMainWindow):
             import traceback
             traceback.print_exc()
             QMessageBox.critical(self, "Blad Eksportu", f"Blad podczas generowania raportu:\n{str(e)}")
+
+
+    def delete_document(self, path):
+        """Removes a document from the system index and updates the start page dashboard 
+        to reflect the changes."""
+        reply = QMessageBox.question(
+            self, 'Potwierdzenie', 
+            "Czy na pewno chcesz usunąć ten dokument z listy?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            self.manager.delete_document(path)
+            self.refresh_file_list()
+
+
+    def refresh_file_list(self):
+        """Synchronizes the start page file registry grid with the underlying data store 
+        managed by SavingFiles."""
+        pliki = self.manager.data.get("documents", [])
+        self.start_page.render_doc_list(pliki)
+
+
+    def load_ai_analysis(self):
+        """Extracts saved advanced AI evaluation details from the storage map matching 
+        the current open file hash path and applies them to the sidebar dashboard panels."""
+        if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
+            return
+            
+        try:
+            report_data = None
+            for p in self.manager.data.get("documents", []):
+                if p.get('local_path') == self.current_pdf_path:
+                    report_data = p.get("sota_result") 
+                    break
+            self.update_report_panel(report_data)
+            
+        except Exception as e:
+            print(f"Błąd podczas wczytywania analizy AI: {e}")
+
+
+    def load_pdf(self, path):
+        """Loads a PDF document from the specified file path into the QPdfDocument instance,
+        sets up the application tracking variables, and triggers view refreshes."""
+        if not path or not os.path.exists(path):
+            QMessageBox.critical(self, "Błąd", f"Nie można odnaleźć pliku:\n{path}")
+            return
+
+        self.current_pdf_path = path
+        self.document.load(path)
+        
+        if self.document.status() == QPdfDocument.Status.Ready:
+            self.title_label.setText(os.path.basename(path))
+            self.total_pages_label.setText(f" / {self.document.pageCount()}")
+            self.page_input.setText("1")
+            
+            self.pdf_view.clear_markers()
+            self.pdf_view.clear_comments()
+            self.generate_thumbnails()
+            self.load_custom_comments()
+            
+            print(f"Pomyślnie załadowano plik: {os.path.basename(path)}")
+        else:
+            QMessageBox.critical(self, "Błąd", "Nie udało się poprawnie zainicjalizować dokumentu PDF.")
