@@ -106,9 +106,6 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
 
     Zwraca:
         result, score, summary_text
-
-    Czyli w pipeline:
-        llm_result, content_grade_result, llm_summary_text = run_llm_module(...)
     """
 
     started = time.perf_counter()
@@ -126,7 +123,12 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
         "language": language,
     }, verbose)
 
-    from analysis.extraction.extraction_json import get_raster_figure_numbers
+    try:
+        from analysis.extraction.extraction_json import get_raster_figure_numbers
+    except ImportError:
+        def get_raster_figure_numbers(doc_obj):
+            return []
+
     from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
     from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
 
@@ -219,7 +221,13 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
     debug_print("OFF TOPIC HEADINGS", off_topic_headings, verbose)
 
     debug_print("9. RASTER FIGURES", "get_raster_figure_numbers(doc_obj)", verbose)
-    raster_figure_numbers = get_raster_figure_numbers(doc_obj)
+
+    try:
+        raster_figure_numbers = get_raster_figure_numbers(doc_obj)
+    except Exception as raster_err:
+        debug_print("RASTER FIGURE ERROR", str(raster_err), verbose)
+        raster_figure_numbers = []
+
     debug_print("RASTER FIGURE NUMBERS", raster_figure_numbers, verbose)
 
     debug_print(
@@ -235,6 +243,8 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
 
     try:
         raw_image_report = analyze_images(doc_obj, mapped_doc)
+        if raw_image_report is None:
+            raw_image_report = []
     except Exception as image_err:
         image_analysis_error = str(image_err)
         debug_print("IMAGE ANALYSIS ERROR", image_analysis_error, verbose)
@@ -288,6 +298,8 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
             pdf_path,
             verbose=False,
         )
+        if quality_errors is None:
+            quality_errors = []
     except Exception as quality_err:
         quality_error = str(quality_err)
         debug_print("IMAGE QUALITY ERROR", quality_error, verbose)
@@ -308,6 +320,8 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
             mapped_doc,
             verbose=False,
         )
+        if font_errors is None:
+            font_errors = []
     except Exception as font_err:
         font_error = str(font_err)
         debug_print("FONT CONSISTENCY ERROR", font_error, verbose)
