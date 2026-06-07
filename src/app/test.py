@@ -29,8 +29,8 @@ for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, RED
 # STAŁE DO TESTU MAINEM
 # =========================
 
-THESIS_PATH = SCRIPT_DIR / "jost2.pdf"
-LANGUAGE = "en"
+THESIS_PATH = SCRIPT_DIR / "jago.pdf"
+LANGUAGE = "pl"
 
 
 def debug_print(title, value=None, verbose=True):
