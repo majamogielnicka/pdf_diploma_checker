@@ -90,7 +90,7 @@ BARE_VOLUME = {
 }
 
 BARE_PAGES = { r'(?<![\w\/\.\-])\d+\s*[-–]\s*\d+(?![\w\/\-])': 'bare 2 - 4',}
-URL_PATTERN = re.compile(r'https?://\S+')
+URL_PATTERN = re.compile(r'https?:\s*//\S+')
 
 UPPER_CASE = r'[A-ZĄĆĘŁŃÓŚŹŻÀ-ÖØ-öø-ÿĀ-ž]'
 LOWER_CASE = r'[a-ząćęłńóśźżà-öø-ÿā-ž]'
@@ -201,7 +201,7 @@ def check_bibliography(blocks, producer, bibliography_dict, bibtex_check_bool = 
 
     matches = check_coherence_iso(matches, bib_context, bib_blocks)
     if producer and re.search(r'latex|tex', producer, re.IGNORECASE) and bibtex_check_bool:
-        matches.extend(check_bibtex(matches, bib_context, bib_blocks))
+        matches = check_bibtex(matches, bib_context, bib_blocks)
     return matches
 
 def first_match(content, patterns):
