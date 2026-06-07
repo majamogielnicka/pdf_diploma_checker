@@ -5,7 +5,7 @@ oznaczanie jako błąd zdań w praragrafach niezawierających podmiotu lub orzec
 '''
 from analysis.extraction.schema import *
 from .exeptions_check import check_quotes
-from .helpers import get_match_info, morf, language, nlp_pl, nlp_en
+from .helpers import get_match_info, morf, nlp_pl, nlp_en
 from .linguistics_types import Error_type, Analisys_type
 from .proper_check import check_if_proper
 import re
@@ -17,7 +17,13 @@ DESCRIPTION_WHITELIST= {"wersja", "wersji", "wersjom", "wersjach", "wersję", "w
                      "wzór", "wzoru", "wzorowi", "wzory", "wzorom", "wzorach", "wzorami", "wzorem", "wzorze",
                      "równanie", "równaniu", "równaniach", "równaniami", "równaniom", "równania", "równaniem", "rów", "listing"}
 
-def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=None):
+def sentence_check(blocks, chapter_nums, check_first_person=True, acronyms_with_definitions=None):
+    '''
+    Funkcja parsuje zdania w paragrafach tekstu. Za pomocą zależności spacy przypisuje zdaniu formę aktywną,
+    bierną bądź równoważnika zdania - zwraca statystyki dla paragrafów z całego dokumentu,
+    Z analizy wykluczana jest treść nawiasów. Zdania złożone uznawane są za bierne, gdy chociaż jedna część zdania jest bierna.
+    Funkcja sprawdza, czy zdanie ma podmiot lub orzeczenie i przy braku zwraca błąd - z wykluczeniem zdań w cudzysłowiu lub kursywą/inną czcionką.
+    '''
     sentence_count = 0
     passive_count = 0
     active_count = 0
@@ -31,7 +37,9 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
             else:
                 nlp = nlp_en
             text = block.contents
-            content = nlp(text)
+            clean_text, idx_map = exclude_brackets(text)
+            content = nlp(clean_text)
+            sentence_before = ""
             for sentence in content.sents:
                 first_upper = None
                 if sum(1 for letter in sentence.text if letter.isalpha()) < 15:
@@ -56,18 +64,21 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
                             to_add = True
                             if block.language == 'pl':
                                 to_add = morfeusz_check(token.text)
-                            if token.idx > 0 and (text[token.idx - 1] == '-'):
+                            if token.idx > 0 and (clean_text[token.idx - 1] == '-'):
                                 to_add = False
-                            elif (token.idx + len(token) + 1) < len(text) and (text[token.idx + len(token)] == '-'):
+                            elif (token.idx + len(token) + 1) < len(clean_text) and (clean_text[token.idx + len(token)] == '-'):
                                 to_add = False
                             if to_add:
-                                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, token.idx, len(token))
+                                offset = idx_map[token.idx]
+                                error_length = idx_map[token.idx + len(token)] - offset
+                                start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, offset, error_length)
+                                
                                 match = Error_type(
                                 content= token.text,
                                 category= "PERSONAL_FORM",
-                                message= f"Użycie {token.morph.get('Person')[0]} formy osobowej.",
-                                offset= token.idx,
-                                error_length= len(token),
+                                message= f"Użycie {token.morph.get("Person")[0]} formy osobowej.",
+                                offset= offset,
+                                error_length= error_length,
                                 block_id = block.block.block_id,
                                 page_start = start_page,
                                 page_end = end_page,
@@ -113,21 +124,23 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
                     if any(tok.text in acronyms_with_definitions for tok in sentence):
                         is_subject = True
                 match_list = []
-                if description_exclude_backup(sentence.text):
+                if description_exclude_backup(sentence.text, sentence_before, chapter_nums):
                     continue
                 if not is_subject:
                     #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.
                     match_list.append(("NO_SUBJECT", "Brak podmiotu w zdaniu."))
                 if not is_verb:
                     match_list.append(("NO_VERB", "Brak orzeczenia w zdaniu."))
+                og_start = idx_map[sentence.start_char]
+                og_end = idx_map[sentence.end_char]
                 for category, message in match_list:
-                    start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, sentence[0].idx, len(sentence.text))
+                    start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, og_start, og_end - og_start)
                     match = Error_type(
-                    content= text[sentence[0].idx:(sentence[0].idx+len(sentence.text))],
+                    content= text[og_start:og_end],
                     category=  category,
                     message= message,
-                    offset= sentence[0].idx,
-                    error_length= len(sentence.text),
+                    offset= og_start,
+                    error_length= og_end - og_start,
                     block_id = block.block.block_id,
                     page_start = start_page,
                     page_end = end_page,
@@ -145,6 +158,7 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
                     active_count += 1
                 if is_impersonal:
                     impersonal_count +=1
+                sentence_before = sentence.text
     if passive_count + active_count + verbless_count > 0:
         passive_ratio = round(passive_count/(passive_count + active_count + verbless_count) * 100)
         verbless_ratio = round(verbless_count/(passive_count + active_count + verbless_count) * 100)
@@ -161,7 +175,11 @@ def sentence_check(blocks, check_first_person=True, acronyms_with_definitions=No
     return checked_matches, analisys
 
 def morfeusz_check(text):
-    personal_tags = {"pri", "sec", "ppron12"}
+    '''
+    Funkcja wykluczająca możliwe FP z parsowania spacy dla języka polskiego,
+    za pomocą słownika zależności biblioteki Morfeusz. 
+    '''
+    personal_tags = {"pri", "ppron12"}
     analysis = morf.analyse(text)
     for interpretation in analysis:
         tags = set(interpretation[2][2].split(":"))
@@ -170,21 +188,76 @@ def morfeusz_check(text):
     return False
 
 def definicion(block, word_idxs, sentence_text):
+    '''
+     Funkcja pomocnicza, wykluczająca błędy braku podmiotu/orzeczenia w wypadku wykrycia struktury 
+     definicji np. (bold: definicja)
+    '''
     if not word_idxs:
         return False
-    pattern = r'^\s*\w[\w\s]*[:-–]'
+    pattern = r'^\s*\w[\w\s]*[:–-]'
     words_by_idx = {w.word_index: w for w in block.words}
     target_word = words_by_idx.get(word_idxs[0])
     if target_word and target_word.bold and re.match(pattern, sentence_text):
         return True
     return False
 
-def description_exclude_backup(sentence_text):
+def description_exclude_backup(sentence_text, sentence_before, chapter_nums):
+    '''
+    Funkcja pomocnicza, wykluczająca błędy braku podmiotu/orzeczenia w wypadku błędnie sparsowanych podpisów.
+    '''
     words = sentence_text.split()
+    words_before = sentence_before.split()
     if len(words) < 3:
         return True
-    if words[0].lower() in DESCRIPTION_WHITELIST and not words[1].isalpha():
+    if any(word.strip(" .:") in chapter_nums for word in words[:2]):
         return True
-    elif not words[0].isalpha() and words[1][0].isupper():
+    if any(word.strip(" .:") in chapter_nums for word in words_before[-2:]):
         return True
+    if words[0].lower().strip() in DESCRIPTION_WHITELIST and not words[1].isalpha():
+        return True
+    if not words[0].isalpha() and words[1][0].isupper():
+        return True
+    if len(words_before) > 1:
+        if words_before[0].lower().strip(" :.") in DESCRIPTION_WHITELIST and not words_before[1].isalpha():
+            return True
     return False
+
+def exclude_brackets(block_contents):
+    '''
+    Maskowanie wtrąceń w nawiasach w tekście do analizy spacy, 
+    aby parser nie przypisywał im błednie zależności.
+    '''
+    n = len(block_contents)
+    removed = [False] * n
+    stack = []
+    for i, char in enumerate(block_contents):
+        if char in {'(', '['}:
+            stack.append(i)
+        elif char in {')', ']'}:
+            if stack:
+                start_idx = stack.pop()
+                for k in range(start_idx, i + 1):
+                    removed[k] = True
+    #zdublowane przez parser nawiasy 
+            else:
+                removed[i] = True
+    for j in stack:
+        removed[j] = True
+
+    clean = []
+    mask_idxs_map = []
+    i = 0
+    while i < n:
+        if removed[i]:
+            clean.append(" ")
+            mask_idxs_map.append(i)
+            while i < n and removed[i]:
+                i += 1
+            continue
+        clean.append(block_contents[i])
+        mask_idxs_map.append(i)
+        i += 1
+    mask_idxs_map.append(n)
+    masked_text = "".join(clean)
+    return masked_text, mask_idxs_map
+    

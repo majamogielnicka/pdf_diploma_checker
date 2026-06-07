@@ -13,7 +13,7 @@ def initials_match(acronym, definition, proper_names, block = None):
     def_language = language(definition)
     pl_def = def_language == "pl"
 
-    initials = [w[0] for w in org_words if w and w[0].isupper()]
+    initials = [part[0] for w in org_words for part in w.split('-') if part and part[0].isupper()]
 
     if not initials:
         return False
@@ -40,7 +40,7 @@ def initials_match(acronym, definition, proper_names, block = None):
         return True
 
     if not pl_def and len(org_words) >= len(acronym):
-        initials_all = [w[0].upper() for w in org_words if w and w[0].isalpha()]
+        initials_all = [part[0].upper() for w in org_words for part in w.split('-') if part and part[0].isalpha()]
         if sequence_match(acronym, initials_all):
             proper_names.append((acronym, acronym))
             for word_raw in re.split(r'\s+', definition.strip()):
@@ -76,7 +76,7 @@ def sequence_match(acronym, initials):
 
 def check_position_if_new(new_acronym, definition, words, block_id, acronyms_with_definitions):
 
-    TITLE_PAGE_PHRASES = {
+    tittle_pages_phrases = {
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
     "STRESZCZENIE", "ABSTRACT", "SŁOWA", "KLUCZOWE",
     "KEYWORDS", "WYKAZ", "SKRÓTÓW", "ABBREVIATIONS", "OECD"
@@ -87,7 +87,7 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
     }
     new_acronym_clean = new_acronym.strip()
     if new_acronym_clean not in acronyms_with_definitions:
-        if new_acronym_clean in TITLE_PAGE_PHRASES:
+        if new_acronym_clean in tittle_pages_phrases:
             return acronyms_with_definitions
             
         words_list = list(words.values()) if isinstance(words, dict) else words
@@ -138,6 +138,7 @@ def check_first_definition(blocks, proper_names, extracted_acronyms):
     paragraph_ang_phrase = re.compile(r'((?:[A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\-]*\s+){1,3})\((?:ang\.|pol\.|niem\.|fr\.|\u0142ac\.)\s+([^)]{3,}?)\)', re.UNICODE)
     paragraph_ang_def_acr = re.compile(r'\((?:ang\.|pol\.|niem\.|fr\.)\s+([A-Za-z\u0104-\u017e\s\-,]{3,}?),\s*([A-Z]{2,})\)', re.UNICODE)
     simple_paren_acronym = re.compile(r'([\w][\wąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-]{3,}?)\s\(([A-Z]{2,6})\)',re.UNICODE)
+    paragraph_acr_expansion_suffix = re.compile(r'\b([A-Z]{2,})\s*\((?:ang\.|pol\.|fr\.|niem\.|łac\.)?\s*([A-Za-z\u0104-\u017e][A-Za-z\u0104-\u017e\s\-]{2,}?)\s*[\-\u2013\u2014,;]\s*(?:ang\.|pol\.|fr\.|niem\.|łac\.)[^)]*\)', re.UNICODE)
     split = re.compile(r"\s[-\u2013\u2014]\s")
 
     if extracted_acronyms:
@@ -183,6 +184,7 @@ def check_first_definition(blocks, proper_names, extracted_acronyms):
                 new_acronyms.extend(broken_parenthesis_ang.findall(text))
                 new_acronyms.extend(broken_parenthesis_acr_dash.findall(text))
                 new_acronyms.extend(broken_no_parenthesis_svm.findall(text))
+                new_acronyms.extend(paragraph_acr_expansion_suffix.findall(text))
                 for new_acronym in new_acronyms:
                     for word_raw in re.split(r'\s+', new_acronym[1].strip()):
                         word_clean = word_raw.strip(string.punctuation + string.whitespace)

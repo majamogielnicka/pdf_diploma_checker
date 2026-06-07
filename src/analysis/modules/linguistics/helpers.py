@@ -13,8 +13,12 @@ from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
 import spacy
+from spacy.language import Language as Spacy_language
 from spellchecker import SpellChecker
 from common.path import resource_path
+import sys
+import re
+from pathlib import Path
 
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
@@ -22,14 +26,28 @@ spell.word_frequency.load_text_file(resource_path(os.path.join("analysis", "modu
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
-import os
-import sys
-import spacy
+@Spacy_language.component("fix_sentence_limits")
+def fix_sentence_limits(doc):
+    for i, token in enumerate(doc[1:], start=1):
+        if not token.is_sent_start:
+            continue
+        prev = doc[i - 1]
+        if token != doc[-1]:
+            if prev.text in (',', ':', ';') and not token.is_title:
+                token.is_sent_start = False
+            elif token.text in (',', ':', ';'):
+                token.is_sent_start = False
+            elif token.text[0].islower():
+                token.is_sent_start = False
+            #spacy rozpoznanie skrótów np. itd.
+            elif prev.morph.get("Abbr") == ["Yes"]:
+                token.is_sent_start = False
+            elif i>=2 and doc[i - 2].morph.get("Abbr") and not token.is_title:
+                token.is_sent_start = False
+            elif prev.text == "." and i >= 2 and not token.is_title:
+                token.is_sent_start = False
 
-import sys
-import os
-import spacy
-from pathlib import Path
+    return doc
 
 def get_nlp(model_name):
     """Bezpieczne ładowanie dowolnego modelu spaCy w .exe i kodzie źródłowym"""
@@ -55,7 +73,11 @@ def get_nlp(model_name):
     return spacy.load(model_name)
 
 nlp_pl = get_nlp("pl_core_news_lg")
+nlp_pl.add_pipe("sentencizer", before="parser")
+nlp_pl.add_pipe("fix_sentence_limits", after="sentencizer")
 nlp_en = get_nlp("en_core_web_lg")
+nlp_en.add_pipe("sentencizer", before="parser")
+nlp_en.add_pipe("fix_sentence_limits", after="sentencizer")
 
 @functools.cache
 def lemmatization(word_base, text_language):
@@ -87,8 +109,7 @@ def get_match_info(block, offset, length):
     start_page = None
     end_page = None
     lines = defaultdict(list)
-
-    if block.type == "list":
+    if isinstance(block, ListBlock):
         item_offset = 0
         for item in block.items:
             if not item.text:
@@ -118,6 +139,7 @@ def get_match_info(block, offset, length):
                             start_page = word.page_number
                         end_page = word.page_number
             item_offset += len(item.text) + 1
+
     else:
         for word in block.words:
             if word.start_char < end_offset and word.end_char > offset:
@@ -163,7 +185,7 @@ def get_context(blocks):
     for block in blocks.logical_blocks:
         if not block.words:
             continue
-        if block.words[-1].page_number != 1:
+        if block.words[-1].page_number not in {0, 1}:
             if isinstance(block, ParagraphBlock):
                 contents = block.content
             elif isinstance(block, ListBlock):
@@ -193,3 +215,15 @@ def add_match(content, block_id, page_start, page_end, word_idxs, error_coordina
                 word_idxs = word_idxs,
                 error_coordinate= error_coordinate
             )
+
+def extract_chapter_numbers(blocks):
+    chapter_nums = []
+    for block in blocks:
+        if block.block.type in {'toc', 'tof', 'tot'}:
+            chapter_nums.extend(re.findall(r'\b\d{1,3}\.\d{1,3}(?:\.\d{1,3})*\b', block.contents))
+        if block.block.type in {'img_description', 'table_description'}:
+            match = (re.search(r'\b\d{1,3}\.\d{1,3}(?:\.\d{1,3})*\b', block.contents))
+            if match:
+                chapter_nums.append(match.group(0))
+    chapter_nums = set(chapter_nums)
+    return chapter_nums
