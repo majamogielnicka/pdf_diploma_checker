@@ -12,7 +12,7 @@ current_dir = Path(__file__).resolve().parent
 sys.path.append(str(current_dir.parent))
 sys.path.append(str(current_dir.parents[3]))
 
-import config 
+from analysis.modules.llm import config
 
 def extract_images_for_fonts(doc_obj, mapped_doc):
     """Extract real figure images and captions, filtering out text-only references."""
@@ -127,7 +127,7 @@ def get_font_consistency_report(doc_obj, mapped_doc, verbose=False):
 
 if __name__ == "__main__":
     import time
-    from config import THESIS_PATH
+    from analysis.modules.llm.config import THESIS_PATH
     from analysis.extraction.extraction_json import extractPDF
     from analysis.extraction.converter_linguistics_clean import PDFMapper
     

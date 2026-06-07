@@ -1,7 +1,7 @@
 from llama_cpp import Llama
 from llama_cpp.llama_chat_format import Llava15ChatHandler
 import base64
-import config 
+from analysis.modules.llm import config
 
 class LlavaEngine:
     def __init__(self, model_path=str(config.LLAVA_MODEL_PATH), mmproj_path=str(config.LLAVA_MMPROJ_PATH)):

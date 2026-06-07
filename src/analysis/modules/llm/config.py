@@ -1,53 +1,55 @@
-import os
 import sys
+import json
 from pathlib import Path
 
-"""Central configuration for LLM analysis modules.
 
-This module defines model paths and runtime settings shared by the
-content-analysis pipeline. When executed directly, it prints a quick
-configuration check for key paths.
-"""
+def get_app_dir():
+    """
+    Return the directory containing config file
 
-BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parents[3]
-SRC_DIR = PROJECT_ROOT / "src"
+    In development mode, this returns the project root directory.
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
 
-for p in (PROJECT_ROOT, SRC_DIR):
-    p_str = str(p)
-    if p_str not in sys.path:
-        sys.path.insert(0, p_str)
+    return Path(__file__).resolve().parents[4]
 
-from common.path import resource_path
 
-EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
-OUTPUT_DIR = Path(resource_path(os.path.join("analysis", "modules", "llm", "wyniki")))
-THESIS_DIR = Path.home() / "theses"
+APP_DIR = get_app_dir()
+APP_CONFIG_PATH = APP_DIR / "app_config.json"
 
-#JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
-MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
-N_GPU_LAYERS = 25
-LLAVA_MODEL_PATH=Path.home() / "models" / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
-LLAVA_MMPROJ_PATH=Path.home() / "models" / "mmproj-model-f16.gguf"
 
-THESIS_PATH = THESIS_DIR / "jost2.pdf"
-LANGUAGE = "en" #LUB "en"
+def load_app_config():
+    """
+    Load app_config.json from the application directory.
+    """
+    if not APP_CONFIG_PATH.exists():
+        raise FileNotFoundError(f"Missing app_config.json: {APP_CONFIG_PATH}")
 
-if __name__ == "__main__":
-    print(f"BASE_DIR: {BASE_DIR}")
-    print(f"BASE_DIR_EXISTS: {BASE_DIR.exists()}")
+    with APP_CONFIG_PATH.open("r", encoding="utf-8") as file:
+        config = json.load(file)
 
-    print(f"PROJECT_ROOT: {PROJECT_ROOT}")
-    print(f"PROJECT_ROOT_EXISTS: {PROJECT_ROOT.exists()}")
+    if not isinstance(config, dict):
+        raise ValueError("app_config.json must contain a JSON object.")
 
-    print(f"SRC_DIR: {SRC_DIR}")
-    print(f"SRC_DIR_EXISTS: {SRC_DIR.exists()}")
+    return config
 
-    print(f"MODEL_PATH: {MODEL_PATH}")
-    print(f"MODEL_EXISTS: {MODEL_PATH.exists()}")
 
-    print(f"THESIS_PATH: {THESIS_PATH}")
-    print(f"THESIS_EXISTS: {THESIS_PATH.exists()}")
+_CONFIG = load_app_config()
 
-    print(f"OUTPUT_DIR: {OUTPUT_DIR}")
-    print(f"OUTPUT_DIR_EXISTS: {OUTPUT_DIR.exists()}")
+
+DEVICE = str(_CONFIG["device"]).lower().strip()
+N_GPU_LAYERS = int(_CONFIG["n_gpu_layers"])
+print("[CONFIG] N_GPU_LAYERS =", N_GPU_LAYERS)
+
+MODEL_DIR = Path(str(_CONFIG["model_dir"])).expanduser()
+LANGUAGE = str(_CONFIG.get("language", "pl")).lower().strip()
+
+MODEL_PATH = MODEL_DIR / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
+LLAVA_MODEL_PATH = MODEL_DIR / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
+LLAVA_MMPROJ_PATH = MODEL_DIR / "mmproj-model-f16.gguf"
+
+THESIS_PATH = Path(str(_CONFIG.get(
+    "thesis_path",
+    APP_DIR / "src" / "app" / "jago.pdf",
+))).expanduser()
