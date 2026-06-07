@@ -1,6 +1,6 @@
 import os
 import sys
-import gc
+import concurrent.futures
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
 else:
@@ -32,39 +32,6 @@ class AnalysisPipeline:
         self.llm_service = None
 
     def run(self, input_document, progress_callback=None, use_llm=True, config_path=None, language="pl"):
-        def cleanup_text_llm_instances():
-            """Zwalnia instancje LLM z modułów tekstowych, by ograniczyć użycie VRAM przed SOTA."""
-            try:
-                from analysis.modules.llm import get_summary as _get_summary_mod
-                from analysis.modules.llm import goal_realization as _goal_realization_mod
-                from analysis.modules.llm import get_purpose as _get_purpose_mod
-
-                llm_obj = getattr(_get_summary_mod, "_LLM", None)
-                if llm_obj is not None:
-                    close_fn = getattr(llm_obj, "close", None)
-                    if callable(close_fn):
-                        close_fn()
-                    _get_summary_mod._LLM = None
-
-                llm_obj = getattr(_goal_realization_mod, "_LLM", None)
-                if llm_obj is not None:
-                    close_fn = getattr(llm_obj, "close", None)
-                    if callable(close_fn):
-                        close_fn()
-                    _goal_realization_mod._LLM = None
-
-                model_cache = getattr(_get_purpose_mod, "_LLAMA_MODELS", None)
-                if isinstance(model_cache, dict):
-                    for model in list(model_cache.values()):
-                        close_fn = getattr(model, "close", None)
-                        if callable(close_fn):
-                            close_fn()
-                    model_cache.clear()
-            except Exception:
-                pass
-
-            gc.collect()
-
         def report_progress(value, text):
             if progress_callback:
                 progress_callback(value, text)
@@ -96,12 +63,10 @@ class AnalysisPipeline:
                 return None, None, "Tryb Szybki."
             
             try:
-                from analysis.extraction.extraction_json import get_raster_figure_numbers
                 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
                 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
-                from analysis.modules.llm.get_grade import get_overall_grade, get_content_grade
+                from analysis.modules.llm.get_grade import get_overall_grade, get_content_grade, get_purpose_grade
                 from analysis.modules.llm.get_purpose import get_purpose
-                from analysis.modules.llm.goal_realization import check_goal_realization, get_score_from_goal_result
                 from analysis.modules.llm.get_summary import get_summaries
                 from analysis.modules.llm.get_subtitles import get_subtitles
                 from analysis.modules.llm.run_sota import get_final_sota_report
@@ -113,12 +78,38 @@ class AnalysisPipeline:
 
                 mapper = PDFMapper()
                 mapped_doc = mapper.map_to_schema(doc_obj)
+                raw_image_report = analyze_images(doc_obj, mapped_doc)
                 plain_txt_purpose = get_plain_text(pdf_path)
                 txt_for_llm = extractPDF_llm(pdf_path)
+
+                total_images = len(raw_image_report)
+                bad_images_count = 0
+                image_details_lines = []
+
+                for item in raw_image_report:
+                    img_id = item.get("obrazek", item.get("id", "Nieznany"))
+                    is_correct = item.get("poprawnosc_danych", "True")
+                    errors = item.get("bledy", "None")
+                    
+                    if isinstance(errors, list):
+                        errors = " ".join(errors)
+                    
+                    if is_correct == "False" or is_correct is False:
+                        bad_images_count += 1
+                        status_text = "Wykryto rozbieznosci"
+                    else:
+                        status_text = "Poprawny"
+                        
+                    image_details_lines.append(f"Rysunek {img_id}: {status_text} - Szczegoly: {errors}")
+
+                image_summary_data = {
+                    "total": total_images,
+                    "bad_count": bad_images_count,
+                    "good_count": total_images - bad_images_count,
+                    "details": image_details_lines
+                }
+
                 purpose = get_purpose(plain_txt_purpose, language)
-                goal_result = check_goal_realization(plain_txt_purpose, purpose, language)
-                purpose_score = get_score_from_goal_result(goal_result)
-                purpose_reason = str(goal_result.get("reason", "") or "")
                 subtitles = get_subtitles(txt_for_llm)
                 summaries = get_summaries(subtitles, language)
 
@@ -129,57 +120,19 @@ class AnalysisPipeline:
                     content_grade_val = content_res if isinstance(content_res, (int, float)) else 0.0
                     off_topic_headings = []
 
-                raster_figure_numbers = get_raster_figure_numbers(doc_obj)
-                raw_image_report = analyze_images(doc_obj, mapped_doc)
-
-                total_images = len(raw_image_report)
-                bad_images_count = 0
-                image_details_lines = []
-
-                for item in raw_image_report:
-                    img_id = item.get("obrazek", item.get("id", "Nieznany"))
-                    is_correct = item.get("poprawnosc_danych", "True")
-                    errors = item.get("bledy", "None")
-
-                    if isinstance(errors, list):
-                        errors = " ".join(errors)
-
-                    if is_correct == "False" or is_correct is False:
-                        bad_images_count += 1
-                        status_text = "Wykryto rozbieznosci"
-                    else:
-                        status_text = "Poprawny"
-
-                    image_details_lines.append(f"Rysunek {img_id}: {status_text} - Szczegoly: {errors}")
-
-                image_summary_data = {
-                    "total": total_images,
-                    "bad_count": bad_images_count,
-                    "good_count": total_images - bad_images_count,
-                    "details": image_details_lines
-                }
+                purpose_res = get_purpose_grade(txt_for_llm, purpose, language)
+                if isinstance(purpose_res, tuple) and len(purpose_res) == 2:
+                    purpose_score, purpose_reason = purpose_res
+                else:
+                    purpose_score = purpose_res if isinstance(purpose_res, (int, float)) else 0
+                    purpose_reason = "Brak uzasadnienia (błąd lub limit czasu CPU)"
                 
                 quality_errors = get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False)
                 font_errors = get_font_consistency_report(doc_obj, mapped_doc, verbose=False)
                 
-                cleanup_text_llm_instances()
-
-                try:
-                    res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
-                except Exception as sota_err:
-                    res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = (
-                        None,
-                        None,
-                        0,
-                        "Błąd SOTA",
-                        0,
-                        False,
-                        False,
-                        False,
-                    )
-
+                res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(mapped_doc, language)
+        
                 score = get_overall_grade(purpose_score, content_grade_val, res_score)
-                print(f"Purpose Score: {purpose_score}, Content Grade: {content_grade_val}, SOTA Score: {res_score}, Overall Score: {score}")
                 
                 total_sections = len(summaries) if summaries else 1
                 bad_sections = len(off_topic_headings)
@@ -190,7 +143,8 @@ class AnalysisPipeline:
                     "max_grade": 100.0,
                     "off_topic_sections": bad_sections,
                     "p_off": round(p_off_val, 2),
-                    "off_topic_headings": off_topic_headings
+                    "off_topic_headings": off_topic_headings,
+                    "purpose_reason": purpose_reason
                 }
 
                 result = {
@@ -207,10 +161,11 @@ class AnalysisPipeline:
                     "jakosc_obrazkow": quality_errors,
                     "czcionki_obrazkow": font_errors
                 }
-
+                
                 return result, score, "Analiza LLM zakończona pomyślnie."
             
             except Exception as e:
+                print(f"[PIPELINE] Błąd skryptu LLM/SOTA: {e}")
                 return None, None, "Błąd analizy SOTA/LLM."
         def task_linguistics():
             try:
@@ -229,6 +184,7 @@ class AnalysisPipeline:
                 for block in raw_blocks.logical_blocks:
                     block.language = language
                 ling_matches, sentence_analysis = ling_module.run_linguistics(raw_blocks)
+                print(f"[PIPELINE] Znaleziono {len(ling_matches)} błędów lingwistycznych.")
                 stats = {
                     "active_ratio": getattr(sentence_analysis, "active_ratio", "0%"),
                     "passive_ratio": getattr(sentence_analysis, "passive_ratio", "0%"),
@@ -236,6 +192,7 @@ class AnalysisPipeline:
                 }
                 return ling_matches, stats
             except Exception as e:
+                print(f"[PIPELINE] Błąd lingwistyki: {e}")
                 import traceback
                 traceback.print_exc()
                 return [], {"active_ratio": "0%", "passive_ratio": "0%", "verbless_ratio": "0%"}
@@ -256,8 +213,10 @@ class AnalysisPipeline:
                 doc_obj.get_most_common_font_size = lambda: max(font_usage, key=font_usage.get, default=12) if font_usage else 12
                 
                 redaction_errors = validator.validate()
+                print(f"[PIPELINE] Znaleziono {len(redaction_errors)} błędów redakcyjnych.")
                 return redaction_errors
             except Exception as e:
+                print(f"[PIPELINE] Błąd analizy redakcyjnej: {e}")
                 import traceback
                 traceback.print_exc()
                 return []
@@ -265,15 +224,23 @@ class AnalysisPipeline:
 
         redaction_errors = task_redaction()
         report_progress(50, "Redakcja zakończona. Uruchamiam pozostałe analizy...")
+        
+        workers_count = 2 if use_llm else 1
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers_count) as executor:
+            future_ling = executor.submit(task_linguistics)
+    
+            if use_llm:
+                future_llm = executor.submit(task_llm)
 
-        ling_matches, ling_stats = task_linguistics()
+            ling_matches, ling_stats = future_ling.result()
 
-        if use_llm:
-            llm_result, content_grade_result, llm_summary_text = task_llm()
-        else:
-            llm_result = None
-            content_grade_result = None
-            llm_summary_text = "Analiza LLM została pominięta."
+            if use_llm:
+                llm_result, content_grade_result, llm_summary_text = future_llm.result()
+            else:
+                llm_result = None
+                content_grade_result = None
+                llm_summary_text = "Analiza LLM została pominięta."
         report_progress(100, "Generowanie raportu końcowego...")
         
         wszystkie_bledy = ling_matches + redaction_errors

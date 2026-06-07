@@ -26,7 +26,7 @@ def main():
     app = QApplication(sys.argv)
     check=check_and_download_requirements()
     if not check:
-        sys.exit(-1)
+        sys.exit()
     window = PDFReader()
     window.show()
     sys.exit(app.exec())
