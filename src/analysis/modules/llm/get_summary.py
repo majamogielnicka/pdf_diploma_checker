@@ -11,15 +11,15 @@ for _p in (os.path.dirname(_src_dir), _src_dir):
 from common.path import resource_path
 
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
-from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
+from analysis.modules.llm.get_subtitles import get_subtitles
 
-from analysis.modules.llm.config import THESIS_PATH, MODEL_PATH, LANGUAGE
+from analysis.modules.llm.config import THESIS_PATH, MODEL_PATH, LANGUAGE, N_GPU_LAYERS
 
 MAX_FRAGMENT_CHARS = 1600
-MAX_NEW_TOKENS = 96
-N_CTX = 4096
-N_THREADS = None
-N_GPU_LAYERS = 0
+MAX_NEW_TOKENS = 64
+N_CTX = 2048
+N_THREADS = max((os.cpu_count() or 4) - 1, 1)
+N_BATCH = 512
 
 PROMPT_PL = (
     "Na podstawie wyłącznie podanego fragmentu napisz jedno zdanie po polsku streszczające jego główną treść. "
@@ -90,6 +90,7 @@ def get_llm():
             model_path=str(MODEL_PATH),
             n_ctx=N_CTX,
             n_threads=N_THREADS,
+            n_batch=N_BATCH,
             n_gpu_layers=N_GPU_LAYERS,
             verbose=False,
         )
@@ -143,14 +144,20 @@ def get_summaries(subtitles, language):
             display = f"{number or ''} {title or ''}".strip() or f"Sekcja {i}"
 
         if not content:
-            summaries.append({
+            item = {
                 "index": i,
                 "number": number,
                 "title": title,
                 "display": display,
                 "content": content,
                 "summary": "[BRAK TREŚCI W SEKCJI]",
-            })
+            }
+            summaries.append(item)
+            print(item["display"])
+            print("SUMMARY:")
+            print(item["summary"])
+            print()
+            print("-" * 80)
             continue
 
         try:
@@ -158,21 +165,27 @@ def get_summaries(subtitles, language):
         except Exception as e:
             summary = f"[BŁĄD GENEROWANIA: {e}]"
 
-        summaries.append({
+        item = {
             "index": i,
             "number": number,
             "title": title,
             "display": display,
             "content": content,
             "summary": summary,
-        })
+        }
+        summaries.append(item)
+        print(item["display"])
+        print("SUMMARY:")
+        print(item["summary"])
+        print()
+        print("-" * 80)
 
     return summaries
 
 
 def summarize_subtitles(raw_doc, subtitles, language):
     if subtitles is None:
-        subtitles = extract_subtitles_from_pdf(raw_doc)
+        subtitles = get_subtitles(raw_doc)
 
     return get_summaries(subtitles, language)
 
@@ -211,16 +224,28 @@ def main():
         print("Błąd: ekstrakcja PDF zwróciła None.")
         return
 
-    subtitles = extract_subtitles_from_pdf(raw_doc)
+    subtitles = get_subtitles(raw_doc)
 
     if not subtitles:
         print("Nie udało się wyciągnąć nagłówków / fragmentów z PDF.")
         return
 
+    print("Podgląd subtitles po ekstrakcji (format jak w get_subtitles):")
+    for sub in subtitles:
+        display = normalize_text(sub.get("display") or "")
+        content = normalize_text(sub.get("content") or "")
+        if not display:
+            display = normalize_text(sub.get("title") or "")
+        preview = content[:250]
+        if len(content) > 250:
+            preview += "..."
+        print(display)
+        print(preview)
+        print("-" * 80)
+
     print(f"Wykryto nagłówków: {len(subtitles)}")
 
-    summaries = get_summaries(subtitles, language)
-    print_summaries(summaries)
+    get_summaries(subtitles, language)
 
 
 if __name__ == "__main__":
