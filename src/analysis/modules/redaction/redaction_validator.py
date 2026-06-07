@@ -118,7 +118,7 @@ class RedactionValidator:
             self.check_toc()
             self.check_tof()
             self.check_tot()
-
+            self.check_list_order()
 
         #--------------------advanced redaction check
         if advanced_redaction_check:
@@ -129,14 +129,14 @@ class RedactionValidator:
             self.check_bibliography()
             #self.check_korytarze()
             self.check_bibliography_summary()
+            self.check_caption_sources()
 
-        self.remove_errors_from_title_page()
         self.remove_errors_from_toc_tof_tot()
         self.remove_errors_from_images()
         self.remove_errors_from_tables()
         self.remove_errors_from_acronyms_symbols()
+        self.remove_errors_from_title_page()
         self.replace_global_errors()
-
 
         return self.errors
     
@@ -166,7 +166,7 @@ class RedactionValidator:
                     error.bounding_box = (round(new_x1, 2), 5, round(new_x2, 2), 45)
 
     def remove_errors_from_title_page(self):
-        for error in self.errors:
+        for error in self.errors[:]:
             if error.page_number == 0:
                 self.errors.remove(error)
 
@@ -282,7 +282,7 @@ class RedactionValidator:
         self.errors = errors_fixed
 
     def check_orphans(self):
-        '''Zwraca listę sierot (spans)'''
+        '''This function checks every line in the document for orphans.'''
         orphans = []
         for page in self.document_data.pages:
             for block in page.text_blocks:
@@ -303,6 +303,11 @@ class RedactionValidator:
 
                         if last_span.size < self.document_data.get_most_common_font_size() * 0.8:
                             continue
+
+                        rect = (last_span.bbox[2] + 3, last_span.bbox[1] + 1, page.width - 1, last_span.bbox[3] - 1) #tested
+                        if self.document_data.is_rect_intersecting(rect, page) != []:
+                            continue
+
                         orphans.append(last_span)
                         self.errors.append(Error(
                             id = self._get_next_id(),
@@ -518,17 +523,58 @@ class RedactionValidator:
         right_x = last_word.bbox[2]
         top_y = min([w.bbox[1] for w in szewc_words])
         bottom_y = max([w.bbox[3] for w in szewc_words])
-        bekart_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
+        szewc_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
         
         return Error(
             id=self._get_next_id(), 
             module=self.module,
             category="shoemaker", 
-            page_number=first_word.page_number - 1,
-            bounding_box=bekart_bbox, 
+            page_number=first_word.page_number,
+            bounding_box=szewc_bbox, 
             text=found_text,
             comments="Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie."
         )
+    
+    def check_caption_sources(self):
+        for block in self.document_data_linguistics.logical_blocks:
+            if getattr(block, "incorrect_caption", 0) == 1:
+                
+                if getattr(block, "words", []):
+                    left_x = min(w.bbox[0] for w in block.words)
+                    top_y = min(w.bbox[1] for w in block.words)
+                    right_x = max(w.bbox[2] for w in block.words)
+                    bottom_y = max(w.bbox[3] for w in block.words)
+                    caption_bbox = (round(left_x, 2), round(top_y, 2), round(right_x, 2), round(bottom_y, 2))
+                    page_num = block.words[0].page_number
+                else:
+                    caption_bbox = (0, 0, 0, 0)
+                    page_num = 1
+
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="missing_caption_source",
+                    page_number=page_num,
+                    bounding_box=caption_bbox,
+                    text=getattr(block, "content", ""),
+                    comments="Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne')."
+                ))
+
+        for visual in self.document_data_linguistics.floating_elements.visual_elements:
+            if getattr(visual, "incorrect_caption", 0) == 1:
+                
+                caption_dict = getattr(visual, "caption", {})
+                caption_text = caption_dict.get("text", "") if isinstance(caption_dict, dict) else ""
+                
+                self.errors.append(Error(
+                    id=self._get_next_id(),
+                    module=self.module,
+                    category="missing_caption_source",
+                    page_number=getattr(visual, "page_number", 1),
+                    bounding_box=getattr(visual, "bbox", (0, 0, 0, 0)),
+                    text=caption_text,
+                    comments="Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie."
+                ))
     
     def check_toc(self):
         wrong_entries = []
@@ -1006,46 +1052,137 @@ class RedactionValidator:
 
         for page in doc_data.pages:
             for block in page.text_blocks:
-                lines = block.lines
-            
-                if len(lines) <= 1:
-                    continue
-            
-                for i in range(len(lines) - 1):
-                    line = lines[i]
-
-                    if not line.spans:
+                if self.is_paragraph(block):
+                    lines = block.lines
+                
+                    if len(lines) <= 1:
                         continue
+                
+                    for i in range(len(lines) - 1):
+                        line = lines[i]
 
-                    is_justified = (
-                        line.alignement == "justified" 
-                    )
+                        if not line.spans:
+                            continue
 
-                    if expected_justified and not is_justified:
-                        self.errors.append(Error(
-                            id = self._get_next_id(),
-                            module = self.module,
-                            category = "justification",
-                            page_number = page.number,
-                            bounding_box = line.bbox,
-                            text = None,
-                            comments = f"Wykryto brak justowania w akapicie (linia {i+1})"
-                        ))
-                        errors_found = True
+                        is_justified = (
+                            line.alignement == "justified" 
+                        )
 
-                    elif not expected_justified and is_justified:
-                        self.errors.append(Error(
-                            id = self._get_next_id(),
-                            module = self.module,
-                            category = "justification",
-                            page_number = page.number,
-                            bounding_box = line.bbox,
-                            text = None,
-                            comments = f"Wykryto niepoprawne justowanie w akapicie (linia {i+1})"
-                        ))
-                        errors_found = True
+                        if expected_justified and not is_justified:
+                            self.errors.append(Error(
+                                id = self._get_next_id(),
+                                module = self.module,
+                                category = "justification",
+                                page_number = page.number,
+                                bounding_box = line.bbox,
+                                text = None,
+                                comments = f"Wykryto brak justowania w akapicie (linia {i+1})"
+                            ))
+                            errors_found = True
+
+                        elif not expected_justified and is_justified:
+                            self.errors.append(Error(
+                                id = self._get_next_id(),
+                                module = self.module,
+                                category = "justification",
+                                page_number = page.number,
+                                bounding_box = line.bbox,
+                                text = None,
+                                comments = f"Wykryto niepoprawne justowanie w akapicie (linia {i+1})"
+                            ))
+                            errors_found = True
 
         if not errors_found:
             logging.info("Redaction: justowanie zgodne z wymaganiami")
-
+            
         return not errors_found
+    
+
+    def check_list_order(self):
+
+        if self.document_data.toc and self.document_data.toc.entries:
+            error_found_toc = False
+            entries_toc = self.document_data.toc.entries
+            
+            for i in range(1, len(entries_toc)):
+                current_entry_toc = entries_toc[i]
+                previous_entry_toc = entries_toc[i - 1]
+
+                if current_entry_toc.page < previous_entry_toc.page:
+                    error_found_toc = True
+                    break
+
+            if error_found_toc:    
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "toc_order_error",
+                    page_number = self.document_data.toc.page_nums[0],
+                    bounding_box = (0,0,0,0),
+                    text = None,
+                    comments = f"Wykryto malejącą numerację w spisie treści. Kolejne wpisy spisu treści powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                ))
+
+
+        if self.document_data.tof and self.document_data.tof.entries:
+            error_found_tof = False
+            entries_tof = self.document_data.tof.entries
+            
+            for i in range(1, len(entries_tof)):
+                current_entry_tof = entries_tof[i]
+                previous_entry_tof = entries_tof[i - 1]
+
+                if current_entry_tof.page < previous_entry_tof.page:
+                    error_found_tof = True
+                    break
+
+            if error_found_tof:    
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "tof_order_error",
+                    page_number = self.document_data.tof.page_nums[0],
+                    bounding_box = (0,0,0,0),
+                    text = None,
+                    comments = f"Wykryto malejącą numerację w spisie figur. Kolejne wpisy spisu figur powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                ))
+                
+        if self.document_data.tot and self.document_data.tot.entries:
+            error_found_tot = False
+            entries_tot = self.document_data.tot.entries
+            
+            for i in range(1, len(entries_tot)):
+                current_entry_tot = entries_tot[i]
+                previous_entry_tot = entries_tot[i - 1]
+
+                if current_entry_tot.page < previous_entry_tot.page:
+                    error_found_tot = True
+                    break
+
+            if error_found_tot:    
+                self.errors.append(Error(
+                    id = self._get_next_id(),
+                    module = self.module,
+                    category = "tot_order_error",
+                    page_number = self.document_data.tot.page_nums[0],
+                    bounding_box = (0,0,0,0),
+                    text = None,
+                    comments = f"Wykryto malejącą numerację w spisie tabel. Kolejne wpisy spisu tabel powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                ))
+        return 
+    
+    def is_paragraph(self, block):
+        """
+        Funkcja sprawdzająca, czy bloki to paragraph
+        """
+        block_type = getattr(block, "type", "")
+        if block_type is None:
+            block_type = ""
+            
+        block_type_lower = block_type.lower()
+        types = ["paragraph"]
+        
+        if any(i_type in block_type_lower for i_type in types):
+            return True
+            
+        return False
