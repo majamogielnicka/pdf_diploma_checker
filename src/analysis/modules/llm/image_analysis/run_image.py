@@ -124,6 +124,10 @@ def analyze_images(doc_obj, mapped_doc, verbose=False):
                 "bledy": verification.get("bledy", "None")
             })
 
+    # Zwalniamy model sędziego po analizie, aby nie blokował VRAM dla kolejnych etapów.
+    del checker
+    gc.collect()
+
     return final_report
 
 if __name__ == "__main__":

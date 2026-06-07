@@ -5,6 +5,7 @@ from datetime import datetime
 
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+import torch
 
 _src_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 for _p in (os.path.dirname(_src_dir), _src_dir):
@@ -19,7 +20,7 @@ from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_t
 from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
 from analysis.modules.llm.get_purpose import get_purpose
 from analysis.modules.llm.get_summary import summarize_subtitles
-from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, OUTPUT_DIR, LANGUAGE
+from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, OUTPUT_DIR, LANGUAGE, N_GPU_LAYERS
 
 
 def normalize_text(text):
@@ -74,9 +75,13 @@ def compute_similarity_for_summaries(purpose, summaries, embedding_model=EMBEDDI
             "average_similarity": 0.0,
         }
 
+    use_cuda = (N_GPU_LAYERS != 0) and torch.cuda.is_available()
+    device = "cuda" if use_cuda else "cpu"
+
     model = SentenceTransformer(
         embedding_model,
         trust_remote_code=True,
+        device=device,
     )
 
     purpose_embedding = model.encode(

@@ -1,7 +1,7 @@
 from models import InputDocument
 from pipeline import AnalysisPipeline
 
-def run_analysis_for_pdf(pdf_path, language="pl", config_path=None, progress_callback=None, use_llm=True):
+def run_analysis_for_pdf(pdf_path, config_path=None, progress_callback=None, use_llm=True, language="pl"):
     if not pdf_path:
         raise ValueError("Nie podano ścieżki do pliku PDF.")
 
@@ -12,4 +12,11 @@ def run_analysis_for_pdf(pdf_path, language="pl", config_path=None, progress_cal
     )
 
     pipeline = AnalysisPipeline()
-    return pipeline.run(input_document, progress_callback=progress_callback, use_llm=use_llm, config_path=config_path)
+    
+    return pipeline.run(
+        input_document, 
+        progress_callback=progress_callback, 
+        use_llm=use_llm, 
+        config_path=config_path,
+        language=language
+    )

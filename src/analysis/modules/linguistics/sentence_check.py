@@ -72,6 +72,7 @@ def sentence_check(blocks, chapter_nums, check_first_person=True, acronyms_with_
                                 offset = idx_map[token.idx]
                                 error_length = idx_map[token.idx + len(token)] - offset
                                 start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, offset, error_length)
+                                
                                 match = Error_type(
                                 content= token.text,
                                 category= "PERSONAL_FORM",

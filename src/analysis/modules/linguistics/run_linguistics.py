@@ -87,8 +87,7 @@ def run_linguistics(raw_blocks, config_path=None):
     language_style_matches, sentence_analisys = sentence_check(blocks, check_first_person=check_first_person, acronyms_with_definitions=acronyms_with_definitions, chapter_nums=chapter_nums)
     matches = checked_exeptions + decimal_matches + list_matches + acronym_matches + language_style_matches + dash_matches + bib_matches
     matches = remove_errors_inside_images(matches, raw_blocks)
-    # extract_errors_to_json(matches, "errors.json")
-    return matches
+    return matches, sentence_analisys
 
 #plik pomocniczy do uruchamiania analizy bez GUI
 if __name__ == "__main__":

@@ -23,15 +23,16 @@ from common.path import resource_path
 
 EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
 OUTPUT_DIR = Path(resource_path(os.path.join("analysis", "modules", "llm", "wyniki")))
+THESIS_DIR = Path.home() / "theses"
 
 #JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
-# MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
 MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
+N_GPU_LAYERS = 25
 LLAVA_MODEL_PATH=Path.home() / "models" / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
 LLAVA_MMPROJ_PATH=Path.home() / "models" / "mmproj-model-f16.gguf"
 
-THESIS_PATH = Path(resource_path(os.path.join("..", "data", "most_important", "jabi.pdf")))
-LANGUAGE = "pl" #LUB "en"
+THESIS_PATH = THESIS_DIR / "jost2.pdf"
+LANGUAGE = "en" #LUB "en"
 
 if __name__ == "__main__":
     print(f"BASE_DIR: {BASE_DIR}")
