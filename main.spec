@@ -18,6 +18,7 @@ a = Analysis(
         (spellchecker_resources, 'spellchecker/resources'),
         ('src/ui/assets', 'ui/assets'),
         ('src/ui/assets', 'src/ui/assets'),
+        ('src/analysis/modules/linguistics/word_whitelist.txt', 'analysis/modules/linguistics'),
     ] + spacy_datas + spacy_metadata,     
     hiddenimports=[
         'PySide6.QtSvgWidgets',
