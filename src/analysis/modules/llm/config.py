@@ -1,6 +1,9 @@
+import os
 import sys
 import json
 from pathlib import Path
+
+from common.path import resource_path
 
 
 def get_app_dir():
@@ -14,18 +17,11 @@ def get_app_dir():
     if getattr(sys, "frozen", False):
         return Path(sys.executable).resolve().parent
 
-EMBEDDING_MODEL = "intfloat/multilingual-e5-large"
-OUTPUT_DIR = Path(resource_path(os.path.join("analysis", "modules", "llm", "wyniki")))
-THESIS_DIR = Path.home() / "theses"
+    return Path(__file__).resolve().parents[4]
 
-#JEDYNE 3 LINIJKI DO ZMIANY, JEŚLI URUCHAMIASZ
-MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
-N_GPU_LAYERS = 25
-LLAVA_MODEL_PATH=Path.home() / "models" / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
-LLAVA_MMPROJ_PATH=Path.home() / "models" / "mmproj-model-f16.gguf"
 
-THESIS_PATH = THESIS_DIR / "jost2.pdf"
-LANGUAGE = "en" #LUB "en"
+APP_DIR = get_app_dir()
+APP_CONFIG_PATH = APP_DIR / "app_config.json"
 
 
 def load_app_config():
@@ -60,6 +56,15 @@ MODEL_PATH = MODEL_DIR / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
 LLAVA_MODEL_PATH = MODEL_DIR / "llava-v1.6-mistral-7b.Q4_K_M.gguf"
 LLAVA_MMPROJ_PATH = MODEL_DIR / "mmproj-model-f16.gguf"
 
+THESIS_DIR = Path(
+    str(
+        _CONFIG.get(
+            "thesis_dir",
+            Path.home() / "theses",
+        )
+    )
+).expanduser()
+
 THESIS_PATH = Path(
     str(
         _CONFIG.get(
@@ -73,7 +78,7 @@ OUTPUT_DIR = Path(
     str(
         _CONFIG.get(
             "output_dir",
-            APP_DIR / "output",
+            resource_path(os.path.join("analysis", "modules", "llm", "wyniki")),
         )
     )
 ).expanduser()
@@ -81,6 +86,6 @@ OUTPUT_DIR = Path(
 EMBEDDING_MODEL = str(
     _CONFIG.get(
         "embedding_model",
-        "paraphrase-multilingual-MiniLM-L12-v2",
+        "intfloat/multilingual-e5-large",
     )
 )
