@@ -1,7 +1,3 @@
-'''
-Odrzucanie false positives uzyskanych podczas analizy językowej.
-'''
-
 from collections import defaultdict
 import re
 from .helpers import lemmatization
@@ -10,6 +6,8 @@ from .typos_final_filter import refine_typos
 import string
 
 def check_exeptions(matches, blocks, proper_names, main_font):
+    '''Filters raw language-tool matches to drop false positives and keep actual errors, passes 
+    typing errors for secondary check.'''
     potential_exeptions = defaultdict(list)
     valid_errors = []
     blocks_to_check = defaultdict(list)
@@ -43,7 +41,7 @@ def check_exeptions(matches, blocks, proper_names, main_font):
                                 continue
                         except:
                             pass
-                        lemma, is_found = lemmatization(word, block.language)
+                        lemma = lemmatization(word, block.language)
                         if check_if_proper(block.block, match, proper_names, lemma):
                             continue
                         potential_exeptions[lemma].append(match)
@@ -64,6 +62,7 @@ def check_exeptions(matches, blocks, proper_names, main_font):
 
 
 def remove_errors_different_font(match, block, main_font):
+    '''Exclueds matches that use different font than main tex for example code snippet citations.'''
     if not main_font or not match.word_idxs:
         return False
     words_by_idx = {w.word_index: w for w in block.block.words}
@@ -74,6 +73,7 @@ def remove_errors_different_font(match, block, main_font):
     return False
 
 def check_quotes(start, end, text, return_spans=False):
+    '''Looks for quotes fragments in text and returns their spans, to exclude them from certain error types.'''
     spans = []
     for quote_match in re.finditer(r'[“„″””\'”"](.+?)[“”″\'"”]', text):
         if return_spans:

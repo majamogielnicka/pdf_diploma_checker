@@ -1,8 +1,3 @@
-'''
-Analiza składni zdań, wydobywanie pierwszej formy osobowej z tekstu i oznaczanie jako błąd
-jeśli w pliku json nie jest wskazane inaczej oraz wydobywanie i 
-oznaczanie jako błąd zdań w praragrafach niezawierających podmiotu lub orzeczenia.
-'''
 from analysis.extraction.schema import *
 from .exeptions_check import check_quotes
 from .helpers import get_match_info, morf, nlp_pl, nlp_en
@@ -19,10 +14,8 @@ DESCRIPTION_WHITELIST= {"wersja", "wersji", "wersjom", "wersjach", "wersję", "w
 
 def sentence_check(blocks, chapter_nums, check_first_person=True, acronyms_with_definitions=None):
     '''
-    Funkcja parsuje zdania w paragrafach tekstu. Za pomocą zależności spacy przypisuje zdaniu formę aktywną,
-    bierną bądź równoważnika zdania - zwraca statystyki dla paragrafów z całego dokumentu,
-    Z analizy wykluczana jest treść nawiasów. Zdania złożone uznawane są za bierne, gdy chociaż jedna część zdania jest bierna.
-    Funkcja sprawdza, czy zdanie ma podmiot lub orzeczenie i przy braku zwraca błąd - z wykluczeniem zdań w cudzysłowiu lub kursywą/inną czcionką.
+    Parses paragraph sentences. Marks usage of first person as error when it is not excluded in user JSON, 
+    Marks sentences with no verb or no subject as an error, creates statistics of each sentence form usage across paragraphs.
     '''
     sentence_count = 0
     passive_count = 0
@@ -176,8 +169,8 @@ def sentence_check(blocks, chapter_nums, check_first_person=True, acronyms_with_
 
 def morfeusz_check(text):
     '''
-    Funkcja wykluczająca możliwe FP z parsowania spacy dla języka polskiego,
-    za pomocą słownika zależności biblioteki Morfeusz. 
+    Helper that double checks if words matched as first person usage in Polish
+    are also marked as that in polish dictionary.
     '''
     personal_tags = {"pri", "ppron12"}
     analysis = morf.analyse(text)
@@ -189,8 +182,7 @@ def morfeusz_check(text):
 
 def definicion(block, word_idxs, sentence_text):
     '''
-     Funkcja pomocnicza, wykluczająca błędy braku podmiotu/orzeczenia w wypadku wykrycia struktury 
-     definicji np. (bold: definicja)
+    Excludes no verb/no subject errors in definition formatted sentences.
     '''
     if not word_idxs:
         return False
@@ -203,7 +195,7 @@ def definicion(block, word_idxs, sentence_text):
 
 def description_exclude_backup(sentence_text, sentence_before, chapter_nums):
     '''
-    Funkcja pomocnicza, wykluczająca błędy braku podmiotu/orzeczenia w wypadku błędnie sparsowanych podpisów.
+    Helper function that excludes errors of no verb/no subject from wrongly parsed floating elements descriptions.
     '''
     words = sentence_text.split()
     words_before = sentence_before.split()
@@ -224,8 +216,8 @@ def description_exclude_backup(sentence_text, sentence_before, chapter_nums):
 
 def exclude_brackets(block_contents):
     '''
-    Maskowanie wtrąceń w nawiasach w tekście do analizy spacy, 
-    aby parser nie przypisywał im błednie zależności.
+    Maskes sentences in brackets with a single space before spacy analysis to prevent wrong parsing.
+    Returns masked text and index map that translates masked text to original one.
     '''
     n = len(block_contents)
     removed = [False] * n

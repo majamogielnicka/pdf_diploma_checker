@@ -37,7 +37,7 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
         for word in matched_words:
             if word.text in proper:
                 return True
-            word_lemma, _ = lemmatization(word.text, "pl")
+            word_lemma = lemmatization(word.text, "pl")
             if word_lemma in proper_lemmas:
                 return True
             if lemma and text in proper_lemmas:

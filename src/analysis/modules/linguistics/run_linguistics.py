@@ -1,14 +1,5 @@
-'''
-Plik powstał w celu ułatwienia uruchamiania modułu lingwistycznego z pipeline funkcją run_linguistics.
-Dodatkowo uruchamiany jako main przeprowadza analizę bez udziału gui.
-'''
 from pathlib import Path
 import sys
-
-# _src = str(Path(__file__).resolve().parents[3])
-# if _src not in sys.path:
-#     sys.path.insert(0, _src)
-
 from analysis.modules.linguistics.language_error_extractor import *
 from analysis.modules.linguistics.decimal_point_extractor import decimal_check
 from analysis.modules.linguistics.dash_check import dash_check
@@ -27,6 +18,7 @@ from common.path import resource_path
 import os
 
 def remove_errors_inside_images(matches, raw_blocks):
+    '''Excludes matches found on images bboxes.'''
     def is_inside(coord, image_bbox):
         return (
             coord[0] >= image_bbox[0] - 10 and
@@ -52,6 +44,8 @@ def remove_errors_inside_images(matches, raw_blocks):
     return filtered
 
 def run_linguistics(raw_blocks, config_path=None):
+    '''Starting point of linguistic analysis. This function runs all of the linguistics functions,
+      returns matches list and senetence analysis statistics.'''
     check_first_person = True
     check_bibtex = True
     if config_path:
@@ -78,9 +72,9 @@ def run_linguistics(raw_blocks, config_path=None):
     bib_matches = check_bibliography(blocks, raw_blocks.metadata["producer"], bibliography_dict, bibtex_check_bool = check_bibtex)
     acronyms_with_definitions, proper_names = check_first_definition(blocks, proper_names, extracted_acronyms)
     acronym_matches, proper_names = check_if_was_defined(blocks, acronyms_with_definitions, proper_names)
-    decimal_matches, decimal_counter = decimal_check(blocks, chapter_nums)
-    dash_matches, dash_counter = dash_check(blocks)
-    language_matches, whitespace_counter = language_tool_analisys(blocks)
+    decimal_matches = decimal_check(blocks, chapter_nums)
+    dash_matches = dash_check(blocks)
+    language_matches = language_tool_analisys(blocks)
     list_matches = check_coherence_in_list(blocks, proper_names, acronyms_with_definitions)
     main_font = raw_blocks.metadata.get("main_font")
     checked_exeptions = check_exeptions(language_matches, blocks, proper_names, main_font)

@@ -1,9 +1,3 @@
-'''
-Analiza tekstu paragrafów pod kątem błędów ortograficznych, interpunkcyjnych, 
-literówek oraz błędów składni zdania, wykorzystując LanguageTool. 
-W celu zminimalizowania FP dla literówek, są one dwustopniowo weryfikowane przy użyciu dodatkowych słowników 
-(morfeusz2 i spellchecker).
-'''
 import atexit
 import os
 from pathlib import Path
@@ -37,7 +31,7 @@ def _close_language_tools():
 atexit.register(_close_language_tools)
 
 def _init_language_tools():
-    """Inicjalizuj LanguageTool tylko raz, przy pierwszym uruchomieniu."""
+    '''Inicialize language tools only once during first boot.'''
     global _TOOL_EN, _TOOL_PL
     
     if _TOOL_EN is None:
@@ -80,8 +74,8 @@ def _init_language_tools():
         _TOOL_PL.disabled_rules.add('DYWIZ')
 
 def language_tool_analisys(blocks):
+    '''Finds mistakes in text: grammar, style, typos, punctuation in paragraphs and more.'''
     errors = []
-    whitespace_counter = 0
 
     polish_messages = {
         'COLLOCATIONS': "Błąd kolokacji.",
@@ -156,9 +150,10 @@ def language_tool_analisys(blocks):
                     error_coordinate=error_coordinate,
                 ))
 
-    return errors, whitespace_counter
+    return errors
 
 def typo_check(typo_text):
+    '''Double check typos found by language analysis with Polish and English dictionaries.'''
     analysis = morf.analyse(typo_text)
     words = typo_text.lower().split()
     for interpretation in analysis:
