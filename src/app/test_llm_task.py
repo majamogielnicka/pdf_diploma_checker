@@ -25,7 +25,7 @@ for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, RED
         sys.path.insert(0, path)
 
 
-THESIS_PATH = SCRIPT_DIR / "jago.pdf"
+THESIS_PATH = SCRIPT_DIR / "inż_1_.pdf"
 LANGUAGE = "pl"
 
 
@@ -50,11 +50,6 @@ def debug_print(title, value=None, verbose=True):
 
 
 def cleanup_text_llm_instances(verbose=False):
-    """
-    Zwalnia modele tekstowe LLM po purpose / goal / summaries,
-    żeby przed LLaVA było więcej wolnego RAM/VRAM.
-    """
-
     try:
         from analysis.modules.llm import get_summary as _get_summary_mod
         from analysis.modules.llm import goal_realization as _goal_realization_mod
@@ -92,6 +87,7 @@ def cleanup_text_llm_instances(verbose=False):
 
     try:
         import torch
+
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
             torch.cuda.ipc_collect()
@@ -101,13 +97,6 @@ def cleanup_text_llm_instances(verbose=False):
 
 
 def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
-    """
-    Moduł LLM do wywołania z pipeline.
-
-    Zwraca:
-        result, score, summary_text
-    """
-
     started = time.perf_counter()
 
     if pdf_path is None:
@@ -138,21 +127,13 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
     from analysis.modules.llm.get_summary import get_summaries
     from analysis.modules.llm.get_subtitles import get_subtitles
     from analysis.modules.llm.run_sota import get_final_sota_report
-    from analysis.modules.llm.config import MODEL_PATH, LLAVA_MODEL_PATH, LLAVA_MMPROJ_PATH
-
-    from analysis.modules.llm.image_analysis.run_image import analyze_images
-    from analysis.modules.llm.image_analysis.image_quality_checker import get_full_image_quality_json
-    from analysis.modules.llm.image_analysis.font_checker import get_font_consistency_report
+    from analysis.modules.llm.config import MODEL_PATH
 
     from analysis.extraction.converter_linguistics_clean import PDFMapper
 
     debug_print("MODEL", {
         "MODEL_PATH": str(MODEL_PATH),
         "MODEL_EXISTS": Path(MODEL_PATH).exists(),
-        "LLAVA_MODEL_PATH": str(LLAVA_MODEL_PATH),
-        "LLAVA_MODEL_EXISTS": Path(LLAVA_MODEL_PATH).exists(),
-        "LLAVA_MMPROJ_PATH": str(LLAVA_MMPROJ_PATH),
-        "LLAVA_MMPROJ_EXISTS": Path(LLAVA_MMPROJ_PATH).exists(),
     }, verbose)
 
     if not Path(MODEL_PATH).exists():
@@ -199,6 +180,8 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
     debug_print("PURPOSE SCORE", purpose_score, verbose)
     debug_print("PURPOSE REASON", purpose_reason, verbose)
 
+    cleanup_text_llm_instances(verbose=verbose)
+
     debug_print("6. GET SUBTITLES", "get_subtitles(txt_for_llm)", verbose)
     subtitles = get_subtitles(txt_for_llm)
     debug_print("SUBTITLES", subtitles, verbose)
@@ -230,109 +213,31 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
 
     debug_print("RASTER FIGURE NUMBERS", raster_figure_numbers, verbose)
 
-    debug_print(
-        "CLEANUP BEFORE IMAGE ANALYSIS",
-        "Freeing text LLM memory before loading LLaVA",
-        verbose,
-    )
-    cleanup_text_llm_instances(verbose=verbose)
-
-    debug_print("10. IMAGE ANALYSIS", "analyze_images(doc_obj, mapped_doc)", verbose)
+    debug_print("10. IMAGE ANALYSIS", "SKIPPED", verbose)
 
     image_analysis_error = None
-
-    try:
-        raw_image_report = analyze_images(doc_obj, mapped_doc)
-        if raw_image_report is None:
-            raw_image_report = []
-    except Exception as image_err:
-        image_analysis_error = str(image_err)
-        debug_print("IMAGE ANALYSIS ERROR", image_analysis_error, verbose)
-        raw_image_report = []
-
-    debug_print("RAW IMAGE REPORT", raw_image_report, verbose)
-
-    total_images = len(raw_image_report)
-    bad_images_count = 0
-    image_details_lines = []
-
-    for item in raw_image_report:
-        img_id = item.get("obrazek", item.get("id", "Nieznany"))
-        is_correct = item.get("poprawnosc_danych", "True")
-        errors = item.get("bledy", "None")
-
-        if isinstance(errors, list):
-            errors = " ".join(errors)
-
-        if is_correct == "False" or is_correct is False:
-            bad_images_count += 1
-            status_text = "Wykryto rozbieznosci"
-        else:
-            status_text = "Poprawny"
-
-        image_details_lines.append(
-            f"Rysunek {img_id}: {status_text} - Szczegoly: {errors}"
-        )
-
     image_summary_data = {
-        "total": total_images,
-        "bad_count": bad_images_count,
-        "good_count": total_images - bad_images_count,
-        "details": image_details_lines,
+        "total": 0,
+        "bad_count": 0,
+        "good_count": 0,
+        "details": [],
         "error": image_analysis_error,
     }
 
-    debug_print("IMAGE SUMMARY DATA", image_summary_data, verbose)
-
-    debug_print("CLEANUP AFTER IMAGE ANALYSIS", "Freeing memory after analyze_images", verbose)
-    cleanup_text_llm_instances(verbose=verbose)
-
-    debug_print("11. IMAGE QUALITY", "get_full_image_quality_json(...)", verbose)
-
     quality_error = None
-
-    try:
-        quality_errors = get_full_image_quality_json(
-            doc_obj,
-            mapped_doc,
-            pdf_path,
-            verbose=False,
-        )
-        if quality_errors is None:
-            quality_errors = []
-    except Exception as quality_err:
-        quality_error = str(quality_err)
-        debug_print("IMAGE QUALITY ERROR", quality_error, verbose)
-        quality_errors = []
-
-    debug_print("IMAGE QUALITY ERRORS", quality_errors, verbose)
-
-    debug_print("CLEANUP AFTER IMAGE QUALITY", "Freeing memory after image quality", verbose)
-    cleanup_text_llm_instances(verbose=verbose)
-
-    debug_print("12. FONT CONSISTENCY", "get_font_consistency_report(...)", verbose)
+    quality_errors = []
 
     font_error = None
+    font_errors = []
 
-    try:
-        font_errors = get_font_consistency_report(
-            doc_obj,
-            mapped_doc,
-            verbose=False,
-        )
-        if font_errors is None:
-            font_errors = []
-    except Exception as font_err:
-        font_error = str(font_err)
-        debug_print("FONT CONSISTENCY ERROR", font_error, verbose)
-        font_errors = []
-
+    debug_print("IMAGE SUMMARY DATA", image_summary_data, verbose)
+    debug_print("IMAGE QUALITY ERRORS", quality_errors, verbose)
     debug_print("FONT ERRORS", font_errors, verbose)
 
     debug_print("CLEANUP BEFORE SOTA", "Freeing memory before SOTA", verbose)
     cleanup_text_llm_instances(verbose=verbose)
 
-    debug_print("13. SOTA", "get_final_sota_report(mapped_doc, language)", verbose)
+    debug_print("11. SOTA", "get_final_sota_report(mapped_doc, language)", verbose)
 
     try:
         res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = get_final_sota_report(
@@ -367,7 +272,7 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
         "sota_error": sota_error,
     }, verbose)
 
-    debug_print("14. OVERALL GRADE", "get_overall_grade(...)", verbose)
+    debug_print("12. OVERALL GRADE", "get_overall_grade(...)", verbose)
 
     score = get_overall_grade(
         purpose_score,
@@ -392,6 +297,7 @@ def run_llm_module(doc_obj, pdf_path=None, language=None, verbose=False):
         "off_topic_sections": bad_sections,
         "p_off": round(p_off_val, 2),
         "off_topic_headings": off_topic_headings,
+        "purpose_reason": purpose_reason,
     }
 
     result = {
