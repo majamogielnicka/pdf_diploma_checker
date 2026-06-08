@@ -16,6 +16,8 @@ a = Analysis(
     datas=[
         ('src', 'src'),
         (spellchecker_resources, 'spellchecker/resources'),
+        ('src/ui/assets', 'ui/assets'),
+        ('src/ui/assets', 'src/ui/assets'),
     ] + spacy_datas + spacy_metadata,     
     hiddenimports=[
         'PySide6.QtSvgWidgets',
