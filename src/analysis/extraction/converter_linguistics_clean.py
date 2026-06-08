@@ -1,7 +1,6 @@
 '''
-Struktura (wraz z wieloma metodami) do mapowania surowych danych 
-z ekstrakcji PDF na bardziej ustrukturyzowany format, który jest 
-przyjazny dla dalszej analizy lingwistycznej i NLP.
+Struct with methods converting converter_json's json into 
+a form better suited for linguistics and LLM
 '''
 import re
 import statistics
@@ -14,17 +13,8 @@ from analysis.extraction.schema import (
     classify_block_content, strip_list_marker, AcronymItem
 )
 
-#from src.analysis.extraction.schema import (
-#    FinalDocument, ParagraphBlock, ListBlock, ListItem, 
-#    WordInfo, VisualElement, FloatingElements, ReferenceSections,
-#    classify_block_content, strip_list_marker
-#)
 from analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
 from analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
-
-
-#from src.analysis.extraction.extraction_json import DocumentData, extractPDF, calculate_margins
-#from src.analysis.extraction.schema import PageArtifact, is_acronym, find_table_description, find_image_description, is_widow_func, is_bekart_func, is_szewc_func 
 class PDFMapper:
     
     # Stałe
@@ -48,12 +38,30 @@ class PDFMapper:
     # Metody statyczne (Pomocnicze, bez stanu)
     @staticmethod
     def is_continuation(last_item_bbox: list, current_block_bbox: list) -> bool:
+        """
+        Checks if a block is a continuation of the previous list item 
+        based on its horizontal (X-axis) alignment.
+
+        Args:
+            last_item_bbox (list): Bounding box of the last list item [x0, y0, x1, y1].
+            current_block_bbox (list): Bounding box of the current text block [x0, y0, x1, y1].
+
+        Returns:
+            bool: True if the current block aligns with or is indented further than the last item, False otherwise.
+        """
         last_x0 = last_item_bbox[0]
         curr_x0 = current_block_bbox[0]
         return abs(last_x0 - curr_x0) < PDFMapper.LIST_CONT_MAX_X_DIFF or curr_x0 > last_x0
     
     @staticmethod
-    def _adjust_item_word_positions(item_words):        
+    def _adjust_item_word_positions(item_words):    
+        """
+        Adjusts the character position indices of words within a list item 
+        by removing the offset caused by the list marker (e.g., bullet point, number).
+
+        Args:
+            item_words (list): A list of WordInfo objects belonging to a single list item.
+        """    
         if len(item_words) > 1:
             marker_offset = item_words[1].start_char
             for word in item_words[1:]:
@@ -62,6 +70,17 @@ class PDFMapper:
     
     @staticmethod
     def is_header(words: list[WordInfo]) -> bool:
+        """
+        Determines if a given sequence of words constitutes a heading based on 
+        typographical features (bold, italic, or font size).
+
+        Args:
+            words (list[WordInfo]): A list of WordInfo objects to evaluate.
+
+        Returns:
+            bool: True if the words format matches a heading (fully bold/italic and short, 
+            or has an unusually large average size), False otherwise.
+        """
         if not words: return False
         is_bold = all(w.bold for w in words)
         is_italic = all(w.italic for w in words)
@@ -70,6 +89,17 @@ class PDFMapper:
 
     @staticmethod
     def is_keywords(words: list[WordInfo]) -> bool:
+        """
+        Checks if a given sequence of words represents a 'keywords' or 'abbreviations' section 
+        by analyzing the beginning of the constructed string.
+
+        Args:
+            words (list[WordInfo]): A list of WordInfo objects to evaluate.
+
+        Returns:
+            bool: True if the text begins with recognized keyword/abbreviation identifiers 
+            (in Polish or English), False otherwise.
+        """
         if not words: return False
         full_text = " ".join(w.text for w in words).strip()
         if full_text.lower().startswith(("słowa kluczowe", "keywords", "key words", "keywords:", "skróty")):
@@ -78,6 +108,16 @@ class PDFMapper:
 
     @staticmethod
     def is_math(words: list[WordInfo]) -> bool:
+        """
+        Evaluates a sequence of words to determine if it represents a mathematical expression.
+        Analyzes factors such as the presence of leader dots, space density, and the use of specific math fonts.
+
+        Args:
+            words (list[WordInfo]): A list of WordInfo objects to evaluate.
+
+        Returns:
+            int: An integer code indicating the detection result (e.g., 0 for not math, 1 for high space density, 2 for dominant math fonts).
+        """
         if not words: return 0
 
         full_text_with_spaces = " ".join(w.text for w in words)
@@ -114,6 +154,17 @@ class PDFMapper:
     
     @staticmethod
     def is_inside_table(block_bbox: list, table_bboxes: list) -> bool:
+        """
+        Determines whether a specific text block is located within the boundaries of any known tables.
+        Calculates the intersection area between the block and the tables, allowing for a slight margin of error.
+
+        Args:
+            block_bbox (list): The bounding box of the text block [x0, y0, x1, y1].
+            table_bboxes (list): A list of bounding boxes for all detected tables, where each is [x0, y0, x1, y1].
+
+        Returns:
+            bool: True if the block's area intersecting with a table exceeds the defined threshold, False otherwise.
+        """
         bx0, by0, bx1, by1 = block_bbox
         block_area = (bx1 - bx0) * (by1 - by0)
         if block_area <= 0: return False
@@ -131,6 +182,17 @@ class PDFMapper:
 
     # Zarządzanie buforami (Wymagają stanu) 
     def _empty_paragraph_buffer(self, debug_why_empty=""):
+        """
+        Processes and clears the current paragraph buffer, converting accumulated lines 
+        into a single logical block (e.g., paragraph, heading, keywords, or acronyms).
+        It handles text concatenation, hyphenation resolution, and evaluates typographical 
+        errors (widows, bastards, shoemakers) before appending the finalized block to 
+        the document's logical blocks.
+
+        Args:
+            debug_why_empty (str, optional): A debugging note explaining the reason 
+                for triggering the buffer flush. Defaults to "".
+        """
         if not self.paragraph_buffer:
             return
         
@@ -231,6 +293,12 @@ class PDFMapper:
         self.paragraph_buffer.clear()
 
     def _empty_list_buffer(self): 
+        """
+        Processes and clears the current list buffer, aggregating accumulated list items 
+        into a finalized ListBlock. It combines text, words, and bounding boxes across 
+        all items, determines the specific list type (e.g., standard list, code snippet), 
+        and appends the resulting block to the document's logical blocks.
+        """
         if not self.list_buffer:
             return
         
@@ -284,6 +352,24 @@ class PDFMapper:
 
     # Logika podziału i (wielokrotnych) spacji
     def _detect_paragraph_break(self, current_y0, current_y1, line_x0, x0_margin, full_text, is_valid_list_cont):
+        """
+        Determines whether the current text line indicates the start of a new paragraph 
+        based on spatial positioning (vertical gaps, horizontal indentation) and 
+        linguistic cues (ending punctuation).
+
+        Args:
+            current_y0 (float): The top Y-coordinate of the current line.
+            current_y1 (float): The bottom Y-coordinate of the current line.
+            line_x0 (float): The starting X-coordinate of the current line.
+            x0_margin (float): The standard left margin X-coordinate of the page.
+            full_text (str): The text accumulated in the current line so far.
+            is_valid_list_cont (bool): Indicates if the line has been identified as a 
+                valid continuation of an ongoing list.
+
+        Returns:
+            tuple[bool, str]: A tuple containing a boolean indicating if a paragraph 
+            break was detected, and a string with the debugging reason for the break.
+        """
         is_new_paragraph = False
         debug_reason = ""
 
@@ -324,6 +410,24 @@ class PDFMapper:
         return is_new_paragraph, debug_reason
 
     def _extract_words_with_spacing(self, line, full_text, words_info, page_num, word_counter, line_x1):
+        """
+        Extracts individual words from a text line, estimates their precise bounding boxes, 
+        and reconstructs the text with appropriate spacing. It dynamically calculates 
+        horizontal gaps between spans to intelligently insert missing spaces, particularly 
+        handling punctuation and hyphenated line breaks.
+
+        Args:
+            line: The line object from the PDF extractor containing text spans.
+            full_text (str): The accumulated string of text for the current block.
+            words_info (list[WordInfo]): The list accumulating WordInfo objects.
+            page_num (int): The current page number.
+            word_counter (int): The current global index/counter for extracted words.
+            line_x1 (float): The ending X-coordinate of the current line.
+
+        Returns:
+            tuple[str, list[WordInfo], int]: A tuple containing the updated full_text string, 
+            the appended words_info list, and the incremented word_counter.
+        """
         line_gaps = []
         for i in range(len(line.spans) - 1):
             g = line.spans[i+1].bbox[0] - line.spans[i].bbox[2]
@@ -396,6 +500,20 @@ class PDFMapper:
 
     # Główna metoda mapowania
     def map_to_schema(self, old_doc: DocumentData) -> FinalDocument:
+        """
+        The main mapping method that transforms raw extracted PDF data into a highly 
+        structured FinalDocument schema. It reinitializes the mapper's state, processes 
+        the document page by page, flushes remaining buffers, and runs a comprehensive 
+        suite of post-processing routines (e.g., merging headings, tagging captions, 
+        extracting acronyms, and verifying bibliography references).
+
+        Args:
+            old_doc (DocumentData): The raw, parsed data extracted directly from the PDF.
+
+        Returns:
+            FinalDocument: The fully structured document containing categorized logical blocks, 
+            floating visual elements, and reference sections ready for NLP analysis.
+        """
         # 1. Reset
         self.__init__()
         
@@ -429,6 +547,17 @@ class PDFMapper:
         return new_doc
 
     def _process_page(self, page, new_doc):
+        """
+        Processes a single page of the document to classify and extract its text blocks, 
+        lines, and visual elements. It evaluates spatial positioning to detect paragraph 
+        breaks, list continuations, page transitions, and floating artifacts (such as 
+        page numbers or standalone mathematical expressions). It also populates the 
+        document's visual elements list with images and tables found on the page.
+
+        Args:
+            page: The raw page object containing text blocks, tables, and images.
+            new_doc (FinalDocument): The structured document instance currently being populated.
+        """
         self.last_y1 = None
         bottom_thresh = page.height - self.BOTTOM_MARGIN_OFFSET
         table_bboxes = [t.bbox for t in page.tables]
@@ -666,6 +795,11 @@ class PDFMapper:
             new_doc.floating_elements.visual_elements.append(ve)
 
     def _merge_adjacent_headings(self):
+        """
+        Iterates through the logical blocks and merges consecutive heading blocks 
+        into a single heading if they share matching typographical features 
+        (such as font, size, and horizontal alignment).
+        """
         i = 0
         while i < len(self.logical_blocks) - 1:
             curr = self.logical_blocks[i]
@@ -698,40 +832,15 @@ class PDFMapper:
                     self.logical_blocks.pop(i + 1)
                     continue 
             i += 1
-
-    def _assign_captions_to_visuals(self, pages, new_doc):
-        for page in pages:
-            for table in page.tables:
-                desc_text, _ = find_table_description(list(table.bbox), self.logical_blocks, priority_side="above")
-                final_caption = desc_text if desc_text else table.description
-
-                ve = next((v for v in new_doc.floating_elements.visual_elements if v.element_id == id(table)), None)
-                if ve: ve.caption = {"text": final_caption}
-                
-                if final_caption:
-                    for lb in self.logical_blocks:
-                        if hasattr(lb, 'content') and lb.content.strip() == final_caption:
-                            lb.type = "table_description"
-                            break
-
-            for img in page.images:
-                desc_text, _ = find_image_description(list(img.bbox), self.logical_blocks, priority_side="below")
-                
-                final_caption = desc_text if desc_text else getattr(img, 'description', "")
-
-                ve = next((v for v in new_doc.floating_elements.visual_elements if v.element_id == id(img)), None)
-                if ve: ve.caption = {"text": final_caption}
-                
-                if final_caption:
-                    for lb in self.logical_blocks:
-                        if hasattr(lb, 'content') and lb.content.strip() == final_caption:
-                            lb.type = "image_description"
-                            break
     
     def _tag_special_lists(self, old_doc: DocumentData):
         """
-        Post-processing: Zmienia typ bloków na 'toc', 'tot' lub 'tof' 
-        jeśli ich bboxy pokrywają się z danymi z ekstraktora.
+        Post-processing routine that identifies and retags text blocks as 'toc' (Table of Contents), 
+        'tot' (Table of Tables), or 'tof' (Table of Figures) if their bounding boxes intersect 
+        with the predefined special list coordinates from the raw document extraction.
+
+        Args:
+            old_doc (DocumentData): The raw document data containing the original TOC/TOT/TOF entries.
         """
         special_bboxes = {} 
         
@@ -784,8 +893,10 @@ class PDFMapper:
 
     def _tag_visual_descriptions(self):
         """
-        Post-processing: Szuka bloków tekstowych będących opisami tabel lub obrazów,
-        skleja wielolinijkowe podpisy i weryfikuje je na podstawie przestrzeni.
+        Post-processing routine that identifies text blocks acting as captions for tables or images. 
+        It dynamically merges multi-line captions, filters out standard in-text references using 
+        linguistic keywords, and verifies candidates by analyzing the vertical spatial gaps 
+        above and below the text block.
         """
         img_pattern = re.compile(r"^(rysunek|rys\.|fot\.|schemat|figure|fig\.|image|scheme|diagram)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
         tab_pattern = re.compile(r"^(tabela|tab\.|table)\s*(?:\d+|[IVX]+)", re.IGNORECASE)
@@ -884,8 +995,12 @@ class PDFMapper:
 
     def _pair_descriptions_with_visuals(self, new_doc):
         """
-        Post-processing: Przypisuje znalezione opisy (table_description, image_description)
-        do najbliższych im obiektów wizualnych na tej samej stronie.
+        Post-processing routine that pairs identified caption blocks ('table_description' or 
+        'image_description') with their corresponding visual elements (tables or images) 
+        on the same page by calculating and minimizing the vertical distance between them.
+
+        Args:
+            new_doc (FinalDocument): The structured document containing the floating visual elements to be updated.
         """
         visuals = new_doc.floating_elements.visual_elements
 
@@ -931,25 +1046,20 @@ class PDFMapper:
 
     def _verify_bibliography_references(self):
         """
-        Post-processing: Zbiera poprawne indeksy z sekcji bibliografii,
-        sprawdzając pierwsze słowo (marker) każdego podpunktu.
-        Następnie waliduje odwołania w tekście.
-        Oznacza 'incorrect_bibliography = 1' w obiektach WordInfo dla błędnych odwołań.
+        Post-processing routine that collects valid index numbers from the bibliography 
+        section by inspecting the first word (marker) of each bibliography item. It then 
+        scans the entire document to validate in-text citations against this collected set. 
+        Invalid or missing references are flagged by setting 'incorrect_bibliography = 1' 
+        on the respective WordInfo objects.
         """
         valid_bib_numbers = set()
         
-        # -----------------------------------------------------
-        # KROK 1: Zbieramy klucze z pierwszych słów (markerów) list bibliograficznych
-        # -----------------------------------------------------
         for block in self.logical_blocks:
             if getattr(block, "is_bibliography", False) and hasattr(block, "items"):
                 for item in block.items:
-                    # Sprawdzamy, czy podpunkt ma przypisane jakiekolwiek słowa
                     if item.words:
-                        # Pierwsze słowo to nasz marker (np. "[1]", "1.", "1")
                         marker_text = item.words[0].text
                         
-                        # Wyciągamy z niego same cyfry
                         match = re.search(r'\d+', marker_text)
                         if match:
                             valid_bib_numbers.add(match.group())
@@ -957,6 +1067,16 @@ class PDFMapper:
         citation_pattern = re.compile(r'\[([\d\s,\-]+)\]')
 
         def extract_numbers_from_citation(cit_str):
+            """
+            Parses a citation string and extracts individual reference numbers, 
+            handling both comma-separated values and hyphenated ranges.
+
+            Args:
+                cit_str (str): The raw citation string (e.g., '1, 3, 5-7').
+
+            Returns:
+                set[str]: A set of unique reference numbers extracted from the string.
+            """
             nums = set()
             for part in cit_str.split(','):
                 part = part.strip()
@@ -975,7 +1095,6 @@ class PDFMapper:
 
         
         for block in self.logical_blocks:
-            # Pomijamy nagłówki i samą bibliografię
             if getattr(block, "is_bibliography", False) or getattr(block, "type", None) == "heading" or getattr(block, "type", False) == "code_snippet":
                 continue
             
@@ -1002,6 +1121,16 @@ class PDFMapper:
                                 word.incorrect_bibliography = 1
     
     def _extract_acronyms_to_schema(self, new_doc):
+        """
+        Post-processing routine that identifies the acronyms, abbreviations, or symbols 
+        section within the document. It reconstructs fragmented lines and uses complex 
+        regular expressions to parse and extract the terms along with their corresponding 
+        definitions, appending them as structured AcronymItem objects to the document's 
+        reference schema.
+
+        Args:
+            new_doc (FinalDocument): The structured document where extracted acronyms will be saved.
+        """
         
         # BAZA AKRONIMU 
         acr_dash_pattern = r'^(?![a-ząćęłńóśźż]{3,})(?!\d+\s+[-–—−‐:=])(.{1,40}?)\s+[-–—−‐:=]\s+'
@@ -1055,6 +1184,16 @@ class PDFMapper:
                             pass
                 
                 def fetch_words(obj):
+                    """
+                    Recursively traverses a structured object or dictionary to locate 
+                    and extract all nested word elements.
+
+                    Args:
+                        obj (Union[dict, object]): The data structure (block, item, or line) to search.
+
+                    Returns:
+                        list: A flattened list of word objects or dictionaries found within the structure.
+                    """
                     w = []
                     try:
                         if isinstance(obj, dict):
@@ -1089,6 +1228,15 @@ class PDFMapper:
 
         if has_words_data and acronym_words:
             def get_y0(w):
+                """
+                Safely retrieves the starting Y-coordinate (y0) from a word object's bounding box.
+
+                Args:
+                    w (Union[dict, object]): The word object or dictionary containing bounding box data.
+
+                Returns:
+                    float: The starting Y-coordinate, or 0.0 if the extraction fails.
+                """
                 try:
                     bbox = w.get("bbox") if isinstance(w, dict) else getattr(w, "bbox", None)
                     if bbox and len(bbox) >= 4:
@@ -1099,18 +1247,45 @@ class PDFMapper:
                 except: return 0.0
 
             def get_x0(w):
+                """
+                Safely retrieves the starting X-coordinate (x0) from a word object's bounding box.
+
+                Args:
+                    w (Union[dict, object]): The word object or dictionary containing bounding box data.
+
+                Returns:
+                    float: The starting X-coordinate, or 0.0 if the extraction fails.
+                """
                 try:
                     bbox = w.get("bbox") if isinstance(w, dict) else getattr(w, "bbox", None)
                     return float(bbox[0]) if bbox and len(bbox) >= 1 else 0.0
                 except: return 0.0
 
             def get_page(w):
+                """
+                Safely retrieves the page number associated with a word object.
+
+                Args:
+                    w (Union[dict, object]): The word object or dictionary containing page data.
+
+                Returns:
+                    int: The page number, or 0 if the extraction fails.
+                """
                 try:
                     p = w.get("page_number") if isinstance(w, dict) else getattr(w, "page_number", None)
                     return int(p) if p is not None else 0
                 except: return 0
 
             def get_text(w):
+                """
+                Safely retrieves the string text content from a word object.
+
+                Args:
+                    w (Union[dict, object]): The word object or dictionary containing text data.
+
+                Returns:
+                    str: The extracted text string, or an empty string if the extraction fails.
+                """
                 try:
                     if isinstance(w, dict): return str(w.get("text", ""))
                     return str(getattr(w, "text", ""))
@@ -1275,8 +1450,14 @@ class PDFMapper:
 
     def _verify_caption_sources(self, new_doc):
         """
-        Post-processing: Sprawdza, czy podpisy tabel i rysunków zawierają
-        odwołanie do źródła (np. [1]) lub słowa kluczowe (np. "źródło:", "opracowanie własne").
+        Post-processing routine that verifies whether table and image captions contain 
+        proper source attributions. It checks for the presence of bibliography citations 
+        (e.g., '[1]') or specific source-indicating keywords (e.g., 'source', 'own elaboration'). 
+        If neither is found, it flags the caption block or visual element by setting 
+        'incorrect_caption = 1'.
+
+        Args:
+            new_doc (FinalDocument): The structured document containing the visual elements to be verified.
         """
         citation_pattern = re.compile(r'\[\s*\d+[\d\s,\-]*\]')
         
@@ -1313,11 +1494,32 @@ class PDFMapper:
 MULTISPACE_RE = re.compile(r"\s+")
 
 def clean_ws(text: str) -> str:
+    """
+    Cleans up whitespace and hidden characters in a given text string. 
+    It removes soft hyphens, replaces non-breaking spaces with standard spaces, 
+    and collapses multiple consecutive spaces into a single space.
+
+    Args:
+        text (str): The raw text string to be cleaned.
+
+    Returns:
+        str: The cleaned, single-spaced, and stripped text string.
+    """
     text = text.replace("\u00ad", "")
     text = text.replace("\xa0", " ")
     return MULTISPACE_RE.sub(" ", text).strip()
 
 def get_plain_text(pdf_path):
+    """
+    Extracts and compiles a clean, continuous plain text representation of a PDF document, 
+    filtering out non-narrative elements like lists, captions, and mathematical formulas.
+
+    Args:
+        pdf_path (Union[str, Path]): The file path to the target PDF document.
+
+    Returns:
+        str: A single string containing the cleaned narrative text of the document.
+    """
     raw_doc = extractPDF(str(pdf_path))
     
     mapper = PDFMapper()
@@ -1339,10 +1541,29 @@ def get_plain_text(pdf_path):
     return clean_ws(" ".join(parts))
 
 def get_acronyms_lut(doc) -> dict:
+    """
+    Generates a Look-Up Table (LUT) mapping acronyms to their definitions based on 
+    the parsed reference sections of the document.
+
+    Args:
+        doc (FinalDocument): The fully structured document schema containing acronym data.
+
+    Returns:
+        dict: A dictionary where keys are acronyms (str) and values are their definitions (str).
+    """
     return {item.acronym: item.definition for item in doc.reference_sections.acronyms}
 
 def get_acronym_pages(doc) -> list[int]:
-    """Zwraca unikalną posortowaną listę stron, na których znajduje się spis akronimów."""
+    """
+    Retrieves a unique, sorted list of page numbers where acronym or abbreviation 
+    sections were detected in the document.
+
+    Args:
+        doc (FinalDocument): The fully structured document schema containing acronym data.
+
+    Returns:
+        list[int]: A sorted list of valid, positive page numbers.
+    """
     pages = [item.src_page for item in doc.reference_sections.acronyms]
     valid_pages = sorted(list(set(p for p in pages if p > 0)))
     return valid_pages
