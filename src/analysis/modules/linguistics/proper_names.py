@@ -1,12 +1,11 @@
-"""
-Moduł ekstrakcji nazw własnych i słów kluczowych z dokumentu.
-
-"""
 from .helpers import nlp_pl, nlp_en, lemmatization
 import re
 
 
 def get_proper_names(blocks):
+    """
+    Extracts proper names, entities, acronyms, and keywords from document blocks.
+    """
 
     TITLE_PAGE_PHRASES = {
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",

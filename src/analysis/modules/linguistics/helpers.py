@@ -202,6 +202,9 @@ def get_context(blocks):
     return blocks_info
 
 def add_match(content, block_id, page_start, page_end, word_idxs, error_coordinate, category, message):
+    """
+    Adds an error match object to the list of matches.
+    """
     return Error_type(
                 content = content,
                 category = category,

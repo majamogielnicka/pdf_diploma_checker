@@ -1,13 +1,12 @@
-"""
-Moduł odpowiedzialny za ekstrakcję pierwszych definicji skrótów (akronimów) w dokumencie.
-
-"""
 import re
 import string
 from .helpers import language, lemmatization
 from .check_acronym import potential_acronym
 
 def initials_match(acronym, definition, proper_names, block = None):
+    """
+    Verifies if the acronym initials match the given definition.
+    """
 
     org_words = [w for w in re.split(r'\s+', definition.strip()) if w]
     def_language = language(definition)
@@ -64,6 +63,9 @@ def initials_match(acronym, definition, proper_names, block = None):
     return False
 
 def sequence_match(acronym, initials):
+    """
+    Check if the characters of the acronym appear in sequence within the provided initials.
+    """
     
     idx = 0
     for letter in initials:
@@ -75,6 +77,9 @@ def sequence_match(acronym, initials):
 
 
 def check_position_if_new(new_acronym, definition, words, block_id, acronyms_with_definitions):
+    """
+    Determines the location of a newly found acronym definition and add it to the tracking dictionary.
+    """
 
     tittle_pages_phrases = {
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
@@ -119,6 +124,9 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
     return acronyms_with_definitions
 
 def check_first_definition(blocks, proper_names, extracted_acronyms):
+    """
+    Scans document blocks to find and extract the first definitions of acronyms.
+    """
 
     acronyms_with_definitions = {}
     bibliography_re = re.compile(r"^\[\d+\]")

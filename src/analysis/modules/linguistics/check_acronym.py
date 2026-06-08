@@ -1,12 +1,11 @@
-"""
-Moduł weryfikujący, czy skróty użyte w dokumencie zostały wcześniej zdefiniowane.
-
-"""
 from .helpers import add_match
 import re
 from .language_error_extractor import typo_check
 
 def potential_acronym(text):
+    """
+    Check if a given string matches the criteria for being a potential acronym.
+    """
 
     tittle_page_phrases = {
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
@@ -47,6 +46,9 @@ def potential_acronym(text):
     return False
 
 def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
+    """
+    Iterates over document blocks and identifies acronyms that were used without a prior definition.
+    """
 
     
     global_acronyms = {

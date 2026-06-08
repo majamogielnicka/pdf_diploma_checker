@@ -3,6 +3,9 @@ import re
 from collections import Counter 
 
 def check_item_words(matches, item, block, category, message, content):
+    """
+    Adds a match error with coordinates for a specific bibliography item.
+    """
     if not item.item.words:
         return matches
     words = item.item.words
@@ -14,16 +17,25 @@ def check_item_words(matches, item, block, category, message, content):
     return matches
 
 def get_text(field):
+    """
+    Extracts the text value from a parsed bibliography field.
+    """
     if not field or not isinstance(field, dict):
         return None
     return next(iter(field.keys()), None)
 
 def get_format(field):
+    """
+    Extracts the format attribute from a parsed bibliography field.
+    """
     if not field or not isinstance(field, dict):
         return None
     return next(iter(field.values()), None)
 
 def check_order(item):
+    """
+    Determines the order of fields in a bibliography item based on their positions in the text.
+    """
     
     text = item.content
     positions = {}
@@ -53,6 +65,9 @@ def check_order(item):
     return tuple(sorted(positions.keys(), key=lambda k: positions[k]))
 
 def get_field_separator(item):
+    """
+    Identifies the most common separator character used between fields in a bibliography item.
+    """
 
     text = item.content
     separators = []
@@ -86,6 +101,9 @@ def get_field_separator(item):
     return Counter(separators).most_common()[0][0] if separators else None
 
 def check_iso(matches, item, block):
+    """
+    Verifies the presence of a final dot in bibliography items.
+    """
 
     Category_and_message = {
         "MISSING_FINAL_DOT": "Nie zastosowano kropki na końcu wpisu.",
@@ -101,6 +119,9 @@ def check_iso(matches, item, block):
     return matches
 
 def add_bibtex_type(Bib_context):
+    """
+    Assigns the BibTeX type for each bibliography item based on its content.
+    """
     
     keywords = {
     'proceedings', 'conference', 'symposium', 'workshop', 'congress',
@@ -154,6 +175,9 @@ def add_bibtex_type(Bib_context):
                 item.bibtex_type = None
 
 def check_bibtex(matches, Bib_context, bib_blocks):
+    """
+    Validates bibliography items against BibTeX-specific requirements and required fields.
+    """
     
     Category_and_message = {
         "WRONG_BIBTEX_TYPE": "Nieznany typ wpisu w bibliografii.",
@@ -195,6 +219,9 @@ def check_bibtex(matches, Bib_context, bib_blocks):
     return matches
 
 def check_item(matches, item, block):
+    """
+    Checks a bibliography item for missing obligatory fields based on its type.
+    """
 
     Category_and_message = {
         "MISSING_OBLIGATORY": "We wpisie brakuje pól wymaganych (autor, tytuł lub data)",
@@ -256,6 +283,9 @@ def check_item(matches, item, block):
     return matches
 
 def check_coherence_iso(matches, Bib_context, bib_blocks):
+    """
+    Checks the overall coherence of formatting (separators, dates, authors) across all bibliography items.
+    """
 
     Category_and_message = {
         "SEPARATOR_COHERENCE": "Niespójna forma separatora pól wpisu z pozostałymi wpisami bibliografii.",
@@ -284,8 +314,11 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
             separators.setdefault(t, []).append(item.separator)
         if item.authors and get_format(item.authors):
             author_formats.setdefault(t, []).append(get_format(item.authors))
-        if item.date and len(item.date) > 0 and get_format(item.date[0]):
-            date_formats.setdefault(t, []).append(get_format(item.date[0]))
+        if item.date:
+            for d in item.date:
+                fmt = get_format(d)
+                if fmt:
+                    date_formats.setdefault(t, []).append(fmt)
         if getattr(item, 'date_position', None) and not getattr(item, 'online', False):
             date_positions.setdefault(t, []).append(item.date_position)
 
@@ -358,8 +391,7 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
                     break
                     
             if not is_equivalent:
-                if get_text(item.access_date) and get_text(item.access_date).lower() != "[online]":
-                    matches = check_item_words(matches, item, block, "DATE_FORMAT_COHERENCE", Category_and_message["DATE_FORMAT_COHERENCE"], item.content)
+                matches = check_item_words(matches, item, block, "DATE_FORMAT_COHERENCE", Category_and_message["DATE_FORMAT_COHERENCE"], item.content)
 
         if t in dominant_title_fmt:
             item_title_fmt = get_format(item.title) if item.title else None
