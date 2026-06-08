@@ -4,18 +4,20 @@ import concurrent.futures
 
 if getattr(sys, "frozen", False):
     BASE_DIR = sys._MEIPASS
+    SRC_DIR = os.path.join(BASE_DIR, "src")
 else:
-    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    SRC_DIR = os.path.join(BASE_DIR, "src")
 
-EXTRACTION_DIR = os.path.join(BASE_DIR, "analysis", "extraction")
-COMMON_DIR = os.path.join(BASE_DIR, "common")
-LINGUISTICS_DIR = os.path.join(BASE_DIR, "analysis", "modules", "linguistics")
-LLM_DIR = os.path.join(BASE_DIR, "analysis", "modules", "llm")
-REDACTION_DIR = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
+EXTRACTION_DIR = os.path.join(SRC_DIR, "analysis", "extraction")
+COMMON_DIR = os.path.join(SRC_DIR, "common")
+LINGUISTICS_DIR = os.path.join(SRC_DIR, "analysis", "modules", "linguistics")
+LLM_DIR = os.path.join(SRC_DIR, "analysis", "modules", "llm")
+REDACTION_DIR = os.path.join(SRC_DIR, "analysis", "modules", "redaction")
 
 from common.path import resource_path
 
-for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
+for path in [SRC_DIR, BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
     if path not in sys.path:
         sys.path.insert(0, path)
 

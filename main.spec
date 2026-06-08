@@ -22,7 +22,8 @@ a = Analysis(
     hiddenimports=[
         'PySide6.QtSvgWidgets',
         'pl_core_news_lg',
-        'en_core_web_lg'
+        'en_core_web_lg',
+        'language_tool_python'
     ],
     hookspath=[],
     hooksconfig={},
