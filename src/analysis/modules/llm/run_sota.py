@@ -1,3 +1,5 @@
+"""Run SOTA chapter extraction, scoring, and console reporting utilities."""
+
 from dataclasses import dataclass
 from find_sota import get_sota_chapter
 from evaluate_sota import analyze_sota_chapter, free_sota_memory
@@ -6,20 +8,18 @@ import re
 
 @dataclass
 class ChapterBlock:
+    """Container for a chapter identifier, title, and aggregated content."""
     id: int
     title: str
     content: str = ""
 
 def is_toc_like(text):
-    """
-    Niszczarka Spisów Treści:
-    Sprawdza, czy blok tekstu wygląda jak Spis Treści (TOC),
-    szukając ciągów kropek kończących się numerem strony, np. "...... 34" lub ". . . 34"
-    """
+    """Return True when text looks like a table-of-contents fragment."""
     toc_lines = len(re.findall(r"(?:\.{3,}|\.\s\.\s\.)[\s\.]*\d+", text))
     return toc_lines >= 2
 
 def adapt_extraction_to_blocks(mapped_doc):
+    """Convert mapped extraction output into chapter blocks for SOTA analysis."""
     blocks = []
     current_title = "Początek"
     current_content = []
@@ -67,6 +67,7 @@ def adapt_extraction_to_blocks(mapped_doc):
 
 
 def get_final_sota_report(mapped_doc, language: str = LANGUAGE):
+    """Run SOTA chapter selection and scoring, returning a compact summary tuple."""
     
     sota_blocks = adapt_extraction_to_blocks(mapped_doc)
 
@@ -99,7 +100,9 @@ def get_final_sota_report(mapped_doc, language: str = LANGUAGE):
     return s_id, s_title, s_score, s_method, s_citations, r1, r2, r3
 
 
-if __name__ == "__main__":
+def main():
+    """Execute a standalone SOTA analysis run for the configured thesis file."""
+
     print(f"Rozpoczynam testową analizę z konfiguracji: {THESIS_PATH}")
     
     import sys
@@ -131,3 +134,7 @@ if __name__ == "__main__":
     print(f"Wynik: {res_score}%")
     print(f"Podstawa wyboru: {res_method}")
     print(f"R1: {r1}, R2: {r2}, R3: {r3}")
+
+
+if __name__ == "__main__":
+    main()

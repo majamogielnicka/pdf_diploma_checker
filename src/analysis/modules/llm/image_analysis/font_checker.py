@@ -12,13 +12,10 @@ current_dir = Path(__file__).resolve().parent
 sys.path.append(str(current_dir.parent))
 sys.path.append(str(current_dir.parents[3]))
 
-import config 
+from analysis.modules.llm import config
 
 def extract_images_for_fonts(doc_obj, mapped_doc):
-    """
-    Wyciąga prawdziwe obrazki i ich podpisy z PDF.
-    Odrzuca odwołania w tekście (tzw. 'duchy') używając bezpiecznego Regexa.
-    """
+    """Extract real figure images and captions, filtering out text-only references."""
     caption_pattern = re.compile(r"(?:^|\n)\s*rys(?:unek|\.)?\s*(\d+(?:\.\d+)?)", re.IGNORECASE)
     unique_images = {}
     
@@ -49,7 +46,7 @@ def extract_images_for_fonts(doc_obj, mapped_doc):
     return images
 
 class LlavaFontEngine:
-    """ Silnik LLaVA dedykowany do oceny spójności czcionek wewnątrz pojedynczego obrazka. """
+    """LLaVA-based engine for single-image font consistency checks."""
     def __init__(self, model_path=str(config.LLAVA_MODEL_PATH), mmproj_path=str(config.LLAVA_MMPROJ_PATH)):
         self.chat_handler = Llava15ChatHandler(clip_model_path=mmproj_path)
         self.llm = Llama(
@@ -62,6 +59,7 @@ class LlavaFontEngine:
         )
 
     def check_font_consistency(self, image_bytes):
+        """Return whether font sizes in an image appear visually consistent."""
         base64_img = base64.b64encode(image_bytes).decode('utf-8')
         data_uri = f"data:image/jpeg;base64,{base64_img}"
 
@@ -97,9 +95,7 @@ class LlavaFontEngine:
             return {"consistent": False, "reason": f"Błąd przetwarzania AI: {str(e)}"}
 
 def get_font_consistency_report(doc_obj, mapped_doc, verbose=False):
-    """
-    Funkcja główna. Zwraca listę obrazków, które mają niespójne czcionki.
-    """
+    """Return a report of figures with inconsistent font sizing."""
     images = extract_images_for_fonts(doc_obj, mapped_doc)
     bad_fonts_report = []
 
@@ -131,7 +127,7 @@ def get_font_consistency_report(doc_obj, mapped_doc, verbose=False):
 
 if __name__ == "__main__":
     import time
-    from config import THESIS_PATH
+    from analysis.modules.llm.config import THESIS_PATH
     from analysis.extraction.extraction_json import extractPDF
     from analysis.extraction.converter_linguistics_clean import PDFMapper
     

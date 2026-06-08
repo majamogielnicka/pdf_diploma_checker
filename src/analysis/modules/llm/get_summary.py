@@ -1,3 +1,5 @@
+"""Generate one-sentence summaries for extracted thesis subtitle fragments."""
+
 import sys
 import os
 
@@ -42,6 +44,8 @@ _LLM = None
 
 
 def normalize_text(text):
+    """Normalize whitespace and replace non-breaking spaces in input text."""
+
     if not text:
         return ""
 
@@ -49,6 +53,8 @@ def normalize_text(text):
 
 
 def prepare_fragment(fragment):
+    """Trim and shorten a fragment to fit model prompt constraints."""
+
     text = normalize_text(fragment)
 
     if not text:
@@ -73,6 +79,8 @@ def prepare_fragment(fragment):
 
 
 def get_prompt(language):
+    """Return language-specific summarization prompt template."""
+
     if language == "pl":
         return PROMPT_PL
 
@@ -83,6 +91,8 @@ def get_prompt(language):
 
 
 def get_llm():
+    """Return the LLM instance, creating it once on first use."""
+
     global _LLM
 
     if _LLM is None:
@@ -99,6 +109,8 @@ def get_llm():
 
 
 def build_prompt(fragment, language):
+    """Build the final prompt with language-specific input/output markers."""
+
     prompt = get_prompt(language)
 
     if language == "pl":
@@ -108,6 +120,8 @@ def build_prompt(fragment, language):
 
 
 def get_summary(fragment, language):
+    """Generate a one-sentence summary for a single text fragment."""
+
     fragment = prepare_fragment(fragment)
 
     if not fragment:
@@ -132,6 +146,8 @@ def get_summary(fragment, language):
 
 
 def get_summaries(subtitles, language):
+    """Generate summaries for all subtitle sections and return structured items."""
+
     summaries = []
 
     for i, sub in enumerate(subtitles, start=1):
@@ -184,6 +200,8 @@ def get_summaries(subtitles, language):
 
 
 def summarize_subtitles(raw_doc, subtitles, language):
+    """Summarize subtitles, extracting them first when not provided."""
+
     if subtitles is None:
         subtitles = get_subtitles(raw_doc)
 
@@ -194,6 +212,8 @@ generate_summaries = summarize_subtitles
 
 
 def print_summaries(summaries):
+    """Print summaries in a readable console format."""
+
     if not summaries:
         print("Brak")
         return
@@ -207,6 +227,8 @@ def print_summaries(summaries):
 
 
 def main():
+    """Run subtitle extraction and summary generation workflow."""
+
     pdf_path = THESIS_PATH
     language = LANGUAGE
 

@@ -11,11 +11,7 @@ from analysis.modules.llm.image_analysis.reference_matcher import ReferenceMatch
 from analysis.modules.llm.image_analysis.consistency_checker import ConsistencyChecker
 
 def adapt_data_for_images(doc_obj, mapped_doc):
-    """
-    Adapter pobierający gotowe dane z głównej ekstrakcji PDF.
-    - Z mapped_doc pobiera czyste akapity tekstu.
-    - Z doc_obj pobiera zdeduplikowane obrazki i ich podpisy.
-    """
+    """Extract clean paragraphs and deduplicated image payloads for image analysis."""
     paragraphs = []
     
     for block in mapped_doc.logical_blocks:
@@ -54,10 +50,7 @@ def adapt_data_for_images(doc_obj, mapped_doc):
     return paragraphs, images
 
 def analyze_images(doc_obj, mapped_doc, verbose=False):
-    """
-    Analizuje obrazki i odwołania do nich.
-    Jeśli verbose=False (domyślnie), funkcja nie wypisuje nic do terminala.
-    """
+    """Analyze image references and verify paragraph-to-image consistency."""
     matcher = ReferenceMatcher()
     paragraphs, images = adapt_data_for_images(doc_obj, mapped_doc)
     

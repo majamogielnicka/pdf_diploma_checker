@@ -1,7 +1,10 @@
+"""Assess whether a thesis purpose is realized using the thesis ending fragment."""
+
 import sys
 import os
 import json
 import time
+import gc
 
 from llama_cpp import Llama
 
@@ -101,6 +104,8 @@ SYSTEM_PROMPTS = {
 
 
 def normalize_language(language):
+    """Validate and normalize language code to one of supported values."""
+
     language = str(language or "").lower().strip()
 
     if language in SUPPORTED_LANGUAGES:
@@ -111,6 +116,8 @@ def normalize_language(language):
 
 
 def get_message(key, language, **kwargs):
+    """Return localized message text, optionally formatted with kwargs."""
+
     language = normalize_language(language)
     message = MESSAGES[language][key]
 
@@ -121,6 +128,8 @@ def get_message(key, language, **kwargs):
 
 
 def normalize_text(text):
+    """Normalize whitespace and non-breaking spaces in free-form text."""
+
     if not text:
         return ""
 
@@ -128,6 +137,8 @@ def normalize_text(text):
 
 
 def extract_ending_fragment(text):
+    """Extract thesis ending fragment based on known final-section headings."""
+
     text = str(text or "")
 
     if not text.strip():
@@ -155,6 +166,8 @@ def extract_ending_fragment(text):
 
 
 def get_llm():
+    """Return a lazily initialized singleton Llama instance."""
+
     global _LLM
 
     if _LLM is None:
@@ -170,7 +183,33 @@ def get_llm():
     return _LLM
 
 
+def cleanup_goal_realization_llm():
+    """Release goal realization LLM instance to free RAM/VRAM."""
+
+    global _LLM
+
+    llm = _LLM
+    _LLM = None
+
+    if llm is not None:
+        try:
+            close_fn = getattr(llm, "close", None)
+            if callable(close_fn):
+                close_fn()
+        except Exception:
+            pass
+
+        try:
+            del llm
+        except Exception:
+            pass
+
+    gc.collect()
+
+
 def build_goal_realization_prompt(text, purpose, language):
+    """Build language-specific prompt for goal realization evaluation."""
+
     language = normalize_language(language)
     purpose = normalize_text(purpose)
     ending_fragment = extract_ending_fragment(text)
@@ -240,6 +279,8 @@ KOŃCOWY FRAGMENT PRACY:
 
 
 def extract_json_from_response(response_text, language="pl"):
+    """Parse JSON from model response, including wrapped JSON snippets."""
+
     language = normalize_language(language)
     response_text = response_text.strip()
 
@@ -258,6 +299,8 @@ def extract_json_from_response(response_text, language="pl"):
 
 
 def normalize_goal_result(data, language):
+    """Normalize model output to expected score/label/reason/evidence schema."""
+
     language = normalize_language(language)
 
     score = data.get("score", 0)
@@ -291,6 +334,8 @@ def normalize_goal_result(data, language):
 
 
 def check_goal_realization(text, purpose, language):
+    """Evaluate thesis purpose realization and return normalized structured result."""
+
     try:
         language = normalize_language(language)
     except Exception as e:
@@ -369,6 +414,18 @@ def check_goal_realization(text, purpose, language):
             "evidence": "",
         }
 
+    finally:
+        cleanup_goal_realization_llm()
+
+
+def get_score_from_goal_result(goal_result):
+    """Extract integer score from a goal realization result dictionary."""
+
+    try:
+        return int(goal_result.get("score", 0))
+    except (TypeError, ValueError):
+        return 0
+
 
 def get_score_from_goal_result(goal_result):
     try:
@@ -378,6 +435,8 @@ def get_score_from_goal_result(goal_result):
 
 
 def main():
+    """Run workflow for purpose realization assessment."""
+
     pdf_path = THESIS_PATH
 
     try:
@@ -417,6 +476,8 @@ def main():
 
 
 def get_purpose_grade(text, purpose, language):
+    """Return only numeric purpose-realization grade for pipeline usage."""
+
     try:
         language = normalize_language(language)
     except Exception:
