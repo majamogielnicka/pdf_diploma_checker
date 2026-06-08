@@ -1,13 +1,12 @@
-"""
-Moduł odpowiedzialny za ekstrakcję pierwszych definicji skrótów (akronimów) w dokumencie.
-
-"""
 import re
 import string
 from .helpers import language, lemmatization
 from .check_acronym import potential_acronym
 
 def initials_match(acronym, definition, proper_names, block = None):
+    """
+    Verifies if the acronym initials match the given definition.
+    """
 
     org_words = [w for w in re.split(r'\s+', definition.strip()) if w]
     def_language = language(definition)
@@ -35,7 +34,7 @@ def initials_match(acronym, definition, proper_names, block = None):
         for word_raw in re.split(r'\s+', definition.strip()):
             word_clean = word_raw.strip(string.punctuation + string.whitespace)
             if len(word_clean) >= 2:
-                word_lemma, _ = lemmatization(word_clean, def_language)
+                word_lemma = lemmatization(word_clean, def_language)
                 proper_names.append((word_clean, word_lemma))
         return True
 
@@ -46,7 +45,7 @@ def initials_match(acronym, definition, proper_names, block = None):
             for word_raw in re.split(r'\s+', definition.strip()):
                 word_clean = word_raw.strip(string.punctuation + string.whitespace)
                 if len(word_clean) >= 2:
-                    word_lemma, _ = lemmatization(word_clean, def_language)
+                    word_lemma = lemmatization(word_clean, def_language)
                     proper_names.append((word_clean, word_lemma))
             return True
 
@@ -57,13 +56,16 @@ def initials_match(acronym, definition, proper_names, block = None):
             for word_raw in re.split(r'\s+', definition.strip()):
                 word_clean = word_raw.strip(string.punctuation + string.whitespace)
                 if len(word_clean) >= 2:
-                    word_lemma, _ = lemmatization(word_clean, def_language)
+                    word_lemma = lemmatization(word_clean, def_language)
                     proper_names.append((word_clean, word_lemma))
             return True
 
     return False
 
 def sequence_match(acronym, initials):
+    """
+    Check if the characters of the acronym appear in sequence within the provided initials.
+    """
     
     idx = 0
     for letter in initials:
@@ -75,6 +77,9 @@ def sequence_match(acronym, initials):
 
 
 def check_position_if_new(new_acronym, definition, words, block_id, acronyms_with_definitions):
+    """
+    Determines the location of a newly found acronym definition and add it to the tracking dictionary.
+    """
 
     tittle_pages_phrases = {
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
@@ -119,6 +124,9 @@ def check_position_if_new(new_acronym, definition, words, block_id, acronyms_wit
     return acronyms_with_definitions
 
 def check_first_definition(blocks, proper_names, extracted_acronyms):
+    """
+    Scans document blocks to find and extract the first definitions of acronyms.
+    """
 
     acronyms_with_definitions = {}
     bibliography_re = re.compile(r"^\[\d+\]")
@@ -189,7 +197,7 @@ def check_first_definition(blocks, proper_names, extracted_acronyms):
                     for word_raw in re.split(r'\s+', new_acronym[1].strip()):
                         word_clean = word_raw.strip(string.punctuation + string.whitespace)
                         if len(word_clean) >= 2:
-                            word_lemma, _ = lemmatization(word_clean, b.language)
+                            word_lemma = lemmatization(word_clean, b.language)
                             proper_names.append((word_clean, word_lemma))
                     if initials_match(new_acronym[0], new_acronym[1], proper_names, block):
                         acronyms_with_definitions = check_position_if_new(new_acronym[0], new_acronym[1], words, block.block_id, acronyms_with_definitions)
@@ -198,7 +206,7 @@ def check_first_definition(blocks, proper_names, extracted_acronyms):
                         for word_raw in re.split(r'\s+', phrase.strip()):
                             word_clean = word_raw.strip(string.punctuation + string.whitespace)
                             if len(word_clean) >= 2:
-                                word_lemma, _ = lemmatization(word_clean, b.language)
+                                word_lemma = lemmatization(word_clean, b.language)
                                 proper_names.append((word_clean, word_lemma))
                 new_acronyms = paragraph_def_first.findall(text)
                 new_acronyms.extend(paragraph_def_with_comma.findall(text))
@@ -208,7 +216,7 @@ def check_first_definition(blocks, proper_names, extracted_acronyms):
                     for word_raw in re.split(r'\s+', new_acronym[0].strip()):
                         word_clean = word_raw.strip(string.punctuation + string.whitespace)
                         if len(word_clean) >= 2:
-                            word_lemma, _ = lemmatization(word_clean, b.language)
+                            word_lemma = lemmatization(word_clean, b.language)
                             proper_names.append((word_clean, word_lemma))
                     if initials_match(new_acronym[1], new_acronym[0], proper_names, block):
                         acronyms_with_definitions = check_position_if_new(new_acronym[1], new_acronym[0], words, block.block_id, acronyms_with_definitions)
@@ -218,7 +226,7 @@ def check_first_definition(blocks, proper_names, extracted_acronyms):
                         for word_raw in re.split(r'\s+', definition.strip()):
                             word_clean = word_raw.strip(string.punctuation)
                             if len(word_clean) >= 2:
-                                word_lemma, _ = lemmatization(word_clean, b.language)
+                                word_lemma = lemmatization(word_clean, b.language)
                                 proper_names.append((word_clean, word_lemma))
                         proper_names.append((acronym, acronym))
                         acronyms_with_definitions = check_position_if_new(acronym, definition, words, block.block_id, acronyms_with_definitions)
@@ -229,7 +237,7 @@ def check_first_definition(blocks, proper_names, extracted_acronyms):
                         for word_raw in def_words:
                             word_clean = word_raw.strip(string.punctuation)
                             if len(word_clean) >= 2:
-                                word_lemma, _ = lemmatization(word_clean, b.language)
+                                word_lemma = lemmatization(word_clean, b.language)
                                 proper_names.append((word_clean, word_lemma))
                         proper_names.append((acronym, acronym))
                         acronyms_with_definitions = check_position_if_new(acronym, definition, words, block.block_id, acronyms_with_definitions)

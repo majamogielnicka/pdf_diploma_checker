@@ -1,12 +1,11 @@
-"""
-Moduł ekstrakcji nazw własnych i słów kluczowych z dokumentu.
-
-"""
 from .helpers import nlp_pl, nlp_en, lemmatization
 import re
 
 
 def get_proper_names(blocks):
+    """
+    Extracts proper names, entities, acronyms, and keywords from document blocks.
+    """
 
     TITLE_PAGE_PHRASES = {
     "PRACA", "MAGISTERSKA", "INŻYNIERSKA", "DYPLOMOWA",
@@ -56,7 +55,7 @@ def get_proper_names(blocks):
                             bibliography["organizations"].add(ent_text)
                     if not ent.label_ or ent.label_ in SKIP_LABEL_PL or len(ent_text) < 2:
                         continue
-                    ent_lemma, _ = lemmatization(ent_text, block.language)
+                    ent_lemma = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))
 
                     entity_words = ent_text.split()
@@ -65,7 +64,7 @@ def get_proper_names(blocks):
                             word = word.strip("(),.:;")
                             if len(word) < 2:
                                 continue
-                            word_lemma, _ = lemmatization(word, block.language)
+                            word_lemma = lemmatization(word, block.language)
                             proper_names.append((word, word_lemma))
 
             if block.language == "en":
@@ -86,7 +85,7 @@ def get_proper_names(blocks):
                             bibliography["work"].add(ent_text)   
                     if not ent.label_ or ent.label_ in SKIP_LABELS_EN or len(ent_text) < 2:
                         continue
-                    ent_lemma, _ = lemmatization(ent_text, block.language)
+                    ent_lemma = lemmatization(ent_text, block.language)
                     proper_names.append((ent_text, ent_lemma))
 
                     entity_words = ent_text.split()
@@ -95,7 +94,7 @@ def get_proper_names(blocks):
                             word = word.strip("(),.:;")
                             if len(word) < 2:
                                 continue
-                            word_lemma, _ = lemmatization(word, block.language)
+                            word_lemma = lemmatization(word, block.language)
                             proper_names.append((word, word_lemma))
 
         if block.block.type in ("keywords", "paragraph"):
@@ -115,10 +114,10 @@ def get_proper_names(blocks):
                             word = word.strip("(),.:;")
                             if len(word) < 2:
                                 continue
-                            word_lemma, _ = lemmatization(word, block.language)
+                            word_lemma = lemmatization(word, block.language)
                             proper_names.append((word, word_lemma))
                     else:
-                        keyword_lemma, _ = lemmatization(keyword, block.language)
+                        keyword_lemma = lemmatization(keyword, block.language)
                     keywords_lemma.append((keyword, keyword_lemma))
                 proper_names.extend(keywords_lemma)
 
@@ -127,13 +126,13 @@ def get_proper_names(blocks):
                 word = word.strip("(),.:;[]\n\t ")
                 if len(word) < 2:
                     continue
-                word_lemma, _ = lemmatization(word, block.language)
+                word_lemma = lemmatization(word, block.language)
                 proper_names.append((word, word_lemma))
 
         if block.block.type == "paragraph":
             for word in block.block.words:
                 if word.italic:
                     text = word.text
-                    word_lemma, _ = lemmatization(text, block.language)
+                    word_lemma = lemmatization(text, block.language)
                     proper_names.append((text, word_lemma))
     return proper_names, bibliography

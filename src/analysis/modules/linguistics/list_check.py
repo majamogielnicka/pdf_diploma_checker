@@ -1,12 +1,11 @@
-"""
-Moduł sprawdzający spójność i poprawność formatowania list wyliczeniowych.
-
-"""
 from .check_item_in_list import check_item, has_verb, is_upper_and_dot
 from .helpers import add_match
 import re
 
 def add_list_error(items_by_id, num, block_id, category):
+    """
+    Creates and returns an error match object for a specific list item and category.
+    """
 
     Category_and_message = {
         "LIST_CASING": "Niepoprawna wielkość litery na początku elementu wyliczenia.",
@@ -22,6 +21,9 @@ def add_list_error(items_by_id, num, block_id, category):
     return add_match(item.text, block_id, page_start, page_end, word_idxs, error_coordinate, category, Category_and_message[category])
 
 def is_short_definition(text, text_language):
+    """
+    Determines if the text has the structure of a short definition.
+    """
 
     if re.match(r'^[A-Z]{2,}\s+[–—\-−‐‑‒:]\s', text):
         return True
@@ -34,6 +36,9 @@ def is_short_definition(text, text_language):
     return False
 
 def check_coherence_in_list(blocks, proper_names, acronyms):
+    """
+    Analyses document blocks to find inconsistencies in list casing, endings, and coherence.
+    """
     matches = []
     #symbols = set(r"""`~!@#$%^&*()_-+={[}}|\:;"'<,>.?/""")
     quote_marks = {'"', '„', '”', '«', '»', '('}

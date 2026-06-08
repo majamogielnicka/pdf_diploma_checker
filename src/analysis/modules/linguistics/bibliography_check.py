@@ -1,9 +1,3 @@
-'''
-Skrypt szukający wzorców mogących wskazywać na obecność danego pola w bibliografii: autor, tytuł, url itd.
-Głównym celem skryptu jest prędkość (działanie w trybie szybkim), więc przy pomocy regexów i metadanych wpisów bibliograficznych
-pola wpisu są heurystyczie dopasowywane do kategorii.
-'''
-
 import re
 from .linguistics_types import Bibliography_context, Bib_item_context
 from .exeptions_check import check_quotes
@@ -110,6 +104,9 @@ AUTHOR_PATTERNS = {
 }
 
 def check_bibliography(blocks, producer, bibliography_dict, bibtex_check_bool = True):
+    '''Uses only heuristics to match parts of each biblliography entry to its type, 
+    quickly in fast mode. (authors, title, publisher, date, pages, volume, DOI, access date, URL).
+    Fields are later passed to ISO check.'''
     matches = []
     authors = bibliography_dict["people"].union(bibliography_dict["organizations"])
     bib_context = Bibliography_context(block_id=0)
@@ -205,6 +202,8 @@ def check_bibliography(blocks, producer, bibliography_dict, bibtex_check_bool = 
     return matches
 
 def first_match(content, patterns):
+    '''Finds the first regex match found in given text. Returns location of match
+    and a dict of match content and type.'''
     for pattern, name in patterns.items():
         match = re.search(pattern, content)
         if match:
@@ -212,6 +211,8 @@ def first_match(content, patterns):
     return None
 
 def all_date_matches(content, date_patterns):
+    '''Collects up to three non-overlapping date matches from the content as a list of
+    dicts. Used for later determining publishing and access dates.'''
     results = []
     covered = []
     for pattern, name in date_patterns.items():
@@ -225,9 +226,11 @@ def all_date_matches(content, date_patterns):
 
 
 def collect_font_spans(list_item):
+    '''Scans the item's words (skipping the leading redaction marker word) and returns the
+     italic ranges as tuples.'''
     spans = []
     italic= None
-    for word in list_item.words[1:]:  # words[0] to wg ekstraktora redakcji marker
+    for word in list_item.words[1:]:  #words[0] to wg ekstraktora redakcji marker
         if word.italic:
             italic = italic or [word.start_char, word.end_char]
             italic[1] = word.end_char
@@ -240,6 +243,8 @@ def collect_font_spans(list_item):
 
 
 def extract_fields(content):
+    '''Detects bibliographic fields (DOI, access date, dates, pages, volume, and a bare
+    volume fallback) in the masked content and returns them with field name as key.'''
     found = {}
 
     result = first_match(content, DOI_PATTERNS)
@@ -271,6 +276,8 @@ def extract_fields(content):
 
 
 def mask_spans(content, spans):
+    '''Returns a copy of the content with every (start, end) span replaced by spaces, so the
+    masked-out regions are excluded from pattern matching, but keeping offsets intact.'''
     if not spans:
         return content
     content_list = list(content)
@@ -281,6 +288,8 @@ def mask_spans(content, spans):
 
 
 def extract_authors(masked, content, authors):
+    '''Finds the author segment at the start of an entry by matching name patterns, then finds other authors 
+    matching to the same pattern. Returns the author text, its format label, and the offset'''
     best_start_known = None
     best_start_other = None
     best_start_fallback = None
@@ -366,6 +375,8 @@ def extract_authors(masked, content, authors):
 
 
 def extract_title(content, font_spans, quoted_spans, plain_candidates, authors_end):
+    '''Determines the entry's title and publisher after the authors are extracted.
+    First publisher is determined by keywords, then by type of span (quote/italic) then by order of spans.'''
     italic_after = [(style, start, end) for style, start, end in font_spans if start >= authors_end]
     quoted_after = [(start, end) for start, end in quoted_spans if start >= authors_end]
     has_italic = bool(italic_after)
@@ -447,6 +458,8 @@ def extract_title(content, font_spans, quoted_spans, plain_candidates, authors_e
 
 
 def find_title_candidates(text):
+    '''Finds possible title segments with sentence case or title case and returns them as
+     (segment, [case_pattern], start_index) ignoring linker words. '''
     results = []
     idx = 0
     for chunk in re.split(r'(\s{2,})', text):

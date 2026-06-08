@@ -1,8 +1,3 @@
-'''
-Plik zawiera funkje pomocnicze używane wielokrotnie w module lingwistycznym, zebrane w jednym miejscu.
-Uruchamiane są tu modele spacy, language_tool, morfeusz, spellchecker, 
-następnie tylko przekazywane do odpowiednich funkcji.
-'''
 import os
 import dataclasses
 import json
@@ -28,6 +23,7 @@ language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
 @Spacy_language.component("fix_sentence_limits")
 def fix_sentence_limits(doc):
+    """Fixes sentence limits before spacy performs sentence analysis, to wrongly devided sentences."""
     for i, token in enumerate(doc[1:], start=1):
         if not token.is_sent_start:
             continue
@@ -50,7 +46,10 @@ def fix_sentence_limits(doc):
     return doc
 
 def get_nlp(model_name):
-    """Bezpieczne ładowanie dowolnego modelu spaCy w .exe i kodzie źródłowym"""
+    '''Safely loads any spaCy model both from source and from a frozen .exe build. In a frozen app it
+    resolves the model from an absolute path under the bundle (_internal or the bundle root), descending
+    into a subdirectory if needed to find config.cfg; otherwise it loads the model by name. Returns the
+    loaded spaCy Language pipeline.'''
     if getattr(sys, 'frozen', False):
         base_path = Path(getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))).resolve()
         
@@ -81,6 +80,7 @@ nlp_en.add_pipe("fix_sentence_limits", after="sentencizer")
 
 @functools.cache
 def lemmatization(word_base, text_language):
+    '''Returns the lemma of a single word cached for repeated lookups.'''
     word = word_base.lower()
     if text_language == "pl":
         nlp = nlp_pl
@@ -90,12 +90,11 @@ def lemmatization(word_base, text_language):
     lemma = word
     for token in nlp_word:
         lemma = token.lemma_
-    is_found = True
-    if lemma == word:
-        is_found = False
-    return lemma, is_found
+    return lemma
 
 def language(text):
+    '''Detects the language of the given text with the lingua detector and returns 'pl' for Polish
+    or 'en' for anything else.'''
     detected = language_detector.detect_language_of(text)
     if detected == Language.POLISH:
         return 'pl'
@@ -103,7 +102,8 @@ def language(text):
         return 'en'
 
 def get_match_info(block, offset, length):
-
+    '''Adjust coordinates of text content to its position in pdf based on extraction structure.
+    Returns coordinates to be later passed to highlight bboxes.'''
     end_offset = offset + length
     word_idxs = []
     start_page = None
@@ -166,7 +166,7 @@ def get_match_info(block, offset, length):
     return start_page, end_page, word_idxs, error_coordinate
 
 def extract_errors_to_json(matches, name):
-
+    '''Helper function used for debugging, extracts structures to JSON file, and saves in in linguistics folder.'''
     if type(matches) is list:
         all_matches = []
         for match in matches:
@@ -180,7 +180,7 @@ def extract_errors_to_json(matches, name):
 
 
 def get_context(blocks):
-
+    '''Adds another structure on top of extactions FinalDocument, to include raw string content and language of each block.'''
     blocks_info = []
     for block in blocks.logical_blocks:
         if not block.words:
@@ -202,7 +202,9 @@ def get_context(blocks):
     return blocks_info
 
 def add_match(content, block_id, page_start, page_end, word_idxs, error_coordinate, category, message):
-    
+    """
+    Adds an error match object to the list of matches.
+    """
     return Error_type(
                 content = content,
                 category = category,
@@ -217,6 +219,7 @@ def add_match(content, block_id, page_start, page_end, word_idxs, error_coordina
             )
 
 def extract_chapter_numbers(blocks):
+    '''Parses through table of content, tables of references to save chapter and listing numbers.'''
     chapter_nums = []
     for block in blocks:
         if block.block.type in {'toc', 'tof', 'tot'}:

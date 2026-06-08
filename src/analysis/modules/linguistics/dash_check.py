@@ -3,12 +3,9 @@ from .linguistics_types import Error_type
 from .helpers import get_match_info
 
 def dash_check(blocks):
-    """
-    Analizuje bloki tekstu pod kątem poprawności użycia myślników, półpauz i pauz.
-    """
+    '''Checks text blocks for correct usage of hyphens, en dashes and em dashes in Polish and English.'''
     checked_matches = []
-    dash_counter = 0
-    
+
     for block in blocks:
         if block.block.type in {"keywords", "math", "code_snippet"}:
             continue
@@ -141,7 +138,6 @@ def dash_check(blocks):
                 ))
             
 
-        dash_counter += len(errors)
         checked_matches.extend(errors)
 
-    return checked_matches, dash_counter
+    return checked_matches
