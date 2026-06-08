@@ -484,11 +484,11 @@ def get_purpose_grade(text, purpose, language):
         return 0
 
     if not MODEL_PATH.exists():
-        return 0
+        return (0, "cel niezrealizowany")
 
     if text is None:
         if not THESIS_PATH.exists():
-            return 0
+            return (0, "cel niezrealizowany")
         text = get_plain_text(THESIS_PATH)
 
     if purpose is None:
@@ -505,12 +505,20 @@ def get_purpose_grade(text, purpose, language):
     try:
         score = int(score)
     except (ValueError, TypeError):
-        return 0
+        return (0, "cel niezrealizowany")
 
     if score not in {0, 50, 100}:
-        return 0
+        return (0, "cel niezrealizowany")
 
-    return score
+    # Map score to Polish reason status
+    if score == 100:
+        reason_status = "cel calkowicie zrealizowany"
+    elif score == 50:
+        reason_status = "cel czesciowo zrealizowany"
+    else:
+        reason_status = "cel niezrealizowany"
+
+    return (score, reason_status)
 
 
 if __name__ == "__main__":

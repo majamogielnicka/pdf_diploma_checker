@@ -28,6 +28,7 @@ THESIS_PATH = THESIS_DIR / "jost2.pdf"
 LANGUAGE = "en" #LUB "en"
 
 
+
 def load_app_config():
     """
     Load app_config.json from the application directory.
