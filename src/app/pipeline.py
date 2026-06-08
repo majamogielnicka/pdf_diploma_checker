@@ -14,7 +14,6 @@ LLM_DIR = os.path.join(BASE_DIR, "analysis", "modules", "llm")
 REDACTION_DIR = os.path.join(BASE_DIR, "analysis", "modules", "redaction")
 
 from common.path import resource_path
-from analysis.modules.linguistics import run_mock_data as ling_module
 
 for path in [BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
     if path not in sys.path:
