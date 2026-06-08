@@ -11,14 +11,12 @@ spacy_metadata = copy_metadata('pl_core_news_lg') + copy_metadata('en_core_web_l
 
 a = Analysis(
     ['src/app/main.py'],
-    # Dodajemy wszystkie foldery źródłowe, by moduły typu common/analysis były widoczne
     pathex=['src', 'src/app', 'src/common', 'src/analysis'],            
     binaries=[],
     datas=[
-        ('src', '.'),
+        ('src', 'src'),
         (spellchecker_resources, 'spellchecker/resources'),
-        ('src/analysis/modules/linguistics/word_whitelist.txt', 'src/analysis/modules/linguistics'),
-    ] + spacy_datas + spacy_metadata, # Łączymy zebrane dane modeli SpaCy     
+    ] + spacy_datas + spacy_metadata,     
     hiddenimports=[
         'PySide6.QtSvgWidgets',
         'pl_core_news_lg',
@@ -30,4 +28,32 @@ a = Analysis(
     excludes=[],
     noarchive=False,
     optimize=0,
+)
+pyz = PYZ(a.pure)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='main',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,             
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='main',
 )
