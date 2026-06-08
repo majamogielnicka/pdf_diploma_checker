@@ -3,42 +3,30 @@ import re
 from typing import Dict, Any, List
 from llama_cpp import Llama
 
-from config import MODEL_PATH
+from config import MODEL_PATH, N_GPU_LAYERS
 
 CHUNK_SIZE = 2500 
 
 _llm_instance = None
 
 def get_llm():
-    '''
-    wejscie: brak.
-    wyjscie: instancja modelu Llama z biblioteki llama_cpp.
-    opis: Ładuje i zwraca model językowy AI, gwarantując (wzorzec Singleton), że zostanie załadowany do pamięci VRAM tylko raz.
-    '''
+    """Return LLM instance."""
     global _llm_instance
     if _llm_instance is None:
         _llm_instance = Llama(
             model_path=str(MODEL_PATH),
             n_ctx=4096,
-            n_gpu_layers=-1,
+            n_gpu_layers=N_GPU_LAYERS,
             verbose=False
         )
     return _llm_instance
 
 def chunk_text(text: str, chunk_size: int = CHUNK_SIZE) -> List[str]:
-    '''
-    wejscie: text (string z treścią rozdziału) oraz opcjonalny chunk_size (int, maksymalna długość fragmentu).
-    wyjscie: lista stringów (podzielonych fragmentów tekstu).
-    opis: Dzieli długi tekst na mniejsze porcje, aby nie przekroczyć limitu okna kontekstowego modelu LLM.
-    ''' 
+    """Split long text into fixed-size chunks."""
     return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
 
 def ask_llm(prompt: str, content: str) -> bool:
-    '''
-    wejscie: prompt (string z instrukcją dla AI) oraz content (string z fragmentem tekstu do analizy).
-    wyjscie: wartość logiczna (bool) wyciągnięta z JSON-a.
-    opis: Zadaje modelowi AI konkretne pytanie oceniające jakość przeglądu literatury i zwraca wyciągnięty z JSON-a wynik true/false.
-    '''
+    """Evaluate a single chunk with the LLM and return a boolean verdict."""
     full_prompt = f"{prompt}\n\nTekst fragmentu rozdziału:\n{content}\n\nZwróć odpowiedź WYŁĄCZNIE w formacie JSON według wzoru:\n{{\"uzasadnienie\": \"krótkie wyjaśnienie\", \"wynik\": true lub false}}"
     
     try:
@@ -82,6 +70,7 @@ def ask_llm(prompt: str, content: str) -> bool:
         return False
 
 def evaluate_condition_over_chunks(prompt: str, chunks: List[str]) -> int:
+    """Return 1 if any chunk satisfies the condition, otherwise 0."""
     for chunk in chunks:
         result = ask_llm(prompt, chunk)
         if result is True:
@@ -89,45 +78,40 @@ def evaluate_condition_over_chunks(prompt: str, chunks: List[str]) -> int:
     return 0
 
 def evaluate_r1(chunks: List[str]) -> int:
+    """Evaluate rule R1 across all chunks."""
     prompt = """Twoim zadaniem jest ocenić, czy podany fragment tekstu spełnia regułę R1.
 Reguła R1: Czy fragment zawiera wyraźną ocenę (parametry, skuteczność) lub wskazuje konkretne WADY/ZALETY istniejących, działających rozwiązań?
 [... reszta promptu ...]"""
     return evaluate_condition_over_chunks(prompt, chunks)
 
 def evaluate_r2(chunks: List[str]) -> int:
+    """Evaluate rule R2 across all chunks."""
     prompt = """Twoim zadaniem jest ocenić, czy podany fragment tekstu spełnia regułę R2.
 Reguła R2: Czy fragment JEDNOZNACZNIE wskazuje LUKĘ BADAWCZĄ w nauce lub NIEROZWIĄZANY problem naukowy?
 [... reszta promptu ...]"""
     return evaluate_condition_over_chunks(prompt, chunks)
 
 def evaluate_r3(chunks: List[str]) -> int:
+    """Evaluate rule R3 across all chunks."""
     prompt = """Twoim zadaniem jest ocenić, czy podany fragment tekstu spełnia regułę R3.
 Reguła R3: Czy fragment zawiera BEZPOŚREDNIE PORÓWNANIE co najmniej dwóch NAZWANYCH, RÓŻNYCH METOD rozwiązujących ten sam problem?
 [... reszta promptu ...]"""
     return evaluate_condition_over_chunks(prompt, chunks)
 
 def get_sota_status(score: int) -> str:
-    '''
-    wejscie: score (int reprezentujący sumę spełnionych kryteriów).
-    wyjscie: string z tekstowym opisem statusu.
-    opis: Mapuje punktację liczbową na czytelny komunikat o stopniu realizacji założeń rozdziału SOTA.
-    '''
+    """Map raw rule score to a human-readable SOTA status."""
     if score >= 2: return "Pełna realizacja SOTA"
     elif score == 1: return "Częściowa realizacja SOTA"
     return "Brak poprawnej sekcji SOTA"
 
 def calculate_sota_percentage(score: int) -> int:
-    '''
-    wejscie: score (int reprezentujący sumę spełnionych kryteriów).
-    wyjscie: wartość całkowita (int) reprezentująca wynik w procentach (0, 50, 100).
-    opis: Przelicza punkty spełnionych kryteriów oceny SOTA na wartość procentową do raportu.
-    '''
+    """Convert the raw SOTA score to a percentage."""
     if score >= 2: return 100
     elif score == 1: return 50
     return 0
 
 def analyze_sota_chapter(chapter_title: str, content: str) -> Dict[str, Any]:
-    """Zwraca słownik z kompletną oceną rozdziału na podstawie podanego stringa tekstu."""
+    """Return a complete SOTA assessment dictionary for a chapter."""
     if not content:
         raise ValueError(f"Nie przekazano treści dla rozdziału: {chapter_title}")
 
@@ -152,7 +136,7 @@ def analyze_sota_chapter(chapter_title: str, content: str) -> Dict[str, Any]:
     }
 
 def free_sota_memory():
-    """Zwalnia VRAM karty graficznej po zakończeniu modułu SOTA."""
+    """Release SOTA model resources and trigger garbage collection."""
     global _llm_instance
     if _llm_instance is not None:
         del _llm_instance

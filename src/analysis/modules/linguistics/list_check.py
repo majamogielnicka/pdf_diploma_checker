@@ -1,15 +1,13 @@
-"""
-Moduł sprawdzający spójność i poprawność formatowania list wyliczeniowych.
-
-"""
 from .check_item_in_list import check_item, has_verb, is_upper_and_dot
 from .helpers import add_match
 import re
 
 def add_list_error(items_by_id, num, block_id, category):
+    """
+    Creates and returns an error match object for a specific list item and category.
+    """
 
     Category_and_message = {
-        "LIST_MARKER": "Zastosowano niepoprawny marker wyliczenia.",
         "LIST_CASING": "Niepoprawna wielkość litery na początku elementu wyliczenia.",
         "LIST_ENDING": "Niepoprawne zakończenie elementu wyliczenia.",
     }
@@ -23,23 +21,35 @@ def add_list_error(items_by_id, num, block_id, category):
     return add_match(item.text, block_id, page_start, page_end, word_idxs, error_coordinate, category, Category_and_message[category])
 
 def is_short_definition(text, text_language):
+    """
+    Determines if the text has the structure of a short definition.
+    """
 
-    if re.match(r'^[A-Z]{2,}\s+[–—\-−:]\s', text):
+    if re.match(r'^[A-Z]{2,}\s+[–—\-−‐‑‒:]\s', text):
         return True
-    match = re.match(r'^((\S+\s){1,4})[–—\-−:]\s', text)
+    if re.match(r'^.{1,30}\s+to\s+', text):
+        return True
+    match = re.match(r'^((\S+\s){1,4})[–—\-−‐‑‒:]\s', text)
     if match:
         prefix = match.group(1)
         return not has_verb(prefix, text_language)
     return False
 
 def check_coherence_in_list(blocks, proper_names, acronyms):
+    """
+    Analyses document blocks to find inconsistencies in list casing, endings, and coherence.
+    """
     matches = []
     #symbols = set(r"""`~!@#$%^&*()_-+={[}}|\:;"'<,>.?/""")
     quote_marks = {'"', '„', '”', '«', '»', '('}
-    definition_search = re.compile(r'^[A-Z]+\s?\(.*?\)\s[–—\-−]\s')
+    dash_chars = r'–—\-−‐‑‒'
+    definition_search = re.compile(r'^[A-Z]+\s?\(.*?\)\s[' + dash_chars + r']\s')
+    definition_sep_pattern = re.compile(r'^(\S+(?:\s+\S+){0,3})\s+[' + dash_chars + r':]\s')
     current_heading = ""
     for b in blocks:
         block = b.block
+        if block.type == "list" and block.is_bibliography: 
+            continue
         if block.type == "heading":
             current_heading = block.content.upper()
             continue
@@ -55,15 +65,12 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
 
             for item in block.items:
                 items_by_id[item.item_id] = item
-                if (item.marker_type == "number_with_bracket" or item.marker_type == "letter_with_dot") and language == "pl":
-                    error = add_list_error(items_by_id, item.item_id, block.block_id, "LIST_MARKER")
-                    if error:
-                        matches.append(error)
-                    marker_error_ids.add(item.item_id)
             quote_close = {'"', '»', '”', '’', '"', ')'}
             upper_id, lower_id, neutral_id, quote_id, definition_id, endings = [], [], [], [], [], []
             for item in block.items:
                 item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
+                if not item_text:
+                    continue
                 effective_text = item_text
                 starts_with_quote = item_text[0] in quote_marks
                 if starts_with_quote:
@@ -71,9 +78,26 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                     if not effective_text:
                         quote_id.append(item.item_id)
                         continue
-                if (definition_search.match(effective_text) or is_short_definition(effective_text, language)):
+                if (definition_search.match(effective_text) or is_short_definition(effective_text, language)
+                        or definition_sep_pattern.match(effective_text)):
                     definition_id.append(item.item_id)
                     continue
+                if re.search(r'\((?:ang\.|pol\.|fr\.|niem\.|łac\.)\s+', effective_text):
+                    definition_id.append(item.item_id)
+                    continue
+                if item.words and len(item.words) >= 2:
+                    first_font = (item.words[0].font, item.words[0].italic)
+                    rest_words = [w for w in item.words[1:] if w.text.strip()]
+                    if rest_words:
+                        rest_fonts = [(w.font, w.italic) for w in rest_words]
+                        dominant_font = max(set(rest_fonts), key=rest_fonts.count)
+                        if first_font != dominant_font:
+                            definition_id.append(item.item_id)
+                            end_char = item_text[-1]
+                            if end_char in quote_close and len(item_text) >= 2:
+                                end_char = item_text[-2] if item_text[-2] not in quote_close else end_char
+                            endings.append(end_char)
+                            continue
                 if effective_text[0].isupper():
                     is_known = False
                     if starts_with_quote:
@@ -82,6 +106,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                     if not is_known:
                         for proper in proper_names:
                             proper_text = proper[0] if isinstance(proper, tuple) else proper
+                            if not proper_text or not proper_text.strip():
+                                continue
                             first_word = proper_text.split()[0]
                             if re.match(re.escape(first_word) + r'\s', effective_text):
                                 neutral_id.append(item.item_id)
@@ -106,14 +132,12 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                 endings.append(end_char)
             if endings:
                 dominant_ending = max(sorted(set(endings)), key=endings.count)
-                if any(',' in item.text[:-2] for item in block.items) and dominant_ending == ',':
-                    dominant_ending = ';'
 
             all_definition_like = True
             for item in block.items:
                 if item.item_id not in definition_id and item.item_id not in quote_id:
                     item_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
-                    has_separator = bool(re.search(r'\s[–—\-−:]\s', item_text))
+                    has_separator = bool(re.search(r'\s[' + dash_chars + r':]\s', item_text))
                     if not has_separator:
                         all_definition_like = False
                         break
@@ -158,7 +182,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                 second_to_last = False
 
                 full_text = re.sub(r'\s+', ' ', re.sub(r'\[\d+\]', '', item.text)).strip()
-
+                if not full_text:
+                    continue
                 if len(block.items) == 1:
                     last_item = True
                 else:
@@ -170,6 +195,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                 if item.marker_type =="number_with_dot" or item.marker_type == "letter_with_dot":
                     if is_upper_and_dot(full_text):
                         continue
+                    elif full_text.endswith(':'):
+                        continue
                     elif item.item_id in neutral_id:
                         match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
                         if match:
@@ -179,6 +206,8 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                     else:
                         ending_error_ids.append(item.item_id)
                 else: 
+                    if len(full_text.split()) < 3:
+                        continue
                     if item.item_id in neutral_id:
                         match = re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', full_text)
                         if match:

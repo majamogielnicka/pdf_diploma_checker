@@ -1,10 +1,14 @@
 import os
 import sys
 
+import os
+import sys
+
 def resource_path(relative_path):
-    try:
+    """local and pyinstaller working path"""
+    if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
+    else:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     return os.path.join(base_path, relative_path)

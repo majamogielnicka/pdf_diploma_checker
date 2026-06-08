@@ -1,3 +1,5 @@
+"""Compute thesis-related grading signals based on summaries and purpose alignment."""
+
 import sys
 import os
 import time
@@ -24,6 +26,8 @@ threshold = 0.785
 
 
 def calculate_embedding_grade(purpose, summaries):
+    """Compute an embedding-based grade and per-section off-topic flags."""
+
     similarity_result = compute_similarity_for_summaries(
         purpose=purpose,
         summaries=summaries,
@@ -36,7 +40,7 @@ def calculate_embedding_grade(purpose, summaries):
     if total_sections == 0:
         return {
             "grade": 0.0,
-            "max_grade": 60.0,
+            "max_grade": 100.0,
             "s_emb": 0.0,
             "threshold": threshold,
             "total_sections": 0,
@@ -57,11 +61,11 @@ def calculate_embedding_grade(purpose, summaries):
 
     p_off = (off_topic_sections / total_sections) * 100.0
     s_emb = 100.0 - p_off
-    grade = 0.60 * s_emb
+    grade = s_emb
 
     return {
         "grade": round(grade, 2),
-        "max_grade": 60.0,
+        "max_grade": 100.0,
         "s_emb": s_emb,
         "threshold": threshold,
         "total_sections": total_sections,
@@ -72,6 +76,8 @@ def calculate_embedding_grade(purpose, summaries):
 
 
 def get_content_grade(purpose, summaries):
+    """Return overall embedding grade and labels of off-topic sections."""
+
     embedding_result = calculate_embedding_grade(
         purpose=purpose,
         summaries=summaries
@@ -87,7 +93,7 @@ def get_content_grade(purpose, summaries):
             or item.get("heading")
             or item.get("title")
             or item.get("subtitle")
-            or f"Sekcja {idx + 1}"
+            or f"Section {idx + 1}"
         )
         for idx, item in enumerate(items)
         if item.get("below_threshold", False)
@@ -97,11 +103,15 @@ def get_content_grade(purpose, summaries):
     return (grade, off_topic_headings)
 
 def get_overall_grade(purpose_grade, embedding_grade, sota_grade):
-    overall_grade = 0.2 * sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade
+    """Combine partial scores into the final weighted grade."""
+
+    overall_grade = 0.2* sota_grade + 0.2 * purpose_grade + 0.6 * embedding_grade 
     return overall_grade
 
 
 def main():
+    """Run the full grading pipeline for the configured thesis PDF."""
+
     pdf_path = THESIS_PATH
     language = LANGUAGE
 
@@ -110,13 +120,13 @@ def main():
     print(f"PDF_ABSOLUTE: {pdf_path.resolve()}")
 
     if not pdf_path.exists():
-        print(f"Błąd: plik nie istnieje: {pdf_path}")
+        print(f"Error: file does not exist: {pdf_path}")
         return
 
     raw_doc = extractPDF_llm(str(pdf_path.resolve()))
 
     if raw_doc is None:
-        print("Błąd: extractPDF_llm zwróciło None.")
+        print("Error: extractPDF_llm returned None.")
         return
 
     plain_text = get_plain_text(pdf_path)
@@ -133,12 +143,12 @@ def main():
 
     purpose_score, purpose_reason = get_purpose_grade(plain_text, purpose, LANGUAGE)
 
-    print("CEL PRACY:")
+    print("THESIS PURPOSE:")
     print(purpose)
     print()
-    print("OCENA EMBEDDINGOWA:")
-    print(f"Ocena: {grade}")
-    print(f"OCENA REALIZACJI CELU: {purpose_score} - {purpose_reason}")
+    print("EMBEDDING SCORE:")
+    print(f"Score: {grade}")
+    print(f"PURPOSE REALIZATION SCORE: {purpose_score} - {purpose_reason}")
     print(f"Off-topic headings indices: {off_topic_headings}")
 
 
@@ -147,4 +157,4 @@ if __name__ == "__main__":
     start = time.perf_counter()
     main()
     end = time.perf_counter()
-    print(f"Czas działania programu: {end - start:.2f} s")
+    print(f"Program runtime: {end - start:.2f} s")

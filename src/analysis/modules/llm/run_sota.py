@@ -1,3 +1,5 @@
+"""Run SOTA chapter extraction, scoring, and console reporting utilities."""
+
 from dataclasses import dataclass
 from find_sota import get_sota_chapter
 from evaluate_sota import analyze_sota_chapter, free_sota_memory
@@ -6,28 +8,18 @@ import re
 
 @dataclass
 class ChapterBlock:
+    """Container for a chapter identifier, title, and aggregated content."""
     id: int
     title: str
     content: str = ""
 
 def is_toc_like(text):
-    """
-    Niszczarka Spisów Treści:
-    Sprawdza, czy blok tekstu wygląda jak Spis Treści (TOC),
-    szukając ciągów kropek kończących się numerem strony, np. "...... 34" lub ". . . 34"
-    wejscie: text w formacie stringa.
-    wyjscie: wartość logiczna (bool).
-    opis: Weryfikuje za pomocą Regexów, czy przekazany tekst jest fragmentem spisu treści (TOC), aby pominąć go w analizie.
-    """
+    """Return True when text looks like a table-of-contents fragment."""
     toc_lines = len(re.findall(r"(?:\.{3,}|\.\s\.\s\.)[\s\.]*\d+", text))
     return toc_lines >= 2
 
 def adapt_extraction_to_blocks(mapped_doc):
-    '''
-    wejscie: mapped_doc (zmapowany dokument lingwistyczny z ekstraktora PDF).
-    wyjscie: lista obiektów klasy ChapterBlock łączących tekst i nagłówki.
-    opis: Agreguje luźne bloki tekstu w logicznie połączone rozdziały, odrzucając automatycznie m.in. spisy treści.
-    '''     
+    """Convert mapped extraction output into chapter blocks for SOTA analysis."""
     blocks = []
     current_title = "Początek"
     current_content = []
@@ -75,11 +67,7 @@ def adapt_extraction_to_blocks(mapped_doc):
 
 
 def get_final_sota_report(mapped_doc, language: str = LANGUAGE):
-    '''
-    wejscie: mapped_doc (struktura dokumentu z PDF) oraz opcjonalny language (string).
-    wyjscie: krotka zawierająca ostateczne dane raportu (id_rozdzialu, tytul, wynik_procentowy, metoda_wykrycia, ilosc_cytowan, R1, R2, R3).
-    opis: Funkcja orkiestrująca, która zespaja cały pipeline SOTA – od odnalezienia rozdziału aż po jego ewaluację przez model LLM.
-    '''
+    """Run SOTA chapter selection and scoring, returning a compact summary tuple."""
     
     sota_blocks = adapt_extraction_to_blocks(mapped_doc)
 
@@ -112,7 +100,9 @@ def get_final_sota_report(mapped_doc, language: str = LANGUAGE):
     return s_id, s_title, s_score, s_method, s_citations, r1, r2, r3
 
 
-if __name__ == "__main__":
+def main():
+    """Execute a standalone SOTA analysis run for the configured thesis file."""
+
     print(f"Rozpoczynam testową analizę z konfiguracji: {THESIS_PATH}")
     
     import sys
@@ -144,3 +134,7 @@ if __name__ == "__main__":
     print(f"Wynik: {res_score}%")
     print(f"Podstawa wyboru: {res_method}")
     print(f"R1: {r1}, R2: {r2}, R3: {r3}")
+
+
+if __name__ == "__main__":
+    main()

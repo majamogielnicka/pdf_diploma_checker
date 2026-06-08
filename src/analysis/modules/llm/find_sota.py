@@ -6,12 +6,7 @@ PROMPT_EVALUATE_PL = """Jesteś ekspertem analizującym strukturę prac naukowyc
 PROMPT_EVALUATE_EN = """You are an expert analyzing the structure of academic papers... [treść promptu]"""
 
 def get_sota_chapter(blocks: list, language: str = "pl"):
-    """
-    Skanuje przekazane bloki i zwraca tuple: (id, tytul, metoda_wyboru, liczba_cytowan, WYEKSTRAKTOWANY_TEKST).
-    wejscie: blocks (lista obiektów reprezentujących bloki tekstu) oraz language (string, język pracy).
-    wyjscie: krotka (id, tytul, metoda_wyboru, liczba_cytowan, zawartosc_tekstowa) lub None, jeśli nie znaleziono.
-    opis: Algorytmicznie i za pomocą AI poszukuje w strukturze pracy dyplomowej głównego rozdziału będącego przeglądem literatury.
-    """
+    """Select the best SOTA chapter candidate and return metadata and content."""
     if not blocks:
         return None, None, "Brak tekstu", 0, ""
 

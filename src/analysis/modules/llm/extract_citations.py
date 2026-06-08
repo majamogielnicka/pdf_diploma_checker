@@ -9,6 +9,7 @@ ALPHA_PATTERN = r'\[[A-Za-zŚĆŻŹŁąćęłńóśźż]{2,6}\d{2}[a-z]?\]'
 ACM_PATTERN = r'\[[A-ZŚĆŻŹŁ][A-Za-zŚĆŻŹŁąćęłńóśźż\s\.\,]+?\s+(?:19|20)\d{2}\]'
 
 def extract_citations(text):
+    """Extract citation-like patterns from text using multiple style regexes."""
     numeric = re.findall(NUMERIC_PATTERN, text)
     harvard = re.findall(HARVARD_PATTERN, text)
     mla = re.findall(MLA_PATTERN, text)
@@ -22,13 +23,7 @@ def extract_citations(text):
     return all_citations
 
 def analyze_sota_citations(blocks, pdf_path, sota_ids, output_dir="."):
-    """
-    Analizuje cytowania w podanych blokach tekstowych.
-    Zamiast używać 'get_content', funkcja operuje na gotowych 'blocks'.
-    wejscie: text w formacie stringa (np. treść rozdziału).
-    wyjscie: lista stringów reprezentujących unikalne formaty odwołań bibliograficznych.
-    opis: Skanuje tekst za pomocą wyrażeń regularnych (Regex) i wyciąga z niego wszelkie przypisy naukowe (numeryczne, harwardzkie, MLA, itp.).
-    """
+    """Analyze citations in selected blocks and export a summary report."""
     output_lines = []
     output_lines.append(f"Przetwarzanie cytowań dla pliku: {pdf_path}")
     

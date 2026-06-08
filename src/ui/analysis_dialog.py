@@ -4,25 +4,20 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
     QPushButton, QFrame, QProgressBar, QWidget, QFileDialog
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QThread, QSize
+from PySide6.QtCore import Qt, Signal, QThread, QSize
 from PySide6.QtGui import QPixmap, QIcon
 import styles
 
 from common.path import resource_path
 
 class FileBadge(QFrame):
+    """ Widget displaying info about JSON config file with a delete button"""
     removed = Signal()
 
     def __init__(self, filename, parent=None):
         super().__init__(parent)
-        self.setStyleSheet("""
-            QFrame {
-                border: 1px solid #C4C4C4;
-                border-radius: 8px;
-                background-color: #FFFFFF;
-            }
-        """)
-        self.setFixedHeight(70)
+        self.setStyleSheet(styles.FILE_BADGE_FRAME)
+        self.setFixedHeight(90)
         
         layout = QHBoxLayout(self)
         layout.setContentsMargins(15, 10, 15, 10)
@@ -37,19 +32,21 @@ class FileBadge(QFrame):
             self.icon_label.setText("📄")
             self.icon_label.setStyleSheet("font-size: 24px; border: none;")
         self.icon_label.setFixedSize(40, 40)
-        self.icon_label.setStyleSheet("border: none;")
+        self.icon_label.setAlignment(Qt.AlignCenter)
+        self.icon_label.setScaledContents(False)
+        self.icon_label.setStyleSheet(styles.FILE_BADGE_INNER_LABELS)
 
         text_container = QWidget()
-        text_container.setStyleSheet("border: none;")
+        text_container.setStyleSheet(styles.FILE_BADGE_INNER_LABELS)
         text_layout = QVBoxLayout(text_container)
         text_layout.setContentsMargins(0, 0, 0, 0)
         text_layout.setSpacing(2)
 
         self.name_label = QLabel(filename)
-        self.name_label.setStyleSheet("font-weight: bold; font-size: 14px; color: #000; border: none;")
-        
+        self.name_label.setStyleSheet(styles.FILE_BADGE_NAME_LABEL)
+
         self.info_label = QLabel("Plik konfiguracyjny JSON")
-        self.info_label.setStyleSheet("color: #666; font-size: 12px; border: none;")
+        self.info_label.setStyleSheet(styles.FILE_BADGE_INFO_LABEL)
         
         text_layout.addWidget(self.name_label)
         text_layout.addWidget(self.info_label)
@@ -62,13 +59,10 @@ class FileBadge(QFrame):
             self.del_btn.setIcon(QIcon(trash_path))
             self.del_btn.setIconSize(QSize(20, 20))
         else:
-            self.del_btn.setText("usun")
+            self.del_btn.setText("usuń")
         
         self.del_btn.setCursor(Qt.PointingHandCursor)
-        self.del_btn.setStyleSheet("""
-            QPushButton { border: none; background: transparent; }
-            QPushButton:hover { background-color: #f0f0f0; border-radius: 4px; }
-        """)
+        self.del_btn.setStyleSheet(styles.ICON_BUTTON_STYLE)
         self.del_btn.clicked.connect(self.removed.emit)
 
         layout.addWidget(self.icon_label)
@@ -78,6 +72,7 @@ class FileBadge(QFrame):
 
 
 class ConfigDropFrame(QFrame):
+    """drag-and-drop for JSON files"""
     fileDropped = Signal(str)
 
     def __init__(self, parent=None):
@@ -85,6 +80,7 @@ class ConfigDropFrame(QFrame):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
+        """accepts only .json"""
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
             if urls and urls[0].toLocalFile().lower().endswith('.json'):
@@ -93,59 +89,70 @@ class ConfigDropFrame(QFrame):
         event.ignore()
 
     def dropEvent(self, event):
+        """Handles the drop event and gets the file path of the dropped JSON"""
         urls = event.mimeData().urls()
         if urls:
             file_path = urls[0].toLocalFile()
             self.fileDropped.emit(file_path)
 
 class PipelineWorker(QThread):
+    """thread that handles the background processing of the PDF analysis"""
     progress_update = Signal(int, str) 
     finished_success = Signal(dict) 
     finished_error = Signal(str) 
 
-    def __init__(self, pdf_path, config_path, use_llm):
+    def __init__(self, pdf_path, config_path, use_llm, language):
         super().__init__()
         self.pdf_path = pdf_path
         self.config_path = config_path
         self.use_llm = use_llm
+        self.language = language
 
     def run(self):
+        """Runs the analysis, downloads language files, parses coordinates/bounding boxes and gives results"""
         try:
+            self.progress_update.emit(5, "Sprawdzanie i pobieranie wymagań językowych...")
+            from setup import download_specific_language
+            download_specific_language(self.language)
+
+            self.progress_update.emit(10, "Uruchamianie silnika analizy...")
             from app.entry import run_analysis_for_pdf
-            raport_koncowy = run_analysis_for_pdf(
+            
+            final_report = run_analysis_for_pdf(
                 pdf_path=self.pdf_path, 
                 config_path=self.config_path,
                 progress_callback=self.progress_update.emit,
-                use_llm=self.use_llm
+                use_llm=self.use_llm,
+                language=self.language
             )
             
-            raport_z_obiektami = getattr(raport_koncowy, "linguistics_errors", [])
+            report_objects = getattr(final_report, "linguistics_errors", [])
             ui_report = []
-            for blad in raport_z_obiektami:
+            for error in report_objects:
                 
-                if isinstance(blad, dict):
-                    numer_strony = blad.get('page', blad.get('page_number', blad.get('page_start', 1)))
-                    bbox = blad.get('bbox', blad.get('bounding_box', None))
-                    pojedyncze_x = blad.get('x', None)
-                    pojedyncze_y = blad.get('y', None)
-                    err_coord = blad.get('error_coordinate', None) 
+                if isinstance(error, dict):
+                    page_nr = error.get('page', error.get('page_number', error.get('page_start', 1)))
+                    bbox = error.get('bbox', error.get('bounding_box', None))
+                    single_x = error.get('x', None)
+                    single_y = error.get('y', None)
+                    err_coord = error.get('error_coordinate', None) 
                     
-                    kategoria = blad.get('category', blad.get('ruleId', 'Błąd językowy'))
-                    tekst = blad.get('content', blad.get('text', blad.get('matched_text', '[Brak tekstu]')))
-                    komentarz = blad.get('message', blad.get('msg', blad.get('comments', 'Znaleziono błąd.')))
+                    category = error.get('category', error.get('ruleId', 'Błąd językowy'))
+                    text = error.get('content', error.get('text', error.get('matched_text', '[Brak textu]')))
+                    comment = error.get('message', error.get('msg', error.get('comments', 'Znaleziono błąd.')))
                 else:
-                    numer_strony = getattr(blad, 'page', getattr(blad, 'page_number', getattr(blad, 'page_start', 1)))
-                    bbox = getattr(blad, 'bbox', getattr(blad, 'bounding_box', None))
-                    pojedyncze_x = getattr(blad, 'x', None)
-                    pojedyncze_y = getattr(blad, 'y', None)
-                    err_coord = getattr(blad, 'error_coordinate', None)
+                    page_nr = getattr(error, 'page', getattr(error, 'page_number', getattr(error, 'page_start', 1)))
+                    bbox = getattr(error, 'bbox', getattr(error, 'bounding_box', None))
+                    single_x = getattr(error, 'x', None)
+                    single_y = getattr(error, 'y', None)
+                    err_coord = getattr(error, 'error_coordinate', None)
                     
-                    kategoria = getattr(blad, 'category', getattr(blad, 'ruleId', 'Błąd językowy'))
-                    tekst = getattr(blad, 'content', getattr(blad, 'text', getattr(blad, 'matched_text', '[Brak tekstu]')))
-                    komentarz = getattr(blad, 'message', getattr(blad, 'msg', getattr(blad, 'comments', 'Znaleziono błąd.')))
+                    category = getattr(error, 'category', getattr(error, 'ruleId', 'Błąd językowy'))
+                    text = getattr(error, 'content', getattr(error, 'text', getattr(error, 'matched_text', '[Brak textu]')))
+                    comment = getattr(error, 'message', getattr(error, 'msg', getattr(error, 'comments', 'Znaleziono błąd.')))
 
-                if not isinstance(numer_strony, int) or numer_strony <= 0:
-                    numer_strony = 1
+                if not isinstance(page_nr, int) or page_nr <= 0:
+                    page_nr = 1
                 
                 x, y, w, h = 50.0, 50.0, 20.0, 20.0 
                 
@@ -159,7 +166,7 @@ class PipelineWorker(QThread):
                             w, h = float(x2 - x1), float(y2 - y1)
                         
                         if first_coord.get("page", -1) != -1:
-                            numer_strony = first_coord["page"]
+                            page_nr = first_coord["page"]
                             
                 elif isinstance(bbox, (list, tuple)):
                     if len(bbox) == 4:
@@ -169,30 +176,30 @@ class PipelineWorker(QThread):
                     elif len(bbox) == 2:
                         x, y = float(bbox[0]), float(bbox[1])
                         
-                elif pojedyncze_x is not None and pojedyncze_y is not None:
-                    x, y = float(pojedyncze_x), float(pojedyncze_y)
+                elif single_x is not None and single_y is not None:
+                    x, y = float(single_x), float(single_y)
                 
                 if w <= 0: w = 20.0
                 if h <= 0: h = 20.0
 
                 ui_report.append({
-                    "strona": numer_strony,
-                    "kategoria": str(kategoria),
-                    "znaleziony_tekst": str(tekst),
-                    "komentarz": str(komentarz),
-                    "wspolrzedne": {
+                    "page": page_nr,
+                    "category": str(category),
+                    "found_text": str(text),
+                    "comment": str(comment),
+                    "coords": {
                         "x": x, "y": y, "w": w, "h": h
                     }
                 })
             
-            sota_data = getattr(raport_koncowy, "llm_result", None)
+            sota_data = getattr(final_report, "llm_result", None)
 
-            dane_dla_ui = {
-                "bledy": ui_report,
+            ui_data = {
+                "errors": ui_report,
                 "sota": sota_data if isinstance(sota_data, dict) else None
             }
             
-            self.finished_success.emit(dane_dla_ui)
+            self.finished_success.emit(ui_data)
             
         except Exception as e:
             import traceback
@@ -200,11 +207,12 @@ class PipelineWorker(QThread):
             self.finished_error.emit(str(e))
 
 class AnalysisDialog(QDialog):
+    """dialog window allowing configuration and running the document analysis. Allows JSON file upload, language selection, and analysis mode switching"""
     def __init__(self, pdf_path, parent=None):
         super().__init__(parent)
         self.pdf_path = pdf_path
         self.setWindowTitle("Przeanalizuj dokument")
-        self.setFixedSize(600, 520)
+        self.setFixedSize(800, 660) 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet(styles.DIALOG_STYLE)
         
@@ -212,9 +220,10 @@ class AnalysisDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
+        """Sets up the layout"""
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(30, 20, 30, 30)
-        self.main_layout.setSpacing(15)
+        self.main_layout.setSpacing(12)
 
         header = QHBoxLayout()
         self.title_label = QLabel("Przeanalizuj dokument")
@@ -232,27 +241,18 @@ class AnalysisDialog(QDialog):
         self.config_widget.setStyleSheet("border: none;")
         config_layout = QVBoxLayout(self.config_widget)
         config_layout.setContentsMargins(0, 0, 0, 0)
-        config_layout.setSpacing(15)
+        config_layout.setSpacing(12)
 
         self.json_frame = ConfigDropFrame()
         self.json_frame.setStyleSheet(styles.JSON_FRAME_STYLE)
-        self.json_frame.setFixedHeight(260)
+        self.json_frame.setFixedHeight(240)
         json_inner_layout = QVBoxLayout(self.json_frame)
-        json_inner_layout.setSpacing(8)
+        json_inner_layout.setSpacing(6)
 
         self.json_icon = QLabel("{JSON}")
-        self.json_icon.setFixedSize(70, 70)
+        self.json_icon.setFixedSize(60, 60)
         self.json_icon.setAlignment(Qt.AlignCenter)
-        self.json_icon.setStyleSheet("""
-            QLabel {
-                background-color: #BDDCFF; 
-                color: #1E8CFA;            
-                font-weight: bold; 
-                font-size: 16px;           
-                border-radius: 35px;
-                border: none;
-            }
-        """)
+        self.json_icon.setStyleSheet(styles.JSON_ICON_CIRCLE)
         self.drop_label = QLabel("Przeciągnij tu plik konfiguracyjny", styleSheet="font-weight: bold; border: none;")
         self.add_json_btn = QPushButton("+ Dodaj plik konfiguracyjny")
         self.add_json_btn.setStyleSheet(styles.BLUE_BUTTON_STYLE)
@@ -273,20 +273,57 @@ class AnalysisDialog(QDialog):
         self.badge_container.setVisible(False)
         config_layout.addWidget(self.badge_container)
 
+        lang_section = QVBoxLayout()
+        lang_section.setSpacing(4)
+        lang_title = QLabel("Język pisania pracy:")
+        lang_title.setStyleSheet("font-size: 13px; font-weight: bold; color: #333;")
+        
+        lang_buttons_layout = QHBoxLayout()
+        self.btn_lang_pl = QPushButton("Polski (PL)")
+        self.btn_lang_pl.setCheckable(True)
+        self.btn_lang_pl.setChecked(True)
+        self.btn_lang_pl.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_lang_pl.setFixedHeight(45)
+        
+        self.btn_lang_en = QPushButton("Angielski (EN)")
+        self.btn_lang_en.setCheckable(True)
+        self.btn_lang_en.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_lang_en.setFixedHeight(45)
+        
+        self.btn_lang_pl.clicked.connect(lambda: self.btn_lang_en.setChecked(False))
+        self.btn_lang_en.clicked.connect(lambda: self.btn_lang_pl.setChecked(False))
+        
+        lang_buttons_layout.addWidget(self.btn_lang_pl)
+        lang_buttons_layout.addWidget(self.btn_lang_en)
+        lang_section.addWidget(lang_title)
+        lang_section.addLayout(lang_buttons_layout)
+        config_layout.addLayout(lang_section)
+
+        mode_section = QVBoxLayout()
+        mode_section.setSpacing(4)
+        mode_title = QLabel("Tryb analizy:")
+        mode_title.setStyleSheet("font-size: 13px; font-weight: bold; color: #333;")
+
         modes_layout = QHBoxLayout()
         self.btn_szybki = QPushButton("Tryb szybki")
         self.btn_szybki.setCheckable(True)
         self.btn_szybki.setChecked(True)
         self.btn_szybki.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_szybki.setFixedHeight(45)
+        
         self.btn_dokladny = QPushButton("Tryb dokładny")
         self.btn_dokladny.setCheckable(True)
         self.btn_dokladny.setStyleSheet(styles.MODE_BTN_STYLE)
+        self.btn_dokladny.setFixedHeight(45)
+        
         self.btn_szybki.clicked.connect(lambda: self.btn_dokladny.setChecked(False))
         self.btn_dokladny.clicked.connect(lambda: self.btn_szybki.setChecked(False))
         modes_layout.addWidget(self.btn_szybki)
         modes_layout.addWidget(self.btn_dokladny)
-        config_layout.addLayout(modes_layout)
-
+        mode_section.addWidget(mode_title)
+        mode_section.addLayout(modes_layout)
+        config_layout.addLayout(mode_section)
+        config_layout.addStretch(1)
         self.main_layout.addWidget(self.config_widget)
 
         self.progress_widget = QWidget()
@@ -324,55 +361,62 @@ class AnalysisDialog(QDialog):
         self.json_frame.fileDropped.connect(self._set_config_file)
 
     def _open_file_dialog(self):
+        """Opens a standard dialog to select a config JSON file manually"""
         path, _ = QFileDialog.getOpenFileName(self, "Wybierz plik konfiguracyjny", "", "JSON Files (*.json)")
         if path: self._set_config_file(path)
 
     def _set_config_file(self, path):
+        """displays the selected configuration file badge and stores the file path"""
         self.config_file_path = path
         
         while self.badge_layout.count():
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
-        self.json_frame.setFixedHeight(190)
+        self.json_frame.setFixedHeight(180)
         badge = FileBadge(os.path.basename(path))
         badge.removed.connect(self._remove_config_file)
         self.badge_layout.addWidget(badge)
         self.badge_container.setVisible(True)
 
     def _remove_config_file(self):
+        """Clears the stored configuration file path and hides the file badge from the UI"""
         self.config_file_path = None
         self.badge_container.setVisible(False)
         while self.badge_layout.count():
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
-        self.json_frame.setFixedHeight(260)
+        self.json_frame.setFixedHeight(220)
 
     def _start_analysis(self):
-        if not self.config_file_path:
-            pass
+        """progress state, instantiates, and starts the PipelineWorker thread"""
         self.config_widget.setVisible(False)
         self.analyze_btn.setVisible(False)
         self.progress_widget.setVisible(True)
         self.title_label.setText("Analizowanie...")
         
-        czy_dokladny = self.btn_dokladny.isChecked()
-        self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=czy_dokladny)
+        is_detailed = self.btn_dokladny.isChecked()
+        choosen_lg = "pl" if self.btn_lang_pl.isChecked() else "en"
+        
+        self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=is_detailed, language=choosen_lg)
         self.worker.progress_update.connect(self._update_progress)
         self.worker.finished_success.connect(self._on_analysis_success)
         self.worker.finished_error.connect(lambda msg: self.reject())
         self.worker.start()
 
     def _on_analysis_success(self, final_report):
+        """when the background thread completes successfully closes the dialog"""
         self.final_report = final_report
         self.accept()
 
     def _cancel_analysis(self):
+        """Terminates the running background worker thread"""
         if hasattr(self, 'worker') and self.worker.isRunning():
             self.worker.terminate()
             self.worker.wait()
         self._reset_ui_state()
 
     def _reset_ui_state(self):
+        """Resets progress indicators and switches the UI view back"""
         self.pbar.setValue(0)
         self.progress_label.setText("Przygotowywanie do analizy...")
         self.progress_widget.setVisible(False)
@@ -382,5 +426,6 @@ class AnalysisDialog(QDialog):
         self.title_label.setText("Przeanalizuj dokument")
 
     def _update_progress(self, value, text):
+        """Updates the progress bar value and the description label text"""
         self.pbar.setValue(value)
         self.progress_label.setText(text)

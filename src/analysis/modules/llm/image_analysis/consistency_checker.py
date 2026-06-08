@@ -12,7 +12,7 @@ class ConsistencyChecker:
         self.llm = Llama(
             model_path=model_path,
             n_ctx=4096,
-            n_gpu_layers=-1,
+            n_gpu_layers=config.N_GPU_LAYERS,
             verbose=False
         )
 

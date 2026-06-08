@@ -1,17 +1,21 @@
+"""Extract and clean the main thesis purpose from full thesis text."""
+
 import sys
-import os
+from pathlib import Path
 import requests
 from llama_cpp import Llama
 
-_src_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
-for _p in (os.path.dirname(_src_dir), _src_dir):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parents[3]
+SRC_DIR = PROJECT_ROOT / "src"
 
-from common.path import resource_path
+for p in (PROJECT_ROOT, SRC_DIR):
+    p_str = str(p)
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
 
 from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
-from analysis.modules.llm.config import MODEL_PATH, LANGUAGE, THESIS_PATH
+from analysis.modules.llm.config import MODEL_PATH, LANGUAGE, THESIS_PATH, N_GPU_LAYERS
 
 
 MODEL_NAME = str(MODEL_PATH)
@@ -22,7 +26,6 @@ MAX_CHUNKS = 40
 
 N_CTX = 4096
 N_THREADS = 8
-N_GPU_LAYERS = -1
 
 _IS_MAIN_SCRIPT = __name__ == "__main__"
 
@@ -161,11 +164,15 @@ _LLAMA_MODELS = {}
 
 
 def print_if_main(*args, **kwargs):
+    """Print only when this file is run as a script."""
+
     if _IS_MAIN_SCRIPT:
         print(*args, **kwargs)
 
 
 def ask_model(model_name, prompt, num_predict=120):
+    """Send a prompt to the LLM and return plain text response."""
+
     if model_name not in _LLAMA_MODELS:
         _LLAMA_MODELS[model_name] = Llama(
             model_path=model_name,
@@ -203,6 +210,8 @@ def ask_model(model_name, prompt, num_predict=120):
 
 
 def normalize_text(text):
+    """Normalize whitespace and non-breaking spaces."""
+
     if not text:
         return ""
 
@@ -210,6 +219,8 @@ def normalize_text(text):
 
 
 def normalize_output(text):
+    """Clean model output"""
+
     text = normalize_text(text)
 
     if not text:
@@ -234,10 +245,14 @@ def normalize_output(text):
 
 
 def build_prompt(kind, language, **kwargs):
+    """Build a formatted prompt for the selected step and language."""
+
     return PROMPTS[language][kind].format(**kwargs).strip()
 
 
 def is_negative_answer(text, language):
+    """Return True when model output means no valid goal was found."""
+
     text = normalize_text(text).upper()
     return text == ("BRAK" if language == "pl" else "NONE")
 
@@ -248,6 +263,8 @@ def split_into_chunks(
     overlap=CHUNK_OVERLAP,
     max_chunks=MAX_CHUNKS,
 ):
+    """Split long text into overlapping chunks for LLM processing."""
+
     text = normalize_text(text)
 
     if not text:
@@ -284,6 +301,8 @@ def split_into_chunks(
 
 
 def rewrite_to_impersonal_form(purpose, language):
+    """Rewrite the detected goal to an impersonal form."""
+
     purpose = normalize_text(purpose)
 
     if not purpose:
@@ -313,6 +332,8 @@ def rewrite_to_impersonal_form(purpose, language):
 
 
 def collect_goal_candidates(full_text, language):
+    """Find goal candidates by scanning text chunks with the model."""
+
     chunks = split_into_chunks(full_text)
     candidates = []
 
@@ -344,6 +365,8 @@ def collect_goal_candidates(full_text, language):
 
 
 def select_best_goal(candidates, language):
+    """Choose one best goal candidate and normalize its style."""
+
     if not candidates:
         return ""
 
@@ -389,7 +412,9 @@ def select_best_goal(candidates, language):
     return rewritten_purpose
 
 
-def get_purpose(full_text, language="pl"):
+def get_purpose(full_text, language):
+    """Return the final thesis purpose string or an error message."""
+
     full_text = normalize_text(full_text)
 
     if not full_text:
@@ -432,6 +457,8 @@ def get_purpose(full_text, language="pl"):
 
 
 def main():
+    """Run purpose extraction for configured thesis input."""
+
     full_text = get_plain_text(THESIS_PATH)
     result = get_purpose(full_text, LANGUAGE)
 

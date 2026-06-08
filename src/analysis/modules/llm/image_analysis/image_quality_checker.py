@@ -6,8 +6,8 @@ current_dir = Path(__file__).resolve().parent
 sys.path.append(str(current_dir.parent))
 sys.path.append(str(current_dir.parents[3]))
 
-from quality_analysis import check_image_quality
-from llava_quality_checker import get_llava_quality_report
+from .quality_analysis import check_image_quality
+from .llava_quality_checker import get_llava_quality_report
 
 def get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False):
     '''
@@ -58,7 +58,7 @@ def get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False):
 if __name__ == "__main__":
     
     import json
-    from config import THESIS_PATH
+    from analysis.modules.llm.config import THESIS_PATH
     from analysis.extraction.extraction_json import extractPDF
     from analysis.extraction.converter_linguistics_clean import PDFMapper
     

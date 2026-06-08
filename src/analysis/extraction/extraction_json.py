@@ -5,12 +5,14 @@ W przyszłości proponuje to przenieść jako metody struktury zamiast oddzielny
 import os
 import fitz  # PyMuPDF
 import statistics
-from typing import Dict
+from typing import Dict, List
 import re
 import sys
 
-
 from analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
+
+#from pdf_diploma_checker.src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
+#from src.analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, TextLine, TextSpan, ImageInfo, TableInfo, TocData, TocEntry, TofData, TofEntry, TotData, TotEntry
 
 
 # TODO: dodać więcej przykładowych plików pdf do folderu /redaction_debug
@@ -112,6 +114,13 @@ def fix_latex(text):
         "˛A": "Ą",
         "˛e": "ę",
         "˛E": "Ę",
+        "ﬀ": "ff",   
+        "ﬁ": "fi",   
+        "ﬂ": "fl",   
+        "ﬃ": "ffi",  
+        "ﬄ": "ffl",  
+        "ﬅ": "ft",   
+        "ﬆ": "st",   
     }
     for wrong, right in replace.items():
         text = text.replace(wrong, right)
@@ -1005,6 +1014,7 @@ def extractPDF(file_path: str) -> DocumentData:
             if block["type"] == 0:
                 is_ftr = is_footer(block, p_height, page_index + 1)
                 text_block, last_block_btmline, current_span_id = parse_text_block(block, word_list, p_width, cur_page.margins, last_block_btmline, current_span_id, all_spacings, is_ftr)
+                
                 if text_block.lines:
                     cur_page.text_blocks.append(text_block)
                     if not is_ftr:
@@ -1047,6 +1057,44 @@ def extractPDF(file_path: str) -> DocumentData:
     document_data.tot = extract_TOT(document_data.pages, document_data.toc.page_nums if document_data.toc else [])
     doc.close()
     return document_data
+
+
+def get_raster_figure_numbers(document_data: DocumentData) -> List[str]:
+    """
+    Zwraca listę numerów rysunków dla grafik rastrowych (np. ["1.2", "1.3"]).
+
+    Numer jest wyciągany z pola `description` obrazów o `image_type == "raster"`.
+    Obsługiwane prefiksy: rys, rys., rysunek, fig, fig., figure, wykres, fot, foto, photo, image.
+    """
+    if not document_data or not getattr(document_data, "pages", None):
+        return []
+
+    number_pattern = re.compile(
+        r"(?i)\b(?:rys(?:unek)?|fig(?:ure)?|wykres|fot(?:o)?|photo|image)\.?\s*(\d+(?:\.\d+)*)"
+    )
+
+    raster_numbers: List[str] = []
+    seen = set()
+
+    for page in document_data.pages:
+        for img in getattr(page, "images", []):
+            if str(getattr(img, "image_type", "")).lower().strip() != "raster":
+                continue
+
+            description = str(getattr(img, "description", "") or "")
+            if not description:
+                continue
+
+            match = number_pattern.search(description)
+            if not match:
+                continue
+
+            fig_number = match.group(1)
+            if fig_number not in seen:
+                seen.add(fig_number)
+                raster_numbers.append(fig_number)
+
+    return raster_numbers
 
 #Niestety używanie samego dicta powoduje, że nie można dokładnie rozdzielić spanów na same słowa z informacją
 #o ich położeniu. Natomiast sama lista słów zwraca dokładne koordynaty słowa, ale nie pozwala na
@@ -1106,7 +1154,38 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             flags = raw_span["flags"]
 
             if span_words:
-                for x in span_words:
+                raw_text_stripped = raw_span["text"].strip()
+                
+                first_word_text = span_words[0][4]
+                last_word_text = span_words[-1][4]
+                
+                missing_start = ""
+                missing_end = ""
+                
+                start_match = re.match(r'^([(),.;:!?\[\]\{\}"”„]+)', raw_text_stripped)
+                end_match = re.search(r'([(),.;:!?\[\]\{\}"”„]+)$', raw_text_stripped)
+                
+                if start_match and not first_word_text.startswith(start_match.group(1)):
+                    missing_start = start_match.group(1)
+                if end_match and not last_word_text.endswith(end_match.group(1)):
+                    missing_end = end_match.group(1)
+
+                for idx, orig_x in enumerate(span_words):
+                    x = list(orig_x)
+                    if idx == 0 and missing_start:
+                        is_closing_punct = all(c in '.,;:!?)]}”' for c in missing_start)
+                        if is_closing_punct and len(spans) > 0:
+                            spans[-1].text += missing_start
+                            p_box = spans[-1].bbox
+                            spans[-1].bbox = (p_box[0], p_box[1], p_box[2] + 4.0, p_box[3])
+                        else:
+                            x[4] = missing_start + x[4]
+                            x[0] -= 4.0
+
+                    if idx == len(span_words) - 1 and missing_end:
+                        x[4] = x[4] + missing_end
+                        x[2] += 4.0
+
                     current_span_id += 1
                     spans.append(TextSpan(
                         span_id=current_span_id,
@@ -1158,8 +1237,83 @@ def parse_text_block(raw_block: dict, word_list:list, page_width: float, margins
             curr_line.spacing_consistency = consistent
             # curr_line.gap_to_r = gap_toright #debug
             lines.append(curr_line)
-            
-    return TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text"), prev_bottomline, current_span_id
+    output_block = TextBlock(lines=lines, bbox=raw_block["bbox"], block_id=raw_block["number"], block_type="footer" if is_ftr else "text")
+    clean_block = post_process_block(output_block)
+    #clean_block = output_block
+    return clean_block, prev_bottomline, current_span_id
+
+def post_process_block(block: TextBlock) -> TextBlock:
+    # Bezpieczna mapa liczbowych kodów Unicode (ogonek, kropka, akcent ostry)
+    MAPS = {
+        0x02DB: {0x0061: 0x0105, 0x0041: 0x0104, 0x0065: 0x0119, 0x0045: 0x0118},  # ˛
+        0x02D9: {0x007A: 0x017C, 0x005A: 0x017B},                                  # ˙ 
+        0x00B4: {                                                                  # ´ 
+            0x0073: 0x015B, 0x0053: 0x015A, 0x0063: 0x0107, 0x0043: 0x0106,
+            0x007A: 0x017A, 0x005A: 0x0179, 0x006E: 0x0144, 0x004E: 0x0143,
+            0x006F: 0x00F3, 0x004F: 0x00D3
+        }
+    }
+
+    MERGE_TARGETS = {'ą', 'Ą', 'ę', 'Ę'}
+
+    for line in block.lines:
+        if not line.spans:
+            continue
+
+        fixed_spans = []
+        i = 0
+        n = len(line.spans)
+
+        while i < n:
+            current_span = line.spans[i]
+            text = current_span.text
+
+            if not text:
+                fixed_spans.append(current_span)
+                i += 1
+                continue
+
+            fixed_text_chars = []
+            j = 0
+            length = len(text)
+            has_changes = False
+
+            while j < length:
+                c_code = ord(text[j])
+                if c_code in MAPS and j + 1 < length:
+                    next_c_code = ord(text[j + 1])
+                    if next_c_code in MAPS[c_code]:
+                        fixed_text_chars.append(chr(MAPS[c_code][next_c_code]))
+                        j += 2
+                        has_changes = True
+                        continue
+                fixed_text_chars.append(text[j])
+                j += 1
+
+            if has_changes:
+                text = "".join(fixed_text_chars)
+                current_span.text = text
+
+            if text and text[0] in MERGE_TARGETS and fixed_spans:
+                prev_span = fixed_spans[-1]
+                prev_span.text = prev_span.text + text
+                
+                p_box = prev_span.bbox
+                c_box = current_span.bbox
+                prev_span.bbox = (
+                    p_box[0], 
+                    min(p_box[1], c_box[1]), 
+                    max(p_box[2], c_box[2]), 
+                    max(p_box[3], c_box[3])
+                )
+            else:
+                fixed_spans.append(current_span)
+
+            i += 1
+
+        line.spans = fixed_spans
+
+    return block
 
 def check_page_format(width, height, tolerance: float = 10) -> str:
 
@@ -1225,8 +1379,13 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
     all_entries = []
     toc_pages = []
     base_x = None
+    
+    is_detecting = True
 
-    for page_obj in pages[:10]:
+    for page_obj in pages[:15]:
+        if not is_detecting:
+            break
+
         y_groups = {}
         for block in page_obj.text_blocks:
             for line in block.lines:
@@ -1294,6 +1453,8 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
             all_entries.extend(page_entries)
             if page_obj.number not in toc_pages:
                 toc_pages.append(page_obj.number)
+        elif len(toc_pages) > 0:
+            is_detecting = False
 
     if all_entries:
         return TocData(page_nums=toc_pages, entries=all_entries, text="Wykryto wizualnie ")
@@ -1308,9 +1469,12 @@ def extract_TOC(doc: fitz.Document, pages: list[PageData]) -> TocData | None:
 def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: #Table of Figures
     """ Funkcja wykrywająca spisy rysunków """
     keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
-                "list of figures", "table of figures", "tof"]
+                "list of figures", "table of figures", "wykaz rysunkow", "wykaz rysunków",
+                "spis wykresów", "table of graphs"]
+    anti_keywords = ["spis tabel", "spis tablic", "list of tables", "wykaz tabel", "bibliografia", "bibliography"]
     all_entries = []
     tof_pages = []
+    is_detecting = False
 
     for page_obj in pages:
         if page_obj.number in toc_pages:
@@ -1325,27 +1489,53 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                     y_groups[y_center] = []
                 y_groups[y_center].append(line)
 
+        has_keyword_on_top = False
+        has_anti_keyword_on_top = False
+        top_lines_text = ""
+        
+        for y in sorted(y_groups.keys()):
+            first_line_in_group = y_groups[y][0]
+            if first_line_in_group.bbox[1] < (page_obj.height * 0.15):
+                lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
+                for l in lines_on_y:
+                    top_lines_text += " ".join([s.text.strip() for s in l.spans if s.text.strip()]) + " "
+            else:
+                break
+                
+        top_text_low = top_lines_text.lower()
+        if any(word in top_text_low for word in keywords):
+            has_keyword_on_top = True
+        if any(word in top_text_low for word in anti_keywords):
+            has_anti_keyword_on_top = True
+
+        if has_keyword_on_top:
+            is_detecting = True
+        elif is_detecting:
+            if has_anti_keyword_on_top or (tof_pages and page_obj.number != (tof_pages[-1] + 1)):
+                is_detecting = False
+
         page_entries = []
         cut_obj_num = ""
         cut_title = ""
         for y in sorted(y_groups.keys()):
             lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
-            
             fragments = []
             for l in lines_on_y:
                 for s in l.spans:
                     txt = s.text.strip()
                     if txt:
                         fragments.append(txt)
-            
             if not fragments:
                 continue
 
             line_full_text = " ".join(fragments)
-            page_text += line_full_text + " "
+            if line_full_text.lower() in keywords:
+                page_text += line_full_text + " "
+                continue
 
-            match_full = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
-            match_start = re.match(r"^(\d+(?:\.\d+)*)\s+(.*)", line_full_text)
+            page_text += line_full_text + " "
+            match_full = re.search(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
             if match_full:
@@ -1353,48 +1543,48 @@ def extract_TOF(pages: list[PageData], toc_pages: list[int]) -> TofData | None: 
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_raw).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TofEntry(number=obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif match_start:
                 cut_obj_num = match_start.group(1)
                 cut_title = match_start.group(2)
-
             elif match_end and cut_obj_num:
                 title_part, p_num = match_end.groups()
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_part).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TofEntry(number=cut_obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif cut_obj_num:
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 cut_title = base_title + sep + line_full_text
 
-        low_page_text = page_text.lower()
-        has_keyword = any(word in low_page_text for word in keywords)
-        
-        if has_keyword and len(page_entries) >= 2:
-            all_entries.extend(page_entries)
-            if page_obj.number not in tof_pages:
-                tof_pages.append(page_obj.number)
+        if is_detecting and page_entries:
+            if len(tof_pages) == 0 and len(page_entries) < 2:
+                is_detecting = False
+            else:
+                all_entries.extend(page_entries)
+                if page_obj.number not in tof_pages:
+                    tof_pages.append(page_obj.number)
+        elif is_detecting and not page_entries:
+            is_detecting = False
 
     if all_entries:
         return TofData(page_nums=tof_pages, entries=all_entries, text="Spis Rysunków")
-
     return None
 
 def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: #Table of Tables
     """ Funkcja wykrywająca spisy tabel """
-    keywords = ["spis tabel", "spis tablic", "list of tables", "tot"]
+    keywords = ["spis tabel", "spis tablic", "list of tables", "wykaz tabel"]
+    anti_keywords = ["spis rysunków", "spis rysunkow", "spis ilustracji", 
+                    "list of figures", "table of figures", "wykaz rysunkow", "wykaz rysunków",
+                    "spis wykresów", "table of graphs", "bibliografia", "bibliography"]
     all_entries = []
     tot_pages = []
+    is_detecting = False
 
     for page_obj in pages:
         if page_obj.number in toc_pages:
@@ -1409,27 +1599,53 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
                     y_groups[y_center] = []
                 y_groups[y_center].append(line)
 
+        has_keyword_on_top = False
+        has_anti_keyword_on_top = False
+        top_lines_text = ""
+        
+        for y in sorted(y_groups.keys()):
+            first_line_in_group = y_groups[y][0]
+            if first_line_in_group.bbox[1] < (page_obj.height * 0.15):
+                lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
+                for l in lines_on_y:
+                    top_lines_text += " ".join([s.text.strip() for s in l.spans if s.text.strip()]) + " "
+            else:
+                break
+                
+        top_text_low = top_lines_text.lower()
+        if any(word in top_text_low for word in keywords):
+            has_keyword_on_top = True
+        if any(word in top_text_low for word in anti_keywords):
+            has_anti_keyword_on_top = True
+
+        if has_keyword_on_top:
+            is_detecting = True
+        elif is_detecting:
+            if has_anti_keyword_on_top or (tot_pages and page_obj.number != (tot_pages[-1] + 1)):
+                is_detecting = False
+
         page_entries = []
         cut_obj_num = ""
         cut_title = ""
         for y in sorted(y_groups.keys()):
             lines_on_y = sorted(y_groups[y], key=lambda l: l.bbox[0])
-            
             fragments = []
             for l in lines_on_y:
                 for s in l.spans:
                     txt = s.text.strip()
                     if txt:
                         fragments.append(txt)
-            
             if not fragments:
                 continue
 
             line_full_text = " ".join(fragments)
-            page_text += line_full_text + " "
+            if line_full_text.lower() in keywords:
+                page_text += line_full_text + " "
+                continue
 
-            match_full = re.search(r"^(\d+(?:\.\d+)*)\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
-            match_start = re.match(r"^(\d+(?:\.\d+)*)\s+(.*)", line_full_text)
+            page_text += line_full_text + " "
+            match_full = re.search(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
+            match_start = re.match(r"^(?:[A-Z][a-zśł]{3,10}\.?\s*)?([A-Z\d]+(?:\.[A-Z\d]+)*)\.?\s+(.*)", line_full_text)
             match_end = re.search(r"(.*?)(?:\.|\s)*\s+(\d+)$", line_full_text)
 
             if match_full:
@@ -1437,39 +1653,35 @@ def extract_TOT(pages: list[PageData], toc_pages: list[int]) -> TotData | None: 
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_raw).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TotEntry(number=obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif match_start:
                 cut_obj_num = match_start.group(1)
                 cut_title = match_start.group(2)
-
             elif match_end and cut_obj_num:
                 title_part, p_num = match_end.groups()
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 full_title = (base_title + sep + title_part).strip()
-                
                 title_clean = re.sub(r'[\.\s·-]{2,}', ' ', full_title).strip()
                 page_entries.append(TotEntry(number=cut_obj_num, title=title_clean, page=int(p_num), bbox=lines_on_y[0].bbox, src_page=page_obj.number))
                 cut_obj_num = ""; cut_title = ""
-
             elif cut_obj_num:
                 sep = "" if cut_title.endswith("-") else " "
                 base_title = cut_title[:-1] if cut_title.endswith("-") else cut_title
                 cut_title = base_title + sep + line_full_text
 
-        low_page_text = page_text.lower()
-        has_keyword = any(word in low_page_text for word in keywords)
-        
-        if has_keyword and len(page_entries) >= 2:
-            all_entries.extend(page_entries)
-            if page_obj.number not in tot_pages:
-                tot_pages.append(page_obj.number)
+        if is_detecting and page_entries:
+            if len(tot_pages) == 0 and len(page_entries) < 2:
+                is_detecting = False
+            else:
+                all_entries.extend(page_entries)
+                if page_obj.number not in tot_pages:
+                    tot_pages.append(page_obj.number)
+        elif is_detecting and not page_entries:
+            is_detecting = False
 
     if all_entries:
         return TotData(page_nums=tot_pages, entries=all_entries, text="Spis Tabel")
-
     return None

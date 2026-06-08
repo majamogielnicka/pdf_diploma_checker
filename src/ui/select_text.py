@@ -7,29 +7,21 @@ from PySide6.QtPdfWidgets import QPdfView
 import styles
 
 class ErrorMarker(QPushButton):
+    """represents an error marker on PDF"""
     def __init__(self, error_data, parent=None):
         super().__init__(parent)
         self.data = error_data
         self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(255, 0, 0, 180);
-                border: 2px solid white;
-                border-radius: 8px;
-                color: white;
-                font-weight: bold;
-                padding: 0px;
-            }
-            QPushButton:hover { background-color: red; }
-        """)
+        self.setStyleSheet(styles.ERROR_MARKER_STYLE)
         self.setText("!")
         self.clicked.connect(self.show_details)
 
     def show_details(self):
-        opis = self.data.get('komentarz', 'Brak szczegółowego opisu błędu')
-        kat = self.data.get('kategoria', 'Błąd')
-        tekst = self.data.get('znaleziony_tekst', '')
+        """Displays a formatted tooltip with details about the error"""
+        opis = self.data.get('comment', 'Brak szczegółowego opisu błędu')
+        kat = self.data.get('category', 'Błąd')
+        tekst = self.data.get('found_text', '')
 
         info = (f"<b>Kategoria:</b> {kat}<br>"
                 f"<b>Opis:</b> {opis}<br>")
@@ -40,42 +32,32 @@ class ErrorMarker(QPushButton):
         QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
 
 class CommentMarker(QPushButton):
+    """represents a custom comment marker added by the user"""
     def __init__(self, comment_data, parent=None):
         super().__init__(parent)
         self.data = comment_data
         self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(0, 120, 255, 180);
-                border: 2px solid white;
-                border-radius: 8px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover { background-color: blue; }
-        """)
+        self.setStyleSheet(styles.COMMENT_MARKER_STYLE)
         self.setText("C")
         self.clicked.connect(self.show_details)
 
     def show_details(self):
+        """displays the user's comment text"""
         info = (f"<b>Twój komentarz:</b> {self.data.get('tekst_komentarza', '')}<br>"
                 f"<b>Fragment:</b> {self.data.get('znaleziony_tekst', '')}")
         QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
 
 class HighlightBox(QFrame):
+    """A transparent frame overlay used to visually highlight a specific text on PDF"""
     def __init__(self, rect_data, parent=None):
         super().__init__(parent)
         self.data = rect_data
-        self.setStyleSheet("""
-            QFrame {
-                background-color: rgba(0, 150, 255, 70);
-                border: none;
-            }
-        """)
+        self.setStyleSheet(styles.HIGHLIGHT_BOX_DEFAULT)
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
 
 class SelectablePdfView(QPdfView):
+    """An extended PDF view that enables area-based text selection (via Shift key), adding custom user comments, and overlaying error markers and highlight boxes."""
     textCopied = Signal(str)
     commentAdded = Signal(dict)
     def __init__(self, parent=None):
@@ -95,19 +77,14 @@ class SelectablePdfView(QPdfView):
         self.horizontalScrollBar().valueChanged.connect(self.update_markers_pos)
 
     def clear_markers(self):
+        """Removes all error marker"""
         for m in self.markers:
             m.deleteLater()
         self.markers = []
 
-    def clear_comments(self):
-        for m in self.comment_markers:
-            m.deleteLater()
-        self.comment_markers = []
-        for b in self.highlight_boxes:
-            b.deleteLater()
-        self.highlight_boxes = []
 
     def add_errors(self, errors_list):
+        """Clears existing errors and overlays a new list of error markers and highlight boxes"""
         self.clear_markers()
         
         new_boxes = []
@@ -121,20 +98,110 @@ class SelectablePdfView(QPdfView):
         for err in errors_list:
             marker = ErrorMarker(err, self.viewport())
             self.markers.append(marker)
-            
-            coords = err.get("wspolrzedne", {})
+            coords = err.get("coords", err.get("wspolrzedne", {}))
             w = coords.get("w", 0)
-            h = coords.get("h", 0)
             
             if w > 0:
                 box = HighlightBox(err, self.viewport())
                 box.is_error = True
-                box.setStyleSheet("background-color: rgba(255, 0, 0, 60); border: none;")
+                box.setStyleSheet(styles.HIGHLIGHT_BOX_ERROR)
                 self.highlight_boxes.append(box)
 
         self.update_markers_pos()
 
+    def update_markers_pos(self):
+        """Recalculates and updates the pixel positions of all markers and highlight boxes 
+        relative to the PDF document coordinates, factoring in the current zoom level, 
+        scrollbar values, and page margins."""
+        doc = self.document()
+        if not doc or doc.pageCount() == 0: return
+
+        dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
+        zoom = self.zoomFactor()
+        
+        scroll_x = self.horizontalScrollBar().value()
+        scroll_y = self.verticalScrollBar().value()
+        viewport_w = self.viewport().width()
+
+        all_markers = self.markers + self.comment_markers
+
+        for marker in all_markers:
+            data = marker.data
+            page_idx = data.get("page", data.get("strona", 1))
+            coords = data.get("coords", data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0}))
+            
+            if page_idx < 0 or page_idx >= doc.pageCount():
+                continue
+
+            target_page_y_px = self.documentMargins().top()
+            for i in range(page_idx):
+                size_pt = doc.pagePointSize(i)
+                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
+                target_page_y_px += page_h_px + self.pageSpacing()
+
+            size_pt = doc.pagePointSize(page_idx)
+            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
+            
+            if self.horizontalScrollBar().maximum() > 0:
+                x_start_px = self.documentMargins().left()
+            else:
+                x_start_px = (viewport_w - page_w_px) // 2
+
+            local_x_px = int((coords.get("x", 0) * zoom * (dpi_x / 72.0)) + 0.5)
+            local_y_px = int((coords.get("y", 0) * zoom * (dpi_y / 72.0)) + 0.5)
+            px_w = int((coords.get("w", 0) * zoom * (dpi_x / 72.0)) + 0.5)
+
+            px_x = x_start_px + local_x_px - scroll_x
+            px_y = target_page_y_px + local_y_px - scroll_y
+            
+            if px_w > 0:
+                marker_x = px_x + (px_w // 2) - 8 
+            else:
+                marker_x = px_x - 8
+                
+            marker_y = px_y - 12
+            
+            marker.move(int(marker_x), int(marker_y))
+            marker.show()
+        for box in self.highlight_boxes:
+            data = box.data
+            page_idx = data.get("page", data.get("strona", 1))
+            coords = data.get("coords", data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0}))
+            
+            if page_idx < 0 or page_idx >= doc.pageCount():
+                continue
+                
+            target_page_y_px = self.documentMargins().top()
+            for i in range(page_idx):
+                size_pt = doc.pagePointSize(i)
+                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
+                target_page_y_px += page_h_px + self.pageSpacing()
+
+            size_pt = doc.pagePointSize(page_idx)
+            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
+            
+            if self.horizontalScrollBar().maximum() > 0:
+                x_start_px = self.documentMargins().left()
+            else:
+                x_start_px = (viewport_w - page_w_px) // 2
+
+            local_x_px = coords.get("x", 0) * zoom * (dpi_x / 72.0)
+            local_y_px = coords.get("y", 0) * zoom * (dpi_y / 72.0)
+            px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
+            px_h = coords.get("h", 0) * zoom * (dpi_y / 72.0)
+
+            px_x = x_start_px + local_x_px - scroll_x
+            px_y = target_page_y_px + local_y_px - scroll_y
+
+            if px_w > 0 and px_h > 0:
+                box.setGeometry(int(px_x), int(px_y), int(px_w), int(px_h))
+                box.show()
+                
+        for marker in all_markers:
+            marker.raise_()
+
     def clear_comments(self):
+        """Removes all comments"""
         for m in self.comment_markers:
             m.deleteLater()
         self.comment_markers = []
@@ -147,92 +214,15 @@ class SelectablePdfView(QPdfView):
                 new_boxes.append(b)
         self.highlight_boxes = new_boxes
 
-    def update_markers_pos(self):
-        doc = self.document()
-        if not doc or doc.pageCount() == 0: return
-
-        dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
-        zoom = self.zoomFactor()
-        
-        all_markers = self.markers + self.comment_markers
-
-        for marker in all_markers:
-            data = marker.data
-            page_idx = data.get("strona", 1)
-            page_idx = data.get("strona", 1)
-            coords = data.get("wspolrzedne", {"x": 0, "y": 0})
-            
-            target_page_y_px = self.documentMargins().top()
-            for i in range(page_idx):
-                size_pt = doc.pagePointSize(i)
-                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
-                target_page_y_px += page_h_px + self.pageSpacing()
-
-            size_pt = doc.pagePointSize(page_idx)
-            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
-            viewport_w = self.viewport().width()
-            x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
-
-            local_x_px = int((coords.get("x", 0) * zoom * (dpi_x / 72.0)) + 0.5)
-            local_y_px = int((coords.get("y", 0) * zoom * (dpi_y / 72.0)) + 0.5)
-            px_w = int((coords.get("w", 0) * zoom * (dpi_x / 72.0)) + 0.5)
-            px_h = int((coords.get("h", 0) * zoom * (dpi_y / 72.0)) + 0.5)
-
-            px_x = x_start_px + local_x_px - self.horizontalScrollBar().value()
-            px_y = target_page_y_px + local_y_px - self.verticalScrollBar().value()
-            
-            px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
-            
-            odstep_od_gory = -12 
-            
-            if px_w > 0:
-                marker_x = px_x + (px_w / 2) - 8 
-            else:
-                marker_x = px_x - 8
-                
-            marker_y = px_y - odstep_od_gory
-            
-            marker.move(int(marker_x), int(marker_y))
-            marker.show()
-        for box in self.highlight_boxes:
-            data = box.data
-            page_idx = data.get("strona", 1)
-            page_idx = data.get("strona", 1)
-            coords = data.get("wspolrzedne", {"x": 0, "y": 0, "w": 0, "h": 0})
-            
-            target_page_y_px = self.documentMargins().top()
-            
-            for i in range(page_idx):
-                size_pt = doc.pagePointSize(i)
-                page_h_px = int((size_pt.height() * zoom * (dpi_y / 72.0)) + 0.5)
-                target_page_y_px += page_h_px + self.pageSpacing()
-
-            size_pt = doc.pagePointSize(page_idx)
-            page_w_px = int((size_pt.width() * zoom * (dpi_x / 72.0)) + 0.5)
-            viewport_w = self.viewport().width()
-            x_start_px = self.documentMargins().left() if self.horizontalScrollBar().maximum() > 0 else (viewport_w - page_w_px) / 2
-
-            local_x_px = coords.get("x", 0) * zoom * (dpi_x / 72.0)
-            local_y_px = coords.get("y", 0) * zoom * (dpi_y / 72.0)
-            px_w = coords.get("w", 0) * zoom * (dpi_x / 72.0)
-            px_h = coords.get("h", 0) * zoom * (dpi_y / 72.0)
-
-            px_x = x_start_px + local_x_px - self.horizontalScrollBar().value()
-            px_y = target_page_y_px + local_y_px - self.verticalScrollBar().value()
-
-            if px_w > 0 and px_h > 0:
-                box.setGeometry(int(px_x), int(px_y), int(px_w), int(px_h))
-                box.show()
-                
-        for marker in all_markers:
-            marker.raise_()
 
     def resizeEvent(self, event):
+        """Handles the widget resize event by triggering a recalculation"""
         super().resizeEvent(event)
         self.update_selection_box_pos()
         self.update_markers_pos()
 
     def update_selection_box_pos(self):
+        """Updates the screen geometry of box selection"""
         if not self.origin.isNull() or self.selection_page_idx == -1 or not self.selection_pdf_rect:
             return
         
@@ -266,6 +256,9 @@ class SelectablePdfView(QPdfView):
         self.selection_box.show()
 
     def mousePressEvent(self, event):
+        """Handles mouse press events. Right-clicking inside an active selection triggers 
+        the context menu. Left-clicking while holding the Shift key initializes a new 
+        bounding box selection."""
         if event.button() == Qt.RightButton:
             if self.selection_box.isVisible() and self.selection_box.geometry().contains(event.position().toPoint()):
                 self.show_context_menu(event.globalPosition().toPoint())
@@ -290,6 +283,7 @@ class SelectablePdfView(QPdfView):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+        """Handles mouse move events"""
         if not self.origin.isNull() and event.modifiers() == Qt.ShiftModifier:
             self.selection_box.setGeometry(QRect(self.origin, event.position().toPoint()).normalized())
             event.accept()
@@ -297,6 +291,8 @@ class SelectablePdfView(QPdfView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+        """Handles mouse release events. Finalizes the selection box area bounding 
+        coordinates and initiates the text extraction process."""
         if not self.origin.isNull():
             rect = self.selection_box.geometry()
             self.origin = QPoint()
@@ -306,6 +302,8 @@ class SelectablePdfView(QPdfView):
         super().mouseReleaseEvent(event)
 
     def extract_text(self, rect):
+        """Extracts text from a specified pixel coordinate bounding box on the screen.
+        Scans the selected area line-by-line"""
         doc = self.document()
         if not doc or doc.pageCount() == 0: return
         
@@ -363,6 +361,8 @@ class SelectablePdfView(QPdfView):
             current_y_px += page_h_px + self.pageSpacing()
 
     def show_context_menu(self, global_pos):
+        """Displays a pop-up context menu offering options to copy text, check for 
+        plagiarism, or add a custom comment."""
         menu = QMenu(self)
         copy_action = QAction("Skopiuj tekst", self)
         copy_action.triggered.connect(self.copy_to_clipboard)
@@ -380,6 +380,7 @@ class SelectablePdfView(QPdfView):
         menu.exec(global_pos)
 
     def add_custom_comment(self):
+        """Opens an input dialog prompting the user for comment text linked to the current selection."""
         if not self.selection_pdf_rect or self.selection_page_idx == -1:
             return
             
@@ -399,6 +400,7 @@ class SelectablePdfView(QPdfView):
             
             box = HighlightBox(comment_data, self.viewport())
             box.is_error = False
+            box.setStyleSheet(styles.HIGHLIGHT_BOX_COMMENT)
             self.highlight_boxes.append(box)
 
             marker = CommentMarker(comment_data, self.viewport())
@@ -409,9 +411,14 @@ class SelectablePdfView(QPdfView):
             self.commentAdded.emit(comment_data)
 
     def copy_to_clipboard(self):
+        """Copies the currently selected text fragment to the system clipboard."""
         QApplication.clipboard().setText(self.selected_text)
 
     def check_plagiarism(self):
+        """Opens the system's default web browser to perform a Google Search of the 
+        selected text fragment wrapped as an exact phrase query (in quotes). 
+        Truncates the query to a maximum of 300 characters.
+        """
         if not self.selected_text:
             return
             

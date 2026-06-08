@@ -1,22 +1,22 @@
-"""
-Moduł weryfikujący, czy dane słowo jest nazwą własną, skrótem lub wyrażeniem specjalnym.
-
-"""
 import re
 from .helpers import lemmatization
 
 
 def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
+    """
+    Checks if a matched word or phrase is a proper name, acronym, or special term that should be ignored.
+    """
     target_words_ids = set(match.word_idxs) if isinstance(match.word_idxs, list) else {match.word_idxs}
     matched_words = [word for word in block.words if word.word_index in target_words_ids]
+    if block.type in {"math", "code_snippet", "toc", "tot", "tof", "acronyms"}:
+        return True
     if is_diff:
-        if all((word.italic) for word in matched_words):
+        if any((word.italic or word.bold) for word in matched_words):
             return True
         else: 
             return False
     ACADEMIC_TITLES = {"prof.", "dr", "dr hab.", "mgr", "inż.", "lic.", "doc."}
     BRITISH_ABBREVIATIONS = {"Dr", "Mr", "Mrs", "Ms", "Jr", "Sr", "St"}
-    #regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
 
     is_digit = re.compile(r'\d')
     if lemma:
@@ -25,8 +25,6 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
         text = match.content.strip("():;,.!?[]\n\t ")
     if is_digit.search(text):
         return True
-    #elif regex.search(text) != None:
-    #    return True
     if text in ACADEMIC_TITLES or text in BRITISH_ABBREVIATIONS:
         return True
     if text.isupper():
@@ -38,14 +36,14 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
         for word in matched_words:
             if word.text in proper:
                 return True
-            word_lemma, _ = lemmatization(word.text, "pl")
+            word_lemma = lemmatization(word.text, "pl")
             if word_lemma in proper_lemmas:
                 return True
             if lemma and text in proper_lemmas:
                 return True
 
     if matched_words:
-        if all((word.italic) for word in matched_words):
+        if any((word.italic or word.bold) for word in matched_words):
             return True
 
     return False

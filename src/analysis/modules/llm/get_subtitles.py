@@ -1,3 +1,5 @@
+"""Extract numbered subtitle sections and their content from mapped PDF blocks."""
+
 import re
 import os
 from pathlib import Path
@@ -24,12 +26,16 @@ MULTISPACE_RE = re.compile(r"\s+")
 
 
 def clean_ws(text: str) -> str:
+    """Normalize whitespace and remove soft hyphens/non-breaking spaces."""
+
     text = text.replace("\u00ad", "")
     text = text.replace("\xa0", " ")
     return MULTISPACE_RE.sub(" ", text).strip()
 
 
 def parse_heading(text: str):
+    """Parse a numbered heading and return a (number, title) tuple."""
+
     text = clean_ws(text)
     m = HEADING_WITH_PREFIX_RE.match(text)
     if not m:
@@ -40,14 +46,20 @@ def parse_heading(text: str):
 
 
 def is_numbered_heading(text: str) -> bool:
+    """Return True when text matches the expected numbered heading pattern."""
+
     return parse_heading(text) is not None
 
 
 def looks_like_toc_entry(text: str) -> bool:
+    """Return True when text looks like a table-of-contents line."""
+
     return bool(DOT_LEADER_RE.search(clean_ws(text)))
 
 
 def is_probable_toc_heading(text: str) -> bool:
+    """Heuristically detect headings that likely belong to TOC or indexes."""
+
     text = clean_ws(text)
 
     if not text:
@@ -75,6 +87,8 @@ def is_probable_toc_heading(text: str) -> bool:
 
 
 def heading_key(text: str) -> str:
+    """Build a normalized key for deduplicating detected headings."""
+
     parsed = parse_heading(text)
     if not parsed:
         return clean_ws(text).lower()
@@ -83,27 +97,39 @@ def heading_key(text: str) -> str:
 
 
 def get_level(number: str) -> int:
+    """Return heading depth level derived from dotted numbering."""
+
     return number.count(".") + 1
 
 
 def load_logical_blocks_from_pdf(raw_doc):
+    """Map raw extraction output to logical blocks."""
+
     mapped_doc = PDFMapper_llm.map_to_schema(raw_doc)
     return mapped_doc.logical_blocks
 
 
 def get_block_type(block):
+    """Return block type attribute when available."""
+
     return getattr(block, "type", None)
 
 
 def is_text_block(block) -> bool:
+    """Return True when a block should be treated as paragraph text."""
+
     return get_block_type(block) in (None, "paragraph")
 
 
 def get_block_content(block) -> str:
+    """Return normalized text content of a logical block."""
+
     return clean_ws(getattr(block, "content", "") or "")
 
 
 def is_real_heading_candidate(block) -> bool:
+    """Filter out non-heading and TOC-like candidates."""
+
     text = get_block_content(block)
     if not text:
         return False
@@ -113,6 +139,8 @@ def is_real_heading_candidate(block) -> bool:
 
 
 def next_heading_index(logical_blocks, start_idx: int, current_level: int) -> int:
+    """Find the index of the next heading at same or higher hierarchy level."""
+
     for i in range(start_idx + 1, len(logical_blocks)):
         text = get_block_content(logical_blocks[i])
         if not text:
@@ -135,6 +163,8 @@ def next_heading_index(logical_blocks, start_idx: int, current_level: int) -> in
 
 
 def collect_section_text(logical_blocks, start_idx: int, end_idx: int) -> str:
+    """Collect section body text between two heading indices."""
+
     parts = []
 
     for block in logical_blocks[start_idx + 1:end_idx]:
@@ -158,6 +188,8 @@ def collect_section_text(logical_blocks, start_idx: int, end_idx: int) -> str:
 
 
 def find_real_numbered_headings(logical_blocks):
+    """Return deduplicated numbered headings sorted by source order."""
+
     candidates = []
 
     for idx, block in enumerate(logical_blocks):
@@ -188,6 +220,8 @@ def find_real_numbered_headings(logical_blocks):
 
 
 def extract_subtitles_from_pdf(raw_doc):
+    """Extract subtitles with section content from raw PDF extraction output."""
+
     logical_blocks = load_logical_blocks_from_pdf(raw_doc)
     headings = find_real_numbered_headings(logical_blocks)
 
@@ -208,6 +242,8 @@ def extract_subtitles_from_pdf(raw_doc):
 
 
 def export_subtitles_to_txt(subtitles, txt_path: Path):
+    """Export extracted subtitles and one-line content previews to a text file."""
+
     txt_path.parent.mkdir(parents=True, exist_ok=True)
 
     lines = []
@@ -222,6 +258,8 @@ def export_subtitles_to_txt(subtitles, txt_path: Path):
 
 
 def print_subtitles(subtitles, max_chars: int = 250):
+    """Print subtitle titles with truncated content previews."""
+
     for sub in subtitles:
         print(sub["display"])
         preview = sub["content"][:max_chars].strip()
@@ -232,6 +270,8 @@ def print_subtitles(subtitles, max_chars: int = 250):
 
 
 def get_subtitles(raw_doc, txt_path: Path | None = None):
+    """Extract subtitles and optionally save them to a text file."""
+
     subtitles = extract_subtitles_from_pdf(raw_doc)
 
     if txt_path is not None:
@@ -241,6 +281,8 @@ def get_subtitles(raw_doc, txt_path: Path | None = None):
 
 
 def main():
+    """Run subtitle extraction for the configured thesis file and print results."""
+
     pdf_path = Path(file_path)
     txt_path = Path(resource_path(os.path.join("llm", "wyniki", "subtitles.txt")))
 

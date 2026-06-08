@@ -2,12 +2,12 @@
 Plik ewaluacyjny do sprawdzenia ilości poprawnych i niepoprawnych błędów w analizie lingwistycznej dla 1 milestone.
 Nie uwzględniony w pipeline linguistic.
 '''
-
 import json
 import os
 from common.path import resource_path
 
 def normalize_word_idxs(item):
+
 
     word_idxs = item.get("word_idxs", [])
     if not isinstance(word_idxs, list):
