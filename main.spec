@@ -25,7 +25,8 @@ a = Analysis(
         'en_core_web_lg',
         'language_tool_python',
         'morfeusz2',
-        'spellchecker'
+        'spellchecker',
+        'lingua'
     ],
     hookspath=[],
     hooksconfig={},
