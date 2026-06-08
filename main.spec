@@ -17,7 +17,7 @@ a = Analysis(
     datas=[
         ('src', '.'),
         (spellchecker_resources, 'spellchecker/resources'),
-        ('src/analysis/modules/linguistics/word_whitelist.txt', 'analysis/modules/linguistics'),
+        ('src/analysis/modules/linguistics/word_whitelist.txt', 'src/analysis/modules/linguistics'),
     ] + spacy_datas + spacy_metadata, # Łączymy zebrane dane modeli SpaCy     
     hiddenimports=[
         'PySide6.QtSvgWidgets',
