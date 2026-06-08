@@ -15,11 +15,20 @@ import sys
 import re
 from pathlib import Path
 
+app_data = os.environ.get('APPDATA', os.path.expanduser('~'))
+LT_DATA_DIR = os.path.join(app_data, "DiplomaChecker", "LanguageTool")
+os.makedirs(LT_DATA_DIR, exist_ok=True)
+os.environ["LTP_PATH"] = LT_DATA_DIR
+
+import language_tool_python
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
 spell.word_frequency.load_text_file(resource_path(os.path.join("analysis", "modules", "linguistics", "word_whitelist.txt")))
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
+
+tool_pl = language_tool_python.LanguageTool('pl')
+tool_en = language_tool_python.LanguageTool('en-US')
 
 @Spacy_language.component("fix_sentence_limits")
 def fix_sentence_limits(doc):

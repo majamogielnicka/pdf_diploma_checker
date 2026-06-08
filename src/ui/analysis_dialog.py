@@ -32,6 +32,8 @@ class FileBadge(QFrame):
             self.icon_label.setText("📄")
             self.icon_label.setStyleSheet("font-size: 24px; border: none;")
         self.icon_label.setFixedSize(40, 40)
+        self.icon_label.setAlignment(Qt.AlignCenter)
+        self.icon_label.setScaledContents(False)
         self.icon_label.setStyleSheet(styles.FILE_BADGE_INNER_LABELS)
 
         text_container = QWidget()
@@ -210,7 +212,7 @@ class AnalysisDialog(QDialog):
         super().__init__(parent)
         self.pdf_path = pdf_path
         self.setWindowTitle("Przeanalizuj dokument")
-        self.setFixedSize(700, 560) 
+        self.setFixedSize(800, 660) 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet(styles.DIALOG_STYLE)
         
@@ -243,7 +245,7 @@ class AnalysisDialog(QDialog):
 
         self.json_frame = ConfigDropFrame()
         self.json_frame.setStyleSheet(styles.JSON_FRAME_STYLE)
-        self.json_frame.setFixedHeight(220)
+        self.json_frame.setFixedHeight(240)
         json_inner_layout = QVBoxLayout(self.json_frame)
         json_inner_layout.setSpacing(6)
 
@@ -321,7 +323,7 @@ class AnalysisDialog(QDialog):
         mode_section.addWidget(mode_title)
         mode_section.addLayout(modes_layout)
         config_layout.addLayout(mode_section)
-
+        config_layout.addStretch(1)
         self.main_layout.addWidget(self.config_widget)
 
         self.progress_widget = QWidget()
@@ -370,7 +372,7 @@ class AnalysisDialog(QDialog):
         while self.badge_layout.count():
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
-        self.json_frame.setFixedHeight(150)
+        self.json_frame.setFixedHeight(180)
         badge = FileBadge(os.path.basename(path))
         badge.removed.connect(self._remove_config_file)
         self.badge_layout.addWidget(badge)
