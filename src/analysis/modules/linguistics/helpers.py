@@ -15,6 +15,7 @@ import sys
 import re
 from pathlib import Path
 
+os.environ["TQDM_DISABLE"] = "True"
 app_data = os.environ.get('APPDATA', os.path.expanduser('~'))
 LT_DATA_DIR = os.path.join(app_data, "DiplomaChecker", "LanguageTool")
 os.makedirs(LT_DATA_DIR, exist_ok=True)
