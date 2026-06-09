@@ -1,6 +1,7 @@
 import os
 import sys
 import concurrent.futures
+import threading
 
 if getattr(sys, "frozen", False):
     BASE_DIR = sys._MEIPASS
@@ -93,7 +94,10 @@ class AnalysisPipeline:
             details={"page_count": doc_obj.get_page_count()},
         )
 
+        ling_ready_event = threading.Event()
+
         def task_llm():
+            ling_ready_event.wait()
             try:
                 from llm_task import run_task_llm
 
@@ -112,6 +116,17 @@ class AnalysisPipeline:
                 return None, None, "Błąd analizy LLM."
 
         def task_linguistics():
+            try:
+                import language_tool_python
+                print("[PIPELINE] Uruchamianie serwera językowego (LanguageTool)...")
+                _tool = language_tool_python.LanguageTool(language)
+                _tool.close()
+                print("[PIPELINE] Serwer gotowy.")
+            except Exception as e:
+                print(f"[PIPELINE] Ostrzeżenie przy starcie LanguageTool: {e}")
+            finally:
+                ling_ready_event.set()
+
             try:
                 from analysis.extraction.converter_linguistics_clean import PDFMapper
                 import importlib.util
