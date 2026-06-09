@@ -791,7 +791,6 @@ class PDFReader(QMainWindow):
             page.insert_text((margin, pos_y), f"Dokument: {os.path.basename(self.current_pdf_path)}", 
                              fontsize=12, fontname=f_main, color=(0.2, 0.2, 0.2))
             pos_y += 40
-            
             content_grade = report_data.get('content_grade')
             has_llm_data = content_grade is not None
 
@@ -864,7 +863,6 @@ class PDFReader(QMainWindow):
                     page.insert_text((margin + 20, pos_y), f"{label} {status}", 
                                      fontsize=11, fontname=f_bold if met else f_main, color=color)
                     pos_y += 20
-
             else:
                 page.insert_text((margin, pos_y), "Ogólna ocena merytoryczna (AI)", 
                                  fontsize=14, fontname=f_bold)
@@ -878,6 +876,48 @@ class PDFReader(QMainWindow):
             has_images_checked = img_data.get('total', 0) > 0
 
             if has_images_checked:
+                page.insert_text((margin, pos_y), "Analiza spójności grafik i wykresów (AI)", 
+                                 fontsize=14, fontname=f_bold)
+                pos_y += 25
+                
+                page.insert_text((margin, pos_y), f"Wszystkich zweryfikowanych rysunków: {img_data.get('total', 0)}", 
+                                 fontsize=11, fontname=f_main)
+                pos_y += 18
+                
+                color_bad = (0.86, 0.2, 0.27) if img_data.get('bad_count', 0) > 0 else (0.2, 0.2, 0.2)
+                page.insert_text((margin, pos_y), f"Rysunki z błędnym opisem w tekście: {img_data.get('bad_count', 0)}", 
+                                 fontsize=11, fontname=f_main, color=color_bad)
+                pos_y += 18
+                
+                page.insert_text((margin, pos_y), f"Rysunki poprawne: {img_data.get('good_count', 0)}", 
+                                 fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+                pos_y += 25
+                
+                raster_nums = img_data.get("raster_numbers", [])
+                if raster_nums:
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    str_raster_nums = ", ".join([f"Rys. {n}" for n in raster_nums])
+                    
+                    wrapped_raster = wrap_text(f"Zidentyfikowane grafiki rastrowe podlegające badaniu: {str_raster_nums}", 85)
+                    for line in wrapped_raster:
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
+                        page.insert_text((margin, pos_y), line, fontsize=10, fontname=f_bold, color=(0.05, 0.27, 0.63))
+                        pos_y += 14
+                    pos_y += 10
+
+                if img_data.get("details", []):
+                    page.insert_text((margin, pos_y), "Lista szczegółowa rozbieżności:", fontsize=12, fontname=f_bold)
+                    pos_y += 20
+                    for line_text in img_data.get("details", []):
+                        wrapped_lines = wrap_text(line_text, 90)
+                        for idx, chunk in enumerate(wrapped_lines):
+                            pos_y, page = check_new_page(pos_y, report_pdf, page)
+                            indent = margin + 15 if idx == 0 else margin + 25
+                            txt_col = (0, 0, 0) if idx == 0 else (0.4, 0.4, 0.4)
+                            page.insert_text((indent, pos_y), chunk, fontsize=10, fontname=f_main, color=txt_col)
+                            pos_y += 15
+                        pos_y += 4
+
                 pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
                 page.insert_text((margin, pos_y), "Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
                 pos_y += 25
@@ -945,7 +985,6 @@ class PDFReader(QMainWindow):
                                 page.insert_text((margin + 15, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
                                 pos_y += 14
                             pos_y += 5
-            
             else:
                 pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
                 page.insert_text((margin, pos_y), "Ocena jakości obrazów i czcionek", fontsize=14, fontname=f_bold)
@@ -994,3 +1033,66 @@ class PDFReader(QMainWindow):
             import traceback
             traceback.print_exc()
             QMessageBox.critical(self, "Blad Eksportu", f"Blad podczas generowania raportu:\n{str(e)}")
+
+    def delete_document(self, path):
+        """Removes a document from the system index and updates the start page dashboard 
+        to reflect the changes."""
+        reply = QMessageBox.question(
+            self, 'Potwierdzenie', 
+            "Czy na pewno chcesz usunąć ten dokument z listy?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            self.manager.delete_document(path)
+            self.refresh_file_list()
+
+
+    def refresh_file_list(self):
+        """Synchronizes the start page file registry grid with the underlying data store 
+        managed by SavingFiles."""
+        pliki = self.manager.data.get("documents", [])
+        self.start_page.render_doc_list(pliki)
+
+
+    def load_ai_analysis(self):
+        """Extracts saved advanced AI evaluation details from the storage map matching 
+        the current open file hash path and applies them to the sidebar dashboard panels."""
+        if not hasattr(self, 'current_pdf_path') or not self.current_pdf_path:
+            return
+            
+        try:
+            report_data = None
+            for p in self.manager.data.get("documents", []):
+                if p.get('local_path') == self.current_pdf_path:
+                    report_data = p.get("sota_result") 
+                    break
+            self.update_report_panel(report_data)
+            
+        except Exception as e:
+            print(f"Błąd podczas wczytywania analizy AI: {e}")
+
+
+    def load_pdf(self, path):
+        """Loads a PDF document from the specified file path into the QPdfDocument instance,
+        sets up the application tracking variables, and triggers view refreshes."""
+        if not path or not os.path.exists(path):
+            QMessageBox.critical(self, "Błąd", f"Nie można odnaleźć pliku:\n{path}")
+            return
+
+        self.current_pdf_path = path
+        self.document.load(path)
+        
+        if self.document.status() == QPdfDocument.Status.Ready:
+            self.title_label.setText(os.path.basename(path))
+            self.total_pages_label.setText(f" / {self.document.pageCount()}")
+            self.page_input.setText("1")
+            
+            self.pdf_view.clear_markers()
+            self.pdf_view.clear_comments()
+            self.generate_thumbnails()
+            self.load_custom_comments()
+            
+            print(f"Pomyślnie załadowano plik: {os.path.basename(path)}")
+        else:
+            QMessageBox.critical(self, "Błąd", "Nie udało się poprawnie zainicjalizować dokumentu PDF.")
