@@ -82,10 +82,15 @@ class AnalysisPipeline:
 
         report_progress(10, "Rozpoczynam ekstrakcję tekstu z PDF...")
 
-        from analysis.extraction.extraction_json import extractPDF
+        from analysis.extraction.extraction_json import extractPDF, get_raster_figure_numbers
 
         doc_obj = extractPDF(pdf_path)
         doc_dict = doc_obj._to_dict()
+
+        try:
+            raster_figure_numbers = get_raster_figure_numbers(doc_obj)
+        except Exception:
+            raster_figure_numbers = []
 
         extraction_result = ModuleResult(
             module_name="extraction",
@@ -264,6 +269,17 @@ class AnalysisPipeline:
         if final_report.llm_result is None:
             final_report.llm_result = {}
 
+        image_analysis = final_report.llm_result.get("image_analysis")
+        if not isinstance(image_analysis, dict):
+            image_analysis = {
+                "total": 0,
+                "bad_count": 0,
+                "good_count": 0,
+                "details": [],
+            }
+
+        image_analysis["image_raster"] = raster_figure_numbers
+        final_report.llm_result["image_analysis"] = image_analysis
         final_report.llm_result["statystyki_zdan"] = ling_stats
         final_report.linguistics_errors = wszystkie_bledy
 
