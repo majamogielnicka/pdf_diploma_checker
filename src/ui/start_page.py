@@ -204,8 +204,8 @@ class StartPage(QWidget):
 
     def _apply_sort_and_render(self):
         """Execute searching matches against active items array lists"""
-        filtered = [p for p in self.all_files if self.search_text in p.get('nazwa_pliku', '').lower()]
-        filtered.sort(key=lambda x: (x.get('data_dodania', ''), x.get('nazwa_pliku', '')), reverse=self.sort_newest)
+        filtered = [p for p in self.all_files if self.search_text in p.get('file_name', '').lower()]
+        filtered.sort(key=lambda x: (x.get('date_added', ''), x.get('file_name', '')), reverse=self.sort_newest)
 
         while self.table_layout.count():
             child = self.table_layout.takeAt(0)
@@ -238,15 +238,14 @@ class StartPage(QWidget):
         self.table_layout.addWidget(line)
 
         for p in filtered:
-            has_config = p.get('plik_konfiguracyjny', True) 
+            has_config = p.get('plik_konfiguracyjny', p.get('config_path') is not None or True) 
 
             self.add_row(
-                name=p.get('nazwa_pliku', 'Nieznany'), 
-                path=p.get('sciezka_lokalna', ''), 
-                date=p.get('data_dodania', 'Brak daty'),
+                name=p.get('file_name', 'Nieznany'), 
+                path=p.get('local_path', ''), 
+                date=p.get('date_added', 'Brak daty'),
                 has_config=has_config
             )
-
     def add_row(self, name, path, date, has_config=True):
         """layout components, icon, action, and state badges for a document row item"""
         row = QWidget()

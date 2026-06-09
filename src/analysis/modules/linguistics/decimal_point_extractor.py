@@ -1,14 +1,12 @@
-'''
-Sprawdzanie poprawności zapisu dziesiętnego dla języka polskiego i angielskiego.
-'''
 import re
 from .linguistics_types import Error_type
 from .helpers import get_match_info
 from .exeptions_check import check_quotes
 from .proper_check import check_if_proper
 
-def decimal_check(blocks):
-    counter = 0
+def decimal_check(blocks, chapter_nums):
+    '''Function uses regexes to find wrongly used decimal separators in Polish or English.
+    Matches are passed to be checked by check_defimal_matches.'''
     checked_matches = []
     chapter_numbers = set()
     for block in blocks:
@@ -39,19 +37,19 @@ def decimal_check(blocks):
                 error_coordinate= error_coordinate,
             ))
         if block.block.type == 'paragraph':
-            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 1)
+            checked_match = check_decimal_matches(potential_matches, block, chapter_numbers, 1, chapter_nums)
             checked_matches.extend(checked_match)
         else:
-            checked_match, decimal_counter = check_decimal_matches(potential_matches, block, chapter_numbers, 2)
+            checked_match = check_decimal_matches(potential_matches, block, chapter_numbers, 2, chapter_nums)
             checked_matches.extend(checked_match)
-        counter += decimal_counter
 
-    return checked_matches, counter
+    return checked_matches
 
-def check_decimal_matches(potential_matches, block, chapter_numbers, error_tolerance):
-    decimal_counter = 0
+def check_decimal_matches(potential_matches, block, chapter_numbers, error_tolerance, chapter_nums):
+    '''Filters candidate decimal matches. Discards section/chapter numbering, values inside quotes or proper names
+    and listing references.'''
     black_list = {"%", "$", "€", "£", "zł", "usd", "eur", "gbp", "°"}
-    white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabeli", "tabelom", "tabelach", "tab",
+    white_list_pl = {"wersja", "wersji", "wersjom", "wersjach", "wersję", "wer","wersją", "wersje", "wersjami", "rys", "rysunek", "rysunkom", "rysunkach", "rysunku", "tabela", "tabele", "tabelę", "tabeli", "tabelom", "tabelach", "tab",
                      "wykres", "wykresu", "wykresom", "wykresowi", "wykresem", "wykresie", "wykresach", "wyk", "rozdziale", "rozdział", "rozdziały", "rozdziału", "rozdziałem", "rozdziałach", "roz", "rozdz", "rozdziałów", 
                      "obraz", "obr", "obrazie", "obrazu", "obrazowi", "obrazach", "obrazem","obrazom", 
                      "wzór", "wzoru", "wzorowi", "wzory", "wzorom", "wzorach", "wzorami", "wzorem", "wzorze"
@@ -87,7 +85,8 @@ def check_decimal_matches(potential_matches, block, chapter_numbers, error_toler
             chapter_numbers.add(match.content)
         elif block.block.type == "heading" and match.word_idxs and (match.word_idxs[0] == 0 or match.word_idxs[0] == 1):
             is_error = 0
-
+        if match.content.strip(" .:,") in chapter_nums and is_error<2:
+            is_error = 0
         if is_error>= error_tolerance:
             if is_error == 2:
                 error_message = "Niepoprawny separator dziesiętny"
@@ -95,6 +94,5 @@ def check_decimal_matches(potential_matches, block, chapter_numbers, error_toler
                 error_message = "Możliwe zastosowanie błędnego separatora dziesiętnego"
 
             match.message = error_message
-            decimal_counter = decimal_counter + 1
             checked_matches.append(match)
-    return checked_matches, decimal_counter
+    return checked_matches

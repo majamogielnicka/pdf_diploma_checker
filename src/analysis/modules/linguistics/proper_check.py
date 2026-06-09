@@ -1,12 +1,11 @@
-"""
-Moduł weryfikujący, czy dane słowo jest nazwą własną, skrótem lub wyrażeniem specjalnym.
-
-"""
 import re
 from .helpers import lemmatization
 
 
 def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
+    """
+    Checks if a matched word or phrase is a proper name, acronym, or special term that should be ignored.
+    """
     target_words_ids = set(match.word_idxs) if isinstance(match.word_idxs, list) else {match.word_idxs}
     matched_words = [word for word in block.words if word.word_index in target_words_ids]
     if block.type in {"math", "code_snippet", "toc", "tot", "tof", "acronyms"}:
@@ -37,7 +36,7 @@ def check_if_proper(block, match, proper_names=None, lemma=None, is_diff=None):
         for word in matched_words:
             if word.text in proper:
                 return True
-            word_lemma, _ = lemmatization(word.text, "pl")
+            word_lemma = lemmatization(word.text, "pl")
             if word_lemma in proper_lemmas:
                 return True
             if lemma and text in proper_lemmas:

@@ -1,3 +1,5 @@
+"""Utilities for extracting chapter and subtitle content from PDF files."""
+
 import re
 import fitz
 from dataclasses import dataclass
@@ -11,6 +13,12 @@ summaries_path = Path("src/llm/wyniki/subtitles.txt")
 
 
 def get_font_size(pdf_path):
+    """Return the inferred header font size based on non-body text spans.
+
+    The function scans all text spans in the PDF, finds the most common size
+    (assumed body text), and returns the smallest size greater than body text.
+    If no larger size exists, it returns the body size.
+    """
     doc = fitz.open(pdf_path)
     sizes = []
 
@@ -44,6 +52,8 @@ def get_font_size(pdf_path):
 
 @dataclass
 class ChapterBlock:
+    """Structured chapter-level section extracted from a PDF."""
+
     id: int
     title: str
     content: str = ""
@@ -51,6 +61,8 @@ class ChapterBlock:
 
 @dataclass
 class SubtitleBlock:
+    """Structured numbered subtitle section extracted from a PDF."""
+
     id: int
     number: str
     title: str
@@ -58,6 +70,8 @@ class SubtitleBlock:
 
 
 def get_text(path):
+    """Extract and return full plain text from a PDF as one string."""
+
     doc = fitz.open(path)
     text_parts = []
 
@@ -71,6 +85,8 @@ def get_text(path):
 
 
 def get_content(path):
+    """Split PDF content into chapter blocks using uppercase bold headers."""
+
     doc = fitz.open(path)
     blocks = []
 
@@ -132,6 +148,8 @@ def get_content(path):
 
 
 def split_subtitles(path):
+    """Split PDF content into numbered subtitle blocks like 1.2.3 Title."""
+
     doc = fitz.open(path)
     subtitle_blocks = []
 
@@ -195,6 +213,8 @@ def split_subtitles(path):
 
 
 def export_blocks(blocks, output_path):
+    """Save chapter blocks to a text file in a simple readable format."""
+
     formatted_parts = []
 
     for block in blocks:
@@ -207,10 +227,12 @@ def export_blocks(blocks, output_path):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(result)
 
-    print(f"Zapisano do: {output_path}")
+    print(f"Saved to: {output_path}")
 
 
 def export_subtitles(subtitle_blocks, output_path):
+    """Save subtitle blocks to a text file in a simple readable format."""
+
     formatted_parts = []
 
     for block in subtitle_blocks:
@@ -223,7 +245,7 @@ def export_subtitles(subtitle_blocks, output_path):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(result)
 
-    print(f"Zapisano do: {output_path}")
+    print(f"Saved to: {output_path}")
 
 
 if __name__ == "__main__":

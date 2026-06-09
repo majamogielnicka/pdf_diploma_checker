@@ -11,7 +11,7 @@ from llama_cpp.llama_chat_format import Llava15ChatHandler
 current_dir = Path(__file__).resolve().parent
 sys.path.append(str(current_dir.parent))
 sys.path.append(str(current_dir.parents[3]))
-import config
+from analysis.modules.llm import config
 
 def extract_images_for_quality(doc_obj, mapped_doc):
     paragraphs = []
@@ -54,7 +54,7 @@ class LlavaQualityEngine:
             model_path=model_path, 
             chat_handler=self.chat_handler, 
             n_ctx=4096, 
-            n_gpu_layers=-1, 
+            n_gpu_layers=config.N_GPU_LAYERS, 
             logits_all=True, 
             verbose=False
         )

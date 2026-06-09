@@ -57,7 +57,7 @@ def get_full_image_quality_json(doc_obj, mapped_doc, pdf_path, verbose=False):
 if __name__ == "__main__":
     
     import json
-    from config import THESIS_PATH
+    from analysis.modules.llm.config import THESIS_PATH
     from analysis.extraction.extraction_json import extractPDF
     from analysis.extraction.converter_linguistics_clean import PDFMapper
     

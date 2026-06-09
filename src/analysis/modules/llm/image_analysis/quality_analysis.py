@@ -106,7 +106,7 @@ if __name__ == "__main__":
     if src_dir not in sys.path:
         sys.path.insert(0, src_dir)
         
-    from config import THESIS_PATH
+    from analysis.modules.llm.config import THESIS_PATH
     from analysis.extraction.extraction_json import extractPDF
     
     print(f"Szukam pliku PDF pod ścieżką: {THESIS_PATH}")

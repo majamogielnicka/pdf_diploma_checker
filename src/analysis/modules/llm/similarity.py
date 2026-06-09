@@ -1,3 +1,5 @@
+"""Compute similarity between thesis purpose and section summaries."""
+
 import sys
 import os
 from pathlib import Path
@@ -5,6 +7,7 @@ from datetime import datetime
 
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+import torch
 
 _src_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 for _p in (os.path.dirname(_src_dir), _src_dir):
@@ -19,26 +22,34 @@ from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_t
 from analysis.modules.llm.get_subtitles import extract_subtitles_from_pdf
 from analysis.modules.llm.get_purpose import get_purpose
 from analysis.modules.llm.get_summary import summarize_subtitles
-from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, OUTPUT_DIR, LANGUAGE
+from analysis.modules.llm.config import EMBEDDING_MODEL, THESIS_PATH, OUTPUT_DIR, LANGUAGE, N_GPU_LAYERS
 
 
 def normalize_text(text):
+    """Normalize whitespace and non-breaking spaces in text."""
+
     if not text:
         return ""
     return " ".join(str(text).replace("\xa0", " ").split()).strip()
 
 
 def get_purpose_text_for_embedding(text):
+    """Format the purpose text as an embedding query."""
+
     text = normalize_text(text)
     return f"search_query: {text}"
 
 
 def get_summary_text_for_embedding(text):
+    """Format a summary text as an embedding document."""
+
     text = normalize_text(text)
     return f"search_document: {text}"
 
 
 def compute_similarity_for_summaries(purpose, summaries, embedding_model=EMBEDDING_MODEL):
+    """Return cosine similarities between purpose and all summary items."""
+
     purpose = normalize_text(purpose)
     items = []
 
@@ -74,9 +85,13 @@ def compute_similarity_for_summaries(purpose, summaries, embedding_model=EMBEDDI
             "average_similarity": 0.0,
         }
 
+    use_cuda = (N_GPU_LAYERS != 0) and torch.cuda.is_available()
+    device = "cuda" if use_cuda else "cpu"
+
     model = SentenceTransformer(
         embedding_model,
         trust_remote_code=True,
+        device=device,
     )
 
     purpose_embedding = model.encode(
@@ -109,26 +124,28 @@ def compute_similarity_for_summaries(purpose, summaries, embedding_model=EMBEDDI
 
 
 def save_similarity_txt(pdf_path, result):
+    """Write similarity results to a plain-text report file."""
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     output_path = OUTPUT_DIR / f"{Path(pdf_path).stem}_similarity.txt"
 
     lines = []
-    lines.append(f"Plik: {Path(pdf_path).resolve()}")
-    lines.append(f"Wygenerowano: {datetime.now().isoformat()}")
+    lines.append(f"File: {Path(pdf_path).resolve()}")
+    lines.append(f"Generated: {datetime.now().isoformat()}")
     lines.append("")
-    lines.append("ŚREDNIA PODOBIEŃSTWA COSINUSOWEGO")
+    lines.append("AVERAGE COSINE SIMILARITY")
     lines.append(f"{result.get('average_similarity', 0.0):.6f}")
     lines.append("")
-    lines.append("CEL PRACY")
-    lines.append(result.get("purpose") or "Brak")
+    lines.append("THESIS PURPOSE")
+    lines.append(result.get("purpose") or "None")
     lines.append("")
-    lines.append("PODOBIEŃSTWO DLA STRESZCZEŃ")
+    lines.append("SIMILARITY FOR SUMMARIES")
     lines.append("")
 
     for item in result.get("items", []):
-        lines.append(item.get("display") or "Sekcja")
+        lines.append(item.get("display") or "Section")
         lines.append("SUMMARY:")
-        lines.append(item.get("summary") or "Brak")
+        lines.append(item.get("summary") or "None")
         lines.append(f"COSINE_SIMILARITY: {item.get('cosine_similarity', 0.0):.6f}")
         lines.append("")
         lines.append("-" * 80)
@@ -139,17 +156,19 @@ def save_similarity_txt(pdf_path, result):
 
 
 def main():
+    """Run subtitle summarization similarity analysis for a thesis PDF."""
+
     pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else THESIS_PATH
     language = LANGUAGE
 
     if not pdf_path.exists():
-        print(f"Błąd: plik nie istnieje: {pdf_path}")
+        print(f"Error: file does not exist: {pdf_path}")
         return
 
     raw_doc = extractPDF_llm(str(pdf_path.resolve()))
 
     if raw_doc is None:
-        print("Błąd: extractPDF_llm zwróciło None.")
+        print("Error: extractPDF_llm returned None.")
         return
 
     plain_text = get_plain_text(pdf_path)
@@ -161,7 +180,7 @@ def main():
     result = compute_similarity_for_summaries(purpose, summaries)
     output_path = save_similarity_txt(pdf_path, result)
 
-    print(f"Wynik zapisano do: {output_path}")
+    print(f"Result saved to: {output_path}")
 
 
 if __name__ == "__main__":
