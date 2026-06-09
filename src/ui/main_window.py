@@ -500,18 +500,31 @@ class PDFReader(QMainWindow):
         graphics_header.setStyleSheet(styles.GRAPHICS_HEADER_STYLE)
         graphics_layout.addWidget(graphics_header)
 
-        quality_errors = report_data.get('jakosc_obrazkow', [])
-        font_errors = report_data.get('czcionki_obrazkow', [])
+        img_data = report_data.get("image_analysis", {})
+        has_images_checked = img_data.get('total', 0) > 0 if isinstance(img_data, dict) else False
 
-        if not quality_errors:
-            graphics_layout.addWidget(create_badge_row("Jakość obrazów (rozdzielczość/czytelność)", True))
-        else:
-            graphics_layout.addWidget(create_badge_row(f"Jakość obrazów (Błędy: {len(quality_errors)})", False))
+        if content_grade is not None and has_images_checked:
+            graphics_container = QWidget()
+            graphics_layout = QVBoxLayout(graphics_container)
+            graphics_layout.setContentsMargins(0, 4, 0, 0)
+            graphics_layout.setSpacing(6)
 
-        if not font_errors:
-            graphics_layout.addWidget(create_badge_row("Spójność czcionek na rysunkach", True))
-        else:
-            graphics_layout.addWidget(create_badge_row(f"Spójność czcionek (Błędy: {len(font_errors)})", False))
+            graphics_header = QLabel("Weryfikacja rysunków i grafik")
+            graphics_header.setStyleSheet(styles.GRAPHICS_HEADER_STYLE)
+            graphics_layout.addWidget(graphics_header)
+
+            quality_errors = report_data.get('jakosc_obrazkow', [])
+            font_errors = report_data.get('czcionki_obrazkow', [])
+
+            if not quality_errors:
+                graphics_layout.addWidget(create_badge_row("Jakość obrazów (rozdzielczość/czytelność)", True))
+            else:
+                graphics_layout.addWidget(create_badge_row(f"Jakość obrazów (Błędy: {len(quality_errors)})", False))
+
+            if not font_errors:
+                graphics_layout.addWidget(create_badge_row("Spójność czcionek na rysunkach", True))
+            else:
+                graphics_layout.addWidget(create_badge_row(f"Spójność czcionek (Błędy: {len(font_errors)})", False))
         img_data = report_data.get("image_analysis", {})
         raster_nums = img_data.get("image_raster", [])
         
