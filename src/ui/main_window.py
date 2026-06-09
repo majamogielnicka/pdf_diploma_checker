@@ -900,34 +900,39 @@ class PDFReader(QMainWindow):
                         pos_y += 4
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-            page.insert_text((margin, pos_y), "Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
-            pos_y += 25
+            img_data = report_data.get("image_analysis", {})
+            has_images_checked = img_data.get('total', 0) > 0
 
-            quality_errors = report_data.get('jakosc_obrazkow', [])
-            if not quality_errors:
-                page.insert_text((margin, pos_y), "Wszystkie obrazy mają odpowiednią jakość i czytelność.", 
-                                 fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+            if has_images_checked:
+                pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
+                page.insert_text((margin, pos_y), "Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
                 pos_y += 25
-            else:
-                page.insert_text((margin, pos_y), f"Wykryto problemy z jakością w {len(quality_errors)} obrazach:", 
-                                 fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
-                pos_y += 20
-                for err in quality_errors:
-                    pos_y, page = check_new_page(pos_y, report_pdf, page)
-                    rys = err.get("rysunek", "Nieznany rysunek")
-                    fmt = err.get("format", "Brak formatu")
-                    powody = err.get("powody_odrzucenia", [])
-                    
-                    page.insert_text((margin + 15, pos_y), f"{rys} (Format: {fmt}):", fontsize=11, fontname=f_bold)
-                    pos_y += 16
-                    for powod in powody:
-                        wrapped_powod = wrap_text(powod, 85)
-                        for idx, line in enumerate(wrapped_powod):
-                            pos_y, page = check_new_page(pos_y, report_pdf, page)
-                            prefix = "- " if idx == 0 else "  "
-                            page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
-                            pos_y += 14
-                    pos_y += 5
+
+                quality_errors = report_data.get('jakosc_obrazkow', [])
+                if not quality_errors:
+                    page.insert_text((margin, pos_y), "Wszystkie obrazy mają odpowiednią jakość i czytelność.", 
+                                     fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
+                    pos_y += 25
+                else:
+                    page.insert_text((margin, pos_y), f"Wykryto problemy z jakością w {len(quality_errors)} obrazach:", 
+                                     fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
+                    pos_y += 20
+                    for err in quality_errors:
+                        pos_y, page = check_new_page(pos_y, report_pdf, page)
+                        rys = err.get("rysunek", "Nieznany rysunek")
+                        fmt = err.get("format", "Brak formatu")
+                        powody = err.get("powody_odrzucenia", [])
+                        
+                        page.insert_text((margin + 15, pos_y), f"{rys} (Format: {fmt}):", fontsize=11, fontname=f_bold)
+                        pos_y += 16
+                        for powod in powody:
+                            wrapped_powod = wrap_text(powod, 85)
+                            for idx, line in enumerate(wrapped_powod):
+                                pos_y, page = check_new_page(pos_y, report_pdf, page)
+                                prefix = "- " if idx == 0 else "  "
+                                page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
+                                pos_y += 14
+                        pos_y += 5
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             page.insert_text((margin, pos_y), "Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
@@ -968,7 +973,7 @@ class PDFReader(QMainWindow):
                         pos_y += 5
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-            page.insert_text((margin, pos_y), "5. Analiza statystyczna struktury zdań", fontsize=14, fontname=f_bold)
+            page.insert_text((margin, pos_y), "Analiza statystyczna struktury zdań", fontsize=14, fontname=f_bold)
             pos_y += 22
 
             stats_data = report_data.get("statystyki_zdan")
