@@ -28,9 +28,6 @@ spell.word_frequency.load_text_file(resource_path(os.path.join("analysis", "modu
 languages = [Language.ENGLISH, Language.POLISH]
 language_detector = LanguageDetectorBuilder.from_languages(*languages).build()
 
-tool_pl = language_tool_python.LanguageTool('pl')
-tool_en = language_tool_python.LanguageTool('en-US')
-
 @Spacy_language.component("fix_sentence_limits")
 def fix_sentence_limits(doc):
     """Fixes sentence limits before spacy performs sentence analysis, to wrongly devided sentences."""
@@ -45,7 +42,6 @@ def fix_sentence_limits(doc):
                 token.is_sent_start = False
             elif token.text[0].islower():
                 token.is_sent_start = False
-            #spacy rozpoznanie skrótów np. itd.
             elif prev.morph.get("Abbr") == ["Yes"]:
                 token.is_sent_start = False
             elif i>=2 and doc[i - 2].morph.get("Abbr") and not token.is_title:
