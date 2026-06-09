@@ -136,6 +136,15 @@ class PDFReader(QMainWindow):
         into the reading/annotation viewport."""
         self.load_pdf(path)
         if self.document.status() == QPdfDocument.Status.Ready:
+            errors = self.manager.get_errors(path)
+            if errors:
+                self.pdf_view.add_errors(errors)
+                if hasattr(self.pdf_view, 'update_markers_pos'):
+                    self.pdf_view.update_markers_pos()
+                else:
+                    self.pdf_view.update()
+            self.load_ai_analysis()
+
             self.stack.setCurrentIndex(1)
 
     def setup_reader_ui(self):
@@ -784,7 +793,9 @@ class PDFReader(QMainWindow):
             pos_y += 40
             
             content_grade = report_data.get('content_grade')
-            if content_grade is not None:
+            has_llm_data = content_grade is not None
+
+            if has_llm_data:
                 if isinstance(content_grade, dict):
                     grade = content_grade.get('grade', 0)
                     max_g = content_grade.get('max_grade', 100)
@@ -825,34 +836,42 @@ class PDFReader(QMainWindow):
                 else:
                     pos_y += 15
 
-            pos_y, page = check_new_page(pos_y, report_pdf, page)
-            page.insert_text((margin, pos_y), "Weryfikacja merytoryczna rozdziału teoretycznego", 
-                             fontsize=14, fontname=f_bold)
-            pos_y += 25
-            
-            chapter_title = report_data.get('tytul', 'Brak tytułu')
-            page.insert_text((margin, pos_y), f"Analizowany rozdział: {chapter_title}", 
-                             fontsize=12, fontname=f_main)
-            pos_y += 20
-            
-            score = report_data.get('ocena', 0)
-            page.insert_text((margin, pos_y), f"Poziom realizacji wytycznych: {score}%", 
-                             fontsize=12, fontname=f_main)
-            pos_y += 30
-
-            criteria = [
-                ("Analiza i ocena istniejących rozwiązań:", report_data.get('r1')),
-                ("Wskazanie luki badawczej lub problemu naukowego:", report_data.get('r2')),
-                ("Synteza i krytyczne porównanie metod:", report_data.get('r3'))
-            ]
-
-            for label, met in criteria:
                 pos_y, page = check_new_page(pos_y, report_pdf, page)
-                status = "TAK [X]" if met else "NIE [ ]"
-                color = (0.17, 0.62, 0.35) if met else (0.86, 0.2, 0.27)
-                page.insert_text((margin + 20, pos_y), f"{label} {status}", 
-                                 fontsize=11, fontname=f_bold if met else f_main, color=color)
+                page.insert_text((margin, pos_y), "Weryfikacja merytoryczna rozdziału teoretycznego", 
+                                 fontsize=14, fontname=f_bold)
+                pos_y += 25
+                
+                chapter_title = report_data.get('tytul', 'Brak tytułu')
+                page.insert_text((margin, pos_y), f"Analizowany rozdział: {chapter_title}", 
+                                 fontsize=12, fontname=f_main)
                 pos_y += 20
+                
+                score = report_data.get('ocena', 0)
+                page.insert_text((margin, pos_y), f"Poziom realizacji wytycznych: {score}%", 
+                                 fontsize=12, fontname=f_main)
+                pos_y += 30
+
+                criteria = [
+                    ("Analiza i ocena istniejących rozwiązań:", report_data.get('r1')),
+                    ("Wskazanie luki badawczej lub problemu naukowego:", report_data.get('r2')),
+                    ("Synteza i krytyczne porównanie metod:", report_data.get('r3'))
+                ]
+
+                for label, met in criteria:
+                    pos_y, page = check_new_page(pos_y, report_pdf, page)
+                    status = "TAK" if met else "NIE"
+                    color = (0.17, 0.62, 0.35) if met else (0.86, 0.2, 0.27)
+                    page.insert_text((margin + 20, pos_y), f"{label} {status}", 
+                                     fontsize=11, fontname=f_bold if met else f_main, color=color)
+                    pos_y += 20
+
+            else:
+                page.insert_text((margin, pos_y), "Ogólna ocena merytoryczna (AI)", 
+                                 fontsize=14, fontname=f_bold)
+                pos_y += 25
+                page.insert_text((margin, pos_y), "Analiza została pominięta (wybrano Tryb Szybki).", 
+                                 fontsize=11, fontname=f_main, color=(0.5, 0.5, 0.5))
+                pos_y += 25
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             img_data = report_data.get("image_analysis")
@@ -933,8 +952,7 @@ class PDFReader(QMainWindow):
                                 page.insert_text((margin + 25, pos_y), f"{prefix}{line}", fontsize=10, fontname=f_main)
                                 pos_y += 14
                         pos_y += 5
-
-            pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
+                    pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             page.insert_text((margin, pos_y), "Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
             pos_y += 25
 
@@ -972,6 +990,7 @@ class PDFReader(QMainWindow):
                             pos_y += 14
                         pos_y += 5
 
+
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             page.insert_text((margin, pos_y), "Analiza statystyczna struktury zdań", fontsize=14, fontname=f_bold)
             pos_y += 22
@@ -999,7 +1018,7 @@ class PDFReader(QMainWindow):
                 pos_y += 20
 
             pos_y, page = check_new_page(810, report_pdf, page)
-            page.insert_text((margin, 820), f"Wygenerowano przez: Diploma Checker AI | Data: {datetime.date.today()}", 
+            page.insert_text((margin, 820), f"Data: {datetime.date.today()}", 
                              fontsize=9, fontname=f_main, color=(0.5, 0.5, 0.5))
 
             report_pdf.save(save_path)
