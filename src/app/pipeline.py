@@ -116,12 +116,19 @@ class AnalysisPipeline:
                 return None, None, "Błąd analizy LLM."
 
         def task_linguistics():
+            _tool = None
+            original_lt = None
             try:
                 import language_tool_python
                 print("[PIPELINE] Uruchamianie serwera językowego (LanguageTool)...")
                 _tool = language_tool_python.LanguageTool(language)
-                _tool.close()
                 print("[PIPELINE] Serwer gotowy.")
+                original_lt = language_tool_python.LanguageTool
+                class DummyLanguageTool:
+                    def __new__(cls, *args, **kwargs):
+                        return _tool
+                language_tool_python.LanguageTool = DummyLanguageTool
+
             except Exception as e:
                 print(f"[PIPELINE] Ostrzeżenie przy starcie LanguageTool: {e}")
             finally:
@@ -161,6 +168,7 @@ class AnalysisPipeline:
                 return ling_matches, stats
 
             except Exception as e:
+                print(f"[PIPELINE] Błąd analizy lingwistycznej: {e}")
                 import traceback
                 traceback.print_exc()
 
@@ -169,6 +177,15 @@ class AnalysisPipeline:
                     "passive_ratio": "0%",
                     "verbless_ratio": "0%",
                 }
+            finally:
+                if _tool is not None:
+                    try:
+                        _tool.close()
+                    except Exception:
+                        pass
+                if original_lt is not None:
+                    import language_tool_python
+                    language_tool_python.LanguageTool = original_lt
 
         def task_redaction():
             try:
