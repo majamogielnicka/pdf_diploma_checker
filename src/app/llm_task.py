@@ -1,12 +1,10 @@
 import gc
 import traceback
 
-
 def cleanup_text_llm_instances():
     """
     Release text LLM instances to reduce RAM/VRAM usage between LLM stages.
     """
-
     try:
         from analysis.modules.llm import get_summary as _get_summary_mod
         from analysis.modules.llm import goal_realization as _goal_realization_mod
@@ -53,7 +51,6 @@ def build_image_summary(raw_image_report):
     """
     Build image_analysis dictionary in the same format as the old pipeline task_llm.
     """
-
     if raw_image_report is None:
         raw_image_report = []
 
@@ -87,22 +84,18 @@ def build_image_summary(raw_image_report):
     }
 
 
-def run_task_llm(doc_obj, pdf_path, language="pl", use_llm=True):
+def run_task_llm(doc_obj, pdf_path, language="pl", use_llm=True, check_images=True):
     """
     Run the LLM part of the analysis pipeline.
-
     Return format is intentionally identical to the old nested task_llm():
-
         result, score, summary_text
     """
-
     if not use_llm:
         return None, None, "Tryb Szybki."
 
     try:
         from analysis.extraction.helper_llm.converter_linguistics_llm import get_plain_text
         from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
-
         from analysis.modules.llm.get_grade import get_overall_grade, get_content_grade
         from analysis.modules.llm.get_purpose import get_purpose
         from analysis.modules.llm.goal_realization import (
@@ -112,15 +105,6 @@ def run_task_llm(doc_obj, pdf_path, language="pl", use_llm=True):
         from analysis.modules.llm.get_summary import get_summaries
         from analysis.modules.llm.get_subtitles import get_subtitles
         from analysis.modules.llm.run_sota import get_final_sota_report
-
-        from analysis.modules.llm.image_analysis.run_image import analyze_images
-        from analysis.modules.llm.image_analysis.image_quality_checker import (
-            get_full_image_quality_json,
-        )
-        from analysis.modules.llm.image_analysis.font_checker import (
-            get_font_consistency_report,
-        )
-
         from analysis.extraction.converter_linguistics_clean import PDFMapper
 
         mapper = PDFMapper()
@@ -161,41 +145,54 @@ def run_task_llm(doc_obj, pdf_path, language="pl", use_llm=True):
 
         cleanup_text_llm_instances()
 
-        try:
-            raw_image_report = analyze_images(doc_obj, mapped_doc)
-        except Exception:
-            raw_image_report = []
-
-        image_summary_data = build_image_summary(raw_image_report)
-
-        cleanup_text_llm_instances()
-
-        try:
-            quality_errors = get_full_image_quality_json(
-                doc_obj,
-                mapped_doc,
-                pdf_path,
-                verbose=False,
+        if check_images:
+            from analysis.modules.llm.image_analysis.run_image import analyze_images
+            from analysis.modules.llm.image_analysis.image_quality_checker import (
+                get_full_image_quality_json,
             )
-            if quality_errors is None:
+            from analysis.modules.llm.image_analysis.font_checker import (
+                get_font_consistency_report,
+            )
+
+            try:
+                raw_image_report = analyze_images(doc_obj, mapped_doc)
+            except Exception:
+                raw_image_report = []
+
+            image_summary_data = build_image_summary(raw_image_report)
+
+            cleanup_text_llm_instances()
+
+            try:
+                quality_errors = get_full_image_quality_json(
+                    doc_obj,
+                    mapped_doc,
+                    pdf_path,
+                    verbose=False,
+                )
+                if quality_errors is None:
+                    quality_errors = []
+            except Exception:
                 quality_errors = []
-        except Exception:
-            quality_errors = []
 
-        cleanup_text_llm_instances()
+            cleanup_text_llm_instances()
 
-        try:
-            font_errors = get_font_consistency_report(
-                doc_obj,
-                mapped_doc,
-                verbose=False,
-            )
-            if font_errors is None:
+            try:
+                font_errors = get_font_consistency_report(
+                    doc_obj,
+                    mapped_doc,
+                    verbose=False,
+                )
+                if font_errors is None:
+                    font_errors = []
+            except Exception:
                 font_errors = []
-        except Exception:
-            font_errors = []
 
-        cleanup_text_llm_instances()
+            cleanup_text_llm_instances()
+        else:
+            image_summary_data = build_image_summary([])
+            quality_errors = []
+            font_errors = []
 
         res_id, res_title, res_score, res_method, res_cites, r1, r2, r3 = (
             get_final_sota_report(mapped_doc, language)

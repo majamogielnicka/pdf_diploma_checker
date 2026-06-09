@@ -2,7 +2,7 @@ import sys
 import os
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-    QPushButton, QFrame, QProgressBar, QWidget, QFileDialog
+    QPushButton, QFrame, QProgressBar, QWidget, QFileDialog, QCheckBox
 )
 from PySide6.QtCore import Qt, Signal, QThread, QSize
 from PySide6.QtGui import QPixmap, QIcon
@@ -310,18 +310,36 @@ class AnalysisDialog(QDialog):
         self.btn_szybki.setChecked(True)
         self.btn_szybki.setStyleSheet(styles.MODE_BTN_STYLE)
         self.btn_szybki.setFixedHeight(45)
-        
+
         self.btn_dokladny = QPushButton("Tryb dokładny")
         self.btn_dokladny.setCheckable(True)
         self.btn_dokladny.setStyleSheet(styles.MODE_BTN_STYLE)
         self.btn_dokladny.setFixedHeight(45)
-        
-        self.btn_szybki.clicked.connect(lambda: self.btn_dokladny.setChecked(False))
-        self.btn_dokladny.clicked.connect(lambda: self.btn_szybki.setChecked(False))
+
+        self.cb_images = QCheckBox("Analiza obrazów i grafik (wymaga dużo VRAM)")
+        self.cb_images.setStyleSheet(styles.CHECKBOX_STYLE)
+        self.cb_images.setChecked(True)
+        self.cb_images.setVisible(False)
+
         modes_layout.addWidget(self.btn_szybki)
         modes_layout.addWidget(self.btn_dokladny)
-        mode_section.addWidget(mode_title)
-        mode_section.addLayout(modes_layout)
+
+        mode_section.addWidget(mode_title)     
+        mode_section.addLayout(modes_layout)  
+        mode_section.addWidget(self.cb_images)
+
+        def _on_szybki_clicked():
+            self.btn_dokladny.setChecked(False)
+            self.cb_images.setVisible(False)
+            
+        def _on_dokladny_clicked():
+            self.btn_szybki.setChecked(False)
+            self.cb_images.setVisible(True)
+            
+        self.btn_szybki.clicked.connect(_on_szybki_clicked)
+        self.btn_dokladny.clicked.connect(_on_dokladny_clicked)
+
+        # 5. Dopięcie do głównego układu
         config_layout.addLayout(mode_section)
         config_layout.addStretch(1)
         self.main_layout.addWidget(self.config_widget)

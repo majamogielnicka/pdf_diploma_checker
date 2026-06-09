@@ -32,7 +32,7 @@ class AnalysisPipeline:
         self.linguistics_service = LinguisticsService()
         self.llm_service = None
 
-    def run(self, input_document, progress_callback=None, use_llm=True, config_path=None, language="pl"):
+    def run(self, input_document, progress_callback=None, use_llm=True, config_path=None, language="pl", check_images=True):
         def cleanup_text_llm_instances():
             """Zwalnia instancje LLM z modułów tekstowych, by ograniczyć użycie VRAM przed SOTA."""
             try:
@@ -64,6 +64,7 @@ class AnalysisPipeline:
             except Exception:
                 pass
 
+            import gc
             gc.collect()
 
         def report_progress(value, text):
@@ -101,6 +102,7 @@ class AnalysisPipeline:
                     pdf_path=pdf_path,
                     language=language,
                     use_llm=use_llm,
+                    check_images=check_images
                 )
 
             except Exception as e:
