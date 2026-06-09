@@ -142,6 +142,9 @@ SEARCH_STYLE = """
 """
 
 CHECKBOX_STYLE = """
+    QCheckBox {
+            color: #000000;
+    }
     QCheckBox::indicator {
         width: 18px;
         height: 18px;

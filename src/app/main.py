@@ -22,6 +22,7 @@ from setup import check_and_download_requirements
 
 def main():
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     check = check_and_download_requirements()
     if not check:
         sys.exit()
