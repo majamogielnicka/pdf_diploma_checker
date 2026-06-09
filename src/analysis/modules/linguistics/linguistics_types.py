@@ -1,5 +1,5 @@
 '''
-Definicje dataclasses używanych w module lingwistycznym.
+Definitions of dataclasses used in the linguistic module
 '''
 from dataclasses import dataclass, field
 from analysis.extraction.schema import ParagraphBlock, ListBlock
