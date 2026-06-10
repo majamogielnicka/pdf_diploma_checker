@@ -1,22 +1,6 @@
 # User Guide
 
-## 1. Purpose of this guide
-
-This guide explains how to use the application after it has been installed and configured.
-
-For installation and model configuration, see:
-
-```text
-config_guide.md
-```
-
-For a general description of the project and available checks, see:
-
-```text
-README.md
-```
-
-## 2. Before running the application
+## 1. Before running the application
 
 Before starting the analysis, make sure that:
 
@@ -28,7 +12,7 @@ Before starting the analysis, make sure that:
 
 The application should not be run directly from inside a ZIP archive. Extract the package first.
 
-## 3. Configuration file
+## 2. Configuration file
 
 The application requires a configuration file named:
 
@@ -53,201 +37,143 @@ app_config.json
 
 If `app_config.json` is missing or has a different name, the application may not start correctly.
 
-## 4. Starting the application
+## 3. Model and file locations
 
-Start the application according to the package you are using.
+The application uses local files stored on the user's computer.
 
-For a packaged executable, run the appropriate application file.
+Before running the analysis, make sure that the configuration file points to the correct model directory and that the required model files are available.
 
-For a source-code version, start the application from the project directory using the command described in the installation guide.
+### Configuration file location
 
-After startup, the main application window should appear.
+The configuration file must be placed in the main application directory.
 
-## 5. Selecting the thesis language
+Example:
 
-Before running the analysis, select the language of the thesis in the application interface.
+```text
+pdf_diploma_checker/
+├── app_config.json
+├── cpu_config.json
+├── gpu_config.json
+├── src/
+├── requirements.txt
+└── README.md
+```
 
-Choose the language that matches the content of the PDF file.
+The files:
+
+```text
+cpu_config.json
+gpu_config.json
+```
+
+are only templates. They can be copied and renamed to:
+
+```text
+app_config.json
+```
+
+### Model directory location
+
+The model directory is defined in `app_config.json` using the field:
+
+```json
+"model_dir": "PATH_TO_MODELS_DIR"
+```
+
+Example on Windows:
+
+```json
+"model_dir": "C:/Users/YOUR_USERNAME/models"
+```
+
+Example on Linux:
+
+```json
+"model_dir": "/home/YOUR_USERNAME/models"
+```
+
+The path should point to the main folder containing all required local model files.
+
+### Required model structure
+
+The model directory should have the following structure:
+
+```text
+PATH_TO_MODELS_DIR/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+For example, on Linux:
+
+```text
+/home/YOUR_USERNAME/models/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+For example, on Windows:
+
+```text
+C:/Users/YOUR_USERNAME/models/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+### Model files download
+
+The required model files can be downloaded from Google Drive:
+
+[Download model files](https://drive.google.com/drive/folders/11GQeiS8VuTJpdSvF0uswwiqycTCtH-qt)
+
+After downloading the files, place them in the model directory using the structure shown above.
+
+### PDF file location
+
+The analyzed PDF file can be stored in any accessible location on the computer.
 
 For example:
 
-* select Polish for a thesis written in Polish,
-* select English for a thesis written in English.
-
-The selected language affects text processing, linguistic analysis and selected content-related checks.
-
-If the wrong language is selected, the results may be inaccurate.
-
-## 6. Loading a PDF file
-
-To load a thesis:
-
-1. Open the application.
-2. Select the correct thesis language.
-3. Choose the PDF file using the file selection option in the interface.
-4. Make sure the selected file is correct before starting the analysis.
-
-The input file should be a readable PDF document.
-
-If the PDF contains scanned pages instead of selectable text, some results may be incomplete or less accurate.
-
-## 7. Image analysis option
-
-The application may contain an option named:
-
 ```text
-Image analysis
+/home/YOUR_USERNAME/Documents/thesis.pdf
 ```
 
-or a checkbox/button with a similar name.
+or:
 
-This option enables additional analysis of figures, charts, diagrams and other visual elements in the thesis.
+```text
+C:/Users/YOUR_USERNAME/Documents/thesis.pdf
+```
 
-When Image analysis is enabled, the application may analyze:
+The file is selected directly in the application interface.
 
-* figures,
-* charts,
-* diagrams,
-* labels and data visible in images,
-* image readability,
-* font consistency inside images.
+### Output files location
 
-Image analysis may significantly increase processing time.
+If the application generates output files, such as reports or annotated PDFs, they may be saved in an output directory defined by the application or selected by the user.
 
-It can also require more memory and GPU resources.
+If an `output` directory is used, it may look like this:
 
-Use Image analysis when figures, charts or diagrams are important for the thesis assessment.
+```text
+pdf_diploma_checker/
+├── output/
+│   ├── report.pdf
+│   └── analyzed_thesis.pdf
+```
 
-Disable Image analysis if:
+Before sharing any generated report, review the results manually.
 
-* you want faster processing,
-* the document contains many images,
-* the application freezes during visual analysis,
-* the computer does not have enough resources.
 
-If Image analysis is disabled, the rest of the analysis can still be performed.
-
-## 8. Running the analysis
-
-After selecting the PDF file, language and analysis options, start the analysis using the main analysis button in the interface.
-
-The analysis time depends on:
-
-* document length,
-* number of pages,
-* number of images,
-* selected options,
-* hardware performance,
-* CPU/GPU configuration.
-
-Do not close the application while the analysis is running.
-
-## 9. Reading the results
-
-After the analysis is complete, the application displays the results in the interface.
-
-Depending on the selected options, the results may include:
-
-* detected issues,
-* comments,
-* suggestions,
-* content-related score,
-* image-related information,
-* final report or summary.
-
-Review the results manually before using them.
-
-## 10. Important note about content-related analysis
-
-The content-related analysis is indicative only.
-
-It is generated automatically using local AI models and text-processing methods.
-
-The score and comments should not be treated as a final grade or an authoritative evaluation of the thesis.
-
-Do not rely on the content-related score in 100%.
-
-The result may be affected by:
-
-* incorrectly extracted text,
-* unusual PDF structure,
-* missing or unclear thesis goal,
-* formatting problems,
-* scanned pages,
-* OCR issues,
-* wrong language selection,
-* limitations of local AI models.
-
-The final assessment should always be made by a human reviewer, supervisor or examiner.
-
-## 11. Exporting or saving results
-
-If the application provides an export option, you can save the generated results or report.
-
-Before sharing or submitting the report, review it manually.
-
-Automatically generated comments may require correction, interpretation or removal.
-
-## 12. Common usage problems
-
-### The PDF does not load
-
-Check whether:
-
-* the file is a valid PDF,
-* the file is not open or locked by another program,
-* the path to the file does not contain unsupported characters,
-* the file is not corrupted.
-
-### The analysis is very slow
-
-Possible reasons:
-
-* the PDF is large,
-* Image analysis is enabled,
-* the application is running in CPU mode,
-* many images are present in the document,
-* other applications are using system resources.
-
-Try disabling Image analysis and running the analysis again.
-
-### Image analysis takes too long or freezes
-
-Image analysis is computationally expensive.
-
-Disable the Image analysis option and run the analysis again.
-
-### Results seem inaccurate
-
-Check whether:
-
-* the correct thesis language was selected,
-* the PDF text is selectable,
-* the document is not scanned,
-* the PDF structure is correct,
-* the file was exported properly from Word or LaTeX.
-
-Automatic analysis may not work perfectly for every PDF.
-
-## 13. Quick usage checklist
-
-Before starting analysis:
-
-1. Open the application.
-2. Select the thesis language.
-3. Load the correct PDF file.
-4. Decide whether Image analysis should be enabled.
-5. Start the analysis.
-6. Wait until the process finishes.
-7. Review all results manually.
-8. Treat content-related results as indicative, not final.
-
-## 14. Disclaimer
+## 4. Disclaimer
 
 The application is a supporting tool for diploma thesis analysis.
 
 It does not replace human review.
 
-The results, especially AI-generated comments and content-related scores, should be treated as suggestions and indicators.
+The results, especially merit assessment, should be treated as suggestions and indicators.
 
 The user is responsible for interpreting and verifying the generated results.
