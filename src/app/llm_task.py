@@ -3,7 +3,7 @@ import traceback
 
 def cleanup_text_llm_instances():
     """
-    Release text LLM instances to reduce RAM/VRAM usage between LLM stages.
+    Release text LLM instances to reduce RAM/VRAM usage between LLM stages
     """
     try:
         from analysis.modules.llm import get_summary as _get_summary_mod
