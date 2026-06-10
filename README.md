@@ -100,6 +100,33 @@ Moduł merytoryki zwraca ocenę ogólną w skali **0–100**, tworzoną na podst
 - spójności podnagłówków z celem pracy,
 - poprawności przeglądu stanu wiedzy.
 
+##### Jak liczona jest ocena?
+
+Wynik końcowy jest sumą ważoną trzech składowych:
+
+$$
+\mathrm{Score} = 0.60 \cdot S_{\mathrm{emb}} + 0.20 \cdot S_{\mathrm{pr}} + 0.20 \cdot S_{\mathrm{sota}}
+$$
+
+**1. Zgodność treści z celem pracy ($S_{\mathrm{emb}}$)** - główna składowa oceny. Dla każdego podrozdziału generowane jest streszczenie, a następnie wyznaczane jest podobieństwo semantyczne (cosinusowe, na embeddingach) między celem pracy $G$ a streszczeniem podrozdziału $T_i$:
+
+$$
+s_i = \cos(\mathrm{emb}(G), \mathrm{emb}(T_i))
+$$
+
+Podrozdziały, których podobieństwo nie przekracza progu $\tau$ (dobieranego empirycznie, np. `0.45`), uznawane są za słabo związane z celem. Jeśli $K$ z $N$ podrozdziałów nie przekracza progu, to:
+
+$$
+S_{\mathrm{emb}} = 100 - \frac{K}{N} \cdot 100
+$$
+
+Im więcej podrozdziałów poniżej progu, tym niższy wynik; jeśli wszystkie przekraczają próg, $S_{\mathrm{emb}} = 100$.
+
+**2. Bezpośrednia ocena realizacji celu ($S_{\mathrm{pr}}$)** – model otrzymuje cel pracy wyekstraktowany z początku dokumentu i ocenia bezpośrednio, czy został on zrealizowany w treści całej pracy: `100` – cel zrealizowany, `50` – zrealizowany częściowo, `0` – niezrealizowany.
+
+**3. Jakość przeglądu stanu wiedzy ($S_{\mathrm{sota}}$)** – sekcja SOTA oceniana jest według trzech reguł: zawiera ocenę istniejących rozwiązań, wskazuje lukę badawczą lub problem, zawiera syntezę lub porównanie metod i podejść. Spełnienie co najmniej 2 z 3 reguł daje `100`, dokładnie 1 reguły – `50`, żadnej – `0`.
+
+
 #### Analiza grafik (opcjonalna, z poziomu GUI)
 
 GUI umożliwia opcjonalną dokładną analizę grafik z użyciem modelu oraz wygenerowanie raportu końcowego z ocenami grafik i ogólną analizą merytoryczną. Analiza obejmuje:
@@ -144,16 +171,10 @@ Narzędzie dodatkowo pozwala na weryfikację, czy każdy typ wpisu zawiera wymag
 
 ---
 
-## Instalacja i konfiguracja
+## Instalacja, konfiguracja i użycie
 
-[Przewodnik konfiguracji](./config_guide.md)  
+[Przewodnik konfiguracji](./user_guide.md)  
 
-
----
-
-## Użycie
-
-[Instrukcja Użytkownika](./user_guide.md)
 
 ---
 <div align="center">  
@@ -258,6 +279,33 @@ The content module returns an overall score from **0 to 100**, computed as a wei
 - coherence of subheadings with the thesis goal,
 - quality of the state-of-the-art review.
 
+##### How is the score computed?
+
+The final score is a weighted sum of three components:
+
+$$
+\mathrm{Score} = 0.60 \cdot S_{\mathrm{emb}} + 0.20 \cdot S_{\mathrm{pr}} + 0.20 \cdot S_{\mathrm{sota}}
+$$
+
+**1. Content–goal coherence ($S_{\mathrm{emb}}$)** — the main component. A summary is generated for each subsection, then the semantic similarity (cosine similarity on embeddings) between the thesis goal $G$ and each subsection summary $T_i$ is computed:
+
+$$
+s_i = \cos(\mathrm{emb}(G), \mathrm{emb}(T_i))
+$$
+
+Subsections whose similarity does not exceed a threshold $\tau$ (chosen empirically, e.g. `0.45`) are considered weakly related to the goal. If $K$ out of $N$ subsections fall below the threshold:
+
+$$
+S_{\mathrm{emb}} = 100 - \frac{K}{N} \cdot 100
+$$
+
+The more subsections below the threshold, the lower the score; if all subsections exceed it, $S_{\mathrm{emb}} = 100$.
+
+**2. Direct goal-realisation assessment ($S_{\mathrm{pr}}$)** – the model receives the thesis goal extracted from the beginning of the document and directly judges whether it has been realised across the whole thesis: `100` – goal realised, `50` – partially realised, `0` – not realised.
+
+**3. State-of-the-art review quality ($S_{\mathrm{sota}}$)** – the SOTA section is scored against three rules: it evaluates existing solutions, it identifies a research gap or problem, it provides a synthesis or comparison of methods and approaches. Satisfying at least 2 of the 3 rules gives `100`, exactly 1 rule – `50`, none – `0`.
+
+
 #### Figure analysis (optional, via GUI)
 
 The GUI offers an optional in-depth, model-based analysis of figures and generates a final report with figure scores and the overall content evaluation. The analysis covers:
@@ -304,12 +352,8 @@ The tool additionally offers verification of that each entry type contains its r
 
 ---
 
-## Installation & setup
+## Installation, setup and usage
 
-[Config guide](./config_guide.md)  
+[Config guide](./user_guide.md)  
 
 ---
-
-## Usage
-
-[User guide](./user_guide.md)
