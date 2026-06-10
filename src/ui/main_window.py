@@ -428,18 +428,6 @@ class PDFReader(QMainWindow):
             cg_layout.addWidget(cg_val)
             cg_layout.addWidget(detale_lbl)
 
-            off_topic_headings = content_grade.get('off_topic_headings', [])
-            if off_topic_headings:
-                headings_title = QLabel("Niezgodne z tematem:")
-                headings_title.setStyleSheet(styles.OFF_TOPIC_TITLE_STYLE)
-                cg_layout.addWidget(headings_title)
-                
-                for heading in off_topic_headings:
-                    lbl_heading = QLabel(f"• {heading}")
-                    lbl_heading.setWordWrap(True)
-                    lbl_heading.setStyleSheet(styles.OFF_TOPIC_ITEM_STYLE)
-                    cg_layout.addWidget(lbl_heading)
-
             l.addWidget(cg_frame)
         else:
             none_label = QLabel("Brak danych analizy merytorycznej")
