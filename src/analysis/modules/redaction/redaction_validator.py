@@ -405,16 +405,30 @@ class RedactionValidator:
                     ))
     
     def check_bibliography(self):        
+    def check_bibliography(self):   
+        """
+        Iterates through the logical blocks to identify words flagged with 
+        incorrect or missing bibliography references. It generates and appends 
+        an Error object for each flagged instance.
+        """     
         for block in self.document_data_linguistics.logical_blocks:
             words = getattr(block, "words", [])
             for word in words:
-                # Flaga: niepoprawne odwołanie do bibliografii
                 if getattr(word, "incorrect_bibliography", 0) == 1:        
                     error = self._handle_bibliography(word)
                     if error:
                         self.errors.append(error)
 
     def _handle_bibliography(self, word):
+        """
+        Constructs an Error object for an invalid or missing bibliography reference.
+
+        Args:
+            word (WordInfo): The word object containing the invalid citation and its metadata.
+
+        Returns:
+            Error: A formatted error object detailing the citation mismatch.
+        """
         return Error(
             id=self._get_next_id(), 
             module=self.module,
@@ -426,6 +440,10 @@ class RedactionValidator:
         )
 
     def check_widows(self):
+        """
+        Scans all paragraph blocks for 'widow' flags (a very short line left at the 
+        end of a paragraph). If detected, it processes and logs the corresponding error.
+        """
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":    
                 # Flaga: wdowy
@@ -436,6 +454,11 @@ class RedactionValidator:
                         self.errors.append(error)
 
     def check_bibliography_summary(self):
+        """
+        Compiles a complete list of all recognized bibliography entries from the 
+        document and appends them as a single, informational summary Error object 
+        for easy review.
+        """
         bib_entries = []
 
         for block in self.document_data_linguistics.logical_blocks:
@@ -463,6 +486,17 @@ class RedactionValidator:
             self.errors.append(summary_error)
                 
     def _handle_widow(self, block, widow_which):
+        """
+        Calculates the precise bounding box for the isolated words constituting 
+        a 'widow' and constructs the corresponding Error object.
+
+        Args:
+            block (ParagraphBlock): The paragraph block containing the widow.
+            widow_which (int): The number of words that make up the widow at the end of the block.
+
+        Returns:
+            Error: A formatted error object representing the typographical widow.
+        """
         if not block.words:
             return
 
@@ -488,6 +522,11 @@ class RedactionValidator:
         )
     
     def check_bekarts(self):
+        """
+        Scans all paragraph blocks for 'bastard' flags (the last line of a paragraph 
+        isolated at the top of the following page). If detected, it processes and 
+        logs the corresponding error.
+        """
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":
                 # Flaga: bękarty
@@ -498,6 +537,17 @@ class RedactionValidator:
                         self.errors.append(error)
 
     def _handle_bekart(self, block, bekart_which):
+        """
+        Calculates the precise bounding box for the isolated words constituting 
+        a 'bastard' and constructs the corresponding Error object.
+
+        Args:
+            block (ParagraphBlock): The paragraph block containing the bastard.
+            bekart_which (int): The number of words that make up the bastard on the new page.
+
+        Returns:
+            Error: A formatted error object representing the typographical bastard.
+        """
         if not block.words:
             return
 
@@ -523,6 +573,11 @@ class RedactionValidator:
         )
     
     def check_szewce(self):
+        """
+        Scans all paragraph blocks for 'shoemaker' flags (the first line of a new 
+        paragraph isolated at the bottom of the previous page). If detected, it 
+        processes and logs the corresponding error.
+        """
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":
                 # Flaga: szewce
@@ -533,6 +588,17 @@ class RedactionValidator:
                         self.errors.append(error)
 
     def _handle_szewc(self, block, szewc_which):
+        """
+        Calculates the precise bounding box for the isolated words constituting 
+        a 'shoemaker' and constructs the corresponding Error object.
+
+        Args:
+            block (ParagraphBlock): The paragraph block containing the shoemaker.
+            szewc_which (int): The number of words that make up the shoemaker at the beginning of the block.
+
+        Returns:
+            Error: A formatted error object representing the typographical shoemaker.
+        """
         if not block.words:
             return
 
@@ -558,6 +624,11 @@ class RedactionValidator:
         )
     
     def check_caption_sources(self):
+        """
+        Iterates through the text blocks acting as visual captions to verify if they 
+        lack proper source attributions or bibliography citations. Calculates the 
+        bounding box of the flagged caption and appends a corresponding Error object.
+        """
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "incorrect_caption", 0) == 1:
                 
