@@ -64,6 +64,7 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
         if any(h in current_heading for h in ["LISTA SKRÓTÓW", "WYKAZ SKRÓTÓW", "SPIS TREŚCI", "SPIS RYSUNKÓW", "SPIS TABEL", "BIBLIOGRAFIA"]):
             continue
         language = b.language
+        msg_language = getattr(block, 'language', None) or language
         if block.type == "list":            
             casing_error_ids = []
             ending_error_ids = []
@@ -224,11 +225,11 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                         ending_error_ids.append(item.item_id)
                 
             for num in casing_error_ids:
-                error = add_list_error(items_by_id, num, block.block_id, "LIST_CASING", language)
+                error = add_list_error(items_by_id, num, block.block_id, "LIST_CASING", msg_language)
                 if error:
                     matches.append(error)
             for num in ending_error_ids:
-                error = add_list_error(items_by_id, num, block.block_id, "LIST_ENDING", language)
+                error = add_list_error(items_by_id, num, block.block_id, "LIST_ENDING", msg_language)
                 if error:
                     matches.append(error)
 
