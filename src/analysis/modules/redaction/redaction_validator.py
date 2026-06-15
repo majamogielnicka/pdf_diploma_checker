@@ -51,7 +51,7 @@ class Configuration:
             
             if self.min_stron > self.max_stron:
                 if lang == "en":
-                    raise FileError("min_pages > max_pages, config error")
+                    raise FileError("min_stron > max_stron, config error")
                 else: 
                     raise FileError("min_stron > max_stron, błąd konfiguracji")
 
@@ -105,8 +105,9 @@ class Configuration:
                 raise FileError(f"niepoprawny typ danych w konfiguracji: {e}")
 
 class RedactionValidator:
-    def __init__(self, document_data: DocumentData, document_data_linguistics: FinalDocument, config_path: str = None):
+    def __init__(self, document_data: DocumentData, document_data_linguistics: FinalDocument, config_path: str = None, language="pl"):
         self.document_data = document_data
+        self.language = language
         self.document_data_linguistics = document_data_linguistics
         if config_path is not None:
             self.config = Configuration(config_path)
@@ -1087,10 +1088,9 @@ class RedactionValidator:
         line_spacing = doc_data.get_dominant_line_spacing()
         lang = getattr(self, "language", "pl")
         if lang == "en":
-            comment = f"The line spacing used ({line_spacing}) does not match the required line spacing ({self.config.line_spacing})."
+            comment = f"The line spacing used ({line_spacing}) does not match the required line spacing ({self.config.interlinia})."
         else: 
             comment = f"Używana interlinia ({line_spacing}) jest niezgodna z wymaganą interlinią ({self.config.interlinia})."
-
         
         if line_spacing is None:
             if lang == "en":
@@ -1118,7 +1118,7 @@ class RedactionValidator:
         lang = getattr(self, "language", "pl")
 
         if lang == "en":
-            comment = f"The document has {page_count} pages, less than the minimum number of {self.config.min_pages}"
+            comment = f"The document has {page_count} pages, less than the minimum number of {self.config.min_stron}"
         else: 
             comment = f"Dokument ma {page_count} stron, mniej niż minimalna liczba {self.config.min_stron}"
 
@@ -1135,7 +1135,7 @@ class RedactionValidator:
             return False
         elif page_count > self.config.max_stron:
             if lang == "en":
-                comment = f"The document has {page_count} pages, more than the maximum number of {self.config.max_pages}."
+                comment = f"The document has {page_count} pages, more than the maximum number of {self.config.max_stron}."
             else: 
                 comment = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.max_stron}."
 
