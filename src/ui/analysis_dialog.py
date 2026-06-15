@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
     QPushButton, QFrame, QProgressBar, QWidget, QFileDialog, QCheckBox
@@ -9,6 +10,58 @@ from PySide6.QtGui import QPixmap, QIcon
 import styles
 
 from common.path import resource_path
+
+class ModelDownloadWorker(QThread):
+    """downloading models from HuggingFace."""
+    progress_update = Signal(int, str)
+    finished_success = Signal()
+    finished_error = Signal(str)
+
+    def __init__(self, target_dir):
+        super().__init__()
+        self.target_dir = target_dir 
+
+    def run(self):
+        try:
+            from huggingface_hub import hf_hub_download
+            
+            self.progress_update.emit(10, "Nawiązywanie połączenia z serwerami Hugging Face...")
+            
+            gemma_dir = os.path.join(self.target_dir, "gemma3_12b")
+            os.makedirs(gemma_dir, exist_ok=True)
+            
+            self.progress_update.emit(20, "Pobieranie modelu Gemma (może potrwać kilkanaście minut)...")
+            hf_hub_download(
+                repo_id="bartowski/gemma-3-12b-it-GGUF", 
+                filename="google_gemma-3-12b-it-Q4_K_M.gguf", 
+                local_dir=gemma_dir,                          
+                local_dir_use_symlinks=False
+            )
+
+            os.makedirs(self.target_dir, exist_ok=True)
+
+            self.progress_update.emit(60, "Pobieranie modelu wizyjnego (LLaVA)...")
+            hf_hub_download(
+                repo_id="xtuner/llava-v1.6-mistral-7b-gguf",
+                filename="llava-v1.6-mistral-7b.Q4_K_M.gguf", 
+                local_dir=self.target_dir,                    
+                local_dir_use_symlinks=False
+            )
+            
+            self.progress_update.emit(85, "Pobieranie komponentów wizyjnych (Projektor)...")
+            hf_hub_download(
+                repo_id="xtuner/llava-v1.6-mistral-7b-gguf",
+                filename="mmproj-model-f16.gguf",             
+                local_dir=self.target_dir,                    
+                local_dir_use_symlinks=False
+            )
+
+            self.progress_update.emit(100, "Wszystkie modele zostały pomyślnie pobrane!")
+            self.finished_success.emit()
+
+        except Exception as e:
+            self.finished_error.emit(f"Błąd sieci podczas pobierania modeli:\n{str(e)}")
+
 
 class FileBadge(QFrame):
     """ Widget displaying info about JSON config file with a delete button"""
@@ -459,7 +512,7 @@ class AnalysisDialog(QDialog):
         self.json_frame.setFixedHeight(220)
 
     def _start_analysis(self):
-        """progress state, instantiates, and starts the PipelineWorker thread"""
+        """Sprawdza pliki modeli przed startem. Jeśli brakuje - pobiera je."""
         self.config_widget.setVisible(False)
         self.analyze_btn.setVisible(False)
         self.progress_widget.setVisible(True)
@@ -468,6 +521,35 @@ class AnalysisDialog(QDialog):
         is_detailed = self.btn_dokladny.isChecked()
         choosen_lg = "pl" if self.btn_lang_pl.isChecked() else "en"
         
+        # Jeśli wybrano tryb dokładny, najpierw sprawdzamy pliki modelu
+        if is_detailed and self.config_file_path and os.path.exists(self.config_file_path):
+            try:
+                with open(self.config_file_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                model_dir = config.get("model_dir", "")
+                
+                if model_dir:
+                    gemma_path = os.path.join(model_dir, "gemma3_12b", "google_gemma-3-12b-it-Q4_K_M.gguf")
+                    llava_path = os.path.join(model_dir, "llava-v1.6-mistral-7b.Q4_K_M.gguf")
+                    mmproj_path = os.path.join(model_dir, "mmproj-model-f16.gguf")
+                    
+                    # Jeśli brakuje chociaż jednego pliku, uruchamiamy w tle downloader
+                    if not (os.path.exists(gemma_path) and os.path.exists(llava_path) and os.path.exists(mmproj_path)):
+                        self.dl_worker = ModelDownloadWorker(model_dir)
+                        self.dl_worker.progress_update.connect(self._update_progress)
+                        # Gdy modele pobiorą się z sukcesem, odpalamy właściwy analizator
+                        self.dl_worker.finished_success.connect(lambda: self._run_pipeline_worker(is_detailed, choosen_lg))
+                        self.dl_worker.finished_error.connect(lambda msg: print(f"Błąd: {msg}") or self.reject())
+                        self.dl_worker.start()
+                        return
+            except Exception as e:
+                print(f"Błąd przy weryfikacji ścieżki modeli: {e}")
+                
+        # Jeśli tryb jest szybki LUB modele już były na dysku - przechodzimy od razu do pracy
+        self._run_pipeline_worker(is_detailed, choosen_lg)
+
+    def _run_pipeline_worker(self, is_detailed, choosen_lg):
+        """Uruchamia docelowy wątek roboczy do weryfikacji PDF."""
         self.worker = PipelineWorker(self.pdf_path, self.config_file_path, use_llm=is_detailed, language=choosen_lg)
         self.worker.progress_update.connect(self._update_progress)
         self.worker.finished_success.connect(self._on_analysis_success)
@@ -481,9 +563,14 @@ class AnalysisDialog(QDialog):
 
     def _cancel_analysis(self):
         """Terminates the running background worker thread"""
+        if hasattr(self, 'dl_worker') and self.dl_worker.isRunning():
+            self.dl_worker.terminate()
+            self.dl_worker.wait()
+            
         if hasattr(self, 'worker') and self.worker.isRunning():
             self.worker.terminate()
             self.worker.wait()
+            
         self._reset_ui_state()
 
     def _reset_ui_state(self):
