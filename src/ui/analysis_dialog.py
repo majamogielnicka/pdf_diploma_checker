@@ -42,7 +42,7 @@ class ModelDownloadWorker(QThread):
 
             self.progress_update.emit(60, "Pobieranie modelu wizyjnego (LLaVA)...")
             hf_hub_download(
-                repo_id="xtuner/llava-v1.6-mistral-7b-gguf",
+                repo_id="mys/ggml_llava-v1.5-7b",
                 filename="llava-v1.6-mistral-7b.Q4_K_M.gguf", 
                 local_dir=self.target_dir,                    
                 local_dir_use_symlinks=False
@@ -50,7 +50,7 @@ class ModelDownloadWorker(QThread):
             
             self.progress_update.emit(85, "Pobieranie komponentów wizyjnych (Projektor)...")
             hf_hub_download(
-                repo_id="xtuner/llava-v1.6-mistral-7b-gguf",
+                repo_id="mys/ggml_llava-v1.5-7b",
                 filename="mmproj-model-f16.gguf",             
                 local_dir=self.target_dir,                    
                 local_dir_use_symlinks=False
