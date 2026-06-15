@@ -403,8 +403,7 @@ class RedactionValidator:
                         text=img.description,   
                         comments="Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki."
                     ))
-    
-    def check_bibliography(self):        
+          
     def check_bibliography(self):   
         """
         Iterates through the logical blocks to identify words flagged with 
