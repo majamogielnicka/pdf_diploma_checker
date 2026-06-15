@@ -105,9 +105,14 @@ def check_iso(matches, item, block):
     Verifies the presence of a final dot in bibliography items.
     """
 
-    Category_and_message = {
-        "MISSING_FINAL_DOT": "Nie zastosowano kropki na końcu wpisu.",
-    }
+    if block.language == "pl":
+        Category_and_message = {
+            "MISSING_FINAL_DOT": "Nie zastosowano kropki na końcu wpisu.",
+        }
+    else:
+        Category_and_message = {
+            "MISSING_FINAL_DOT": "A final dot was not used at the end of the entry.",
+        }
     text = item.content.strip()
     ends_with_url = bool(re.search(r'https?:\s*//\S+$|www\.\S+$|doi\.org/\S+$', text))
     if not text.endswith('.') and not ends_with_url:
@@ -183,6 +188,10 @@ def check_bibtex(matches, Bib_context, bib_blocks):
         "WRONG_BIBTEX_TYPE": "Nieznany typ wpisu w bibliografii.",
         "MISSING_BIBTEX_FIELD": "Brakuje wymaganego pola dla tego typu wpisu BibTeX.",
     }
+    Category_and_message_eng = {
+        "WRONG_BIBTEX_TYPE": "Unknown BibTeX entry type.",
+        "MISSING_BIBTEX_FIELD": "Required field missing for this BibTeX entry type.",
+    }
     required_fields_per_type = {
         "article": ["journal"],
     }
@@ -192,8 +201,9 @@ def check_bibtex(matches, Bib_context, bib_blocks):
         block = bib_blocks.get(item.item.item_id)
         if block is None:
             continue
+        messages = Category_and_message_eng if block.language == 'en' else Category_and_message
         if item.bibtex_type is None:
-            matches = check_item_words(matches, item, block, "WRONG_BIBTEX_TYPE",Category_and_message["WRONG_BIBTEX_TYPE"], item.content)
+            matches = check_item_words(matches, item, block, "WRONG_BIBTEX_TYPE", messages["WRONG_BIBTEX_TYPE"], item.content)
             continue 
         check_item(matches, item, block)
 
@@ -213,7 +223,7 @@ def check_bibtex(matches, Bib_context, bib_blocks):
                 missing.remove('journal')
 
             if missing: 
-                msg = f"{Category_and_message['MISSING_BIBTEX_FIELD']} ({item.bibtex_type}: {', '.join(missing)})"
+                msg = f"{messages['MISSING_BIBTEX_FIELD']} ({item.bibtex_type}: {', '.join(missing)})"
                 matches = check_item_words(matches, item, block, "MISSING_BIBTEX_FIELD", msg, item.content)
 
     return matches
@@ -222,15 +232,24 @@ def check_item(matches, item, block):
     """
     Checks a bibliography item for missing obligatory fields based on its type.
     """
-
-    Category_and_message = {
-        "MISSING_OBLIGATORY": "We wpisie brakuje pól wymaganych (autor, tytuł lub data)",
-        "MISSING_PUBLISHER": "Brakuje wydawcy dla pozycji książkowej.",
-        "MISSING_ONLINE": "Brakuje pól obowiązkowych dla prac online.",
-        "MISSING_PAGES": "Brakuje stron dla artykułu.",
-        "MISSING_ARTICLE_OR_BOOK": "Brakuje danych identyfikacyjnych pracy.",
-        "NO_ACCESS_DATE_OR_DOI": "Brakuje daty dostępu lub doi.",
-    }
+    if block.language == "pl":
+        Category_and_message = {
+            "MISSING_OBLIGATORY": "We wpisie brakuje pól wymaganych (autor, tytuł lub data)",
+            "MISSING_PUBLISHER": "Brakuje wydawcy dla pozycji książkowej.",
+            "MISSING_ONLINE": "Brakuje pól obowiązkowych dla prac online.",
+            "MISSING_PAGES": "Brakuje stron dla artykułu.",
+            "MISSING_ARTICLE_OR_BOOK": "Brakuje danych identyfikacyjnych pracy.",
+            "NO_ACCESS_DATE_OR_DOI": "Brakuje daty dostępu lub doi.",
+        }
+    else:
+        Category_and_message = {
+            "MISSING_OBLIGATORY": "Entry is missing required fields (author, title, or date).",
+            "MISSING_PUBLISHER": "Missing publisher for a book entry.",
+            "MISSING_ONLINE": "Missing required fields for an online entry.",
+            "MISSING_PAGES": "Missing page numbers for an article.",
+            "MISSING_ARTICLE_OR_BOOK": "Missing identifying information for the work.",
+            "NO_ACCESS_DATE_OR_DOI": "Missing access date or DOI.",
+        }
     text = item.content.strip()
     
     if item.bibtex_type != "online":
@@ -286,7 +305,6 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
     """
     Checks the overall coherence of formatting (separators, dates, authors) across all bibliography items.
     """
-
     Category_and_message = {
         "SEPARATOR_COHERENCE": "Niespójna forma separatora pól wpisu z pozostałymi wpisami bibliografii.",
         "AUTHOR_FORMAT_COHERENCE": "Niespójny format autorów wpisu z pozostałymi wpisami bibliografii.",
@@ -294,6 +312,14 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
         "TITLE_FORMAT_COHERENCE": "Niespójny format tytułów wpisu z pozostałymi wpisami bibliografii.",
         "DATE_POSITION_COHERENCE": "Niespójna pozycja daty wpisu z pozostałymi wpisami bibliografii.",
         "WRONG_ORDER_ISO": "Kolejność bądź formatowanie pól we wpisie niespójna z resztą bibliografii.",
+    }
+    Category_and_message_eng = {
+        "SEPARATOR_COHERENCE": "Inconsistent field separator format in the entry compared to other bibliography entries.",
+        "AUTHOR_FORMAT_COHERENCE": "Inconsistent author format in the entry compared to other bibliography entries.",
+        "DATE_FORMAT_COHERENCE": "Inconsistent date format in the entry compared to other bibliography entries.",
+        "TITLE_FORMAT_COHERENCE": "Inconsistent title format in the entry compared to other bibliography entries.",
+        "DATE_POSITION_COHERENCE": "Inconsistent date position in the entry compared to other bibliography entries.",
+        "WRONG_ORDER_ISO": "Order or formatting of fields in the entry is inconsistent with the rest of the bibliography.",
     }
 
     add_bibtex_type(Bib_context)
@@ -307,6 +333,10 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
         block = bib_blocks.get(item.item.item_id)
         if block is None:
             continue
+        if block.language == 'en':
+            messages = Category_and_message_eng
+        else:
+            messages = Category_and_message
         check_iso(matches, item, block)
         t = item.bibtex_type
 
@@ -347,19 +377,23 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
         block = bib_blocks.get(item.item.item_id)
         if block is None:
             continue
+        if block.language == 'en':
+            messages = Category_and_message_eng
+        else:
+            messages = Category_and_message
 
         t = item.bibtex_type
 
         if getattr(item, 'separator', None) and t in dominant_separator:
             if item.separator != dominant_separator[t]:
-                matches = check_item_words(matches, item, block, "SEPARATOR_COHERENCE", Category_and_message["SEPARATOR_COHERENCE"], item.content)
+                matches = check_item_words(matches, item, block, "SEPARATOR_COHERENCE", messages["SEPARATOR_COHERENCE"], item.content)
 
         author_fmt = get_format(item.authors)
         if t in dominant_author_fmt and dominant_author_fmt[t] == 'Jan Nowak' and author_fmt in {'Nowak J.', 'Nowak, J.'}:
             pass
         elif author_fmt and author_fmt not in ('different', 'Jan Nowak') and t in dominant_author_fmt:
             if author_fmt != dominant_author_fmt[t]:
-                matches = check_item_words(matches, item, block, "AUTHOR_FORMAT_COHERENCE", Category_and_message["AUTHOR_FORMAT_COHERENCE"], item.content)
+                matches = check_item_words(matches, item, block, "AUTHOR_FORMAT_COHERENCE", messages["AUTHOR_FORMAT_COHERENCE"], item.content)
 
         if item.date and len(item.date) > 0 and t in dominant_date_fmt:
             dom_date_fmt = dominant_date_fmt[t]
@@ -391,7 +425,7 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
                     break
                     
             if not is_equivalent:
-                matches = check_item_words(matches, item, block, "DATE_FORMAT_COHERENCE", Category_and_message["DATE_FORMAT_COHERENCE"], item.content)
+                matches = check_item_words(matches, item, block, "DATE_FORMAT_COHERENCE", messages["DATE_FORMAT_COHERENCE"], item.content)
 
         if t in dominant_title_fmt:
             item_title_fmt = get_format(item.title) if item.title else None
@@ -402,7 +436,7 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
                 if t not in ('article', 'incollection', 'online', 'inproceedings'):  
                     if t in dominant_title_fmt and item_title_fmt != dominant_title_fmt[t]:
                         if not title_text.startswith('(') and len(title_text) > 10:
-                            matches = check_item_words(matches, item, block, "TITLE_FORMAT_COHERENCE", Category_and_message["TITLE_FORMAT_COHERENCE"], item.content)
+                            matches = check_item_words(matches, item, block, "TITLE_FORMAT_COHERENCE", messages["TITLE_FORMAT_COHERENCE"], item.content)
 
         if t in dominant_order:
             item_order = check_order(item)
@@ -410,9 +444,9 @@ def check_coherence_iso(matches, Bib_context, bib_blocks):
             common_fields = [f for f in dom if f in item_order]
             item_filtered = [f for f in item_order if f in common_fields]
             if item_filtered != common_fields:
-                matches = check_item_words(matches, item, block, "WRONG_ORDER_ISO", Category_and_message["WRONG_ORDER_ISO"], item.content)
+                matches = check_item_words(matches, item, block, "WRONG_ORDER_ISO", messages["WRONG_ORDER_ISO"], item.content)
 
         if getattr(item, 'date_position', None) and t in dominant_date_pos and not getattr(item, 'online', False):
             if item.date_position != dominant_date_pos[t]:
-                matches = check_item_words(matches, item, block, "DATE_POSITION_COHERENCE", Category_and_message["DATE_POSITION_COHERENCE"], item.content)
+                matches = check_item_words(matches, item, block, "DATE_POSITION_COHERENCE", messages["DATE_POSITION_COHERENCE"], item.content)
     return matches
