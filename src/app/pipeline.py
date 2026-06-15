@@ -203,8 +203,8 @@ class AnalysisPipeline:
                     document_data=doc_obj,
                     document_data_linguistics=mapper.map_to_schema(doc_obj),
                     config_path=config_path,
+                    language=language,
                 )
-
                 font_usage = doc_obj.get_font_size_usage()
                 doc_obj.get_most_common_font_size = (
                     lambda: max(font_usage, key=font_usage.get, default=12)

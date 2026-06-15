@@ -404,17 +404,16 @@ class AnalysisDialog(QDialog):
         self.cb_images.setChecked(True)
         self.cb_images.setVisible(False)
 
-        # --- DETEKCJA GPU I OSTRZEŻENIE VRAM ---
         gpu_name, vram_gb = self._check_gpu_vram()
         self.gpu_info_label = QLabel()
         self.gpu_info_label.setWordWrap(True)
         
         if gpu_name:
             if vram_gb >= 8.0:
-                color = "#2CA05A" # Zielony - rekomendowane
+                color = "#2CA05A" 
                 rec_text = f"Wykryto GPU: <b>{gpu_name}</b> ({vram_gb:.1f} GB VRAM).<br>Tryb dokładny (AI) powinien działać płynnie."
             else:
-                color = "#D32F2F" # Czerwony - ostrzeżenie
+                color = "#D32F2F" 
                 rec_text = f"Wykryto GPU: <b>{gpu_name}</b> ({vram_gb:.1f} GB VRAM).<br><b>Uwaga:</b> Zalecane minimum to 8 GB VRAM. Tryb dokładny może działać powoli lub nie zadziałać."
         else:
              color = "#D32F2F"
@@ -422,7 +421,7 @@ class AnalysisDialog(QDialog):
              
         self.gpu_info_label.setText(rec_text)
         self.gpu_info_label.setStyleSheet(f"font-size: 11px; color: {color}; margin-top: 4px; background: transparent; border: none;")
-        self.gpu_info_label.setVisible(False) # Domyślnie schowane, bo zaznaczony jest tryb szybki
+        self.gpu_info_label.setVisible(False) 
 
         modes_layout.addWidget(self.btn_szybki)
         modes_layout.addWidget(self.btn_dokladny)
@@ -445,7 +444,6 @@ class AnalysisDialog(QDialog):
         self.btn_szybki.clicked.connect(_on_szybki_clicked)
         self.btn_dokladny.clicked.connect(_on_dokladny_clicked)
 
-        # Dopięcie do głównego układu
         config_layout.addLayout(mode_section)
         config_layout.addStretch(1)
         self.main_layout.addWidget(self.config_widget)
@@ -510,9 +508,8 @@ class AnalysisDialog(QDialog):
             item = self.badge_layout.takeAt(0)
             if item.widget(): item.widget().deleteLater()
         self.json_frame.setFixedHeight(220)
-
     def _start_analysis(self):
-        """Sprawdza pliki modeli przed startem. Jeśli brakuje - pobiera je."""
+        """checks if there are models"""
         self.config_widget.setVisible(False)
         self.analyze_btn.setVisible(False)
         self.progress_widget.setVisible(True)
@@ -521,31 +518,41 @@ class AnalysisDialog(QDialog):
         is_detailed = self.btn_dokladny.isChecked()
         choosen_lg = "pl" if self.btn_lang_pl.isChecked() else "en"
         
-        # Jeśli wybrano tryb dokładny, najpierw sprawdzamy pliki modelu
-        if is_detailed and self.config_file_path and os.path.exists(self.config_file_path):
+        if is_detailed:
             try:
-                with open(self.config_file_path, 'r', encoding='utf-8') as f:
-                    config = json.load(f)
-                model_dir = config.get("model_dir", "")
+                import sys
+                if getattr(sys, 'frozen', False):
+                    base_dir = sys._MEIPASS
+                else:
+                    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
                 
-                if model_dir:
-                    gemma_path = os.path.join(model_dir, "gemma3_12b", "google_gemma-3-12b-it-Q4_K_M.gguf")
-                    llava_path = os.path.join(model_dir, "llava-v1.6-mistral-7b.Q4_K_M.gguf")
-                    mmproj_path = os.path.join(model_dir, "mmproj-model-f16.gguf")
+                app_config_path = os.path.join(base_dir, "app_config.json")
+                
+                if not os.path.exists(app_config_path) and os.path.exists("app_config.json"):
+                    app_config_path = "app_config.json"
+                
+                if os.path.exists(app_config_path):
+                    with open(app_config_path, 'r', encoding='utf-8') as f:
+                        app_config = json.load(f)
+                    model_dir = app_config.get("model_dir", "")
                     
-                    # Jeśli brakuje chociaż jednego pliku, uruchamiamy w tle downloader
-                    if not (os.path.exists(gemma_path) and os.path.exists(llava_path) and os.path.exists(mmproj_path)):
-                        self.dl_worker = ModelDownloadWorker(model_dir)
-                        self.dl_worker.progress_update.connect(self._update_progress)
-                        # Gdy modele pobiorą się z sukcesem, odpalamy właściwy analizator
-                        self.dl_worker.finished_success.connect(lambda: self._run_pipeline_worker(is_detailed, choosen_lg))
-                        self.dl_worker.finished_error.connect(lambda msg: print(f"Błąd: {msg}") or self.reject())
-                        self.dl_worker.start()
-                        return
+                    if model_dir:
+                        gemma_path = os.path.join(model_dir, "gemma3_12b", "google_gemma-3-12b-it-Q4_K_M.gguf")
+                        llava_path = os.path.join(model_dir, "llava-v1.6-mistral-7b.Q4_K_M.gguf")
+                        mmproj_path = os.path.join(model_dir, "mmproj-model-f16.gguf")
+                        
+                        if not (os.path.exists(gemma_path) and os.path.exists(llava_path) and os.path.exists(mmproj_path)):
+                            self.dl_worker = ModelDownloadWorker(model_dir)
+                            self.dl_worker.progress_update.connect(self._update_progress)
+                            self.dl_worker.finished_success.connect(lambda: self._run_pipeline_worker(is_detailed, choosen_lg))
+                            self.dl_worker.finished_error.connect(lambda msg: print(f"Błąd: {msg}") or self.reject())
+                            self.dl_worker.start()
+                            return
+                else:
+                    print(f"Nie znaleziono pliku konfiguracji aplikacji pod ścieżką: {app_config_path}")
             except Exception as e:
-                print(f"Błąd przy weryfikacji ścieżki modeli: {e}")
+                print(f"Błąd przy odczycie app_config.json lub weryfikacji modeli: {e}")
                 
-        # Jeśli tryb jest szybki LUB modele już były na dysku - przechodzimy od razu do pracy
         self._run_pipeline_worker(is_detailed, choosen_lg)
 
     def _run_pipeline_worker(self, is_detailed, choosen_lg):

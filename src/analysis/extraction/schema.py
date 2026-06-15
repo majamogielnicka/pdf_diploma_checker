@@ -1,12 +1,12 @@
 '''
-W tym pliku mamy całą strukturę danych z pdf'a podzieloną logicznie.
+Logical structure of converter_linguictics_clean's effective json
 '''
+
 from dataclasses import dataclass, field, asdict
 import json
 from typing import List, Dict, Any, Union, Optional
-import re # Regular Expressions - manipulacja tekstem za pomocą wzorców
+import re 
 
-### ------ @DATACLASSES DLA LINGWISTYKI ------ ###
 @dataclass
 class WordInfo: # Położenie XY oraz relatywne słowa
     word_index: int
@@ -189,8 +189,20 @@ class DocumentPatterns:
     ACRONYM_SEP = re.compile(r'^\S{1,15}\s*[-–—−‐:=]\s+')
     ACRONYM_EXTRACT_PATTERN = re.compile(r'^([A-Z][A-Z0-9]{1,7})\s+([a-zA-Z].+?)\.\s*([\d,\-\s\u2013\u2014]+)$')
 
-# Klasyfikacja typu bloku (paragraf lub lista) na podstawie tego czy zaczyna się od typowych elementów dla listy
 def classify_block_content(text: str, active_marker: str = None):
+    """
+    Classifies a block of text as either a 'list' or a 'paragraph' by matching it 
+    against predefined regular expression patterns.
+
+    Args:
+        text (str): The text content to classify.
+        active_marker (str, optional): The marker type of the currently active list, 
+            used to check for direct continuations. Defaults to None.
+
+    Returns:
+        tuple[str, str | None]: A tuple containing the block type ('list' or 'paragraph') 
+        and the matched marker type (if applicable, otherwise None).
+    """
     text = text.strip()
 
     if active_marker:
@@ -204,17 +216,51 @@ def classify_block_content(text: str, active_marker: str = None):
             return "list", marker_type
     return "paragraph", None
 
-# Usunięcie markera z początku pozycji na liście
 def strip_list_marker(text: str, marker_type: str) -> str:
+    """
+    Removes the matched list marker (e.g., bullet points, numbering) from the 
+    beginning of a list item's text.
+
+    Args:
+        text (str): The raw text of the list item.
+        marker_type (str): The dictionary key for the regex pattern that matched the marker.
+
+    Returns:
+        str: The cleaned text with the leading list marker removed.
+    """
     if marker_type in DocumentPatterns.LIST_PATTERNS:
         return re.sub(DocumentPatterns.LIST_PATTERNS[marker_type], "", text, count=1).strip()
     return text.strip()
 
 def is_acronym(text: str) -> bool:
+    """
+    Evaluates whether a given string matches the predefined structural pattern 
+    of an acronym or abbreviation definition.
+
+    Args:
+        text (str): The text string to evaluate.
+
+    Returns:
+        bool: True if the text matches the acronym pattern, False otherwise.
+    """
     return bool(re.match(DocumentPatterns.ACRONYM_PATTERN, text.strip()))
 
-# Wykrywanie opisów tabel (analogiczne do metody w extraction_json)
 def find_table_description(table_bbox: list, logical_blocks: list, priority_side=None):
+    """
+    Searches for a table's caption by analyzing logical text blocks situated physically 
+    close to the table's bounding box (either above or below). It uses keyword matching 
+    specific to tables.
+
+    Args:
+        table_bbox (list): The bounding box of the table [x0, y0, x1, y1].
+        logical_blocks (list): A list of processed logical text blocks on the page.
+        priority_side (str, optional): The preferred side to check first ('above' or 'below'). 
+            Defaults to 'above'.
+
+    Returns:
+        tuple[str, str]: A tuple containing the extracted description text and the 
+        side it was found on ('above' or 'below'). Returns an empty string if not found.
+    """
     x0, y0, x1, y1 = table_bbox
     kw_matches = {"above": [], "below": []}
     other_matches = {"above": [], "below": []}
@@ -262,8 +308,22 @@ def find_table_description(table_bbox: list, logical_blocks: list, priority_side
 
     return "", priority_side
 
-# Wykrywanie opisów zdjęć (analogiczne do metody w extraction_json)
 def find_image_description(image_bbox: list, logical_blocks: list, priority_side=None):
+    """
+    Searches for an image's or figure's caption by analyzing nearby logical text blocks. 
+    It applies specific keyword matching (e.g., 'figure', 'image', 'rys.') to validate 
+    the caption.
+
+    Args:
+        image_bbox (list): The bounding box of the image [x0, y0, x1, y1].
+        logical_blocks (list): A list of processed logical text blocks on the page.
+        priority_side (str, optional): The preferred side to check first ('above' or 'below'). 
+            Defaults to 'below'.
+
+    Returns:
+        tuple[str, str]: A tuple containing the extracted description text and the 
+        side it was found on ('above' or 'below'). Returns an empty string if not found.
+    """
     x0, y0, x1, y1 = image_bbox
     kw_matches = {"above": [], "below": []}
     other_matches = {"above": [], "below": []}
@@ -315,7 +375,16 @@ def find_image_description(image_bbox: list, logical_blocks: list, priority_side
     return "", priority_side
 
 def is_widow_func(combined_words):
-    # Detekcja wdów (maksymalnie 2 samotne słowa na końcu akapitu)
+    """
+    Detects typographical 'widows' within a paragraph. A widow is defined here as 
+    a very short final line of a paragraph (consisting of 1 or 2 isolated words).
+
+    Args:
+        combined_words (list[WordInfo]): A list of all words making up the paragraph.
+
+    Returns:
+        int: The number of words constituting the widow (1 or 2), or 0 if no widow is detected.
+    """
     is_widow = 0  
 
     if combined_words and len(combined_words) >= 10:
@@ -332,7 +401,17 @@ def is_widow_func(combined_words):
     return is_widow
 
 def is_bekart_func(combined_words):
-    # Detekcja bękartów
+    """
+    Detects typographical 'bastards' (also known as orphans in some conventions) 
+    within a paragraph. This occurs when the final line(s) of a paragraph spill over 
+    and sit isolated at the very top of the next page.
+
+    Args:
+        combined_words (list[WordInfo]): A list of all words making up the paragraph.
+
+    Returns:
+        int: The number of words in the isolated line on the new page, or 0 if no bastard is detected.
+    """
     is_bekart = 0
 
     if combined_words:
@@ -363,7 +442,18 @@ def is_bekart_func(combined_words):
     return is_bekart
 
 def is_szewc_func(combined_words):
-# Detekcja szewców
+    """
+    Detects typographical 'shoemakers' (often called orphans) within a paragraph. 
+    This occurs when the first line of a new paragraph is left isolated at the very 
+    bottom of a page, while the rest of the paragraph continues on the next page.
+
+    Args:
+        combined_words (list[WordInfo]): A list of all words making up the paragraph.
+
+    Returns:
+        int: The number of words in the isolated first line at the bottom of the page, 
+        or 0 if no shoemaker is detected.
+    """
     is_szewc = 0
     
     if combined_words:
