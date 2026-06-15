@@ -6,11 +6,25 @@ from PySide6.QtGui import QAction
 from PySide6.QtPdfWidgets import QPdfView
 import styles
 
+TOOLTIP_LANG = {
+    "pl": {
+        "cat": "Kategoria:", "desc": "Opis:", "refers": "Dotyczy tekstu:", 
+        "no_text": "[Brak tekstu]", "my_comment": "Twój komentarz:", "fragment": "Fragment:",
+        "def_err": "Brak szczegółowego opisu błędu", "def_cat": "Błąd"
+    },
+    "en": {
+        "cat": "Category:", "desc": "Description:", "refers": "Applies to text:", 
+        "no_text": "[No text]", "my_comment": "Your comment:", "fragment": "Fragment:",
+        "def_err": "No detailed error description", "def_cat": "Error"
+    }
+}
+
 class ErrorMarker(QPushButton):
     """represents an error marker on PDF"""
-    def __init__(self, error_data, parent=None):
+    def __init__(self, error_data, parent=None, lang="pl"):
         super().__init__(parent)
         self.data = error_data
+        self.lang = lang
         self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(styles.ERROR_MARKER_STYLE)
@@ -19,23 +33,26 @@ class ErrorMarker(QPushButton):
 
     def show_details(self):
         """Displays a formatted tooltip with details about the error"""
-        opis = self.data.get('comment', 'Brak szczegółowego opisu błędu')
-        kat = self.data.get('category', 'Błąd')
+        t = TOOLTIP_LANG.get(self.lang, TOOLTIP_LANG["pl"])
+        
+        opis = self.data.get('comment', t["def_err"])
+        kat = self.data.get('category', t["def_cat"])
         tekst = self.data.get('found_text', '')
 
-        info = (f"<b>Kategoria:</b> {kat}<br>"
-                f"<b>Opis:</b> {opis}<br>")
+        info = (f"<b>{t['cat']}</b> {kat}<br>"
+                f"<b>{t['desc']}</b> {opis}<br>")
         
-        if tekst and tekst != "[Brak tekstu]":
-            info += f"<b>Dotyczy tekstu:</b> <i>{tekst}</i>"
+        if tekst and str(tekst).strip() not in ["[Brak tekstu]", "[No text]", ""]:
+            info += f"<b>{t['refers']}</b> <i>{tekst}</i>"
 
         QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
 
 class CommentMarker(QPushButton):
     """represents a custom comment marker added by the user"""
-    def __init__(self, comment_data, parent=None):
+    def __init__(self, comment_data, parent=None, lang="pl"):
         super().__init__(parent)
         self.data = comment_data
+        self.lang = lang
         self.setFixedSize(16, 16)
         self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(styles.COMMENT_MARKER_STYLE)
@@ -44,8 +61,9 @@ class CommentMarker(QPushButton):
 
     def show_details(self):
         """displays the user's comment text"""
-        info = (f"<b>Twój komentarz:</b> {self.data.get('tekst_komentarza', '')}<br>"
-                f"<b>Fragment:</b> {self.data.get('znaleziony_tekst', '')}")
+        t = TOOLTIP_LANG.get(self.lang, TOOLTIP_LANG["pl"])
+        info = (f"<b>{t['my_comment']}</b> {self.data.get('tekst_komentarza', '')}<br>"
+                f"<b>{t['fragment']}</b> {self.data.get('znaleziony_tekst', '')}")
         QToolTip.showText(self.mapToGlobal(QPoint(20, 0)), info)
 
 class HighlightBox(QFrame):
@@ -57,9 +75,10 @@ class HighlightBox(QFrame):
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
 
 class SelectablePdfView(QPdfView):
-    """An extended PDF view that enables area-based text selection (via Shift key), adding custom user comments, and overlaying error markers and highlight boxes."""
+    """An extended PDF view that enables area-based text selection, adding custom user comments, and overlaying error markers."""
     textCopied = Signal(str)
     commentAdded = Signal(dict)
+    
     def __init__(self, parent=None):
         super().__init__(parent)
         self.markers = []
@@ -82,8 +101,7 @@ class SelectablePdfView(QPdfView):
             m.deleteLater()
         self.markers = []
 
-
-    def add_errors(self, errors_list):
+    def add_errors(self, errors_list, lang="pl"):
         """Clears existing errors and overlays a new list of error markers and highlight boxes"""
         self.clear_markers()
         
@@ -96,7 +114,7 @@ class SelectablePdfView(QPdfView):
         self.highlight_boxes = new_boxes
 
         for err in errors_list:
-            marker = ErrorMarker(err, self.viewport())
+            marker = ErrorMarker(err, self.viewport(), lang=lang)
             self.markers.append(marker)
             coords = err.get("coords", err.get("wspolrzedne", {}))
             w = coords.get("w", 0)
@@ -110,9 +128,7 @@ class SelectablePdfView(QPdfView):
         self.update_markers_pos()
 
     def update_markers_pos(self):
-        """Recalculates and updates the pixel positions of all markers and highlight boxes 
-        relative to the PDF document coordinates, factoring in the current zoom level, 
-        scrollbar values, and page margins."""
+        """Recalculates and updates the pixel positions of all markers and highlight boxes."""
         doc = self.document()
         if not doc or doc.pageCount() == 0: return
 
@@ -163,6 +179,7 @@ class SelectablePdfView(QPdfView):
             
             marker.move(int(marker_x), int(marker_y))
             marker.show()
+            
         for box in self.highlight_boxes:
             data = box.data
             page_idx = data.get("page", data.get("strona", 1))
@@ -214,7 +231,6 @@ class SelectablePdfView(QPdfView):
                 new_boxes.append(b)
         self.highlight_boxes = new_boxes
 
-
     def resizeEvent(self, event):
         """Handles the widget resize event by triggering a recalculation"""
         super().resizeEvent(event)
@@ -256,9 +272,7 @@ class SelectablePdfView(QPdfView):
         self.selection_box.show()
 
     def mousePressEvent(self, event):
-        """Handles mouse press events. Right-clicking inside an active selection triggers 
-        the context menu. Left-clicking while holding the Shift key initializes a new 
-        bounding box selection."""
+        """Handles mouse press events."""
         if event.button() == Qt.RightButton:
             if self.selection_box.isVisible() and self.selection_box.geometry().contains(event.position().toPoint()):
                 self.show_context_menu(event.globalPosition().toPoint())
@@ -291,8 +305,7 @@ class SelectablePdfView(QPdfView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        """Handles mouse release events. Finalizes the selection box area bounding 
-        coordinates and initiates the text extraction process."""
+        """Handles mouse release events."""
         if not self.origin.isNull():
             rect = self.selection_box.geometry()
             self.origin = QPoint()
@@ -302,16 +315,13 @@ class SelectablePdfView(QPdfView):
         super().mouseReleaseEvent(event)
 
     def extract_text(self, rect):
-        """Extracts text from a specified pixel coordinate bounding box on the screen.
-        Scans the selected area line-by-line"""
+        """Extracts text from a specified pixel coordinate bounding box on the screen."""
         doc = self.document()
         if not doc or doc.pageCount() == 0: return
         
         v_val = self.verticalScrollBar().value()
         h_val = self.horizontalScrollBar().value()
         dpi_x, dpi_y = self.logicalDpiX(), self.logicalDpiY()
-
-        current_y_px = self.documentMargins().top()
         
         current_y_px = self.documentMargins().top()
         
@@ -361,8 +371,7 @@ class SelectablePdfView(QPdfView):
             current_y_px += page_h_px + self.pageSpacing()
 
     def show_context_menu(self, global_pos):
-        """Displays a pop-up context menu offering options to copy text, check for 
-        plagiarism, or add a custom comment."""
+        """Displays a pop-up context menu."""
         menu = QMenu(self)
         copy_action = QAction("Skopiuj tekst", self)
         copy_action.triggered.connect(self.copy_to_clipboard)
@@ -380,7 +389,7 @@ class SelectablePdfView(QPdfView):
         menu.exec(global_pos)
 
     def add_custom_comment(self):
-        """Opens an input dialog prompting the user for comment text linked to the current selection."""
+        """Opens an input dialog prompting the user for comment text."""
         if not self.selection_pdf_rect or self.selection_page_idx == -1:
             return
             
@@ -415,10 +424,7 @@ class SelectablePdfView(QPdfView):
         QApplication.clipboard().setText(self.selected_text)
 
     def check_plagiarism(self):
-        """Opens the system's default web browser to perform a Google Search of the 
-        selected text fragment wrapped as an exact phrase query (in quotes). 
-        Truncates the query to a maximum of 300 characters.
-        """
+        """Opens the system's default web browser to perform a Google Search of the selected text."""
         if not self.selected_text:
             return
             

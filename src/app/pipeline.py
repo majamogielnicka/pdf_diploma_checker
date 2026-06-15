@@ -281,6 +281,9 @@ class AnalysisPipeline:
         image_analysis["image_raster"] = raster_figure_numbers
         final_report.llm_result["image_analysis"] = image_analysis
         final_report.llm_result["statystyki_zdan"] = ling_stats
+        
+        final_report.llm_result["language"] = language 
+        
         final_report.linguistics_errors = wszystkie_bledy
 
         return final_report

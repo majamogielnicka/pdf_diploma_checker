@@ -196,7 +196,8 @@ class PipelineWorker(QThread):
 
             ui_data = {
                 "errors": ui_report,
-                "sota": sota_data if isinstance(sota_data, dict) else None
+                "sota": sota_data if isinstance(sota_data, dict) else None,
+                "language": self.language 
             }
             
             self.finished_success.emit(ui_data)
@@ -212,12 +213,41 @@ class AnalysisDialog(QDialog):
         super().__init__(parent)
         self.pdf_path = pdf_path
         self.setWindowTitle("Przeanalizuj dokument")
-        self.setFixedSize(800, 660) 
+        self.setFixedSize(800, 700)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet(styles.DIALOG_STYLE)
         
         self.config_file_path = None 
         self.setup_ui()
+
+    def _check_gpu_vram(self):
+        """Sprawdza dostępność i pamięć VRAM karty graficznej. Zwraca: (Nazwa_GPU, VRAM_w_GB)"""
+        try:
+            import torch
+            if torch.cuda.is_available():
+                device = torch.cuda.current_device()
+                name = torch.cuda.get_device_name(device)
+                vram_gb = torch.cuda.get_device_properties(device).total_memory / (1024**3)
+                return name, vram_gb
+        except Exception:
+            pass
+        
+        try:
+            import subprocess
+            creation_flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+            result = subprocess.run(
+                ['nvidia-smi', '--query-gpu=name,memory.total', '--format=csv,noheader,nounits'],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, creationflags=creation_flags
+            )
+            if result.returncode == 0:
+                output = result.stdout.strip().split('\n')[0]
+                name, vram_mb = output.split(',')
+                vram_gb = float(vram_mb.strip()) / 1024.0
+                return name.strip(), vram_gb
+        except Exception:
+            pass
+
+        return None, 0.0
 
     def setup_ui(self):
         """Sets up the layout"""
@@ -321,25 +351,48 @@ class AnalysisDialog(QDialog):
         self.cb_images.setChecked(True)
         self.cb_images.setVisible(False)
 
+        # --- DETEKCJA GPU I OSTRZEŻENIE VRAM ---
+        gpu_name, vram_gb = self._check_gpu_vram()
+        self.gpu_info_label = QLabel()
+        self.gpu_info_label.setWordWrap(True)
+        
+        if gpu_name:
+            if vram_gb >= 8.0:
+                color = "#2CA05A" # Zielony - rekomendowane
+                rec_text = f"Wykryto GPU: <b>{gpu_name}</b> ({vram_gb:.1f} GB VRAM).<br>Tryb dokładny (AI) powinien działać płynnie."
+            else:
+                color = "#D32F2F" # Czerwony - ostrzeżenie
+                rec_text = f"Wykryto GPU: <b>{gpu_name}</b> ({vram_gb:.1f} GB VRAM).<br><b>Uwaga:</b> Zalecane minimum to 8 GB VRAM. Tryb dokładny może działać powoli lub nie zadziałać."
+        else:
+             color = "#D32F2F"
+             rec_text = "<b>Brak wspieranego GPU (NVIDIA).</b><br>Tryb dokładny użyje procesora (CPU) i analiza będzie trwała bardzo długo."
+             
+        self.gpu_info_label.setText(rec_text)
+        self.gpu_info_label.setStyleSheet(f"font-size: 11px; color: {color}; margin-top: 4px; background: transparent; border: none;")
+        self.gpu_info_label.setVisible(False) # Domyślnie schowane, bo zaznaczony jest tryb szybki
+
         modes_layout.addWidget(self.btn_szybki)
         modes_layout.addWidget(self.btn_dokladny)
 
         mode_section.addWidget(mode_title)     
         mode_section.addLayout(modes_layout)  
         mode_section.addWidget(self.cb_images)
+        mode_section.addWidget(self.gpu_info_label)
 
         def _on_szybki_clicked():
             self.btn_dokladny.setChecked(False)
             self.cb_images.setVisible(False)
+            self.gpu_info_label.setVisible(False)
             
         def _on_dokladny_clicked():
             self.btn_szybki.setChecked(False)
             self.cb_images.setVisible(True)
+            self.gpu_info_label.setVisible(True)
             
         self.btn_szybki.clicked.connect(_on_szybki_clicked)
         self.btn_dokladny.clicked.connect(_on_dokladny_clicked)
 
-        # 5. Dopięcie do głównego układu
+        # Dopięcie do głównego układu
         config_layout.addLayout(mode_section)
         config_layout.addStretch(1)
         self.main_layout.addWidget(self.config_widget)
