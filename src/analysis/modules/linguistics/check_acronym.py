@@ -58,14 +58,19 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
     }
     quote_marks = {'"', '„', '”', '«', '»', '“', '‟', '‘', '’'}
     category = "ACRONYM_UNDEFINED"
-    message = "Skrót nie został zdefiniowany przed jego użyciem."
+    message_pol = "Skrót nie został zdefiniowany przed jego użyciem."
+    message_eng="Acronym was not defined before its use."
     matches = []
     reported_acronyms = set()
     no_parenthesis = re.compile(r'\b([A-Z]{2,})\s*\((?:ang\.|pol\.|fr\.)\s+([^)]{3,}?)(?=[,;]|\s{2,}[A-Z]{2})', re.UNICODE)
     roman_numeral = re.compile(r'^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$')
-    
+
     for b in blocks:
         block = b.block
+        if block.language == "pl":
+            message = message_pol
+        else:
+            message = message_eng
         if block.type in {"math", "code_snippet", "toc", "tot", "tof"}:
             continue
         if block.type in {"paragraph", "list", "heading"}:
@@ -92,8 +97,7 @@ def check_if_was_defined(blocks, acronyms_with_definitions, proper_names):
                 if roman_numeral.match(clean_text):
                     prev_word = word
                     continue
-                if b.language == "pl":
-                    if typo_check(clean_text):
+                if typo_check(clean_text):
                         prev_word = word
                         continue
                 if block.type == "heading":

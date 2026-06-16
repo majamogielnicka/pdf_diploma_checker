@@ -90,4 +90,4 @@ def check_item(full_text, last_item, second_to_last, text_language, sentence_sty
             return full_text.endswith((".", ':')) or (is_en and full_text[-1].isalnum())
         if second_to_last and is_en:
             return full_text.endswith(("; and", "; or", ",", ";", ", and", ", or", ":")) or full_text[-1].isalnum()
-        return full_text.endswith((";", ",", ":")) or (is_en and full_text[-1].isalnum())
+        return full_text.endswith((";", ",", ":")) or (is_verb and full_text.endswith(".")) or (is_en and full_text[-1].isalnum())

@@ -2,15 +2,22 @@ from .check_item_in_list import check_item, has_verb, is_upper_and_dot
 from .helpers import add_match
 import re
 
-def add_list_error(items_by_id, num, block_id, category):
+def add_list_error(items_by_id, num, block_id, category, lang):
     """
     Creates and returns an error match object for a specific list item and category.
     """
 
-    Category_and_message = {
+    if lang =="pl":
+        Category_and_message = {
         "LIST_CASING": "Niepoprawna wielkość litery na początku elementu wyliczenia.",
         "LIST_ENDING": "Niepoprawne zakończenie elementu wyliczenia.",
     }
+    else:
+        Category_and_message = {
+        "LIST_CASING": "Incorrect casing at the beginning of a list item.",
+        "LIST_ENDING": "Incorrect ending of a list item.",
+    }
+
     item = items_by_id[num]
     if not item.words:
         return None
@@ -57,12 +64,12 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
         if any(h in current_heading for h in ["LISTA SKRÓTÓW", "WYKAZ SKRÓTÓW", "SPIS TREŚCI", "SPIS RYSUNKÓW", "SPIS TABEL", "BIBLIOGRAFIA"]):
             continue
         language = b.language
+        msg_language = getattr(block, 'language', None) or language
         if block.type == "list":            
             casing_error_ids = []
             ending_error_ids = []
             items_by_id = {}
             marker_error_ids = set()
-
             for item in block.items:
                 items_by_id[item.item_id] = item
             quote_close = {'"', '»', '”', '’', '"', ')'}
@@ -218,11 +225,11 @@ def check_coherence_in_list(blocks, proper_names, acronyms):
                         ending_error_ids.append(item.item_id)
                 
             for num in casing_error_ids:
-                error = add_list_error(items_by_id, num, block.block_id, "LIST_CASING")
+                error = add_list_error(items_by_id, num, block.block_id, "LIST_CASING", msg_language)
                 if error:
                     matches.append(error)
             for num in ending_error_ids:
-                error = add_list_error(items_by_id, num, block.block_id, "LIST_ENDING")
+                error = add_list_error(items_by_id, num, block.block_id, "LIST_ENDING", msg_language)
                 if error:
                     matches.append(error)
 

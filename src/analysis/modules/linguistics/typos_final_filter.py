@@ -1,6 +1,3 @@
-'''
-Funkcja sprawdzająca czy błąd typograficzny po złączeniu z najbliższymi spanami dalej jest błędem typograficznym
-'''
 import json
 import re
 from .language_error_extractor import typo_check
@@ -10,10 +7,9 @@ def is_word_correct(word, language):
     return typo_check(word)
 
 def refine_typos(errors, blocks, output_json="typos.json"):
-    """
-    Post-processing błędów. Przechodzi przez literówki i sprawdza, 
-    czy po złączeniu ze słowami obok przestają być błędami.
-    """
+    '''
+    Error post-processing. It sifts through typos and checks whether they cease to be errors when combined with adjacent words.
+    '''
     block_info_map = {}
     for b in blocks:
         if b.block.type not in {"acronym", "keywords"}:

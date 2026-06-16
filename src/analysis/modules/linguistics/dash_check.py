@@ -25,10 +25,14 @@ def dash_check(blocks):
         if unit.type in {"acronyms", "toc", "tof", "tot"}:
             for word in unit.words:
                 if word.text == '-':
+                    if block.block.language == 'en':
+                        message = "Hyphen instead of en dash in a definition."
+                    else:
+                        message = "Dywiz zamiast półpauzy w definicji."
                     errors.append(Error_type(
                         content='-',
                         category="PUNCTUATION",
-                        message="Dywiz zamiast półpauzy w definicji.",
+                        message=message,
                         offset=word.start_char,
                         error_length=1,
                         block_id=unit.block_id,
@@ -49,10 +53,14 @@ def dash_check(blocks):
                             pos_after < len(text) and text[pos_after].isalpha()):
                         continue
                 start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
+                if block.block.language == 'en':
+                    message = "Hyphen instead of en dash or spaces around the hyphen in a hyphenated name."
+                else:
+                    message = "Dywiz zamiast półpauzy lub spacje wokół dywizu w nazwie łączonej."
                 errors.append(Error_type(
                     content=m.group(),
                     category="PUNCTUATION",
-                    message="Dywiz zamiast półpauzy lub spacje wokół dywizu w nazwie łączonej.",
+                    message= message,
                     offset=m.start(),
                     error_length=len(m.group()),
                     block_id=unit.block_id,
@@ -67,10 +75,14 @@ def dash_check(blocks):
             match = re.search(r'—', text)
             if match:
                 start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, match.start(), 1)
+                if block.block.language == 'en':
+                    message = "Inconsistency: the text uses both en dashes and em dashes."
+                else:
+                    message = "Niekonsekwencja: w tekście użyto zarówno półpauz, jak i pauz."
                 errors.append(Error_type(
                     content="– / —",
                     category="PUNCTUATION",
-                    message="Niekonsekwencja: w tekście użyto zarówno półpauz, jak i pauz.",
+                    message= message,
                     offset=match.start(),
                     error_length=1,
                     block_id=unit.block_id,
@@ -86,10 +98,14 @@ def dash_check(blocks):
             # Sprawdzamy czy to nie jest zakres dat (cyfra-cyfra), co jest dopuszczalne
             if not (re.match(r'\d', m.group(1) or "") and re.match(r'\d', m.group(2) or "")):
                 start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
+                if block.block.language == 'en':
+                    message = "Missing space around dash in interjection."
+                else:
+                    message = "Brak spacji wokół myślnika we wtrąceniu."
                 errors.append(Error_type(
                     content=m.group(),
                     category="PUNCTUATION",
-                    message="Brak spacji wokół myślnika we wtrąceniu.",
+                    message=message,
                     offset=m.start(),
                     error_length=len(m.group()),
                     block_id=unit.block_id,
@@ -107,10 +123,14 @@ def dash_check(blocks):
                 content = m.group()
                 if '-' in content or ' ' in content:
                     start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(content))
+                    if block.block.language == 'en':
+                        message = "English dates do not use spaces around en dashes (–)."
+                    else:
+                        message = "W angielskich datach nie używa się spacji wokół półpauzy (–)."
                     errors.append(Error_type(
                         content=content,
                         category="PUNCTUATION",
-                        message="W angielskich datach nie używa się spacji wokół półpauzy (–).",
+                        message=message,
                         offset=m.start(),
                         error_length=len(content),
                         block_id=unit.block_id,
@@ -124,10 +144,14 @@ def dash_check(blocks):
             date_space_regex = r'(\d+\s+[–-]\s+\d+)'
             for m in re.finditer(date_space_regex, text):
                 start_page, end_page, word_idxs, error_coordinare = get_match_info(unit, m.start(), len(m.group()))
+                if block.block.language == 'en':
+                    message = "In Polish date/number ranges, no spaces are used around the dash."
+                else:
+                    message = "W polskich zakresach dat/liczb nie używa się spacji wokół myślnika."     
                 errors.append(Error_type(
                     content=m.group(),
                     category="PUNCTUATION",
-                    message="W polskich zakresach dat/liczb nie używa się spacji wokół myślnika.",
+                    message=message,
                     offset=m.start(),
                     error_length=len(m.group()),
                     block_id=unit.block_id,
