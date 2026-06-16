@@ -125,14 +125,6 @@ class AnalysisPipeline:
             original_lt = None
             try:
                 import language_tool_python
-                print("[PIPELINE] Uruchamianie serwera językowego (LanguageTool)...")
-                _tool = language_tool_python.LanguageTool(language)
-                print("[PIPELINE] Serwer gotowy.")
-                original_lt = language_tool_python.LanguageTool
-                class DummyLanguageTool:
-                    def __new__(cls, *args, **kwargs):
-                        return _tool
-                language_tool_python.LanguageTool = DummyLanguageTool
 
             except Exception as e:
                 print(f"[PIPELINE] Ostrzeżenie przy starcie LanguageTool: {e}")
