@@ -114,7 +114,7 @@ $$
 s_i = \cos(\mathrm{emb}(G), \mathrm{emb}(T_i))
 $$
 
-Podrozdziały, których podobieństwo nie przekracza progu $\tau$ (dobieranego empirycznie, np. `0.45`), uznawane są za słabo związane z celem. Jeśli $K$ z $N$ podrozdziałów nie przekracza progu, to:
+Podrozdziały, których podobieństwo nie przekracza progu $\tau$, uznawane są za słabo związane z celem. Jeśli $K$ z $N$ podrozdziałów nie przekracza progu, to:
 
 $$
 S_{\mathrm{emb}} = 100 - \frac{K}{N} \cdot 100
@@ -173,8 +173,162 @@ Narzędzie dodatkowo pozwala na weryfikację, czy każdy typ wpisu zawiera wymag
 
 ## Instalacja, konfiguracja i użycie
 
-[Przewodnik konfiguracji](./user_guide.md)  
+### 1. Przed uruchomieniem aplikacji
 
+Przed rozpoczęciem analizy upewnij się, że:
+
+1. Aplikacja została poprawnie zainstalowana lub rozpakowana.
+2. Plik `app_config.json` znajduje się we właściwej lokalizacji.
+3. Wymagane modele lokalne są dostępne.
+4. Plik PDF, który chcesz przeanalizować, jest gotowy.
+5. W aplikacji wybrano poprawny język pracy dyplomowej.
+
+Aplikacji nie należy uruchamiać bezpośrednio z wnętrza archiwum ZIP. Najpierw rozpakuj pakiet.
+
+### 2. Plik konfiguracyjny
+
+Aplikacja wymaga pliku konfiguracyjnego o nazwie:
+
+```text
+app_config.json
+```
+
+Plik ten odpowiada za podstawowe ustawienia aplikacji, takie jak katalog modeli oraz tryb sprzętowy.
+
+Przykładowe pliki:
+
+```text
+cpu_config.json
+gpu_config.json
+```
+
+są jedynie szablonami. Aby skorzystać z jednego z nich, skopiuj go i zmień nazwę kopii na:
+
+```text
+app_config.json
+```
+
+Jeśli plik `app_config.json` nie istnieje lub ma inną nazwę, aplikacja może nie uruchomić się poprawnie.
+
+### 3. Lokalizacje modeli i plików
+
+Aplikacja korzysta z plików lokalnych przechowywanych na komputerze użytkownika.
+
+Przed uruchomieniem analizy upewnij się, że plik konfiguracyjny wskazuje na właściwy katalog modeli oraz że wymagane pliki modeli są dostępne.
+
+### Lokalizacja pliku konfiguracyjnego
+
+Plik konfiguracyjny musi znajdować się w głównym katalogu aplikacji.
+
+Przykład:
+
+```text
+pdf_diploma_checker/
+├── app_config.json
+├── cpu_config.json
+├── gpu_config.json
+├── src/
+├── requirements.txt
+└── README.md
+```
+
+Pliki:
+
+```text
+cpu_config.json
+gpu_config.json
+```
+
+są wyłącznie szablonami. Można je skopiować i zmienić ich nazwę na:
+
+```text
+app_config.json
+```
+
+### Lokalizacja katalogu modeli
+
+Katalog modeli jest zdefiniowany w pliku `app_config.json` w polu:
+
+```json
+"model_dir": "PATH_TO_MODELS_DIR"
+```
+
+Przykład w systemie Windows:
+
+```json
+"model_dir": "C:/Users/YOUR_USERNAME/models"
+```
+
+Przykład w systemie Linux:
+
+```json
+"model_dir": "/home/YOUR_USERNAME/models"
+```
+
+Ścieżka powinna wskazywać na główny folder zawierający wszystkie wymagane lokalne pliki modeli.
+
+### Wymagana struktura modeli
+
+Katalog modeli powinien mieć następującą strukturę:
+
+```text
+PATH_TO_MODELS_DIR/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+Na przykład w systemie Linux:
+
+```text
+/home/YOUR_USERNAME/models/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+Na przykład w systemie Windows:
+
+```text
+C:/Users/YOUR_USERNAME/models/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+### Wymagania techniczne
+W pliku konfiguracyjnym należy ustalić liczbę warstw sieci neuronowej, która zostanie wyładowana na GPU.  
+Wartość -1 odpowiada wyładowaniu wszystkich warstw modelu na GPU.  
+Im więcej warstw na GPU, tym szybsza inferencja, ale tym więcej potrzeba pamięci karty graficznej.  
+Rekomendowana liczba warstw GPU (`n_gpu_layers`) dla wartości VRAM:
+
+| GPU VRAM | Zalecana liczba warstw GPU |
+|---|---|
+| 3 GB | 5 |
+| 4 GB | 8 |
+| 6 GB | 15 |
+| 8 GB | 25 |
+| 12 GB | 32 |
+| 16 GB | 35 |
+| >=24 GB | -1 |   
+
+Jeśli występuje błąd CUDA memmory, należy zmniejszyć ilość `n_gpu_layers`.
+
+---
+## Zastrzeżenie
+
+- Aplikacja jest narzędziem wspomagającym analizę pracy dyplomowej.
+
+- Nie zastępuje ona oceny dokonywanej przez człowieka.
+
+- Wyniki, zwłaszcza ocena merytoryczna, powinny być traktowane jako sugestie i wskazówki.
+
+- Użytkownik jest odpowiedzialny za interpretację i weryfikację wygenerowanych wyników.
+
+- Nie zaleca się korzystania z trybu dokładnego na kartach graficznych innych niż NVIDIA.
 
 ---
 <div align="center">  
@@ -182,6 +336,7 @@ Narzędzie dodatkowo pozwala na weryfikację, czy każdy typ wpisu zawiera wymag
 <a id="english"></a>   
 
 # pdf_diploma_checker
+
 
 **Automated quality control for academic theses in PDF – typography, language and content**
 
@@ -194,7 +349,7 @@ Narzędzie dodatkowo pozwala na weryfikację, czy każdy typ wpisu zawiera wymag
 **pdf_diploma_checker** takes a thesis in PDF generated from:
 MS Word Online / Office 365,
 MS Word 2019+,
-LaTeX2e/LaTeX3 (pdfLaTeX / XeLaTeX / LuaLaTeX) and runs a battery of automated checks – from line spacing and margins, through Polish grammar and sentence syntax, to bibliography coherence against PN-ISO 690 – returns a PDF with comments and a detailed report fie.
+LaTeX2e/LaTeX3 (pdfLaTeX / XeLaTeX / LuaLaTeX) and runs a battery of automated checks – from line spacing and margins, through grammar and sentence syntax, to bibliography coherence against PN-ISO 690 – returns a PDF with comments and a detailed report file.
 
 The tool works in two modes:
 
@@ -293,7 +448,7 @@ $$
 s_i = \cos(\mathrm{emb}(G), \mathrm{emb}(T_i))
 $$
 
-Subsections whose similarity does not exceed a threshold $\tau$ (chosen empirically, e.g. `0.45`) are considered weakly related to the goal. If $K$ out of $N$ subsections fall below the threshold:
+Subsections whose similarity does not exceed a threshold $\tau$ are considered weakly related to the goal. If $K$ out of $N$ subsections fall below the threshold:
 
 $$
 S_{\mathrm{emb}} = 100 - \frac{K}{N} \cdot 100
@@ -354,6 +509,161 @@ The tool additionally offers verification of that each entry type contains its r
 
 ## Installation, setup and usage
 
-[Config guide](./user_guide.md)  
+### 1. Before running the application
+
+Before starting the analysis, make sure that:
+
+1. The application has been installed or extracted correctly.
+2. The `app_config.json` file is present in the correct location.
+3. The required local models are available.
+4. The PDF file you want to analyze is ready.
+5. The correct language of the thesis is selected in the application.
+
+The application should not be run directly from inside a ZIP archive. Extract the package first.
+
+### 2. Configuration file
+
+The application requires a configuration file named:
+
+```text
+app_config.json
+```
+
+This file is responsible for basic application settings, such as the model directory and hardware mode.
+
+The example files:
+
+```text
+cpu_config.json
+gpu_config.json
+```
+
+are templates only. To use one of them, copy it and rename the copy to:
+
+```text
+app_config.json
+```
+
+If `app_config.json` is missing or has a different name, the application may not start correctly.
+
+### 3. Model and file locations
+
+The application uses local files stored on the user's computer.
+
+Before running the analysis, make sure that the configuration file points to the correct model directory and that the required model files are available.
+
+### Configuration file location
+
+The configuration file must be placed in the main application directory.
+
+Example:
+
+```text
+pdf_diploma_checker/
+├── app_config.json
+├── cpu_config.json
+├── gpu_config.json
+├── src/
+├── requirements.txt
+└── README.md
+```
+
+The files:
+
+```text
+cpu_config.json
+gpu_config.json
+```
+
+are only templates. They can be copied and renamed to:
+
+```text
+app_config.json
+```
+
+### Model directory location
+
+The model directory is defined in `app_config.json` using the field:
+
+```json
+"model_dir": "PATH_TO_MODELS_DIR"
+```
+
+Example on Windows:
+
+```json
+"model_dir": "C:/Users/YOUR_USERNAME/models"
+```
+
+Example on Linux:
+
+```json
+"model_dir": "/home/YOUR_USERNAME/models"
+```
+
+The path should point to the main folder containing all required local model files.
+
+### Required model structure
+
+The model directory should have the following structure:
+
+```text
+PATH_TO_MODELS_DIR/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+For example, on Linux:
+
+```text
+/home/YOUR_USERNAME/models/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+
+For example, on Windows:
+
+```text
+C:/Users/YOUR_USERNAME/models/
+├── gemma3_12b/
+│   └── google_gemma-3-12b-it-Q4_K_M.gguf
+├── llava-v1.6-mistral-7b.Q4_K_M.gguf
+└── mmproj-model-f16.gguf
+```
+### Technical requirements
+
+In the configuration file, you need to set the number of neural network layers to be offloaded to the GPU.   
+A value of -1 means all of the model's layers are offloaded to the GPU.   
+The more layers on the GPU, the faster the inference, but the more GPU memory is required.   
+Recommended number of GPU layers (`n_gpu_layers`) per VRAM amount:  
+ 
+| GPU VRAM | Recommended number of GPU layers |
+|---|---|
+| 3 GB | 5 |
+| 4 GB | 8 |
+| 6 GB | 15 |
+| 8 GB | 25 |
+| 12 GB | 32 |
+| 16 GB | 35 |
+| >= 24 GB | -1 |
+ 
+If a CUDA out-of-memory error occurs, reduce the number of `n_gpu_layers`.
+
+---
+## Disclaimer
+
+- The application is a supporting tool for diploma thesis analysis.
+
+- It does not replace human review.
+
+- The results, especially merit assessment, should be treated as suggestions and indicators.
+
+- The user is responsible for interpreting and verifying the generated results.
+
+- Using the detailed mode on non-NVIDIA graphics cards is not recommended.
 
 ---
