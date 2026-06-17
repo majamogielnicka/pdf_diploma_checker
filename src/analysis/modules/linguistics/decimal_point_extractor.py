@@ -89,9 +89,15 @@ def check_decimal_matches(potential_matches, block, chapter_numbers, error_toler
             is_error = 0
         if is_error>= error_tolerance:
             if is_error == 2:
-                error_message = "Niepoprawny separator dziesiętny"
+                if block.block.language == 'en':
+                    error_message = "Wrong decimal separator."
+                else:
+                    error_message = "Niepoprawny separator dziesiętny."
             else:
-                error_message = "Możliwe zastosowanie błędnego separatora dziesiętnego"
+                if block.block.language == 'en':
+                    error_message = "Possible use of an incorrect decimal separator."
+                else:
+                    error_message = "Możliwe zastosowanie błędnego separatora dziesiętnego."
 
             match.message = error_message
             checked_matches.append(match)

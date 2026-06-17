@@ -1,13 +1,7 @@
 import sys
 import os
 import datetime
-
-import sys
-import os
 from common.path import resource_path
-
-import os
-import sys
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -136,15 +130,23 @@ class PDFReader(QMainWindow):
         into the reading/annotation viewport."""
         self.load_pdf(path)
         if self.document.status() == QPdfDocument.Status.Ready:
+            report_data = None
+            for p in self.manager.data.get("documents", []):
+                if p.get('local_path') == path:
+                    report_data = p.get("sota_result")
+                    break
+                    
+            lang = report_data.get("language", "pl") if report_data else "pl"
+            
             errors = self.manager.get_errors(path)
             if errors:
-                self.pdf_view.add_errors(errors)
+                self.pdf_view.add_errors(errors, lang=lang)
                 if hasattr(self.pdf_view, 'update_markers_pos'):
                     self.pdf_view.update_markers_pos()
                 else:
                     self.pdf_view.update()
+                    
             self.load_ai_analysis()
-
             self.stack.setCurrentIndex(1)
 
     def setup_reader_ui(self):
@@ -281,14 +283,19 @@ class PDFReader(QMainWindow):
             
             final_rep_obj = getattr(dialog, 'final_report', None)
             errors = []
-            report_data = None
+            report_data = {}
+            lang = "pl"
             
             if isinstance(final_rep_obj, dict):
                 errors = final_rep_obj.get("errors", [])
-                report_data = final_rep_obj.get("sota", None)
+                report_data = final_rep_obj.get("sota") or {}
+                lang = final_rep_obj.get("language", "pl")
             elif final_rep_obj is not None:
                 errors = getattr(final_rep_obj, "linguistics_errors", [])
-                report_data = getattr(final_rep_obj, "llm_result", None)
+                report_data = getattr(final_rep_obj, "llm_result", {}) or {}
+                lang = report_data.get("language", "pl")
+
+            report_data["language"] = lang
 
             self.manager.save_errors(path, errors)
             self.manager.save_ai_result(path, report_data)
@@ -296,7 +303,7 @@ class PDFReader(QMainWindow):
             self.stack.setCurrentIndex(1)
             
             if errors:
-                self.pdf_view.add_errors(errors)
+                self.pdf_view.add_errors(errors, lang=lang)
                 if hasattr(self.pdf_view, 'update_markers_pos'):
                     self.pdf_view.update_markers_pos()
                 else:
@@ -717,6 +724,66 @@ class PDFReader(QMainWindow):
     def generate_detailed_report(self):
         """Builds a comprehensive multi-page standalone validation PDF report, inserting customized 
         TrueType text streams, criteria checkpoints, image tracking logs, and syntax metrics."""
+        
+        LANG_DICT = {
+            "pl": {
+                "yes_upper": "TAK", "no_upper": "NIE", "error": "Błąd", "success": "Sukces",
+                "warning": "Ostrzeżenie", "unknown_fig": "Nieznany rysunek", "no_format": "Brak formatu",
+                "no_title": "Brak tytułu", "panel_pts": "pkt", "panel_fig_prefix": "Rys.",
+                "rep_no_data_warn": "Brak danych szczegółowej analizy merytorycznej dla tego dokumentu.",
+                "rep_file_prefix": "Raport_Merytoryczny_", "rep_dialog_title": "Zapisz Raport Szczegółowy",
+                "rep_main_title": "Szczegółowy Raport Analizy Merytorycznej", "rep_doc_label": "Dokument:",
+                "rep_eval_title": "Ogólna ocena merytoryczna", "rep_score_lbl": "Wynik punktowy:",
+                "rep_off_topic_lbl": "Podrozdziały poza tematem:", "rep_off_topic_ident": "Zidentyfikowane sekcje niezgodne z celem pracy:",
+                "rep_theory_title": "Weryfikacja merytoryczna rozdziału teoretycznego", "rep_chapter_analyzed": "Analizowany rozdział:",
+                "rep_completion_lvl": "Poziom realizacji wytycznych:", "rep_crit_1": "Analiza i ocena istniejących rozwiązań:",
+                "rep_crit_2": "Wskazanie luki badawczej lub problemu naukowego:", "rep_crit_3": "Synteza i krytyczne porównanie metod:",
+                "rep_ai_eval_title": "Ogólna ocena merytoryczna (AI)", "rep_skipped_fast": "Analiza została pominięta (wybrano Tryb Szybki).",
+                "rep_img_title": "Analiza spójności grafik i wykresów (AI)", "rep_img_total": "Wszystkich zweryfikowanych rysunków:",
+                "rep_img_bad": "Rysunki z błędnym opisem w tekście:", "rep_img_good": "Rysunki poprawne:",
+                "rep_raster_ident": "Zidentyfikowane grafiki rastrowe podlegające badaniu:", "rep_img_details": "Lista szczegółowa rozbieżności:",
+                "rep_qual_title": "Ocena jakości obrazów (DPI i czytelność)", "rep_qual_all_ok": "Wszystkie obrazy mają odpowiednią jakość i czytelność.",
+                "rep_qual_err_1": "Wykryto problemy z jakością w", "rep_qual_err_2": "obrazach:", "rep_format_lbl": "Format:",
+                "rep_fonts_title": "Spójność czcionek na obrazach", "rep_fonts_all_ok": "Brak wykrytych problemów ze spójnością czcionek na rysunkach.",
+                "rep_fonts_err_1": "Wykryto problemy z czcionkami w", "rep_fonts_err_2": "elementach:",
+                "rep_img_skip_title": "Ocena jakości obrazów i czcionek", "rep_img_skip_desc": "Analiza została pominięta na życzenie użytkownika lub dokument nie zawiera grafik.",
+                "rep_stats_title": "Analiza statystyczna struktury zdań", "rep_stats_desc": "Struktura gramatyczna i stylistyczna badanej pracy dyplomowej:",
+                "rep_active_lbl": "Zdania w stronie czynnej:", "rep_active_desc": "Zalecana forma wypowiedzi w tekstach naukowych podnosząca dynamikę wywodu.",
+                "rep_passive_lbl": "Zdania w stronie biernej:", "rep_passive_desc": "Stosowana przy opisie procedur badawczych oraz stanu wiedzy.",
+                "rep_verbless_lbl": "Równoważniki zdań:", "rep_verbless_desc": "Konstrukcje bezorzecznikowe, dopuszczalne głównie w nagłówkach i spisach.",
+                "rep_stats_no_data": "Brak dostępnych danych statystycznych (uruchom analizę w Trybie Dokładnym).",
+                "rep_footer_date": "Data:", "rep_success_saved": "Raport został zapisany pomyślnie:\n{}", "rep_err_gen": "Błąd podczas generowania raportu:\n{}"
+            },
+            "en": {
+                "yes_upper": "YES", "no_upper": "NO", "error": "Error", "success": "Success",
+                "warning": "Warning", "unknown_fig": "Unknown figure", "no_format": "No format",
+                "no_title": "No title", "panel_pts": "pts", "panel_fig_prefix": "Fig.",
+                "rep_no_data_warn": "No detailed substantive analysis data for this document.",
+                "rep_file_prefix": "Content_Report_", "rep_dialog_title": "Save Detailed Report",
+                "rep_main_title": "Detailed Content Analysis Report", "rep_doc_label": "Document:",
+                "rep_eval_title": "Overall Content Evaluation", "rep_score_lbl": "Score:",
+                "rep_off_topic_lbl": "Off-topic subsections:", "rep_off_topic_ident": "Identified sections irrelevant to the thesis objective:",
+                "rep_theory_title": "Theoretical Chapter Verification", "rep_chapter_analyzed": "Analyzed chapter:",
+                "rep_completion_lvl": "Guideline completion level:", "rep_crit_1": "Analysis and evaluation of existing solutions:",
+                "rep_crit_2": "Identification of research gap or problem:", "rep_crit_3": "Synthesis and critical comparison of methods:",
+                "rep_ai_eval_title": "Overall Content Evaluation (AI)", "rep_skipped_fast": "Analysis skipped (Fast Mode selected).",
+                "rep_img_title": "Graphics and Charts Consistency Analysis (AI)", "rep_img_total": "Total verified figures:",
+                "rep_img_bad": "Figures with incorrect textual description:", "rep_img_good": "Correct figures:",
+                "rep_raster_ident": "Identified raster graphics subject to analysis:", "rep_img_details": "Detailed list of discrepancies:",
+                "rep_qual_title": "Image Quality Assessment (DPI & Legibility)", "rep_qual_all_ok": "All images have adequate quality and legibility.",
+                "rep_qual_err_1": "Quality issues detected in", "rep_qual_err_2": "images:", "rep_format_lbl": "Format:",
+                "rep_fonts_title": "Font Consistency in Images", "rep_fonts_all_ok": "No font consistency issues detected in figures.",
+                "rep_fonts_err_1": "Font issues detected in", "rep_fonts_err_2": "elements:",
+                "rep_img_skip_title": "Image Quality and Fonts Assessment", "rep_img_skip_desc": "Analysis skipped by user request or document contains no graphics.",
+                "rep_stats_title": "Sentence Structure Statistical Analysis", "rep_stats_desc": "Grammatical and stylistic structure of the analyzed thesis:",
+                "rep_active_lbl": "Active voice sentences:", "rep_active_desc": "Recommended form of expression in academic texts, enhancing narrative dynamics.",
+                "rep_passive_lbl": "Passive voice sentences:", "rep_passive_desc": "Used when describing research procedures and state of knowledge.",
+                "rep_verbless_lbl": "Sentence equivalents:", "rep_verbless_desc": "Verbless constructions, acceptable mainly in headers and lists.",
+                "rep_stats_no_data": "No statistical data available (run analysis in Detailed Mode).",
+                "rep_footer_date": "Date:", "rep_success_saved": "Report saved successfully:\n{}", "rep_err_gen": "Error during report generation:\n{}"
+            }
+        }
+
         report_data = None
         if hasattr(self, 'current_pdf_path'):
             for p in self.manager.data.get("documents", []):
@@ -724,12 +791,15 @@ class PDFReader(QMainWindow):
                     report_data = p.get("sota_result")
                     break
 
+        lang = report_data.get("language", "pl") if report_data else "pl"
+        t = LANG_DICT.get(lang, LANG_DICT["pl"])
+
         if not report_data:
-            QMessageBox.warning(self, "Ostrzezenie", "Brak danych szczegolowej analizy merytorycznej dla tego dokumentu.")
+            QMessageBox.warning(self, t.get("warning", "Ostrzeżenie"), t["rep_no_data_warn"])
             return
 
-        default_name = f"Raport_Merytoryczny_{os.path.basename(self.current_pdf_path)}"
-        save_path, _ = QFileDialog.getSaveFileName(self, "Zapisz Raport Szczegolowy", default_name, "Pliki PDF (*.pdf)")
+        default_name = f"{t['rep_file_prefix']}{os.path.basename(self.current_pdf_path)}"
+        save_path, _ = QFileDialog.getSaveFileName(self, t["rep_dialog_title"], default_name, "Pliki PDF (*.pdf)")
         
         if not save_path:
             return
@@ -779,12 +849,13 @@ class PDFReader(QMainWindow):
                     lines.append(current_line.strip())
                 return lines
             
-            page.insert_text((margin, pos_y), "Szczegółowy Raport Analizy Merytorycznej", 
+            page.insert_text((margin, pos_y), t["rep_main_title"], 
                              fontsize=22, fontname=f_bold, color=(0.13, 0.58, 0.95))
             pos_y += 45
-            page.insert_text((margin, pos_y), f"Dokument: {os.path.basename(self.current_pdf_path)}", 
+            page.insert_text((margin, pos_y), f"{t['rep_doc_label']} {os.path.basename(self.current_pdf_path)}", 
                              fontsize=12, fontname=f_main, color=(0.2, 0.2, 0.2))
             pos_y += 40
+            
             content_grade = report_data.get('content_grade')
             has_llm_data = content_grade is not None
 
@@ -802,19 +873,19 @@ class PDFReader(QMainWindow):
                     p_off = 0
                     off_topic_headings = []
 
-                page.insert_text((margin, pos_y), "Ogólna ocena merytoryczna", 
+                page.insert_text((margin, pos_y), t["rep_eval_title"], 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
-                page.insert_text((margin, pos_y), f"Wynik punktowy: {grade} / {max_g} pkt", 
+                page.insert_text((margin, pos_y), f"{t['rep_score_lbl']} {grade} / {max_g} {t['panel_pts']}", 
                                  fontsize=12, fontname=f_main)
                 pos_y += 20
                 page.insert_text((margin, pos_y), 
-                                 f"Podrozdziały poza tematem: {off_topic} ({p_off}%)", 
+                                 f"{t['rep_off_topic_lbl']} {off_topic} ({p_off}%)", 
                                  fontsize=11, fontname=f_main)
                 pos_y += 25
 
                 if off_topic > 0 and off_topic_headings:
-                    page.insert_text((margin, pos_y), "Zidentyfikowane sekcje niezgodne z celem pracy:", 
+                    page.insert_text((margin, pos_y), t["rep_off_topic_ident"], 
                                      fontsize=11, fontname=f_bold, color=(0.86, 0.2, 0.27))
                     pos_y += 18
                     for heading in off_topic_headings:
@@ -830,74 +901,74 @@ class PDFReader(QMainWindow):
                     pos_y += 15
 
                 pos_y, page = check_new_page(pos_y, report_pdf, page)
-                page.insert_text((margin, pos_y), "Weryfikacja merytoryczna rozdziału teoretycznego", 
+                page.insert_text((margin, pos_y), t["rep_theory_title"], 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 
-                chapter_title = report_data.get('tytul', 'Brak tytułu')
-                page.insert_text((margin, pos_y), f"Analizowany rozdział: {chapter_title}", 
+                chapter_title = report_data.get('tytul', t["no_title"])
+                page.insert_text((margin, pos_y), f"{t['rep_chapter_analyzed']} {chapter_title}", 
                                  fontsize=12, fontname=f_main)
                 pos_y += 20
                 
                 score = report_data.get('ocena', 0)
-                page.insert_text((margin, pos_y), f"Poziom realizacji wytycznych: {score}%", 
+                page.insert_text((margin, pos_y), f"{t['rep_completion_lvl']} {score}%", 
                                  fontsize=12, fontname=f_main)
                 pos_y += 30
 
                 criteria = [
-                    ("Analiza i ocena istniejących rozwiązań:", report_data.get('r1')),
-                    ("Wskazanie luki badawczej lub problemu naukowego:", report_data.get('r2')),
-                    ("Synteza i krytyczne porównanie metod:", report_data.get('r3'))
+                    (t["rep_crit_1"], report_data.get('r1')),
+                    (t["rep_crit_2"], report_data.get('r2')),
+                    (t["rep_crit_3"], report_data.get('r3'))
                 ]
 
                 for label, met in criteria:
                     pos_y, page = check_new_page(pos_y, report_pdf, page)
-                    status = "TAK" if met else "NIE"
+                    status = t["yes_upper"] if met else t["no_upper"]
                     color = (0.17, 0.62, 0.35) if met else (0.86, 0.2, 0.27)
                     page.insert_text((margin + 20, pos_y), f"{label} {status}", 
                                      fontsize=11, fontname=f_bold if met else f_main, color=color)
                     pos_y += 20
             else:
-                page.insert_text((margin, pos_y), "Ogólna ocena merytoryczna (AI)", 
+                page.insert_text((margin, pos_y), t["rep_ai_eval_title"], 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
-                page.insert_text((margin, pos_y), "Analiza została pominięta (wybrano Tryb Szybki).", 
+                page.insert_text((margin, pos_y), t["rep_skipped_fast"], 
                                  fontsize=11, fontname=f_main, color=(0.5, 0.5, 0.5))
                 pos_y += 25
 
             pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
             img_data = report_data.get("image_analysis", {})
-            has_images_checked = img_data.get('total', 0) > 0
+            has_images_checked = img_data.get('total', 0) > 0 if isinstance(img_data, dict) else False
 
             if has_images_checked:
-                page.insert_text((margin, pos_y), "Analiza spójności grafik i wykresów (AI)", 
+                page.insert_text((margin, pos_y), t["rep_img_title"], 
                                  fontsize=14, fontname=f_bold)
                 pos_y += 25
                 
-                page.insert_text((margin, pos_y), f"Wszystkich zweryfikowanych rysunków: {img_data.get('total', 0)}", 
+                page.insert_text((margin, pos_y), f"{t['rep_img_total']} {img_data.get('total', 0)}", 
                                  fontsize=11, fontname=f_main)
                 pos_y += 18
                 
                 color_bad = (0.86, 0.2, 0.27) if img_data.get('bad_count', 0) > 0 else (0.2, 0.2, 0.2)
-                page.insert_text((margin, pos_y), f"Rysunki z błędnym opisem w tekście: {img_data.get('bad_count', 0)}", 
+                page.insert_text((margin, pos_y), f"{t['rep_img_bad']} {img_data.get('bad_count', 0)}", 
                                  fontsize=11, fontname=f_main, color=color_bad)
                 pos_y += 18
                 
-                page.insert_text((margin, pos_y), f"Rysunki poprawne: {img_data.get('good_count', 0)}", 
+                page.insert_text((margin, pos_y), f"{t['rep_img_good']} {img_data.get('good_count', 0)}", 
                                  fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                 pos_y += 25
 
-                raster_nums = img_data.get("image_raster", [])
+                raster_nums = img_data.get("raster_numbers", img_data.get("image_raster", []))
                 if raster_nums:
                     pos_y, page = check_new_page(pos_y, report_pdf, page)
-                    wrapped_header = wrap_text("Zidentyfikowane grafiki rastrowe podlegające badaniu:", 85)
+                    wrapped_header = wrap_text(t["rep_raster_ident"], 85)
                     for line in wrapped_header:
                         pos_y, page = check_new_page(pos_y, report_pdf, page)
                         page.insert_text((margin, pos_y), line, fontsize=10, fontname=f_bold, color=(0.05, 0.27, 0.63))
                         pos_y += 14
 
                     for n in raster_nums:
-                        wrapped_item = wrap_text(f"- Rys. {n}", 85)
+                        wrapped_item = wrap_text(f"- {t['panel_fig_prefix']} {n}", 85)
                         for line in wrapped_item:
                             pos_y, page = check_new_page(pos_y, report_pdf, page)
                             page.insert_text((margin + 10, pos_y), line, fontsize=10, fontname=f_main, color=(0.1, 0.1, 0.1))
@@ -908,7 +979,7 @@ class PDFReader(QMainWindow):
                     pos_y += 10
 
                 if img_data.get("details", []):
-                    page.insert_text((margin, pos_y), "Lista szczegółowa rozbieżności:", fontsize=12, fontname=f_bold)
+                    page.insert_text((margin, pos_y), t["rep_img_details"], fontsize=12, fontname=f_bold)
                     pos_y += 20
                     for line_text in img_data.get("details", []):
                         wrapped_lines = wrap_text(line_text, 90)
@@ -921,25 +992,25 @@ class PDFReader(QMainWindow):
                         pos_y += 4
 
                 pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-                page.insert_text((margin, pos_y), "Ocena jakości obrazów (DPI i czytelność)", fontsize=14, fontname=f_bold)
+                page.insert_text((margin, pos_y), t["rep_qual_title"], fontsize=14, fontname=f_bold)
                 pos_y += 25
 
                 quality_errors = report_data.get('jakosc_obrazkow', [])
                 if not quality_errors:
-                    page.insert_text((margin, pos_y), "Wszystkie obrazy mają odpowiednią jakość i czytelność.", 
+                    page.insert_text((margin, pos_y), t["rep_qual_all_ok"], 
                                      fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                     pos_y += 25
                 else:
-                    page.insert_text((margin, pos_y), f"Wykryto problemy z jakością w {len(quality_errors)} obrazach:", 
+                    page.insert_text((margin, pos_y), f"{t['rep_qual_err_1']} {len(quality_errors)} {t['rep_qual_err_2']}", 
                                      fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
                     pos_y += 20
                     for err in quality_errors:
                         pos_y, page = check_new_page(pos_y, report_pdf, page)
-                        rys = err.get("rysunek", "Nieznany rysunek")
-                        fmt = err.get("format", "Brak formatu")
+                        rys = err.get("rysunek", t["unknown_fig"])
+                        fmt = err.get("format", t["no_format"])
                         powody = err.get("powody_odrzucenia", [])
                         
-                        page.insert_text((margin + 15, pos_y), f"{rys} (Format: {fmt}):", fontsize=11, fontname=f_bold)
+                        page.insert_text((margin + 15, pos_y), f"{rys} ({t['rep_format_lbl']} {fmt}):", fontsize=11, fontname=f_bold)
                         pos_y += 16
                         for powod in powody:
                             wrapped_powod = wrap_text(powod, 85)
@@ -951,22 +1022,22 @@ class PDFReader(QMainWindow):
                         pos_y += 5
                 
                 pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-                page.insert_text((margin, pos_y), "Spójność czcionek na obrazach", fontsize=14, fontname=f_bold)
+                page.insert_text((margin, pos_y), t["rep_fonts_title"], fontsize=14, fontname=f_bold)
                 pos_y += 25
 
                 font_errors = report_data.get('czcionki_obrazkow', [])
                 if not font_errors:
-                    page.insert_text((margin, pos_y), "Brak wykrytych problemów ze spójnością czcionek na rysunkach.", 
+                    page.insert_text((margin, pos_y), t["rep_fonts_all_ok"], 
                                      fontsize=11, fontname=f_main, color=(0.17, 0.62, 0.35))
                     pos_y += 25
                 else:
-                    page.insert_text((margin, pos_y), f"Wykryto problemy z czcionkami w {len(font_errors)} elementach:", 
+                    page.insert_text((margin, pos_y), f"{t['rep_fonts_err_1']} {len(font_errors)} {t['rep_fonts_err_2']}", 
                                      fontsize=11, fontname=f_main, color=(0.86, 0.2, 0.27))
                     pos_y += 20
                     for err in font_errors:
                         if isinstance(err, dict):
                             pos_y, page = check_new_page(pos_y, report_pdf, page)
-                            rys = err.get("rysunek", "Nieznany rysunek")
+                            rys = err.get("rysunek", t["unknown_fig"])
                             errors = err.get("errors", err.get("powody_odrzucenia", [str(err)]))
                             
                             page.insert_text((margin + 15, pos_y), f"{rys}:", fontsize=11, fontname=f_bold)
@@ -989,24 +1060,25 @@ class PDFReader(QMainWindow):
                             pos_y += 5
             else:
                 pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-                page.insert_text((margin, pos_y), "Ocena jakości obrazów i czcionek", fontsize=14, fontname=f_bold)
+                page.insert_text((margin, pos_y), t["rep_img_skip_title"], fontsize=14, fontname=f_bold)
                 pos_y += 25
-                page.insert_text((margin, pos_y), "Analiza została pominięta na życzenie użytkownika lub dokument nie zawiera grafik.", 
+                page.insert_text((margin, pos_y), t["rep_img_skip_desc"], 
                                  fontsize=11, fontname=f_main, color=(0.5, 0.5, 0.5))
                 pos_y += 25
+
             stats_data = report_data.get("statystyki_zdan")
             
             if stats_data:
                 pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-                page.insert_text((margin, pos_y), "Analiza statystyczna struktury zdań", fontsize=14, fontname=f_bold)
+                page.insert_text((margin, pos_y), t["rep_stats_title"], fontsize=14, fontname=f_bold)
                 pos_y += 22
-                page.insert_text((margin + 15, pos_y), "Struktura gramatyczna i stylistyczna badanej pracy dyplomowej:", fontsize=10, fontname=f_main, color=(0.3, 0.3, 0.3))
+                page.insert_text((margin + 15, pos_y), t["rep_stats_desc"], fontsize=10, fontname=f_main, color=(0.3, 0.3, 0.3))
                 pos_y += 18
 
                 struktura_zdan = [
-                    (f"Zdania w stronie czynnej: {stats_data.get('active_ratio', '0%')}", "Zalecana forma wypowiedzi w tekstach naukowych podnosząca dynamikę wywodu."),
-                    (f"Zdania w stronie biernej: {stats_data.get('passive_ratio', '0%')}", "Stosowana przy opisie procedur badawczych oraz stanu wiedzy."),
-                    (f"Równoważniki zdań: {stats_data.get('verbless_ratio', '0%')}", "Konstrukcje bezorzecznikowe, dopuszczalne głównie w nagłówkach i spisach.")
+                    (f"{t['rep_active_lbl']} {stats_data.get('active_ratio', '0%')}", t["rep_active_desc"]),
+                    (f"{t['rep_passive_lbl']} {stats_data.get('passive_ratio', '0%')}", t["rep_passive_desc"]),
+                    (f"{t['rep_verbless_lbl']} {stats_data.get('verbless_ratio', '0%')}", t["rep_verbless_desc"])
                 ]
 
                 for label, opis in struktura_zdan:
@@ -1018,23 +1090,24 @@ class PDFReader(QMainWindow):
                     pos_y += 16
             else:
                 pos_y, page = check_new_page(pos_y + 15, report_pdf, page)
-                page.insert_text((margin, pos_y), "Analiza statystyczna struktury zdań", fontsize=14, fontname=f_bold)
+                page.insert_text((margin, pos_y), t["rep_stats_title"], fontsize=14, fontname=f_bold)
                 pos_y += 22
-                page.insert_text((margin + 15, pos_y), "Brak dostępnych danych statystycznych (uruchom analizę w Trybie Dokładnym).", fontsize=10, fontname=f_main, color=(0.5, 0.5, 0.5))
+                page.insert_text((margin + 15, pos_y), t["rep_stats_no_data"], fontsize=10, fontname=f_main, color=(0.5, 0.5, 0.5))
                 pos_y += 20
+
             pos_y, page = check_new_page(810, report_pdf, page)
-            page.insert_text((margin, 820), f"Data: {datetime.date.today()}", 
+            page.insert_text((margin, 820), f"{t['rep_footer_date']} {datetime.date.today()}", 
                              fontsize=9, fontname=f_main, color=(0.5, 0.5, 0.5))
 
             report_pdf.save(save_path)
             report_pdf.close()
             
-            QMessageBox.information(self, "Sukces", f"Raport zostal zapisany pomyslnie:\n{save_path}")
+            QMessageBox.information(self, t["success"], t["rep_success_saved"].format(save_path))
 
         except Exception as e:
             import traceback
             traceback.print_exc()
-            QMessageBox.critical(self, "Blad Eksportu", f"Blad podczas generowania raportu:\n{str(e)}")
+            QMessageBox.critical(self, t["error"], t["rep_err_gen"].format(str(e)))
 
     def delete_document(self, path):
         """Removes a document from the system index and updates the start page dashboard 

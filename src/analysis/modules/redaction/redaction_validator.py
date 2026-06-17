@@ -42,6 +42,7 @@ class Configuration:
             raise FileError(f"nieporpawny format jsona {config_path}")
     
     def _validateAndAssign(self, data: dict):
+        lang = getattr(self, "language", "pl")
         try:
             self.interlinia = float(data["interlinia"])
             self.min_stron = int(data["minimalna_liczba_stron"])
@@ -49,39 +50,64 @@ class Configuration:
             self.font_size = int(data["rozmiar_czcionki"])
             
             if self.min_stron > self.max_stron:
-                raise FileError("min_stron > max_stron, błąd konfiguracji")
+                if lang == "en":
+                    raise FileError("min_stron > max_stron, config error")
+                else: 
+                    raise FileError("min_stron > max_stron, błąd konfiguracji")
 
             if data["margines"].lower() not in ["lustrzany", "standardowy"]:
-                raise FileError("błędny margines, oczekiwano 'lustrzany' lub 'standardowy'")
+                if lang == "en":
+                    raise FileError("Incorrect margin, expected 'lustrzany' (mirror) or 'standardowy' (standard)")
+                else:
+                    raise FileError("błędny margines, oczekiwano 'lustrzany' lub 'standardowy'")
             self.margin_type = data["margines"]
 
 
             if data["format"].lower() not in ["a3", "a4", "a5"]:
-                raise FileError("błędny format strony, oczekiwano 'a3', 'a4' lub 'a5'")
+                if lang == "en":
+                    raise FileError("Incorrect page format, expected 'a3', 'a4' or 'a5'")
+                else:
+                    raise FileError("błędny format strony, oczekiwano 'a3', 'a4' lub 'a5'")
             self.format = data["format"]
 
             if data["orientacja"].lower() not in ["pionowa", "pozioma"]:
-                raise FileError("błędna orientacja, oczekiwano 'pionowa' lub 'pozioma'")
+                if lang == "en":
+                    raise FileError("Incorrect orientation, expected 'pionowa' (vertical) or 'pozioma' (horizontal)")
+                else:
+                    raise FileError("błędna orientacja, oczekiwano 'pionowa' lub 'pozioma'")
             self.orientation = data["orientacja"]
 
             if data["justowanie"].lower() not in ["tak", "nie"]:
-                raise FileError("błędne justowanie, oczekiwano 'tak' lub 'nie'")
+                if lang == "en":
+                    raise FileError("Incorrect justification, expected 'tak' (yes) or 'nie' (no)")
+                else:
+                    raise FileError("błędne justowanie, oczekiwano 'tak' lub 'nie'")
             self.justowanie = data["justowanie"].lower() == "tak"
 
             czcionki_dict = data.get("czcionka", {})
             self.font_list = list(czcionki_dict.values())
             
             if not self.font_list:
-                logging.warning("brak dozwolonych czcionek w konfiguracji")
+                if lang == "en":
+                    logging.warning("Allowed fonts are not provided in the configuration file")
+                else:
+                    logging.warning("brak dozwolonych czcionek w konfiguracji")
 
         except KeyError as e:
-            raise FileError(f"brakujący klucz w konfiguracji: {e}")
+            if lang == "en":
+                raise FileError(f"Lacking key in the configuration file: {e}")
+            else:
+                raise FileError(f"brakujący klucz w konfiguracji: {e}")
         except ValueError as e:
-            raise FileError(f"niepoprawny typ danych w konfiguracji: {e}")
+            if lang == "en":
+                raise FileError(f"Incorrect data type in the configuration file: {e}")
+            else:
+                raise FileError(f"niepoprawny typ danych w konfiguracji: {e}")
 
 class RedactionValidator:
-    def __init__(self, document_data: DocumentData, document_data_linguistics: FinalDocument, config_path: str = None):
+    def __init__(self, document_data: DocumentData, document_data_linguistics: FinalDocument, config_path: str = None, language="pl"):
         self.document_data = document_data
+        self.language = language
         self.document_data_linguistics = document_data_linguistics
         if config_path is not None:
             self.config = Configuration(config_path)
@@ -98,7 +124,7 @@ class RedactionValidator:
         return id
 
     def validate(self, config_ckeck: bool = True, basic_redaction_check: bool = True, advanced_redaction_check: bool = True):
-        self.errors.clear() #metody indywidualnie wrzucaja errory na stos
+        self.errors.clear() 
         self.id_counter = 0
         #--------------------config check
         if self.config is not None and config_ckeck:
@@ -150,7 +176,6 @@ class RedactionValidator:
             f.write(self.last_errors_to_json())
 
     def replace_global_errors(self):
-        # Funkcja zapobiegawcza - zapobiega wizualnemu nakładaniu się błędów
         for page in self.document_data.pages:
             errors_on_page = []
             for error in self.errors:
@@ -266,7 +291,6 @@ class RedactionValidator:
         mapper = PDFMapper()
         linguistics_doc = mapper.map_to_schema(self.document_data)
 
-        # Proste zebranie stron – jeśli funkcja lub obiekt zwróci brak danych, dajemy []
         pages = get_acronym_pages(linguistics_doc) if linguistics_doc else []
         if pages is None:
             pages = []
@@ -286,6 +310,11 @@ class RedactionValidator:
     def check_orphans(self):
         '''This function checks every line in the document for orphans.'''
         orphans = []
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Orphan detected - Conjunction at the end of the line."
+        else:
+            comment = "Wykryto sierotę - spójnik na końcu linii."
         for page in self.document_data.pages:
             for block in page.text_blocks:
                 for line in block.lines:
@@ -318,12 +347,17 @@ class RedactionValidator:
                             page_number = page.number,
                             bounding_box = last_span.bbox,
                             text = last_span.text,
-                            comments = "Wykryto sierotę - spójnik na końcu linii."
+                            comments = comment
                         ))
         return orphans
     
     def check_korytarze(self):
         korytarze = []
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Corridor detected - overlapping white gaps between words in neighbouring lines."
+        else: 
+            comment = "Wykryto korytarz - nakładające się przerwy między wyrazami w sąsiednich liniach."
         for page in self.document_data.pages:
             if page.number < 3:
                 continue
@@ -355,7 +389,7 @@ class RedactionValidator:
                                     page_number = page.number,
                                     bounding_box = (x1, span.bbox[1] - 15, x2, span.bbox[3]),
                                     text = None,
-                                    comments = "Wykryto korytarz - nakładające się przerwy między wyrazami w sąsiednich liniach."
+                                    comments = comment
                                 ))
                     
                     paths_to_check = []
@@ -369,6 +403,12 @@ class RedactionValidator:
 
     def check_blank_page(self):
         blank_pages = []
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Blank page detected."
+        else: 
+            comment = "Wykryto pustą stronę."
+
         for page in self.document_data.pages:
             if page.is_blank == True:
                 blank_pages.append(page)
@@ -379,19 +419,23 @@ class RedactionValidator:
                     page_number = page.number,
                     bounding_box = (0,0,0,0),
                     text = "",
-                    comments = "Wykryto pustą stronę"
+                    comments = comment
                 ))
 
         return blank_pages
     
     def check_raster_images(self):
         """
-        Sprawdza czy na stronie są grafiki rastrowe (image_type == 'raster'),
-        a jeśli są to dodaje obok nich komentarz.
+        Checking whether image type is raster (image_type == 'raster').
         """
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Raster image detected - it is recommended to use vector images. Consider changing an image format"
+        else: 
+            comment = "Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki."
+
         for page in self.document_data.pages:
             for img in page.images:
-                # Sprawdzamy typ obrazu przypisany przy ekstrakcji
                 if getattr(img, "image_type", "") == "raster":
                     
                     self.errors.append(Error(
@@ -401,20 +445,39 @@ class RedactionValidator:
                         page_number=page.number,
                         bounding_box=img.bbox, 
                         text=img.description,   
-                        comments="Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki."
+                        comments=comment
                     ))
-    
-    def check_bibliography(self):        
+          
+    def check_bibliography(self):   
+        """
+        Iterates through the logical blocks to identify words flagged with 
+        incorrect or missing bibliography references. It generates and appends 
+        an Error object for each flagged instance.
+        """     
         for block in self.document_data_linguistics.logical_blocks:
             words = getattr(block, "words", [])
             for word in words:
-                # Flaga: niepoprawne odwołanie do bibliografii
                 if getattr(word, "incorrect_bibliography", 0) == 1:        
                     error = self._handle_bibliography(word)
                     if error:
                         self.errors.append(error)
 
     def _handle_bibliography(self, word):
+        """
+        Constructs an Error object for an invalid or missing bibliography reference.
+
+        Args:
+            word (WordInfo): The word object containing the invalid citation and its metadata.
+
+        Returns:
+            Error: A formatted error object detailing the citation mismatch.
+        """
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Incorrect bibliography reference detected - element is not included in bibliography section or does not exist."
+        else: 
+            comment = "Wykryto niepoprawne odwołanie do bibliografii - element nie występuje w spisie bibliografii lub ten nie istnieje."
+
         return Error(
             id=self._get_next_id(), 
             module=self.module,
@@ -422,10 +485,14 @@ class RedactionValidator:
             page_number=word.page_number,
             bounding_box=word.bbox, 
             text=word.text,
-            comments="Wykryto niepoprawne odwołanie do bibliografii - element nie występuje w spisie bibliografii lub ten nie istnieje."
+            comments=comment
         )
 
     def check_widows(self):
+        """
+        Scans all paragraph blocks for 'widow' flags (a very short line left at the 
+        end of a paragraph). If detected, it processes and logs the corresponding error.
+        """
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":    
                 # Flaga: wdowy
@@ -436,7 +503,17 @@ class RedactionValidator:
                         self.errors.append(error)
 
     def check_bibliography_summary(self):
+        """
+        Compiles a complete list of all recognized bibliography entries from the 
+        document and appends them as a single, informational summary Error object 
+        for easy review.
+        """
         bib_entries = []
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Summary: List of all items detected in the bibliography."
+        else: 
+            comment = "Podsumowanie: Lista wszystkich pozycji wykrytych w spisie bibliograficznym."
 
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "is_bibliography", False) and hasattr(block, "items"):
@@ -458,11 +535,29 @@ class RedactionValidator:
                 page_number=3,  
                 bounding_box=(0, 0, 0, 0),  
                 text=summary_text,
-                comments="Podsumowanie: Lista wszystkich pozycji wykrytych w spisie bibliograficznym."
+                comments=comment
             )
             self.errors.append(summary_error)
                 
     def _handle_widow(self, block, widow_which):
+        """
+        Calculates the precise bounding box for the isolated words constituting 
+        a 'widow' and constructs the corresponding Error object.
+
+        Args:
+            block (ParagraphBlock): The paragraph block containing the widow.
+            widow_which (int): The number of words that make up the widow at the end of the block.
+
+        Returns:
+            Error: A formatted error object representing the typographical widow.
+        """
+
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Widow detected - very short line left at end of a paragraph."
+        else: 
+            comment = "Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu."
+
         if not block.words:
             return
 
@@ -484,10 +579,15 @@ class RedactionValidator:
             page_number=last_word.page_number,
             bounding_box=widow_bbox, 
             text=found_text,
-            comments="Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu."
+            comments=comment
         )
     
     def check_bekarts(self):
+        """
+        Scans all paragraph blocks for 'bastard' flags (the last line of a paragraph 
+        isolated at the top of the following page). If detected, it processes and 
+        logs the corresponding error.
+        """
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":
                 # Flaga: bękarty
@@ -498,6 +598,24 @@ class RedactionValidator:
                         self.errors.append(error)
 
     def _handle_bekart(self, block, bekart_which):
+        """
+        Calculates the precise bounding box for the isolated words constituting 
+        a 'bastard' and constructs the corresponding Error object.
+
+        Args:
+            block (ParagraphBlock): The paragraph block containing the bastard.
+            bekart_which (int): The number of words that make up the bastard on the new page.
+
+        Returns:
+            Error: A formatted error object representing the typographical bastard.
+        """
+
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Bastard detected - last line of a paragraph left on the next page"
+        else: 
+            comment = "Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie."
+
         if not block.words:
             return
 
@@ -519,10 +637,15 @@ class RedactionValidator:
             page_number=last_word.page_number,
             bounding_box=bekart_bbox, 
             text=found_text,
-            comments="Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie."
+            comments=comment
         )
     
     def check_szewce(self):
+        """
+        Scans all paragraph blocks for 'shoemaker' flags (the first line of a new 
+        paragraph isolated at the bottom of the previous page). If detected, it 
+        processes and logs the corresponding error.
+        """
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "type", "") == "paragraph":
                 # Flaga: szewce
@@ -533,6 +656,25 @@ class RedactionValidator:
                         self.errors.append(error)
 
     def _handle_szewc(self, block, szewc_which):
+        """
+        Calculates the precise bounding box for the isolated words constituting 
+        a 'shoemaker' and constructs the corresponding Error object.
+
+        Args:
+            block (ParagraphBlock): The paragraph block containing the shoemaker.
+            szewc_which (int): The number of words that make up the shoemaker at the beginning of the block.
+
+        Returns:
+            Error: A formatted error object representing the typographical shoemaker.
+        """
+
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Shoemaker detected - first line of paragraph left on the previous page."
+        else: 
+            comment = "Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie."
+
+
         if not block.words:
             return
 
@@ -554,10 +696,22 @@ class RedactionValidator:
             page_number=first_word.page_number,
             bounding_box=szewc_bbox, 
             text=found_text,
-            comments="Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie."
+            comments=comment
         )
     
     def check_caption_sources(self):
+        """
+        Iterates through the text blocks acting as visual captions to verify if they 
+        lack proper source attributions or bibliography citations. Calculates the 
+        bounding box of the flagged caption and appends a corresponding Error object.
+        """
+
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "The caption does not contain a reference to the bibliography (e.g. [1]) or information about the source (e.g. 'Source: ...')."
+        else: 
+            comment = "Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne')."
+
         for block in self.document_data_linguistics.logical_blocks:
             if getattr(block, "incorrect_caption", 0) == 1:
                 
@@ -579,8 +733,13 @@ class RedactionValidator:
                     page_number=page_num,
                     bounding_box=caption_bbox,
                     text=getattr(block, "content", ""),
-                    comments="Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne')."
+                    comments=comment
                 ))
+
+        if lang == "en":
+            comment = "The figure does not have a valid source or bibliography reference in its caption."
+        else: 
+            comment = "Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie."
 
         for visual in self.document_data_linguistics.floating_elements.visual_elements:
             if getattr(visual, "incorrect_caption", 0) == 1:
@@ -595,12 +754,17 @@ class RedactionValidator:
                     page_number=getattr(visual, "page_number", 1),
                     bounding_box=getattr(visual, "bbox", (0, 0, 0, 0)),
                     text=caption_text,
-                    comments="Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie."
+                    comments=comment
                 ))
     
     def check_toc(self):
         wrong_entries = []
         is_toc = True
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = "Missing table of contents detected"
+        else: 
+            comment = "Wykryto brak spisu treści."
 
         if self.document_data.toc == None:
             error = Error(
@@ -610,12 +774,12 @@ class RedactionValidator:
                 page_number = 1,
                 bounding_box = (0,0,0,0), 
                 text = None,
-                comments = f"Wykryto brak spisu treści."
+                comments = comment
             )
             self.errors.append(error)
             is_toc = False
             return None, is_toc
-
+        
         for entry in self.document_data.toc.entries:
             expected_page = entry.page
             expected_title = " ".join(entry.title.lower().strip().rstrip('.').split())
@@ -634,7 +798,11 @@ class RedactionValidator:
                     if expected_title in page_full_text:
                         correct_page = True
                         break
-                
+            if lang == "en":
+                comment = f"Chapter/Subchapter '{entry.title}' is not on the specified page (page {entry.page})."
+            else: 
+                comment = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+    
             if not correct_page:
                 self.errors.append(Error(
                     id = self._get_next_id(),
@@ -643,7 +811,7 @@ class RedactionValidator:
                     page_number = entry.src_page,
                     bounding_box = entry.bbox,
                     text = entry.title,
-                    comments = f"Rozdział/Podrozdział '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                    comments = comment
                 ))
                 wrong_entries.append(entry)
 
@@ -651,7 +819,13 @@ class RedactionValidator:
     
     def check_tot(self):
         wrong_entries = []
-        
+        lang = getattr(self, "language", "pl")
+
+        if lang == "en":
+            comment = "Missing table list detected."
+        else: 
+            comment = "Wykryto brak spisu tabel."
+    
         if self.document_data.tot == None:
             error = Error(
                 id = self._get_next_id(),
@@ -660,7 +834,7 @@ class RedactionValidator:
                 page_number = 1,
                 bounding_box = (0,0,0,0), 
                 text = None,
-                comments = f"Wykryto brak spisu tabel."
+                comments = comment
             )
             self.errors.append(error)
             return 
@@ -683,6 +857,11 @@ class RedactionValidator:
                 if correct_page: 
                     break
 
+            if lang == "en":
+                comment = f"The table titled '{entry.title}' is not on the specified page (page {entry.page})."
+            else: 
+                comment = f"Tabela o tytule '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+    
             if not correct_page:
                 self.errors.append(Error(
                     id=self._get_next_id(),
@@ -691,7 +870,7 @@ class RedactionValidator:
                     page_number=entry.src_page,
                     bounding_box=entry.bbox,
                     text=entry.title,
-                    comments=f"Tabela o tytule '{entry.title}' nie znajduje się na wskazanej stronie (strona {entry.page})."
+                    comments=comment
                 ))
                 wrong_entries.append(entry)
 
@@ -699,7 +878,13 @@ class RedactionValidator:
 
     def check_tof(self):
         wrong_entries = []
+        lang = getattr(self, "language", "pl")
 
+        if lang == "en":
+            comment = "Missing list of figures detected."
+        else: 
+            comment = "Wykryto brak spisu rysunków."
+    
         if self.document_data.tof == None:
             error = Error(
                 id = self._get_next_id(),
@@ -708,7 +893,7 @@ class RedactionValidator:
                 page_number = 1,
                 bounding_box = (0,0,0,0), 
                 text = None,
-                comments = f"Wykryto brak spisu rysunków."
+                comments = comment
             )
             self.errors.append(error)
             is_toc = False
@@ -731,7 +916,11 @@ class RedactionValidator:
                             break
                 if correct_page: 
                     break
-
+            if lang == "en":
+                comment = f"The figure titled '{entry.title}' is not on the specified page (Page {entry.page})."
+            else: 
+                comment = f"Rysunek o tytule '{entry.title}' nie znajduje się na wskazanej stronie (Strona {entry.page})."
+    
             if not correct_page:
                 self.errors.append(Error(
                     id=self._get_next_id(),
@@ -740,7 +929,7 @@ class RedactionValidator:
                     page_number=entry.src_page,
                     bounding_box=entry.bbox,
                     text=entry.title,
-                    comments=f"Rysunek o tytule '{entry.title}' nie znajduje się na wskazanej stronie (Strona {entry.page})."
+                    comments= comment
                 ))
                 wrong_entries.append(entry)
 
@@ -748,7 +937,7 @@ class RedactionValidator:
     
     def check_footers(self):
         first_chapter_page = None
-
+        lang = getattr(self, "language", "pl")
         keywords = [
             "streszczenie", "abstract", "wstęp", "wstep", "introduction",
             "spis treści", "spis tresci", "table of contents", "table of content", "toc",
@@ -819,6 +1008,11 @@ class RedactionValidator:
                     
             if first_chapter_page is not None and page.number < first_chapter_page:
                 if footer_block:
+                    if lang == "en":
+                        comment = f"Numbering detected on page{page.number}, which comes before the first chapter or heading (expected from page {first_chapter_page})."
+                    else: 
+                        comment = f"Wykryto numerację na stronie {page.number}, która znajduje się przed pierwszym rozdziałem lub nagłówkiem (oczekiwano od strony {first_chapter_page})."
+    
                     self.errors.append(Error(
                         id = self._get_next_id(),
                         module = self.module,
@@ -826,10 +1020,15 @@ class RedactionValidator:
                         page_number = page.number,
                         bounding_box = footer_block.bbox, 
                         text = "Footer detected",
-                        comments = f"Wykryto numerację na stronie {page.number}, która znajduje się przed pierwszym rozdziałem lub nagłówkiem (oczekiwano od strony {first_chapter_page})."
+                        comments = comment
                     ))
             else: 
                 if footer_block is None:
+                    if lang == "en":
+                        comment = f"Missing page numbering detected on page {page.number}"
+                    else: 
+                        comment = f"Wykryto brak numeracji na stronie {page.number}" 
+    
                     self.errors.append(Error(
                         id = self._get_next_id(),
                         module = self.module,
@@ -840,7 +1039,7 @@ class RedactionValidator:
                                         self.document_data.pages[page.number].width/2 + 20, 
                                         self.document_data.pages[page.number].height - 30),
                         text = None,
-                        comments = f"Wykryto brak numeracji na stronie {page.number}"   
+                        comments = comment  
                     ))                 
                 else:
                     raw_text = " ".join([" ".join([s.text for s in l.spans]) for l in footer_block.lines])
@@ -849,6 +1048,11 @@ class RedactionValidator:
                     if match:
                         detected_num = int(match.group(1))
                         if detected_num != page.number:
+                            if lang == "en":
+                                comment = f"Invalid page number. Detected: {detected_num}, expected: {page.number}."
+                            else: 
+                                comment = f"Błędny numer strony. Wykryto: {detected_num}, oczekiwano: {page.number}."
+    
                             self.errors.append(Error(
                                 id=self._get_next_id(),
                                 module=self.module,
@@ -856,7 +1060,7 @@ class RedactionValidator:
                                 page_number=page.number,
                                 bounding_box=footer_block.bbox,
                                 text=raw_text,
-                                comments=f"Błędny numer strony. Wykryto: {detected_num}, oczekiwano: {page.number}."
+                                comments=comment
                             ))
 
         is_ftr_error = False
@@ -864,6 +1068,11 @@ class RedactionValidator:
             if error.category == "No_footer" or error.category == "Wrong_page_number":
                 is_ftr_error = True
         if is_ftr_error:
+            if lang == "en":
+                comment = "Due to incorrect page numbering, it is impossible to check the correctness of the table of contents, figures and tables."
+            else: 
+                comment = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści, rysunków oraz tabel."
+    
             self.errors.append(Error(
                 id = self._get_next_id(),
                 module = self.module,
@@ -871,17 +1080,26 @@ class RedactionValidator:
                 page_number = 1,
                 bounding_box = (0,0,0,0), 
                 text = None,
-                comments = "Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści, rysunków oraz tabel."
+                comments = comment
             ))
         return None
     #------------------config checks-----------------------
-    #funckje w tym bloku zwracają True jeśli wszystko ok, False jeśli wykryto błąd
     def check_interline_spacing(self, doc_data: DocumentData) -> bool:
         line_spacing = doc_data.get_dominant_line_spacing()
+        lang = getattr(self, "language", "pl")
+        if lang == "en":
+            comment = f"The line spacing used ({line_spacing}) does not match the required line spacing ({self.config.interlinia})."
+        else: 
+            comment = f"Używana interlinia ({line_spacing}) jest niezgodna z wymaganą interlinią ({self.config.interlinia})."
+        
         if line_spacing is None:
-            logging.warning("Redaction: nie można określić interlinii")
+            if lang == "en":
+                logging.warning("Redaction: cannot specify line spacing")
+            else: 
+                logging.warning("Redaction: nie można określić interlinii")
             return True
-        elif abs(line_spacing - self.config.interlinia) > 0.1: # dopuszczalna różnica 0.1
+        elif abs(line_spacing - self.config.interlinia) > 0.1:
+
             self.errors.append(Error(
                 id = self._get_next_id(),
                 module = self.module,
@@ -889,7 +1107,7 @@ class RedactionValidator:
                 page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
-                comments = f"Używana interlinia ({line_spacing}) jest niezgodna z wymaganą interlinią ({self.config.interlinia})."
+                comments = comment
             ))
             return False
         else:
@@ -897,6 +1115,13 @@ class RedactionValidator:
         
     def check_page_count(self, doc_data: DocumentData) -> bool:
         page_count = doc_data.get_page_count()
+        lang = getattr(self, "language", "pl")
+
+        if lang == "en":
+            comment = f"The document has {page_count} pages, less than the minimum number of {self.config.min_stron}"
+        else: 
+            comment = f"Dokument ma {page_count} stron, mniej niż minimalna liczba {self.config.min_stron}"
+
         if page_count < self.config.min_stron:
             self.errors.append(Error(
                 id = self._get_next_id(),
@@ -905,10 +1130,15 @@ class RedactionValidator:
                 page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
-                comments = f"Dokument ma {page_count} stron, mniej niż minimalna liczba {self.config.min_stron}"
+                comments = comment
             ))
             return False
         elif page_count > self.config.max_stron:
+            if lang == "en":
+                comment = f"The document has {page_count} pages, more than the maximum number of {self.config.max_stron}."
+            else: 
+                comment = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.max_stron}."
+
             self.errors.append(Error(
                 id = self._get_next_id(),
                 module = self.module,
@@ -916,7 +1146,7 @@ class RedactionValidator:
                 page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
-                comments = f"Dokument ma {page_count} stron, więcej niż maksymalna liczba {self.config.max_stron}."
+                comments = comment
             ))
             return False
         else:
@@ -924,10 +1154,18 @@ class RedactionValidator:
     
     def check_font_size(self, doc_data: DocumentData) -> bool:
         most_used_font_size = max(doc_data.get_font_size_usage(), key=doc_data.get_font_size_usage().get, default=None)
+        lang = getattr(self, "language", "pl")
         if most_used_font_size is None:
-            logging.warning("Redaction: nie można określić rozmiaru czcionki")
+            if lang == "en":
+                logging.warning("Redaction: Unable to determine font size.")
+            else: 
+                logging.warning("Redaction: nie można określić rozmiaru czcionki.")
             return True
-        elif abs(most_used_font_size - self.config.font_size) > 0.1: # dopuszczalna różnica 0.1
+        elif abs(most_used_font_size - self.config.font_size) > 0.1: 
+            if lang == "en":
+                comment = f"The font size used ({most_used_font_size}) does not match the required font size ({self.config.font_size})."
+            else: 
+                comment = f"Używany rozmiar czcionki ({most_used_font_size}) jest niezgodny z wymaganym rozmiarem czcionki ({self.config.font_size})."
             self.errors.append(Error(
                 id = self._get_next_id(),
                 module = self.module,
@@ -935,7 +1173,7 @@ class RedactionValidator:
                 page_number = None,
                 bounding_box = (0,0,0,0),
                 text = None,
-                comments = f"Używany rozmiar czcionki ({most_used_font_size}) jest niezgodny z wymaganym rozmiarem czcionki ({self.config.font_size})."
+                comments = comment
             ))
             return False
         else:
@@ -943,16 +1181,27 @@ class RedactionValidator:
 
     def check_margins(self, doc_data: DocumentData) -> bool:
         margins = doc_data.get_margins()
+        lang = getattr(self, "language", "pl")
         if not margins:
-            logging.warning("Redaction: nie można określić marginesów")
+            if lang == "en":
+                logging.warning("Redaction: Cannot determine margins")
+            else:
+                logging.warning("Redaction: nie można określić marginesów")
             return True
         if self.config.margin_type == "lustrzany":
             if len(margins) < 2:
-                logging.warning("Redaction: zbyt mało stron do oceny marginesów lustrzanych")
+                if lang == "en":
+                    logging.warning("Redaction: too few pages to evaluate mirror margins")
+                else:
+                    logging.warning("Redaction: zbyt mało stron do oceny marginesów lustrzanych")
                 return True
-            
+
             for page_num, margin in margins.items():
-                if page_num % 2 == 1: # strona nieparzysta
+                if page_num % 2 == 1: 
+                    if lang == "en":
+                        comment = f"Expected larger margin on the left side of the page: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
+                    else:
+                        comment = f"Oczekiwany większy margines po lewej stronie stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
                     if margin.get("left", 0) <= margin.get("right", 0):
                         self.errors.append(Error(
                             id = self._get_next_id(),
@@ -961,10 +1210,14 @@ class RedactionValidator:
                             page_number = page_num,
                             bounding_box = (0,0,0,0),
                             text = None,
-                            comments = f"Oczekiwany większy margines po lewej stronie stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
+                            comments = comment
                         ))
                         return False
-                else: # strona parzysta
+                else: 
+                    if lang == "en":
+                        comment = f"Expected larger margin on the right side of the page: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
+                    else:
+                        comment = f"Oczekiwany większy margines po prawej stronie stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
                     if margin.get("right", 0) <= margin.get("left", 0):
                         self.errors.append(Error(
                             id = self._get_next_id(),
@@ -973,7 +1226,7 @@ class RedactionValidator:
                             page_number = page_num,
                             bounding_box = (0,0,0,0),
                             text = None,
-                            comments = f"Oczekiwany większy margines po prawej stronie stronie: left={margin.get('left', 0)}, right={margin.get('right', 0)}."
+                            comments = comment
                         ))
                         return False
                     margins[page_num]["left"], margins[page_num]["right"] = margins[page_num]["right"], margins[page_num]["left"]
@@ -981,6 +1234,10 @@ class RedactionValidator:
             org_margin = margins[1]
             for page_num, margin in margins.items():
                 if margin != org_margin:
+                    if lang == "en":
+                        comment = f"The margin on this page is different from the margins on other pages: {margin} vs {org_margin}."
+                    else:
+                        comment = f"Margines na tej stronie różni się od marginesów na pozostałych stronach: {margin} vs {org_margin}."
                     self.errors.append(Error(
                         id = self._get_next_id(),
                         module = self.module,
@@ -988,13 +1245,14 @@ class RedactionValidator:
                         page_number = page_num,
                         bounding_box = (0,0,0,0),
                         text = None,
-                        comments = f"Margines na tej stronie różni się od marginesów na pozostałych stronach: {margin} vs {org_margin}."
+                        comments = comment
                     ))
                     return False
             return True
 
     def check_format(self, doc_data: DocumentData) -> bool:
         tolerance = 10
+        lang = getattr(self, "language", "pl") 
 
         formats = {
             "a5": (420, 595),
@@ -1003,10 +1261,19 @@ class RedactionValidator:
         }
         
         if self.config.format not in formats:
-            logging.warning("Redaction: nieznany format strony w konfiguracji")
+            if lang == "en":
+                logging.warning("Redaction: unknown page format in the configuration file")
+            else:
+                logging.warning("Redaction: nieznany format strony w konfiguracji")
+
             return False
         exp_w,exp_h = formats[self.config.format]
         for page_num, (width,height) in doc_data.get_page_dimensions().items():
+            if lang == "en":
+                comment = f"The page format used (dimensions: {width}x{height}) does not comply with the requirements of {formats[self.config.format].upper()}"
+            else:
+                comment = f"Używany format strony (wymiary: {width}x{height})jest niezgodny z wymaganiami {formats[self.config.format].upper()}"
+
             if not ((abs(width - exp_w)<=tolerance and abs(height-exp_h)<=tolerance) or (abs(width-exp_h)<=tolerance and abs(height-exp_w)<=tolerance)):
                 self.errors.append(Error(
                     id = self._get_next_id(),
@@ -1015,7 +1282,7 @@ class RedactionValidator:
                     page_number = page_num,
                     bounding_box = (0,0,0,0),
                     text = None,
-                    comments = f"Używany format strony (wymiary: {width}x{height})jest niezgodny z wymaganiami {formats[self.config.format].upper()}"
+                    comments = comment
                 ))
                 return False
             else:
@@ -1023,8 +1290,14 @@ class RedactionValidator:
     
     def check_orientation(self, doc_data: DocumentData) -> bool:
         doc_data.get_page_dimensions()
+        lang = getattr(self, "language", "pl") 
         for page_num, (width, height) in doc_data.get_page_dimensions().items():
             if self.config.orientation == "pionowa" and width > height:
+                if lang == "en":
+                    comment = f"Page orientation ({width}x{height}) does not meet requirements (vertical)."
+                else:
+                    comment = f"Orientacja strony ({width}x{height}) niezgodna z wymaganiami (pionowa)."
+
                 self.errors.append(Error(
                     id = self._get_next_id(),
                     module = self.module,
@@ -1032,10 +1305,15 @@ class RedactionValidator:
                     page_number = page_num,
                     bounding_box = (0,0,0,0),
                     text = None,
-                    comments = f"Orientacja strony ({width}x{height}) niezgodna z wymaganiami (pionowa)."
+                    comments = comment
                 ))
                 return False
             elif self.config.orientation == "pozioma" and height > width:
+                if lang == "en":
+                    comment = f"Page orientation ({width}x{height}) does not meet requirements (horizontal)."
+                else:
+                    comment = f"Orientacja strony ({width}x{height}) niezgodna z wymaganiami (pozioma)."
+
                 self.errors.append(Error(
                     id = self._get_next_id(),
                     module = self.module,
@@ -1043,7 +1321,7 @@ class RedactionValidator:
                     page_number = page_num,
                     bounding_box = (0,0,0,0),
                     text = None,
-                    comments = f"Orientacja strony ({width}x{height}) niezgodna z wymaganiami (pozioma)."
+                    comments = comment
                 ))
                 return False
             else:
@@ -1051,11 +1329,19 @@ class RedactionValidator:
 
     def check_fonts(self, doc_data: DocumentData) -> bool:
         font_usage = doc_data.get_font_usage()
+        lang = getattr(self, "language", "pl")
         if not font_usage:
-            logging.warning("Redaction: nie można określić używanych czcionek")
+            if lang == "en":
+                logging.warning("Redaction: Unable to determine used fonts")
+            else:    
+                logging.warning("Redaction: nie można określić używanych czcionek")
             return True
         for font in font_usage.keys():
             if font not in self.config.font_list:
+                if lang == "en":
+                    comment = f"The font used ({font}) does not match the required font."
+                else:
+                    comment = f"Używana czcionka ({font}) jest niezgodna z wymaganą czcionką."  
                 self.errors.append(Error(
                     id = self._get_next_id(),
                     module = self.module,
@@ -1063,7 +1349,7 @@ class RedactionValidator:
                     page_number = None,
                     bounding_box = (0,0,0,0),
                     text = None,
-                    comments = f"Używana czcionka ({font}) jest niezgodna z wymaganą czcionką."   
+                    comments = comment
                 ))
                 return False
         return True
@@ -1071,6 +1357,7 @@ class RedactionValidator:
     def check_justification(self, doc_data: DocumentData) -> bool:
         expected_justified = self.config.justowanie
         errors_found = False
+        lang = getattr(self, "language", "pl") 
 
         for page in doc_data.pages:
             for block in page.text_blocks:
@@ -1091,6 +1378,10 @@ class RedactionValidator:
                         )
 
                         if expected_justified and not is_justified:
+                            if lang == "en":
+                                comment = f"Lack of justification detected in the paragraph (line {i+1})"
+                            else:
+                                comment = f"Wykryto brak justowania w akapicie (linia {i+1})"
                             self.errors.append(Error(
                                 id = self._get_next_id(),
                                 module = self.module,
@@ -1098,11 +1389,15 @@ class RedactionValidator:
                                 page_number = page.number,
                                 bounding_box = line.bbox,
                                 text = None,
-                                comments = f"Wykryto brak justowania w akapicie (linia {i+1})"
+                                comments = comment
                             ))
                             errors_found = True
 
                         elif not expected_justified and is_justified:
+                            if lang == "en":
+                                comment = f"Incorrect justification detected in the paragraph (line {i+1})"
+                            else:
+                                comment = f"Wykryto niepoprawne justowanie w akapicie (linia {i+1})"
                             self.errors.append(Error(
                                 id = self._get_next_id(),
                                 module = self.module,
@@ -1110,18 +1405,21 @@ class RedactionValidator:
                                 page_number = page.number,
                                 bounding_box = line.bbox,
                                 text = None,
-                                comments = f"Wykryto niepoprawne justowanie w akapicie (linia {i+1})"
+                                comments = comment
                             ))
                             errors_found = True
 
         if not errors_found:
-            logging.info("Redaction: justowanie zgodne z wymaganiami")
+            if lang == "en":
+                logging.info("Redaction: Justification as required")
+            else:
+                logging.info("Redaction: justowanie zgodne z wymaganiami")
             
         return not errors_found
     
 
     def check_list_order(self):
-
+        lang = getattr(self, "language", "pl") 
         if self.document_data.toc and self.document_data.toc.entries:
             error_found_toc = False
             entries_toc = self.document_data.toc.entries
@@ -1134,7 +1432,11 @@ class RedactionValidator:
                     error_found_toc = True
                     break
 
-            if error_found_toc:    
+            if error_found_toc:   
+                if lang == "en":
+                    comment = "Descending numbering in the table of contents has been detected. Subsequent table of contents entries should be arranged in non-descending order relative to the page number they appear on."
+                else:
+                    comment = "Wykryto malejącą numerację w spisie treści. Kolejne wpisy spisu treści powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
                 self.errors.append(Error(
                     id = self._get_next_id(),
                     module = self.module,
@@ -1142,7 +1444,7 @@ class RedactionValidator:
                     page_number = self.document_data.toc.page_nums[0],
                     bounding_box = (0,0,0,0),
                     text = None,
-                    comments = f"Wykryto malejącą numerację w spisie treści. Kolejne wpisy spisu treści powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                    comments = comment
                 ))
 
 
@@ -1158,7 +1460,12 @@ class RedactionValidator:
                     error_found_tof = True
                     break
 
-            if error_found_tof:    
+            if error_found_tof:  
+                if lang == "en":
+                    comment = "Descending numbering has been detected in the figure list. Subsequent figure list entries should be set non-descendingly relative to the page number they appear on."
+                else:
+                    comment = "Wykryto malejącą numerację w spisie figur. Kolejne wpisy spisu figur powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+   
                 self.errors.append(Error(
                     id = self._get_next_id(),
                     module = self.module,
@@ -1166,7 +1473,7 @@ class RedactionValidator:
                     page_number = self.document_data.tof.page_nums[0],
                     bounding_box = (0,0,0,0),
                     text = None,
-                    comments = f"Wykryto malejącą numerację w spisie figur. Kolejne wpisy spisu figur powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                    comments = comment
                 ))
                 
         if self.document_data.tot and self.document_data.tot.entries:
@@ -1181,7 +1488,12 @@ class RedactionValidator:
                     error_found_tot = True
                     break
 
-            if error_found_tot:    
+            if error_found_tot:  
+                if lang == "en":
+                    comment = "Descending numbering has been detected in the table list. Subsequent table list entries should be set non-descendingly relative to the page number they appear on."
+                else:
+                    comment = "Wykryto malejącą numerację w spisie tabel. Kolejne wpisy spisu tabel powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+     
                 self.errors.append(Error(
                     id = self._get_next_id(),
                     module = self.module,
@@ -1189,7 +1501,7 @@ class RedactionValidator:
                     page_number = self.document_data.tot.page_nums[0],
                     bounding_box = (0,0,0,0),
                     text = None,
-                    comments = f"Wykryto malejącą numerację w spisie tabel. Kolejne wpisy spisu tabel powinny zostać ustawione niemalejąco względem numeru strony, na którym się znajdują."
+                    comments = comment
                 ))
         return 
     

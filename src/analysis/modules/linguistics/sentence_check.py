@@ -65,11 +65,14 @@ def sentence_check(blocks, chapter_nums, check_first_person=True, acronyms_with_
                                 offset = idx_map[token.idx]
                                 error_length = idx_map[token.idx + len(token)] - offset
                                 start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, offset, error_length)
-                                
+                                if block.block.language == 'en':
+                                    message = f"Use of {token.morph.get("Person")[0]} personal form."
+                                else:
+                                    message = f"Użycie {token.morph.get("Person")[0]} formy osobowej."
                                 match = Error_type(
                                 content= token.text,
                                 category= "PERSONAL_FORM",
-                                message= f"Użycie {token.morph.get("Person")[0]} formy osobowej.",
+                                message= message,
                                 offset= offset,
                                 error_length= error_length,
                                 block_id = block.block.block_id,
@@ -121,9 +124,15 @@ def sentence_check(blocks, chapter_nums, check_first_person=True, acronyms_with_
                     continue
                 if not is_subject:
                     #zdania z czasownikami niewłaściwymi np. "Na podstawie badań można sformułować wnioski" uznawane są za błąd - nie mają podmiotu domyślnego.
-                    match_list.append(("NO_SUBJECT", "Brak podmiotu w zdaniu."))
+                    if block.block.language == 'en':
+                        match_list.append(("NO_SUBJECT", "No subject in the sentence."))
+                    else:
+                        match_list.append(("NO_SUBJECT", "Brak podmiotu w zdaniu."))
                 if not is_verb:
-                    match_list.append(("NO_VERB", "Brak orzeczenia w zdaniu."))
+                    if block.block.language == 'en':
+                        match_list.append(("NO_VERB", "No verb in the sentence."))
+                    else:
+                        match_list.append(("NO_VERB", "Brak orzeczenia w zdaniu."))
                 og_start = idx_map[sentence.start_char]
                 og_end = idx_map[sentence.end_char]
                 for category, message in match_list:

@@ -125,14 +125,6 @@ class AnalysisPipeline:
             original_lt = None
             try:
                 import language_tool_python
-                print("[PIPELINE] Uruchamianie serwera językowego (LanguageTool)...")
-                _tool = language_tool_python.LanguageTool(language)
-                print("[PIPELINE] Serwer gotowy.")
-                original_lt = language_tool_python.LanguageTool
-                class DummyLanguageTool:
-                    def __new__(cls, *args, **kwargs):
-                        return _tool
-                language_tool_python.LanguageTool = DummyLanguageTool
 
             except Exception as e:
                 print(f"[PIPELINE] Ostrzeżenie przy starcie LanguageTool: {e}")
@@ -203,8 +195,8 @@ class AnalysisPipeline:
                     document_data=doc_obj,
                     document_data_linguistics=mapper.map_to_schema(doc_obj),
                     config_path=config_path,
+                    language=language,
                 )
-
                 font_usage = doc_obj.get_font_size_usage()
                 doc_obj.get_most_common_font_size = (
                     lambda: max(font_usage, key=font_usage.get, default=12)
@@ -281,6 +273,9 @@ class AnalysisPipeline:
         image_analysis["image_raster"] = raster_figure_numbers
         final_report.llm_result["image_analysis"] = image_analysis
         final_report.llm_result["statystyki_zdan"] = ling_stats
+        
+        final_report.llm_result["language"] = language 
+        
         final_report.linguistics_errors = wszystkie_bledy
 
         return final_report

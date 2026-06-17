@@ -46,7 +46,6 @@ def _init_language_tools():
         _TOOL_EN.disabled_categories.add('CONFUSED_WORDS')
         _TOOL_EN.disabled_categories.add('NONSTANDARD_PHRASES')
         _TOOL_EN.disabled_categories.add('REPETITIONS_STYLE')
-        _TOOL_EN.disabled_categories.add('SEMATICS')
         _TOOL_EN.disabled_categories.add('STYLE')
         _TOOL_EN.disabled_categories.add('MISC')
         _TOOL_EN.disabled_rules.add('COMMA_PARENTHESIS_WHITESPACE')
@@ -54,6 +53,9 @@ def _init_language_tools():
         _TOOL_EN.disabled_categories.add('CONSECUTIVE_SPACES')
         _TOOL_EN.disabled_categories.add('CASING')
         _TOOL_EN.disabled_categories.add('DASH_RULE')
+        _TOOL_EN.disabled_categories.add('WIKIPEDIA')
+        _TOOL_EN.disabled_categories.add('TEXT_ANALYSIS')
+        _TOOL_EN.disabled_categories.add('CREATIVE_WRITING')
     
     if _TOOL_PL is None:
         _TOOL_PL = language_tool_python.LanguageTool('pl-PL')
@@ -81,15 +83,34 @@ def language_tool_analisys(blocks):
         'COLLOCATIONS': "Błąd kolokacji.",
         'COMPOUNDING': "Błąd łączenia słów.",
         'GRAMMAR': "Błąd gramatyczny.",
-        'NONSTANDARD_PHRASES': "Możliwe złe użycie stałego stwierdzenia.",
         'PLAIN_ENGLISH': "Możliwe złe użycie stałego stwierdzenia.",
-        'MULTITOKEN_SPELLING': "Błąd pisowni.",
         'TYPOS': "Możliwa literówka.",
-        'PROPER_NOUNS': 'Zła pisownia nazwy własnej.',
+        'PROPER_NOUNS': "Zła pisownia nazwy własnej.",
         'PUNCTUATION': "Błąd interpunkcyjny.",
+        'REDUNDANCY': "Wyrażenie nadmiarowe.",
+        'SEMANTICS': "Błąd semantyczny.",
         'TYPOGRAPHY': "Błąd typograficzny.",
     }
-    
+
+    english_messages = {
+        'PHONETICS': "Phonetics error.",
+        'CONFUSED_WORDS': "Phraseological error.",
+        'PUNCTUATION': "Punctuation error.",
+        'STYLE': "Lexical error.",
+        'GRAMMAR': "Grammar error.",
+        'SPELLING': "Orthographic error.",
+        'GENDER': "Grammatical gender error.",
+        'MISC': "Miscellaneous error.",
+        'SYNTAX': "Syntax error.",
+        'TYPOGRAPHY': "Typographical error.",
+        'WORD_ORDER': "Word order error.",
+        'NUMBERS': "Number formatting error.",
+        'CASING': "Capitalization error.",
+        'REDUNDANCY': "Redundant statement.",
+        'TYPOS': "Possible typo.",
+        'SEMANTICS': "Sematics error.",
+    }
+
     _init_language_tools()
     tool_pl = _TOOL_PL
     tool_en = _TOOL_EN
@@ -126,17 +147,24 @@ def language_tool_analisys(blocks):
                         for pl_match in pl_matches:
                             pl_match.sentence = match.sentence
                             pl_match.offset += match.offset
-                            pl_match.message = pl_match.message
+                            pl_match.message = match.message
                         new_matches.extend(pl_matches)
                         continue
                 new_matches.append(match)
 
             for m in new_matches:
                 start_page, end_page, word_idxs, error_coordinate = get_match_info(block.block, m.offset, m.error_length)
+                message = m.message
                 if text_language == 'en':
-                    message = polish_messages.get(m.category, m.message)
+                    if block.block.language == 'en':
+                        message = m.message
+                    else:
+                        message = polish_messages.get(m.category, m.message)
                 else:
-                    message = m.message
+                    if block.block.language == 'en':
+                        message = english_messages.get(m.category, m.message)
+                    else:
+                        message = m.message
                 errors.append(Error_type(
                     content=contents[m.offset:m.offset + m.error_length],
                     category=m.category,

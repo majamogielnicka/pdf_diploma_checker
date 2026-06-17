@@ -25,6 +25,19 @@ from analysis.extraction.bare_struct import DocumentData, PageData, TextBlock, T
 
     
 def calculate_margins(blocks, width, height) -> Dict[str, float]:
+    """
+    Calculates the page margins based on the bounding boxes of the provided text blocks 
+    relative to the total page dimensions.
+
+    Args:
+        blocks (list): A list of text blocks, each containing bounding box coordinates.
+        width (float): The total width of the page.
+        height (float): The total height of the page.
+
+    Returns:
+        Dict[str, float]: A dictionary containing the calculated 'top', 'bottom', 
+        'left', and 'right' margins. Returns 0.0 for all if no blocks are provided.
+    """
     if not blocks:
         return {"top": 0.0, "bottom": 0.0, "left": 0.0, "right": 0.0}
 
@@ -127,7 +140,21 @@ def fix_latex(text):
     return text
 
 def find_table_description(table_bbox, text_blocks, priority_side=None):
-    #TODO: poprawić tak, żeby nie wykrywało obrazów w spisie treści, bibliografii itd (ale to jak już będziemy mieli spis treści, bibliografie itd)
+    """
+    Locates the caption or description for a table by analyzing the spatial relationship 
+    of surrounding text blocks relative to the table's bounding box. Groups potential 
+    matches by their position (above or below) and specific keywords.
+
+    Args:
+        table_bbox (list): The bounding box of the table [x0, y0, x1, y1].
+        text_blocks (list): A list of text blocks to evaluate as potential captions.
+        priority_side (str, optional): The preferred side to check first ('above' or 'below'). 
+            Defaults to None.
+
+    Returns:
+        tuple[str, str]: A tuple containing the extracted description text and the 
+        side it was found on ('above' or 'below').
+    """
     x0, y0, x1, y1 = table_bbox
     # Rozdzielamy potencjalne opisy na górę i dół oraz sprawdzamy słowa kluczowe
     kw_matches = {"above": [], "below": []}
@@ -167,6 +194,21 @@ def find_table_description(table_bbox, text_blocks, priority_side=None):
     return "", priority_side
 
 def find_image_description(image_bbox, text_blocks, priority_side=None):
+    """
+    Locates the caption or description for an image by analyzing the spatial relationship 
+    of surrounding text blocks relative to the image's bounding box. Groups potential 
+    matches by their position (above or below) and specific keywords.
+
+    Args:
+        image_bbox (list): The bounding box of the image [x0, y0, x1, y1].
+        text_blocks (list): A list of text blocks to evaluate as potential captions.
+        priority_side (str, optional): The preferred side to check first ('above' or 'below'). 
+            Defaults to None.
+
+    Returns:
+        tuple[str, str]: A tuple containing the extracted description text and the 
+        side it was found on ('above' or 'below').
+    """
     x0, y0, x1, y1 = image_bbox
     kw_matches = {"above": [], "below": []}
     other_matches = {"above": [], "below": []}
