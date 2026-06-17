@@ -466,33 +466,6 @@ class AnalysisDialog(QDialog):
         
         is_detailed = self.btn_dokladny.isChecked()
         choosen_lg = "pl" if self.btn_lang_pl.isChecked() else "en"
-        
-        if is_detailed:
-            try:
-                import sys
-                if getattr(sys, 'frozen', False):
-                    base_dir = sys._MEIPASS
-                else:
-                    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-                
-                app_config_path = os.path.join(base_dir, "app_config.json")
-                
-                if not os.path.exists(app_config_path) and os.path.exists("app_config.json"):
-                    app_config_path = "app_config.json"
-                
-                if os.path.exists(app_config_path):
-                    with open(app_config_path, 'r', encoding='utf-8') as f:
-                        app_config = json.load(f)
-                    model_dir = app_config.get("model_dir", "")
-                    
-                    if model_dir:
-                        gemma_path = os.path.join(model_dir, "gemma3_12b", "google_gemma-3-12b-it-Q4_K_M.gguf")
-                        llava_path = os.path.join(model_dir, "llava-v1.6-mistral-7b.Q4_K_M.gguf")
-                        mmproj_path = os.path.join(model_dir, "mmproj-model-f16.gguf")
-                else:
-                    print(f"Nie znaleziono pliku konfiguracji aplikacji pod ścieżką: {app_config_path}")
-            except Exception as e:
-                print(f"Błąd przy odczycie app_config.json lub weryfikacji modeli: {e}")
                 
         self._run_pipeline_worker(is_detailed, choosen_lg)
 
