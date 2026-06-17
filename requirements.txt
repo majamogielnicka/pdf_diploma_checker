@@ -1,68 +1,19 @@
- # --- Python Dependencies ---
 pdoc==16.0.0
 pip==24.0
 requests==2.32.5
 huggingface-hub>=0.20.0
-
-# PDF extraction
 PyMuPDF==1.26.6
-
-# GUI / Interface
 PySide6==6.8.2
-
-# Local GGUF model inference
 llama-cpp-python==0.3.16
-
-# Embeddings / semantic similarity
 sentence-transformers==5.1.2
 transformers==4.57.1
 torch==2.9.0
 numpy==2.3.4
 scikit-learn==1.7.2
-
-# Linguistics
+Pillow==12.2.0
 language-tool-python==3.2.2
 spacy==3.8.11
 lingua-language-detector==2.1.1
 morfeusz2==1.99.12
 pyspellchecker==0.9.0
-# Dependency for spacy from 20 th May
 click == 8.4.1
-
-#PySide6==6.7.1
-
-# Spacy models
-# Additional for MacOS:
-## Using pip:
-# If you are using the M1/M2 Apple Silicon ARM Chip based Mac's:
-# pip install -U pip setuptools wheel
-# pip install -U 'spacy[apple]' 
-# If not:
-# pip install -U pip setuptools wheel
-# pip install -U spacy
-# Commands to download models: 
-# - en_core_web_lg: python -m spacy download en_core_web_lg
-# - pl_core_news_lg: python -m spacy download pl_core_news_lg
-
-# Java
-# Do uruchomienia programu wymagana jest Java 17+
-# Zainstaluj javę z tego linku: https://adoptium.net/temurin/releases
-# Komenda do sprawdzenia wersji: java -version
-
-# --- External Requirements ---
-# Ollama nie jest wymagana.
-# Projekt korzysta z lokalnego modelu GGUF uruchamianego przez llama-cpp-python.
-
-# --- Required Local LLM Model ---
-# Model GGUF pobierzesz lokalnie poza repozytorium komendą:
-# python src\analysis\modules\llm\support_scripts\download_model.py
-#
-# Skrypt zapisze model do:
-# C:\Users\<NAZWA_UZYTKOWNIKA>\models\gemma3_12b\google_gemma-3-12b-it-Q4_K_M.gguf
-#
-# W pliku src\analysis\modules\llm\config.py ustaw:
-# MODEL_PATH = Path.home() / "models" / "gemma3_12b" / "google_gemma-3-12b-it-Q4_K_M.gguf"
-
-# --- Required Embedding Model ---
-# Model embeddingowy zostanie pobrany automatycznie przez sentence-transformers:
-# intfloat/multilingual-e5-large
