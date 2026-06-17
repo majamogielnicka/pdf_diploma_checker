@@ -13,9 +13,6 @@ PySide6==6.8.2
 # Local GGUF model inference
 llama-cpp-python==0.3.16
 
-# Hugging Face model download
-huggingface-hub==0.36.0
-
 # Embeddings / semantic similarity
 sentence-transformers==5.1.2
 transformers==4.57.1
