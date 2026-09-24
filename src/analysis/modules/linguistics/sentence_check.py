@@ -1,4 +1,4 @@
-from analysis.extraction.schema import *
+from analysis.extraction.linguistics_extraction.schema import *
 from .exeptions_check import check_quotes
 from .helpers import get_match_info, morf, nlp_pl, nlp_en
 from .linguistics_types import Error_type, Analisys_type

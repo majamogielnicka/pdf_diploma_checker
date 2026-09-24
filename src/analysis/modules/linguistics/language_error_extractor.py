@@ -4,7 +4,7 @@ from pathlib import Path
 
 import language_tool_python
 from .linguistics_types import Error_type
-from analysis.extraction.schema import *
+from analysis.extraction.linguistics_extraction.schema import *
 from .helpers import get_match_info, morf, spell
 import string
 

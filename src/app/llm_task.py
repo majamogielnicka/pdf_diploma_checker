@@ -105,7 +105,7 @@ def run_task_llm(doc_obj, pdf_path, language="pl", use_llm=True, check_images=Tr
         from analysis.modules.llm.get_summary import get_summaries
         from analysis.modules.llm.get_subtitles import get_subtitles
         from analysis.modules.llm.run_sota import get_final_sota_report
-        from analysis.extraction.converter_linguistics_clean import PDFMapper
+        from analysis.extraction.linguistics_extraction.converter_linguistics_clean import PDFMapper
 
         mapper = PDFMapper()
         mapped_doc = mapper.map_to_schema(doc_obj)

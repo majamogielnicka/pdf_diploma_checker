@@ -1,5 +1,4 @@
 import sys
-import os
 import json
 import re
 import gc
@@ -87,7 +86,7 @@ def analyze_images(doc_obj, mapped_doc):
     if not images_with_refs:
         return final_report
 
-    print(f"\n[AI] Ładowanie modelu wizyjnego LLaVA do VRAM...")
+    print("\n[AI] Ładowanie modelu wizyjnego LLaVA do VRAM...")
     llava = LlavaEngine()
     extracted_image_data = {}
     
@@ -95,11 +94,11 @@ def analyze_images(doc_obj, mapped_doc):
         print(f"[{idx}/{len(images_with_refs)}] LLaVA analizuje obrazek {img['id']}...")
         extracted_image_data[img["id"]] = llava.extract_data(img["bytes"])
   
-    print(f"\n[AI] Koniec pracy LLaVA. Zwalniam VRAM karty graficznej...")
+    print("\n[AI] Koniec pracy LLaVA. Zwalniam VRAM karty graficznej...")
     del llava
     gc.collect() 
 
-    print(f"\n[AI] Ładowanie Sędziego (Gemma) do VRAM...")
+    print("\n[AI] Ładowanie Sędziego (Gemma) do VRAM...")
     checker = ConsistencyChecker()
     
     for img in images_with_refs:
@@ -125,8 +124,8 @@ if __name__ == "__main__":
     print("==================================================")
     print(f"Plik: {config.THESIS_PATH}")
     
-    from analysis.extraction.extraction_json import extractPDF
-    from analysis.extraction.converter_linguistics_clean import PDFMapper
+    from analysis.extraction.main_extractor import extractPDF
+    from analysis.extraction.linguistics_extraction.converter_linguistics_clean import PDFMapper
     
     start_time = time.time()
     

@@ -1,8 +1,6 @@
 import os
 import sys
 
-import os
-import sys
 
 def resource_path(relative_path):
     """local and pyinstaller working path"""

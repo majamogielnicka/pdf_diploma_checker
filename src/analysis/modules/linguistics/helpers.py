@@ -3,7 +3,7 @@ import dataclasses
 import json
 import morfeusz2
 from lingua import Language, LanguageDetectorBuilder
-from analysis.extraction.schema import *
+from analysis.extraction.linguistics_extraction.schema import *
 from .linguistics_types import Block_context, Error_type
 from collections import defaultdict
 import functools
@@ -21,7 +21,6 @@ LT_DATA_DIR = os.path.join(app_data, "DiplomaChecker", "LanguageTool")
 os.makedirs(LT_DATA_DIR, exist_ok=True)
 os.environ["LTP_PATH"] = LT_DATA_DIR
 
-import language_tool_python
 morf = morfeusz2.Morfeusz()
 spell = SpellChecker()
 spell.word_frequency.load_text_file(resource_path(os.path.join("analysis", "modules", "linguistics", "word_whitelist.txt")))

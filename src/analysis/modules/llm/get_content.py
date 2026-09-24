@@ -5,7 +5,6 @@ import fitz
 from dataclasses import dataclass
 from pathlib import Path
 from collections import Counter
-import fitz
 
 file_path = Path("src/theses/doju1.pdf")
 output_path = Path("src/llm/wyniki/blocks.txt")

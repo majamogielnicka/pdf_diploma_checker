@@ -1,4 +1,3 @@
-import json
 import re
 from .language_error_extractor import typo_check
 

@@ -14,7 +14,6 @@ for _p in (os.path.dirname(_src_dir), _src_dir):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from common.path import resource_path
 
 from analysis.modules.llm.config import THESIS_PATH, LANGUAGE, MODEL_PATH, N_GPU_LAYERS
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm

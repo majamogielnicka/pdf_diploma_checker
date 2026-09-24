@@ -1,0 +1,1528 @@
+=== RAPORT BŁĘDÓW REDAKCJI ===
+Plik źródłowy: zusz.pdf
+Użyta konfiguracja: wymagania_inz.json
+--------------------------------------------------
+
+Znaleziono 242 błędów:
+
+[ERR_RED_0] Typ: config_file
+     Strona: None
+     Bbox: (5.0, 5, 80.08, 45)
+     Tekst: None
+     Komentarz: Dokument ma 63 stron, więcej niż maksymalna liczba 60.
+----------------------------------------
+[ERR_RED_1] Typ: config_file
+     Strona: 1
+     Bbox: (90.08, 5, 165.16, 45)
+     Tekst: None
+     Komentarz: Oczekiwany większy margines po lewej stronie stronie: left=99.26399993896484, right=278.6208801269531.
+----------------------------------------
+[ERR_RED_2] Typ: config_file
+     Strona: None
+     Bbox: (175.16, 5, 250.24, 45)
+     Tekst: None
+     Komentarz: Używana czcionka (ArialMT) jest niezgodna z wymaganą czcionką.
+----------------------------------------
+[ERR_RED_3] Typ: blank_page
+     Strona: 1
+     Bbox: (260.24, 5, 335.32, 45)
+     Tekst: 
+     Komentarz: Wykryto pustą stronę.
+----------------------------------------
+[ERR_RED_4] Typ: blank_page
+     Strona: 3
+     Bbox: (5.0, 5, 292.78, 45)
+     Tekst: 
+     Komentarz: Wykryto pustą stronę.
+----------------------------------------
+[ERR_RED_5] Typ: blank_page
+     Strona: 5
+     Bbox: (5.0, 5, 590.56, 45)
+     Tekst: 
+     Komentarz: Wykryto pustą stronę.
+----------------------------------------
+[ERR_RED_6] Typ: blank_page
+     Strona: 9
+     Bbox: (5.0, 5, 590.56, 45)
+     Tekst: 
+     Komentarz: Wykryto pustą stronę.
+----------------------------------------
+[ERR_RED_7] Typ: Footer_on_forbidden_page
+     Strona: 1
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: Footer detected
+     Komentarz: Wykryto numerację na stronie 1, która znajduje się przed pierwszym rozdziałem lub nagłówkiem (oczekiwano od strony 2).
+----------------------------------------
+[ERR_RED_8] Typ: Wrong_page_number
+     Strona: 2
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: 3
+     Komentarz: Błędny numer strony. Wykryto: 3, oczekiwano: 2.
+----------------------------------------
+[ERR_RED_9] Typ: Wrong_page_number
+     Strona: 3
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: 4
+     Komentarz: Błędny numer strony. Wykryto: 4, oczekiwano: 3.
+----------------------------------------
+[ERR_RED_10] Typ: Wrong_page_number
+     Strona: 4
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: 5
+     Komentarz: Błędny numer strony. Wykryto: 5, oczekiwano: 4.
+----------------------------------------
+[ERR_RED_11] Typ: Wrong_page_number
+     Strona: 5
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: 6
+     Komentarz: Błędny numer strony. Wykryto: 6, oczekiwano: 5.
+----------------------------------------
+[ERR_RED_12] Typ: Wrong_page_number
+     Strona: 6
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: 7
+     Komentarz: Błędny numer strony. Wykryto: 7, oczekiwano: 6.
+----------------------------------------
+[ERR_RED_13] Typ: Wrong_page_number
+     Strona: 7
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: 8
+     Komentarz: Błędny numer strony. Wykryto: 8, oczekiwano: 7.
+----------------------------------------
+[ERR_RED_14] Typ: Wrong_page_number
+     Strona: 8
+     Bbox: (307.75, 769.0487670898438, 316.9391174316406, 781.3583984375)
+     Tekst: 9
+     Komentarz: Błędny numer strony. Wykryto: 9, oczekiwano: 8.
+----------------------------------------
+[ERR_RED_15] Typ: Wrong_page_number
+     Strona: 9
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 10
+     Komentarz: Błędny numer strony. Wykryto: 10, oczekiwano: 9.
+----------------------------------------
+[ERR_RED_16] Typ: Wrong_page_number
+     Strona: 10
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 11
+     Komentarz: Błędny numer strony. Wykryto: 11, oczekiwano: 10.
+----------------------------------------
+[ERR_RED_17] Typ: Wrong_page_number
+     Strona: 11
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 12
+     Komentarz: Błędny numer strony. Wykryto: 12, oczekiwano: 11.
+----------------------------------------
+[ERR_RED_18] Typ: Wrong_page_number
+     Strona: 12
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 13
+     Komentarz: Błędny numer strony. Wykryto: 13, oczekiwano: 12.
+----------------------------------------
+[ERR_RED_19] Typ: Wrong_page_number
+     Strona: 13
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 14
+     Komentarz: Błędny numer strony. Wykryto: 14, oczekiwano: 13.
+----------------------------------------
+[ERR_RED_20] Typ: Wrong_page_number
+     Strona: 14
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 15
+     Komentarz: Błędny numer strony. Wykryto: 15, oczekiwano: 14.
+----------------------------------------
+[ERR_RED_21] Typ: Wrong_page_number
+     Strona: 15
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 16
+     Komentarz: Błędny numer strony. Wykryto: 16, oczekiwano: 15.
+----------------------------------------
+[ERR_RED_22] Typ: Wrong_page_number
+     Strona: 16
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 17
+     Komentarz: Błędny numer strony. Wykryto: 17, oczekiwano: 16.
+----------------------------------------
+[ERR_RED_23] Typ: Wrong_page_number
+     Strona: 17
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 18
+     Komentarz: Błędny numer strony. Wykryto: 18, oczekiwano: 17.
+----------------------------------------
+[ERR_RED_24] Typ: Wrong_page_number
+     Strona: 18
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 19
+     Komentarz: Błędny numer strony. Wykryto: 19, oczekiwano: 18.
+----------------------------------------
+[ERR_RED_25] Typ: Wrong_page_number
+     Strona: 19
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 20
+     Komentarz: Błędny numer strony. Wykryto: 20, oczekiwano: 19.
+----------------------------------------
+[ERR_RED_26] Typ: Wrong_page_number
+     Strona: 20
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 21
+     Komentarz: Błędny numer strony. Wykryto: 21, oczekiwano: 20.
+----------------------------------------
+[ERR_RED_27] Typ: Wrong_page_number
+     Strona: 21
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 22
+     Komentarz: Błędny numer strony. Wykryto: 22, oczekiwano: 21.
+----------------------------------------
+[ERR_RED_28] Typ: Wrong_page_number
+     Strona: 22
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 23
+     Komentarz: Błędny numer strony. Wykryto: 23, oczekiwano: 22.
+----------------------------------------
+[ERR_RED_29] Typ: Wrong_page_number
+     Strona: 23
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 24
+     Komentarz: Błędny numer strony. Wykryto: 24, oczekiwano: 23.
+----------------------------------------
+[ERR_RED_30] Typ: Wrong_page_number
+     Strona: 24
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 25
+     Komentarz: Błędny numer strony. Wykryto: 25, oczekiwano: 24.
+----------------------------------------
+[ERR_RED_31] Typ: Wrong_page_number
+     Strona: 25
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 26
+     Komentarz: Błędny numer strony. Wykryto: 26, oczekiwano: 25.
+----------------------------------------
+[ERR_RED_32] Typ: Wrong_page_number
+     Strona: 26
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 27
+     Komentarz: Błędny numer strony. Wykryto: 27, oczekiwano: 26.
+----------------------------------------
+[ERR_RED_33] Typ: Wrong_page_number
+     Strona: 27
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 28
+     Komentarz: Błędny numer strony. Wykryto: 28, oczekiwano: 27.
+----------------------------------------
+[ERR_RED_34] Typ: Wrong_page_number
+     Strona: 28
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 29
+     Komentarz: Błędny numer strony. Wykryto: 29, oczekiwano: 28.
+----------------------------------------
+[ERR_RED_35] Typ: Wrong_page_number
+     Strona: 29
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 30
+     Komentarz: Błędny numer strony. Wykryto: 30, oczekiwano: 29.
+----------------------------------------
+[ERR_RED_36] Typ: Wrong_page_number
+     Strona: 30
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 31
+     Komentarz: Błędny numer strony. Wykryto: 31, oczekiwano: 30.
+----------------------------------------
+[ERR_RED_37] Typ: Wrong_page_number
+     Strona: 31
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 32
+     Komentarz: Błędny numer strony. Wykryto: 32, oczekiwano: 31.
+----------------------------------------
+[ERR_RED_38] Typ: Wrong_page_number
+     Strona: 32
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 33
+     Komentarz: Błędny numer strony. Wykryto: 33, oczekiwano: 32.
+----------------------------------------
+[ERR_RED_39] Typ: Wrong_page_number
+     Strona: 33
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 34
+     Komentarz: Błędny numer strony. Wykryto: 34, oczekiwano: 33.
+----------------------------------------
+[ERR_RED_40] Typ: Wrong_page_number
+     Strona: 34
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 35
+     Komentarz: Błędny numer strony. Wykryto: 35, oczekiwano: 34.
+----------------------------------------
+[ERR_RED_41] Typ: Wrong_page_number
+     Strona: 35
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 36
+     Komentarz: Błędny numer strony. Wykryto: 36, oczekiwano: 35.
+----------------------------------------
+[ERR_RED_42] Typ: Wrong_page_number
+     Strona: 36
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 37
+     Komentarz: Błędny numer strony. Wykryto: 37, oczekiwano: 36.
+----------------------------------------
+[ERR_RED_43] Typ: Wrong_page_number
+     Strona: 37
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 38
+     Komentarz: Błędny numer strony. Wykryto: 38, oczekiwano: 37.
+----------------------------------------
+[ERR_RED_44] Typ: Wrong_page_number
+     Strona: 38
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 39
+     Komentarz: Błędny numer strony. Wykryto: 39, oczekiwano: 38.
+----------------------------------------
+[ERR_RED_45] Typ: Wrong_page_number
+     Strona: 39
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 40
+     Komentarz: Błędny numer strony. Wykryto: 40, oczekiwano: 39.
+----------------------------------------
+[ERR_RED_46] Typ: Wrong_page_number
+     Strona: 40
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 41
+     Komentarz: Błędny numer strony. Wykryto: 41, oczekiwano: 40.
+----------------------------------------
+[ERR_RED_47] Typ: Wrong_page_number
+     Strona: 41
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 42
+     Komentarz: Błędny numer strony. Wykryto: 42, oczekiwano: 41.
+----------------------------------------
+[ERR_RED_48] Typ: Wrong_page_number
+     Strona: 42
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 43
+     Komentarz: Błędny numer strony. Wykryto: 43, oczekiwano: 42.
+----------------------------------------
+[ERR_RED_49] Typ: Wrong_page_number
+     Strona: 43
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 44
+     Komentarz: Błędny numer strony. Wykryto: 44, oczekiwano: 43.
+----------------------------------------
+[ERR_RED_50] Typ: Wrong_page_number
+     Strona: 44
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 45
+     Komentarz: Błędny numer strony. Wykryto: 45, oczekiwano: 44.
+----------------------------------------
+[ERR_RED_51] Typ: Wrong_page_number
+     Strona: 45
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 46
+     Komentarz: Błędny numer strony. Wykryto: 46, oczekiwano: 45.
+----------------------------------------
+[ERR_RED_52] Typ: Wrong_page_number
+     Strona: 46
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 47
+     Komentarz: Błędny numer strony. Wykryto: 47, oczekiwano: 46.
+----------------------------------------
+[ERR_RED_53] Typ: Wrong_page_number
+     Strona: 47
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 48
+     Komentarz: Błędny numer strony. Wykryto: 48, oczekiwano: 47.
+----------------------------------------
+[ERR_RED_54] Typ: Wrong_page_number
+     Strona: 48
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 49
+     Komentarz: Błędny numer strony. Wykryto: 49, oczekiwano: 48.
+----------------------------------------
+[ERR_RED_55] Typ: Wrong_page_number
+     Strona: 49
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 50
+     Komentarz: Błędny numer strony. Wykryto: 50, oczekiwano: 49.
+----------------------------------------
+[ERR_RED_56] Typ: Wrong_page_number
+     Strona: 50
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 51
+     Komentarz: Błędny numer strony. Wykryto: 51, oczekiwano: 50.
+----------------------------------------
+[ERR_RED_57] Typ: Wrong_page_number
+     Strona: 51
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 52
+     Komentarz: Błędny numer strony. Wykryto: 52, oczekiwano: 51.
+----------------------------------------
+[ERR_RED_58] Typ: Wrong_page_number
+     Strona: 52
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 53
+     Komentarz: Błędny numer strony. Wykryto: 53, oczekiwano: 52.
+----------------------------------------
+[ERR_RED_59] Typ: Wrong_page_number
+     Strona: 53
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 54
+     Komentarz: Błędny numer strony. Wykryto: 54, oczekiwano: 53.
+----------------------------------------
+[ERR_RED_60] Typ: Wrong_page_number
+     Strona: 54
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 55
+     Komentarz: Błędny numer strony. Wykryto: 55, oczekiwano: 54.
+----------------------------------------
+[ERR_RED_61] Typ: Wrong_page_number
+     Strona: 55
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 56
+     Komentarz: Błędny numer strony. Wykryto: 56, oczekiwano: 55.
+----------------------------------------
+[ERR_RED_62] Typ: Wrong_page_number
+     Strona: 56
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 57
+     Komentarz: Błędny numer strony. Wykryto: 57, oczekiwano: 56.
+----------------------------------------
+[ERR_RED_63] Typ: Wrong_page_number
+     Strona: 57
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 58
+     Komentarz: Błędny numer strony. Wykryto: 58, oczekiwano: 57.
+----------------------------------------
+[ERR_RED_64] Typ: Wrong_page_number
+     Strona: 58
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 59
+     Komentarz: Błędny numer strony. Wykryto: 59, oczekiwano: 58.
+----------------------------------------
+[ERR_RED_65] Typ: Wrong_page_number
+     Strona: 59
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 60
+     Komentarz: Błędny numer strony. Wykryto: 60, oczekiwano: 59.
+----------------------------------------
+[ERR_RED_66] Typ: Wrong_page_number
+     Strona: 60
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 61
+     Komentarz: Błędny numer strony. Wykryto: 61, oczekiwano: 60.
+----------------------------------------
+[ERR_RED_67] Typ: Wrong_page_number
+     Strona: 61
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 62
+     Komentarz: Błędny numer strony. Wykryto: 62, oczekiwano: 61.
+----------------------------------------
+[ERR_RED_68] Typ: Wrong_page_number
+     Strona: 62
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 63
+     Komentarz: Błędny numer strony. Wykryto: 63, oczekiwano: 62.
+----------------------------------------
+[ERR_RED_69] Typ: Wrong_page_number
+     Strona: 63
+     Bbox: (304.6300048828125, 769.0487670898438, 319.9391174316406, 781.3583984375)
+     Tekst: 64
+     Komentarz: Błędny numer strony. Wykryto: 64, oczekiwano: 63.
+----------------------------------------
+[ERR_RED_70] Typ: numeration_invalid
+     Strona: 1
+     Bbox: (345.32, 5, 420.4, 45)
+     Tekst: None
+     Komentarz: Z racji niepoprawnej numeracji stron, niemożliwe jest sprawdzenie poprawności spisu treści, rysunków oraz tabel.
+----------------------------------------
+[ERR_RED_71] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (99.26399993896484, 71.14875793457031, 527.7091064453125, 83.4583511352539)
+     Tekst: WYKAZ WAŻNIEJSZYCH OZNACZEŃ I SKRÓTÓW
+     Komentarz: Rozdział/Podrozdział 'WYKAZ WAŻNIEJSZYCH OZNACZEŃ I SKRÓTÓW' nie znajduje się na wskazanej stronie (strona 9).
+----------------------------------------
+[ERR_RED_72] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (99.26399993896484, 89.86878967285156, 111.4491195678711, 102.17838287353516)
+     Tekst: 1 WSTĘP I CEL PRACY
+     Komentarz: Rozdział/Podrozdział '1 WSTĘP I CEL PRACY' nie znajduje się na wskazanej stronie (strona 11).
+----------------------------------------
+[ERR_RED_73] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (99.26399993896484, 107.50880432128906, 111.4491195678711, 119.81839752197266)
+     Tekst: 2 PRZEGLĄD LITERATURY
+     Komentarz: Rozdział/Podrozdział '2 PRZEGLĄD LITERATURY' nie znajduje się na wskazanej stronie (strona 12).
+----------------------------------------
+[ERR_RED_74] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 125.14875793457031, 527.7091064453125, 137.45835876464844)
+     Tekst: 2.1 Technologie druku 3D
+     Komentarz: Rozdział/Podrozdział '2.1 Technologie druku 3D' nie znajduje się na wskazanej stronie (strona 13).
+----------------------------------------
+[ERR_RED_75] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 142.7887725830078, 527.7091064453125, 155.09837341308594)
+     Tekst: 2.1.1 Stereolitografia
+     Komentarz: Rozdział/Podrozdział '2.1.1 Stereolitografia' nie znajduje się na wskazanej stronie (strona 13).
+----------------------------------------
+[ERR_RED_76] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 160.4287872314453, 527.7091064453125, 172.73838806152344)
+     Tekst: 2.1.2 Metoda JS
+     Komentarz: Rozdział/Podrozdział '2.1.2 Metoda JS' nie znajduje się na wskazanej stronie (strona 14).
+----------------------------------------
+[ERR_RED_77] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 178.0688018798828, 527.7091064453125, 190.37840270996094)
+     Tekst: 2.1.4 Metoda 3DP
+     Komentarz: Rozdział/Podrozdział '2.1.4 Metoda 3DP' nie znajduje się na wskazanej stronie (strona 16).
+----------------------------------------
+[ERR_RED_78] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 195.70875549316406, 527.7091064453125, 208.0183563232422)
+     Tekst: 2.1.5 Metoda LOM
+     Komentarz: Rozdział/Podrozdział '2.1.5 Metoda LOM' nie znajduje się na wskazanej stronie (strona 16).
+----------------------------------------
+[ERR_RED_79] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 213.34877014160156, 527.7091064453125, 225.6583709716797)
+     Tekst: 2.1.6 Metoda FDM
+     Komentarz: Rozdział/Podrozdział '2.1.6 Metoda FDM' nie znajduje się na wskazanej stronie (strona 17).
+----------------------------------------
+[ERR_RED_80] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 230.98878479003906, 527.7091064453125, 243.2983856201172)
+     Tekst: 2.2 Materiały wykorzystywane w metodzie FDM
+     Komentarz: Rozdział/Podrozdział '2.2 Materiały wykorzystywane w metodzie FDM' nie znajduje się na wskazanej stronie (strona 19).
+----------------------------------------
+[ERR_RED_81] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 248.6587677001953, 527.7091064453125, 260.9683532714844)
+     Tekst: 2.2.1 PLA (polilaktyd)
+     Komentarz: Rozdział/Podrozdział '2.2.1 PLA (polilaktyd)' nie znajduje się na wskazanej stronie (strona 19).
+----------------------------------------
+[ERR_RED_82] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 266.41876220703125, 527.7091064453125, 278.7283630371094)
+     Tekst: 2.2.2 ABS
+     Komentarz: Rozdział/Podrozdział '2.2.2 ABS' nie znajduje się na wskazanej stronie (strona 21).
+----------------------------------------
+[ERR_RED_83] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 284.05877685546875, 527.7091064453125, 296.3683776855469)
+     Tekst: 2.2.3 PET-G
+     Komentarz: Rozdział/Podrozdział '2.2.3 PET-G' nie znajduje się na wskazanej stronie (strona 21).
+----------------------------------------
+[ERR_RED_84] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 301.69879150390625, 527.7091064453125, 314.0083923339844)
+     Tekst: 2.2.4 TPU
+     Komentarz: Rozdział/Podrozdział '2.2.4 TPU' nie znajduje się na wskazanej stronie (strona 21).
+----------------------------------------
+[ERR_RED_85] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 319.3387451171875, 527.7091064453125, 331.6483459472656)
+     Tekst: 2.2.5 Nylon
+     Komentarz: Rozdział/Podrozdział '2.2.5 Nylon' nie znajduje się na wskazanej stronie (strona 22).
+----------------------------------------
+[ERR_RED_86] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 336.978759765625, 527.7091064453125, 349.2883605957031)
+     Tekst: 2.2.6 Materiały kompozytowe
+     Komentarz: Rozdział/Podrozdział '2.2.6 Materiały kompozytowe' nie znajduje się na wskazanej stronie (strona 22).
+----------------------------------------
+[ERR_RED_87] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 354.6187744140625, 527.7091064453125, 366.9283752441406)
+     Tekst: 2.3 Proces tworzenia modeli 3D
+     Komentarz: Rozdział/Podrozdział '2.3 Proces tworzenia modeli 3D' nie znajduje się na wskazanej stronie (strona 22).
+----------------------------------------
+[ERR_RED_88] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 372.2587585449219, 527.7091064453125, 384.568359375)
+     Tekst: 2.4 Filamenty przewodzące w druku 3D
+     Komentarz: Rozdział/Podrozdział '2.4 Filamenty przewodzące w druku 3D' nie znajduje się na wskazanej stronie (strona 23).
+----------------------------------------
+[ERR_RED_89] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 389.8987731933594, 527.7091064453125, 402.2083740234375)
+     Tekst: 2.4.1 Zjawisko perkolacji
+     Komentarz: Rozdział/Podrozdział '2.4.1 Zjawisko perkolacji' nie znajduje się na wskazanej stronie (strona 24).
+----------------------------------------
+[ERR_RED_90] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 407.55877685546875, 527.7091064453125, 419.8683776855469)
+     Tekst: 2.4.2 Rezystywność elektryczna
+     Komentarz: Rozdział/Podrozdział '2.4.2 Rezystywność elektryczna' nie znajduje się na wskazanej stronie (strona 25).
+----------------------------------------
+[ERR_RED_91] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 425.1987609863281, 527.7091064453125, 437.50836181640625)
+     Tekst: 2.4.3 Elektronika drukowana
+     Komentarz: Rozdział/Podrozdział '2.4.3 Elektronika drukowana' nie znajduje się na wskazanej stronie (strona 26).
+----------------------------------------
+[ERR_RED_92] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 442.8387756347656, 527.7091064453125, 455.14837646484375)
+     Tekst: 2.4.4 Grafen
+     Komentarz: Rozdział/Podrozdział '2.4.4 Grafen' nie znajduje się na wskazanej stronie (strona 27).
+----------------------------------------
+[ERR_RED_93] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 460.478759765625, 527.7091064453125, 472.7883605957031)
+     Tekst: 2.4.5 GNP – nanopłatki grafenowe/Graphene nanoplatelets
+     Komentarz: Rozdział/Podrozdział '2.4.5 GNP – nanopłatki grafenowe/Graphene nanoplatelets' nie znajduje się na wskazanej stronie (strona 28).
+----------------------------------------
+[ERR_RED_94] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 478.1187744140625, 527.7091064453125, 490.4283752441406)
+     Tekst: 2.4.6 CNT – nanorurki węglowe/carbon nanotubes
+     Komentarz: Rozdział/Podrozdział '2.4.6 CNT – nanorurki węglowe/carbon nanotubes' nie znajduje się na wskazanej stronie (strona 28).
+----------------------------------------
+[ERR_RED_95] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 495.8787536621094, 527.7091064453125, 508.1883544921875)
+     Tekst: 2.4.7 CB – sadza/carbon black
+     Komentarz: Rozdział/Podrozdział '2.4.7 CB – sadza/carbon black' nie znajduje się na wskazanej stronie (strona 29).
+----------------------------------------
+[ERR_RED_96] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 513.518798828125, 527.7091064453125, 525.8284301757812)
+     Tekst: 2.4.8 Grafit
+     Komentarz: Rozdział/Podrozdział '2.4.8 Grafit' nie znajduje się na wskazanej stronie (strona 30).
+----------------------------------------
+[ERR_RED_97] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 531.1587524414062, 527.7091064453125, 543.4683837890625)
+     Tekst: 2 5 Podsumowanie
+     Komentarz: Rozdział/Podrozdział '2 5 Podsumowanie' nie znajduje się na wskazanej stronie (strona 30).
+----------------------------------------
+[ERR_RED_98] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (99.26399993896484, 548.7987670898438, 527.7091064453125, 561.1083984375)
+     Tekst: 3 MATERIAŁY I METODY
+     Komentarz: Rozdział/Podrozdział '3 MATERIAŁY I METODY' nie znajduje się na wskazanej stronie (strona 32).
+----------------------------------------
+[ERR_RED_99] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 566.4387817382812, 527.7091064453125, 578.7484130859375)
+     Tekst: 3.1 Zasoby techniczne
+     Komentarz: Rozdział/Podrozdział '3.1 Zasoby techniczne' nie znajduje się na wskazanej stronie (strona 32).
+----------------------------------------
+[ERR_RED_100] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 584.1087646484375, 527.7091064453125, 596.4183959960938)
+     Tekst: 3.2 Parametry eksperymentalne
+     Komentarz: Rozdział/Podrozdział '3.2 Parametry eksperymentalne' nie znajduje się na wskazanej stronie (strona 33).
+----------------------------------------
+[ERR_RED_101] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 601.748779296875, 527.7091064453125, 614.0584106445312)
+     Tekst: 3.4 Pomiar rezystancji metodą czteroelektrodową
+     Komentarz: Rozdział/Podrozdział '3.4 Pomiar rezystancji metodą czteroelektrodową' nie znajduje się na wskazanej stronie (strona 34).
+----------------------------------------
+[ERR_RED_102] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (121.22000122070312, 619.3887939453125, 527.7091064453125, 631.6984252929688)
+     Tekst: 3.4.1 Rozmieszczenie elektrod prądowych
+     Komentarz: Rozdział/Podrozdział '3.4.1 Rozmieszczenie elektrod prądowych' nie znajduje się na wskazanej stronie (strona 35).
+----------------------------------------
+[ERR_RED_103] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 637.0287475585938, 527.7091064453125, 649.33837890625)
+     Tekst: 3.5 Procedura pomiarów elektrycznych
+     Komentarz: Rozdział/Podrozdział '3.5 Procedura pomiarów elektrycznych' nie znajduje się na wskazanej stronie (strona 36).
+----------------------------------------
+[ERR_RED_104] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 654.6687622070312, 527.7091064453125, 666.9783935546875)
+     Tekst: 3.6 Zasady przeprowadzania obliczeń statystycznych i wymiary próbek
+     Komentarz: Rozdział/Podrozdział '3.6 Zasady przeprowadzania obliczeń statystycznych i wymiary próbek' nie znajduje się na wskazanej stronie (strona 37).
+----------------------------------------
+[ERR_RED_105] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (99.26399993896484, 672.3087768554688, 527.7091064453125, 684.618408203125)
+     Tekst: 4 IMPLEMENTACJA
+     Komentarz: Rozdział/Podrozdział '4 IMPLEMENTACJA' nie znajduje się na wskazanej stronie (strona 39).
+----------------------------------------
+[ERR_RED_106] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 689.94873046875, 527.7091064453125, 702.2583618164062)
+     Tekst: 4.1 Projektowanie układu pomiarowego
+     Komentarz: Rozdział/Podrozdział '4.1 Projektowanie układu pomiarowego' nie znajduje się na wskazanej stronie (strona 39).
+----------------------------------------
+[ERR_RED_107] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 707.5887451171875, 527.7091064453125, 719.8983764648438)
+     Tekst: 4.2 Analiza początkowych koncepcji układu pomiarowego
+     Komentarz: Rozdział/Podrozdział '4.2 Analiza początkowych koncepcji układu pomiarowego' nie znajduje się na wskazanej stronie (strona 40).
+----------------------------------------
+[ERR_RED_108] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 725.3487548828125, 527.7091064453125, 737.6583862304688)
+     Tekst: 4.3 Próbne wydruki i weryfikacja parametrów
+     Komentarz: Rozdział/Podrozdział '4.3 Próbne wydruki i weryfikacja parametrów' nie znajduje się na wskazanej stronie (strona 41).
+----------------------------------------
+[ERR_RED_109] Typ: TOC_mismatch
+     Strona: 6
+     Bbox: (110.30000305175781, 743.0087890625, 527.7091064453125, 755.3184204101562)
+     Tekst: 4.4 Przygotowanie próbek do badań
+     Komentarz: Rozdział/Podrozdział '4.4 Przygotowanie próbek do badań' nie znajduje się na wskazanej stronie (strona 43).
+----------------------------------------
+[ERR_RED_110] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (99.26399993896484, 71.14875793457031, 527.7091064453125, 83.4583511352539)
+     Tekst: 5 POMIARY ELEKTRYCZNE
+     Komentarz: Rozdział/Podrozdział '5 POMIARY ELEKTRYCZNE' nie znajduje się na wskazanej stronie (strona 46).
+----------------------------------------
+[ERR_RED_111] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 88.78877258300781, 527.7091064453125, 101.0983657836914)
+     Tekst: 5.1 Metodyka pomiarowa
+     Komentarz: Rozdział/Podrozdział '5.1 Metodyka pomiarowa' nie znajduje się na wskazanej stronie (strona 46).
+----------------------------------------
+[ERR_RED_112] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 149.38880920410156, 527.7091064453125, 161.6984100341797)
+     Tekst: odległości elektrod napięciowych
+     Komentarz: Rozdział/Podrozdział 'odległości elektrod napięciowych' nie znajduje się na wskazanej stronie (strona 48).
+----------------------------------------
+[ERR_RED_113] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 167.1487579345703, 527.7091064453125, 179.45835876464844)
+     Tekst: 5.4 Wpływ kierunku wypełnienia na przewodność elektryczną
+     Komentarz: Rozdział/Podrozdział '5.4 Wpływ kierunku wypełnienia na przewodność elektryczną' nie znajduje się na wskazanej stronie (strona 49).
+----------------------------------------
+[ERR_RED_114] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 184.7887725830078, 527.7091064453125, 197.09837341308594)
+     Tekst: 5.5 Badanie przewodności elektrycznej jednej warstwy
+     Komentarz: Rozdział/Podrozdział '5.5 Badanie przewodności elektrycznej jednej warstwy' nie znajduje się na wskazanej stronie (strona 51).
+----------------------------------------
+[ERR_RED_115] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 202.4287872314453, 527.7091064453125, 214.73838806152344)
+     Tekst: 5.6 Badanie przewodności elektrycznej pojedynczego włókna
+     Komentarz: Rozdział/Podrozdział '5.6 Badanie przewodności elektrycznej pojedynczego włókna' nie znajduje się na wskazanej stronie (strona 52).
+----------------------------------------
+[ERR_RED_116] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 220.0688018798828, 527.7091064453125, 232.37840270996094)
+     Tekst: 5.7 Wpływ temperatury dyszy na przewodność elektryczną
+     Komentarz: Rozdział/Podrozdział '5.7 Wpływ temperatury dyszy na przewodność elektryczną' nie znajduje się na wskazanej stronie (strona 53).
+----------------------------------------
+[ERR_RED_117] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 237.73878479003906, 527.7091064453125, 250.0483856201172)
+     Tekst: 5.8 Wpływ zmian właściwości filamentu na rezystancję elektryczną
+     Komentarz: Rozdział/Podrozdział '5.8 Wpływ zmian właściwości filamentu na rezystancję elektryczną' nie znajduje się na wskazanej stronie (strona 56).
+----------------------------------------
+[ERR_RED_118] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 255.37879943847656, 527.7091064453125, 267.6883850097656)
+     Tekst: 5.9 Wpływ odkształceń mechanicznych na przewodność elektryczną
+     Komentarz: Rozdział/Podrozdział '5.9 Wpływ odkształceń mechanicznych na przewodność elektryczną' nie znajduje się na wskazanej stronie (strona 58).
+----------------------------------------
+[ERR_RED_119] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (110.30000305175781, 285.6187744140625, 527.7091064453125, 297.9283752441406)
+     Tekst: zmiany rezystancji w czasie
+     Komentarz: Rozdział/Podrozdział 'zmiany rezystancji w czasie' nie znajduje się na wskazanej stronie (strona 59).
+----------------------------------------
+[ERR_RED_120] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (99.26399993896484, 303.2587890625, 527.7091064453125, 315.5683898925781)
+     Tekst: 6 PODSUMOWANIE
+     Komentarz: Rozdział/Podrozdział '6 PODSUMOWANIE' nie znajduje się na wskazanej stronie (strona 61).
+----------------------------------------
+[ERR_RED_121] Typ: TOC_mismatch
+     Strona: 7
+     Bbox: (99.26399993896484, 321.0187683105469, 527.7091064453125, 333.328369140625)
+     Tekst: WYKAZ LITERATURY
+     Komentarz: Rozdział/Podrozdział 'WYKAZ LITERATURY' nie znajduje się na wskazanej stronie (strona 62).
+----------------------------------------
+[ERR_RED_122] Typ: lack_of_TOF
+     Strona: 1
+     Bbox: (430.4, 5, 505.48, 45)
+     Tekst: None
+     Komentarz: Wykryto brak spisu rysunków.
+----------------------------------------
+[ERR_RED_123] Typ: lack_of_TOT
+     Strona: 1
+     Bbox: (515.48, 5, 590.56, 45)
+     Tekst: None
+     Komentarz: Wykryto brak spisu tabel.
+----------------------------------------
+[ERR_RED_125] Typ: raster_image
+     Strona: 11
+     Bbox: (143.1699981689453, 431.15997314453125, 480.6199951171875, 724.1900024414062)
+     Tekst: Rys. 2.1. Schematyczny diagram procesu drukowania FDM [12]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_126] Typ: raster_image
+     Strona: 13
+     Bbox: (161.64999389648438, 249.3399658203125, 462.1999816894531, 544.0899658203125)
+     Tekst: Rys. 2.2. Schematyczny diagram procesu drukowania SLA [31]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_127] Typ: raster_image
+     Strona: 14
+     Bbox: (157.82000732421875, 70.8499755859375, 466.0, 353.39996337890625)
+     Tekst: Rys. 2.3. Schematyczny diagram procesu drukowania JS [31]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_128] Typ: raster_image
+     Strona: 15
+     Bbox: (160.97000122070312, 70.8499755859375, 462.8699951171875, 358.8499755859375)
+     Tekst: Rys. 2.4. Schematyczny diagram procesu drukowania SLS [31]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_129] Typ: raster_image
+     Strona: 16
+     Bbox: (178.4199981689453, 492.5999755859375, 444.969970703125, 737.5299682617188)
+     Tekst: Rys. 2.5. Schemat procesu technologicznego FDM [4]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_130] Typ: raster_image
+     Strona: 19
+     Bbox: (133.4199981689453, 70.8499755859375, 490.32000732421875, 339.1199645996094)
+     Tekst: Rys. 2.6. Źródła kwasu mlekowego [17]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_131] Typ: raster_image
+     Strona: 22
+     Bbox: (155.9199981689453, 70.84999084472656, 467.66998291015625, 297.29998779296875)
+     Tekst: Rys. 2.7. Zintegrowane systemy komputerowe [9]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_132] Typ: raster_image
+     Strona: 23
+     Bbox: (99.19999694824219, 608.06298828125, 525.1500244140625, 747.54296875)
+     Tekst: Rys. 2.8. Wzorce modelu perkolacji: (po lewej) dla φ < φc, (w środku) dla φ = φc, gdzie pojawia się
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_133] Typ: raster_image
+     Strona: 25
+     Bbox: (154.22000122070312, 70.84999084472656, 469.5, 175.29998779296875)
+     Tekst: Rys.2.9. Rezystywność elektryczna [35]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_134] Typ: raster_image
+     Strona: 27
+     Bbox: (168.6300048828125, 389.0799560546875, 455.2300109863281, 497.0599670410156)
+     Tekst: Rys. 2.10. Geometria nanopłytek grafenowych (GNP) w strukturze włókna [23]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_135] Typ: raster_image
+     Strona: 28
+     Bbox: (167.52000427246094, 70.8499755859375, 456.260009765625, 181.0999755859375)
+     Tekst: Rys. 2.11. Geometria nanorurek węglowych (CNT) w strukturze włókna [23]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_136] Typ: raster_image
+     Strona: 28
+     Bbox: (167.8000030517578, 620.9200439453125, 456.04998779296875, 729.760009765625)
+     Tekst: Rys. 2.12. Geometria sadzy (CB) w strukturze włókna [23]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_137] Typ: raster_image
+     Strona: 32
+     Bbox: (183.6699981689453, 412.4399719238281, 439.90997314453125, 723.4400024414062)
+     Tekst: Rys. 3.1. Drukarka Bambu Lab X1 Carbon [33]
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_138] Typ: raster_image
+     Strona: 34
+     Bbox: (123.66999816894531, 70.85003662109375, 499.65997314453125, 263.75)
+     Tekst: Rys. 3.2. Układ do pomiaru rezystancji elektrycznej metodą czteroelektrodową
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_139] Typ: raster_image
+     Strona: 35
+     Bbox: (118.41999816894531, 70.84994506835938, 504.84002685546875, 312.449951171875)
+     Tekst: Rys. 3.3. Rozkład potencjału w badanej próbce. Oznaczono na rysunku pary elektrod prądowych (A i B)
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_140] Typ: raster_image
+     Strona: 36
+     Bbox: (119.12999725341797, 70.8499755859375, 504.7300109863281, 407.5899658203125)
+     Tekst: Rys. 3.4. Pomiar rezystancji elektrycznej metodą czteroelektrodową podstawowej próbki
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_141] Typ: raster_image
+     Strona: 38
+     Bbox: (114.62999725341797, 334.79998779296875, 509.2300109863281, 516.47998046875)
+     Tekst: Rys.4.1. Szkic podstawki w Fusion360
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_142] Typ: raster_image
+     Strona: 38
+     Bbox: (112.91999816894531, 556.3299560546875, 510.90997314453125, 722.2799682617188)
+     Tekst: Rys.4.2. Model podstawki w Fusion360
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_143] Typ: raster_image
+     Strona: 39
+     Bbox: (99.19999694824219, 186.3599853515625, 524.6500244140625, 349.6399841308594)
+     Tekst: Rys. 4.3. Model górnej części układu
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_144] Typ: raster_image
+     Strona: 40
+     Bbox: (209.02000427246094, 151.8399658203125, 450.80999755859375, 377.3399658203125)
+     Tekst: Rys.4.4. Mechanizm dociskowy ze sprężyną
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_145] Typ: raster_image
+     Strona: 41
+     Bbox: (99.19999694824219, 151.84002685546875, 528.5, 222.44000244140625)
+     Tekst: Rys. 4.5. Wynik wydruku próbki dla temperatur: (a) 190 °C, (b) 200 °C
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_146] Typ: raster_image
+     Strona: 42
+     Bbox: (188.9199981689453, 70.85003662109375, 434.77001953125, 413.4599914550781)
+     Tekst: Rys. 4.6. Stałe parametry dla każdej próbki
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_147] Typ: raster_image
+     Strona: 42
+     Bbox: (125.91999816894531, 604.3380126953125, 497.3499755859375, 749.0879516601562)
+     Tekst: Rys. 4.7. Model badanej próbki o wymiarach 30 x 8 x 3 mm
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_148] Typ: raster_image
+     Strona: 43
+     Bbox: (131.63999938964844, 146.63995361328125, 494.989990234375, 344.0899658203125)
+     Tekst: Rys. 4.8. Model badanej próbki w Bambu Studio
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_149] Typ: raster_image
+     Strona: 43
+     Bbox: (137.02000427246094, 565.9559936523438, 486.780029296875, 745.2559814453125)
+     Tekst: Rys. 4.9. Model próbki z kierunkiem wypełnienia 0° przedstawiony w Bambu Studio
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_150] Typ: raster_image
+     Strona: 44
+     Bbox: (135.32000732421875, 70.8499755859375, 488.4800109863281, 251.8499755859375)
+     Tekst: Rys. 4.10. Model próbki z kierunkiem wypełnienia 90° przedstawiony w Bambu Studio
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_151] Typ: raster_image
+     Strona: 44
+     Bbox: (131.60000610351562, 292.20001220703125, 492.2300109863281, 484.6999816894531)
+     Tekst: Rys. 4.11. Model pojedynczej warstwy oraz pojedynczego włókna przedstawiony w Bambu Studio
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_152] Typ: raster_image
+     Strona: 46
+     Bbox: (99.19999694824219, 244.07000732421875, 524.6500244140625, 433.2699890136719)
+     Tekst: Wykres 5.1. Charakterystyka prądowo-napięciowa (I-V) (a) w zakresie niskich prądów, (b) w całym
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_153] Typ: raster_image
+     Strona: 47
+     Bbox: (135.6699981689453, 124.239990234375, 487.469970703125, 478.41998291015625)
+     Tekst: Rys. 5.1. Schemat układu pomiarowego
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_154] Typ: raster_image
+     Strona: 48
+     Bbox: (105.66999816894531, 221.25, 518.1099853515625, 458.9499816894531)
+     Tekst: Wykres 5.2. Zależność rezystancji od odległości elektrod
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_155] Typ: raster_image
+     Strona: 50
+     Bbox: (99.19999694824219, 70.84999084472656, 528.4500122070312, 288.54998779296875)
+     Tekst: Rys. 5.2. Zdjęcia próbek pod mikroskopem: (po lewej) – kierunek wypełnienia 90°, (po prawej) – kierunek
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_156] Typ: raster_image
+     Strona: 52
+     Bbox: (163.1699981689453, 100.0999755859375, 460.6400146484375, 340.9999694824219)
+     Tekst: Rys. 5.3. Zdjęcia pojedynczego włókna pod mikroskopem
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_157] Typ: raster_image
+     Strona: 54
+     Bbox: (99.19999694824219, 356.1000061035156, 524.6500244140625, 613.5)
+     Tekst: Wykres 5.3. Wpływ temperatury dyszy na średnią rezystancję próbek
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_158] Typ: raster_image
+     Strona: 55
+     Bbox: (99.19999694824219, 88.0999755859375, 524.6500244140625, 220.14996337890625)
+     Tekst: Rys. 5.4. Zdjęcia próbek pod mikroskopem: (po lewej) –210 °C, (w środku) – 220 °C, (po prawej) – 230 °C
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_159] Typ: raster_image
+     Strona: 56
+     Bbox: (99.19999694824219, 302.32000732421875, 517.9000244140625, 543.02001953125)
+     Tekst: Wykres 5.4. Porównanie rezystancji filamentu przed i po zmianach
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_160] Typ: raster_image
+     Strona: 59
+     Bbox: (117.66999816894531, 512.8590087890625, 506.1500244140625, 744.0089721679688)
+     Tekst: Wykres 5.5. Zmiany rezystancji próbki w funkcji czasu
+     Komentarz: Wykryto grafikę rastrową - zaleca się stosowanie grafik wektorowych. Rozważ zmianę formatu grafiki.
+----------------------------------------
+[ERR_RED_161] Typ: orphan
+     Strona: 4
+     Bbox: (518.7294311523438, 219.606201171875, 524.2672119140625, 230.7115936279297)
+     Tekst: a
+     Komentarz: Wykryto sierotę - spójnik na końcu linii.
+----------------------------------------
+[ERR_RED_163] Typ: orphan
+     Strona: 33
+     Bbox: (522.5999755859375, 123.00615692138672, 524.8110961914062, 134.11155700683594)
+     Tekst: i
+     Komentarz: Wykryto sierotę - spójnik na końcu linii.
+----------------------------------------
+[ERR_RED_164] Typ: widow
+     Strona: 4
+     Bbox: (99.26, 271.36, 151.92, 282.46)
+     Tekst: determined.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_165] Typ: widow
+     Strona: 23
+     Bbox: (99.26, 273.04, 206.35, 284.14)
+     Tekst: elektrycznych materiału.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_166] Typ: widow
+     Strona: 28
+     Bbox: (99.26, 592.17, 176.44, 603.27)
+     Tekst: elektrycznych [1].
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_167] Typ: widow
+     Strona: 34
+     Bbox: (99.26, 593.61, 145.33, 604.71)
+     Tekst: brzegowe.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_168] Typ: widow
+     Strona: 39
+     Bbox: (99.26, 157.45, 207.43, 168.55)
+     Tekst: wykonywania pomiarów.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_169] Typ: widow
+     Strona: 39
+     Bbox: (99.26, 654.57, 145.2, 665.67)
+     Tekst: pomiarów.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_170] Typ: widow
+     Strona: 40
+     Bbox: (99.26, 556.62, 171.97, 567.72)
+     Tekst: przewodzącego.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_171] Typ: widow
+     Strona: 42
+     Bbox: (99.26, 529.02, 136.92, 540.12)
+     Tekst: krokami.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_172] Typ: widow
+     Strona: 45
+     Bbox: (99.26, 241.96, 159.11, 253.06)
+     Tekst: SourceMeter.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_173] Typ: widow
+     Strona: 45
+     Bbox: (99.26, 346.48, 202.52, 357.58)
+     Tekst: parametry obejmowały:
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_174] Typ: widow
+     Strona: 46
+     Bbox: (279.19, 456.32, 344.77, 466.36)
+     Tekst: zakresie prądów
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_175] Typ: widow
+     Strona: 49
+     Bbox: (99.26, 186.73, 142.46, 197.83)
+     Tekst: filamentu.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_176] Typ: widow
+     Strona: 51
+     Bbox: (99.26, 271.0, 143.08, 282.1)
+     Tekst: materiału.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_177] Typ: widow
+     Strona: 55
+     Bbox: (99.26, 351.76, 165.82, 362.86)
+     Tekst: produkcyjnymi.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_178] Typ: widow
+     Strona: 55
+     Bbox: (99.26, 582.81, 213.63, 593.91)
+     Tekst: niewystarczającej jakości.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_179] Typ: widow
+     Strona: 56
+     Bbox: (99.26, 652.29, 152.49, 663.39)
+     Tekst: elektryczną.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_180] Typ: widow
+     Strona: 57
+     Bbox: (99.26, 88.45, 164.75, 99.55)
+     Tekst: obu pomiarów.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_181] Typ: widow
+     Strona: 60
+     Bbox: (99.26, 467.7, 143.08, 478.8)
+     Tekst: materiału.
+     Komentarz: Wykryto wdowę - bardzo krótki wiersz pozostawiony na końcu akapitu.
+----------------------------------------
+[ERR_RED_182] Typ: bastard
+     Strona: 20
+     Bbox: (99.26, 88.45, 297.68, 99.55)
+     Tekst: PLA należy odpowiednio osuszyć [5, 16, 18].
+     Komentarz: Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie.
+----------------------------------------
+[ERR_RED_183] Typ: bastard
+     Strona: 27
+     Bbox: (99.26, 88.45, 516.12, 99.55)
+     Tekst: takie jak CNT, CNF i CB, wykazują progi przesiąkania odpowiednio 1%, 0,5% i 10% wag. [23].
+     Komentarz: Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie.
+----------------------------------------
+[ERR_RED_184] Typ: bastard
+     Strona: 52
+     Bbox: (99.26, 71.17, 524.21, 82.27)
+     Tekst: struktury włókna oraz identyfikację defektów wpływających na właściwości elektryczne materiału.
+     Komentarz: Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie.
+----------------------------------------
+[ERR_RED_185] Typ: bastard
+     Strona: 57
+     Bbox: (99.26, 88.45, 164.75, 99.55)
+     Tekst: obu pomiarów.
+     Komentarz: Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie.
+----------------------------------------
+[ERR_RED_186] Typ: bastard
+     Strona: 58
+     Bbox: (99.26, 88.45, 496.75, 99.55)
+     Tekst: tym większa rezystancja, co uzasadnia różnice między wartościami dla próbki 1 i próbki 2.
+     Komentarz: Wykryto bękarta - ostatni wiersz akapitu pozostawiony na kolejnej stronie.
+----------------------------------------
+[ERR_RED_187] Typ: shoemaker
+     Strona: 20
+     Bbox: (135.26, 741.8, 524.24, 752.91)
+     Tekst: TPU może wykazywać przewodność elektryczną dzięki dodatkom nanomateriałów,
+     Komentarz: Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie.
+----------------------------------------
+[ERR_RED_188] Typ: shoemaker
+     Strona: 23
+     Bbox: (210.41, 758.29, 413.35, 768.33)
+     Tekst: perkolujący klaster oraz (po prawej) dla φ > φc [34]
+     Komentarz: Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie.
+----------------------------------------
+[ERR_RED_189] Typ: shoemaker
+     Strona: 25
+     Bbox: (135.26, 757.31, 524.25, 768.41)
+     Tekst: Drukowana elektronika w technologii 3D ma potencjał do zrewolucjonizowania produkcji
+     Komentarz: Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie.
+----------------------------------------
+[ERR_RED_190] Typ: shoemaker
+     Strona: 56
+     Bbox: (99.26, 745.31, 524.16, 756.41)
+     Tekst: w porównaniu do wartości przed wystąpieniem problemu, co może wskazywać na pogorszenie
+     Komentarz: Wykryto szewca - pierwszy wiersz akapitu pozostawiony na poprzedniej stronie.
+----------------------------------------
+[ERR_RED_191] Typ: bibliography_summary
+     Strona: 3
+     Bbox: (302.78, 5, 590.56, 45)
+     Tekst: [1] Tirado-García, I., Garcia-Gonzalez, D., Garzon-Hernandez, S., Rusinek, A., Robles, G., Martinez-Tarifa, J. M., & Arias, A. (2021). Conductive 3D printed PLA composites: On the interplay of mechanical, electrical and thermal behaviours. Department of Continuum Mechanics & Structural Analysis, University Carlos III of Madrid, Avda. Universidad 30, Leganés 28911, Madrid, Spain.Data dostępu: 25.11.2024
+
+[2] Guo, H., Lv, R., & Bai, S. (2019). Recent advances on 3D printing graphene-based composites. Department of Materials Science and Engineering, CAPT/HEDPS/LTCS, Key Laboratory of Polymer Chemistry and Physics of Ministry of Education, College of Engineering, Peking University, Beijing, 100871, China. Data dostępu: 24.11.2024
+
+[3] Wikipedia. Druk przestrzenny, z https://pl.wikipedia.org/wiki/Druk_przestrzenny Data dostępu: 26.09.2024
+
+[4] Pandzic A., Hodzic D. & Milovanovic A. (2019). Influence of Carbon Fibers on Mechanical Properties of Materials in FDM Technology. Proceedings of the 30th DAAAM International Symposium on Intelligent Manufacturing and Automation, , pp. xxxx-xxxx. DOI: 10.2507/30th.daaam.proceedings.074. Data dostępu: 16.11.2024.
+
+[5] Selwon, A. (2016). Zaawansowane rozwiązania wykorzystania druku 3D w medycynie / Advanced solutions of using 3D printing in Medicine. Uniwersytet Warmińsko-Mazurski w Olsztynie, Wydział Matematyki i Informatyki. Data dostępu: 9.11.2024
+
+[6] Loncierz, D., & Kajzer, W. (2016). Wpływ parametrów druku 3D w technologii FDM na właściwości mechaniczne i użytkowe obiektów wykonanych z PLA. SKN Inżynierii Biomateriałów „Synergia”, Katedra Biomateriałów i Inżynierii Wyrobów Medycznych, Politechnika Śląska. Data dostępu: 18.112024
+
+[7] Ciemny, K. (2017). Dlaczego medycyna potrzebuje druku 3D? RaPORTy mrR. Data dostępu: 8.11.2024
+
+[8] Sasimowski, E. (2015). Przyrostowe metody wytwarzania elementów z tworzyw polimerowych. Politechnika Lubelska, Wydział Mechaniczny. Data dostępu: 8.11.2024
+
+[9] Powroźnik, M. (2021). Zastosowanie oraz perspektywy rozwoju druku 3D / Application and development prospects for 3D printing. Politechnika Częstochowska, Wydział Zarządzania. Data dostępu: 8.11.2024
+
+[10] Fiał, C., & Pieknik, M. (2020). Druk 3D jako technologia przyszłości – część 1 / 3D printing as a technology of the future – part 1. Technologia i Jakość Wyrobów, 65. Sieć Badawcza Łukasiewicz - Instytut Przemysłu Skórzanego. Data dostępu: 9.11.2024
+
+[11] Dąbrowski, J., & Stokowska, P. (2022). Włókna przewodzące wykorzystywane w druku 3D – eksperymentalna ocena właściwości surowych włókien i wydruków testowych. Uniwersytet Morski w Gdyni, Katedra Elektroniki Morskiej. Data dostępu: 9.11.2024
+
+[12] Świat Druku 3D. FDM (Fused Deposition Modeling), z https://www.swiatdruku3d.pl/fdm-fused-deposition-modeling/ Data dostępu: 16.11.2024
+
+[13] Wikipedia. Osadzanie topionego materiału, z Osadzanie topionego materiału – Wikipedia, wolna encyklopedia Data dostępu: 5.10.2024
+
+[14] Hylla, P., & Domin, J. (2020). Impact of additive manufacturing temperature on strength of 3D printouts made of PLA and ABS. KOMAG Institute of Mining Technology, Pszczyńska 37, 44-101 Gliwice, Poland. Data dostępu: 12.11.2024
+
+[15] Stefano, J. S., Silva, L. R. G., Rocha, R. G., Brazaca, L. C., Richter, E. M., Muñoz, R. A. A., & Janegitz, B. C. (2022). New conductive filament ready-to-use for 3D-printing electrochemical (bio)sensors: Towards the detection of SARS-CoV-2. Materials Science & Engineering: C,, 138, 112872. DOI: 10.1016/j.msec.2022.112872. Data dostępu: 18.11.2024
+
+[16] Farah, S., Anderson, D. G., & Lange, R. (2016). Physical and mechanical properties of PLA, and their functions in widespread applications — A comprehensive review. Data dostępu: 17.11.2024
+
+[17] Nowak, B., & Pająk, J. (2024). Biodegradacja polilaktydu (PLA). Archiwum Gospodarki Odpadami i Ochrony Środowiska, no. 2, 2010, pp. 1-10. Data dostępu: 14.11.2024
+
+[18] Malinowski, R., & Łubkowski, D. (2010). Badania wpływu temperatury i czasu suszenia na wybrane właściwości polilaktydu (PLA). Inż. Ap. Chem., 49(5), 77-78. Instytut Inżynierii Materiałów Polimerowych i Barwników. Data dostępu: 17.11.2024
+
+[19] Masarra, N.-A., Batistella, M., Quantin, J.-C., Regazzi, A., Pucci, M. F., El Hage, R., & Lopez-Cuesta, J.-M. (2021). Fabrication of PLA/PCL/Graphene Nanoplatelet (GNP) electrically conductive circuit using the fused filament fabrication (FFF) 3D printing technique. Materials Science & Engineering: C,, 123, 112046. DOI: 10.1016/j.msec.2021.112046. Data dostępu: 18.11.2024
+
+[20] Rao, C. H., Avinash, K., Varaprasad, B. K. S. V. L., & Goel, S. (2022). A review on printed electronics with digital 3D printing: Fabrication techniques, materials, challenges, and future opportunities. The Minerals, Metals & Materials Society. Data dostępu: 18.11.2024
+
+[21] Wang, J., Yang, B., Lin, X., Gao, L., Liu, T., Lu, Y., & Wang, R. (2020). Research of TPU materials for 3D printing aiming at non-pneumatic tires by FDM method. Key Laboratory of Beijing City for Preparation and Processing of Novel Polymer Materials, Beijing University of Chemical Technology, Beijing 100029, China. Data dostępu: 16.11.2024
+
+[22] Waylin. (2024). Przewodnik po druku 3D z użyciem nylonu. Qidi Technology, z Nylon 3D Printing: Master Durable & Functional Parts With Ease – Qidi Tech Online Store Data dostępu: 16.11.2024
+
+[23] Simules, D.P., Sola, A. (2022). Emerging Research in Conductive Materials for Fused Filament Fabrication: A Critical Review. Data dostępu: 25.11.2024
+
+[24] Aloqalla Z. (2022). Electrically Conductive Fused Deposition Modeling Filaments: Current Status and Medical Applications. Crystals,, 12(8), 1055. Department of Biomedical Technology, King Saud University, Riyadh 11451, Saudi Arabia. Data dostępu: 25.11.2024
+
+[25] Wang, F., Drzal, L. T., Qin, Y., & Huang, Z. (2014). Mechanical properties and thermal conductivity of graphene nanoplatelet/epoxy composites. Springer Science+Business Media New York.. Data dostępu: 24.11.2024
+
+[26] Papageorgiou, D. G., Kinloch, I. A., & Young, R. J. (2017). Mechanical properties of graphene and graphene-based nanocomposites. School of Materials and National Graphene Institute, The University of Manchester, Oxford Road, Manchester M13 9PL, UK. Data dostępu: 24.11.2024
+
+[27] Khalid, S.I. (2013). Carbon nanotubes–properties and applications: a review. Department of Chemistry, University of Malakand, Khyber Pakhtunkhwa, Pakistan. Data dostępu: 25.11.2024
+
+[28] Luo, T., & Wang, Q. (2021). Effects of Graphite on Electrically Conductive Cementitious Composite Properties: A Review. Department of Civil Engineering, Tsinghua University, Beijing 100084, China. Data dostępu: 25.11.2024
+
+[29] 3DCompare. Black Magic 3D Conductive Graphene Composite 1.75 mm, z https://3dcompare.com/materials/product/black-magic-3d-conductive-graphene-composite-1-75-mm/ Data dostępu: 7.12.2024
+
+[30] Blachowicz, T., Ehrmann, G., & Ehrmann, A. (2023). Recent Developments in Additive Manufacturing of Conductive Polymer Composites. Data dostępu: 7.12.2024
+
+[31] Ryan, K. R., Down, M. P., Hurst, N. J., Keefe, E. M., & Banks, C. E. (2022). Review: Additive manufacturing (3D printing) of electrically conductive polymers and polymer nanocomposites and their applications. Faculty of Science and Engineering, Manchester Metropolitan University, Chester Street, Manchester, M1 5GD, UK. Data dostępu: 8.12.2024
+
+[32] Wiwattanachang, N., & Giao, P. H. (2011). Monitoring crack development in fiber concrete beam by using electrical resistivity imaging. Journal of Applied Geophysics, 75,, 294–304. Data dostępu: 8.12.2024.
+
+[33] Bambu Lab. Bambu Lab X1C 3D Printer, z https://eu.store.bambulab.com/en-pl/products/x1-carbon?variant=49018083574108&srsltid=AfmBOoqAyT3M87pqqQlN4H8a02JaAiDDAdiQ1OPn _fSKsI7WNfcX-wIp Data dostępu: 8.12.2024
+
+[34] Bagnoli, F., Bellini, E., Massaro, E., & Rechtman, R. (2019). Review: Percolation and Internet Science. Department of Physics and Astronomy and CSDC, University of Florence, via G. Sansone 1, 50019 Sesto Fiorentino, Italy. Data dostępu: 8.12.2024
+
+[35] Ariat Tech. Concepts and applications of conductance and resistance in electrical systems, z https://www.ariat-tech.pl/blog/concepts-and-applications-of-conductance-and-resistance-in-electrical-systems.html Data dostępu: 8.12.2024
+
+     Komentarz: Podsumowanie: Lista wszystkich pozycji wykrytych w spisie bibliograficznym.
+----------------------------------------
+[ERR_RED_192] Typ: missing_caption_source
+     Strona: 23
+     Bbox: (115.58, 747.97, 507.91, 758.01)
+     Tekst: Rys. 2.8. Wzorce modelu perkolacji: (po lewej) dla φ < φc, (w środku) dla φ = φc, gdzie pojawia się
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_193] Typ: missing_caption_source
+     Strona: 34
+     Bbox: (156.14, 277.02, 467.6, 287.06)
+     Tekst: Rys. 3.2. Układ do pomiaru rezystancji elektrycznej metodą czteroelektrodową
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_194] Typ: missing_caption_source
+     Strona: 36
+     Bbox: (136.34, 413.96, 487.68, 424.0)
+     Tekst: Rys. 3.4. Pomiar rezystancji elektrycznej metodą czteroelektrodową podstawowej próbki
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_195] Typ: missing_caption_source
+     Strona: 38
+     Bbox: (235.37, 529.16, 388.43, 539.2)
+     Tekst: Rys.4.1. Szkic podstawki w Fusion360
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_196] Typ: missing_caption_source
+     Strona: 38
+     Bbox: (233.93, 735.47, 389.89, 745.51)
+     Tekst: Rys.4.2. Model podstawki w Fusion360
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_197] Typ: missing_caption_source
+     Strona: 39
+     Bbox: (99.26, 355.14, 524.25, 428.4)
+     Tekst: Rys. 4.3. Model górnej części układu W projekcie zastosowano uchwyt dociskowy ze sprężyną, który zapewniał stabilny kontakt elektryczny elektrod z próbką, jednocześnie chroniąc ją przed odkształceniami spowodowanymi nadmierną siłą.
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_198] Typ: missing_caption_source
+     Strona: 40
+     Bbox: (99.26, 389.94, 524.22, 463.2)
+     Tekst: Rys.4.4. Mechanizm dociskowy ze sprężyną Modyfikacje obejmowały również wymiary i grubość obu podstawek, aby układ był bardziej stabilny i wygodny w użyciu. Dzięki wprowadzonym zmianom powstał układ, który spełniał wszystkie założenia projektowe i zapewniał powtarzalne wyniki pomiarów.
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_199] Typ: missing_caption_source
+     Strona: 41
+     Bbox: (99.26, 234.51, 524.22, 307.66)
+     Tekst: Rys. 4.5. Wynik wydruku próbki dla temperatur: (a) 190 °C, (b) 200 °C Przeprowadzono również testy przy różnych prędkościach wydruku: 50, 100, 150, 200 oraz 270 mm/s. Nie zaobserwowano znaczących różnic w jakości wydruków, w związku z czym postanowiono zakończyć dalsze badania w tym obszarze.
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_200] Typ: missing_caption_source
+     Strona: 42
+     Bbox: (226.13, 426.2, 397.66, 436.24)
+     Tekst: Rys. 4.6. Stałe parametry dla każdej próbki
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_201] Typ: missing_caption_source
+     Strona: 42
+     Bbox: (193.97, 756.01, 429.91, 766.05)
+     Tekst: Rys. 4.7. Model badanej próbki o wymiarach 30 x 8 x 3 mm
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_202] Typ: missing_caption_source
+     Strona: 43
+     Bbox: (215.81, 356.7, 408.0, 366.74)
+     Tekst: Rys. 4.8. Model badanej próbki w Bambu Studio
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_203] Typ: missing_caption_source
+     Strona: 43
+     Bbox: (146.3, 758.65, 477.78, 768.69)
+     Tekst: Rys. 4.9. Model próbki z kierunkiem wypełnienia 0° przedstawiony w Bambu Studio
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_204] Typ: missing_caption_source
+     Strona: 44
+     Bbox: (141.26, 265.02, 482.38, 275.06)
+     Tekst: Rys. 4.10. Model próbki z kierunkiem wypełnienia 90° przedstawiony w Bambu Studio
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_205] Typ: missing_caption_source
+     Strona: 44
+     Bbox: (117.26, 497.36, 506.31, 507.4)
+     Tekst: Rys. 4.11. Model pojedynczej warstwy oraz pojedynczego włókna przedstawiony w Bambu Studio
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_206] Typ: missing_caption_source
+     Strona: 47
+     Bbox: (99.26, 485.12, 524.4, 579.12)
+     Tekst: Rys. 5.1. Schemat układu pomiarowego Zbadano rezystancję elektryczną filamentu Black Magic 3D PLA z przewodzącym grafenem o średnicy 1,75 mm. Pomiary wykonano dla pięciu różnych odległości elektrod napięciowych, co zilustrowano na rysunku 5.1. Wyniki zebrano w tabeli 5.2. oraz przedstawiono graficznie na wykresie 5.2.
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_207] Typ: missing_caption_source
+     Strona: 50
+     Bbox: (102.74, 295.14, 521.16, 320.78)
+     Tekst: Rys. 5.2. Zdjęcia próbek pod mikroskopem: (po lewej) – kierunek wypełnienia 90°, (po prawej) – kierunek wypełnienia 0°. Kierunek przepływu prądu zaznaczony czarnymi strzałkami
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_208] Typ: missing_caption_source
+     Strona: 52
+     Bbox: (197.33, 348.18, 426.36, 358.22)
+     Tekst: Rys. 5.3. Zdjęcia pojedynczego włókna pod mikroskopem
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_209] Typ: missing_caption_source
+     Strona: 55
+     Bbox: (99.26, 225.63, 521.47, 235.67)
+     Tekst: Rys. 5.4. Zdjęcia próbek pod mikroskopem: (po lewej) –210 °C, (w środku) – 220 °C, (po prawej) – 230 °C
+     Komentarz: Podpis nie zawiera odwołania do bibliografii (np. [1]) ani informacji o źródle (np. 'Źródło: opracowanie własne').
+----------------------------------------
+[ERR_RED_210] Typ: missing_caption_source
+     Strona: 23
+     Bbox: [99.19999694824219, 608.06298828125, 525.1500244140625, 747.54296875]
+     Tekst: Rys. 2.8. Wzorce modelu perkolacji: (po lewej) dla φ < φc, (w środku) dla φ = φc, gdzie pojawia się
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_211] Typ: missing_caption_source
+     Strona: 34
+     Bbox: [123.66999816894531, 70.85003662109375, 499.65997314453125, 263.75]
+     Tekst: Rys. 3.2. Układ do pomiaru rezystancji elektrycznej metodą czteroelektrodową
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_212] Typ: missing_caption_source
+     Strona: 36
+     Bbox: [117.2599983215332, 613.1799926757812, 506.63999938964844, 751.89599609375]
+     Tekst: Tabela 3.2. Wymiary wydruków – dane z Fusion 360 i producenta filamentu
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_213] Typ: missing_caption_source
+     Strona: 36
+     Bbox: [119.12999725341797, 70.8499755859375, 504.7300109863281, 407.5899658203125]
+     Tekst: Rys. 3.4. Pomiar rezystancji elektrycznej metodą czteroelektrodową podstawowej próbki
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_214] Typ: missing_caption_source
+     Strona: 37
+     Bbox: [117.2599983215332, 86.65997314453125, 506.63999938964844, 263.45001220703125]
+     Tekst: Tabela 3.3. Wymiary wydruków – pomiar suwmiarką
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_215] Typ: missing_caption_source
+     Strona: 38
+     Bbox: [114.62999725341797, 334.79998779296875, 509.2300109863281, 516.47998046875]
+     Tekst: Rys.4.1. Szkic podstawki w Fusion360
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_216] Typ: missing_caption_source
+     Strona: 38
+     Bbox: [112.91999816894531, 556.3299560546875, 510.90997314453125, 722.2799682617188]
+     Tekst: Rys.4.2. Model podstawki w Fusion360
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_217] Typ: missing_caption_source
+     Strona: 39
+     Bbox: [99.19999694824219, 186.3599853515625, 524.6500244140625, 349.6399841308594]
+     Tekst: Rys. 4.3. Model górnej części układu W projekcie zastosowano uchwyt dociskowy ze sprężyną, który zapewniał stabilny kontakt elektryczny elektrod z próbką, jednocześnie chroniąc ją przed odkształceniami spowodowanymi nadmierną siłą.
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_218] Typ: missing_caption_source
+     Strona: 40
+     Bbox: [209.02000427246094, 151.8399658203125, 450.80999755859375, 377.3399658203125]
+     Tekst: Rys.4.4. Mechanizm dociskowy ze sprężyną Modyfikacje obejmowały również wymiary i grubość obu podstawek, aby układ był bardziej stabilny i wygodny w użyciu. Dzięki wprowadzonym zmianom powstał układ, który spełniał wszystkie założenia projektowe i zapewniał powtarzalne wyniki pomiarów.
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_219] Typ: missing_caption_source
+     Strona: 41
+     Bbox: [99.19999694824219, 151.84002685546875, 528.5, 222.44000244140625]
+     Tekst: Rys. 4.5. Wynik wydruku próbki dla temperatur: (a) 190 °C, (b) 200 °C Przeprowadzono również testy przy różnych prędkościach wydruku: 50, 100, 150, 200 oraz 270 mm/s. Nie zaobserwowano znaczących różnic w jakości wydruków, w związku z czym postanowiono zakończyć dalsze badania w tym obszarze.
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_220] Typ: missing_caption_source
+     Strona: 42
+     Bbox: [188.9199981689453, 70.85003662109375, 434.77001953125, 413.4599914550781]
+     Tekst: Rys. 4.6. Stałe parametry dla każdej próbki
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_221] Typ: missing_caption_source
+     Strona: 42
+     Bbox: [125.91999816894531, 604.3380126953125, 497.3499755859375, 749.0879516601562]
+     Tekst: Rys. 4.7. Model badanej próbki o wymiarach 30 x 8 x 3 mm
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_222] Typ: missing_caption_source
+     Strona: 43
+     Bbox: [131.63999938964844, 146.63995361328125, 494.989990234375, 344.0899658203125]
+     Tekst: Rys. 4.8. Model badanej próbki w Bambu Studio
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_223] Typ: missing_caption_source
+     Strona: 43
+     Bbox: [137.02000427246094, 565.9559936523438, 486.780029296875, 745.2559814453125]
+     Tekst: Rys. 4.9. Model próbki z kierunkiem wypełnienia 0° przedstawiony w Bambu Studio
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_224] Typ: missing_caption_source
+     Strona: 44
+     Bbox: [135.32000732421875, 70.8499755859375, 488.4800109863281, 251.8499755859375]
+     Tekst: Rys. 4.10. Model próbki z kierunkiem wypełnienia 90° przedstawiony w Bambu Studio
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_225] Typ: missing_caption_source
+     Strona: 44
+     Bbox: [131.60000610351562, 292.20001220703125, 492.2300109863281, 484.6999816894531]
+     Tekst: Rys. 4.11. Model pojedynczej warstwy oraz pojedynczego włókna przedstawiony w Bambu Studio
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_226] Typ: missing_caption_source
+     Strona: 46
+     Bbox: [116.18000030517578, 86.77996826171875, 507.8400115966797, 210.97998046875]
+     Tekst: Tabela 5.1. Dane pomiarowe charakterystyki prądowo-napięciowej (I-V) filamentu PLA z grafenem
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_227] Typ: missing_caption_source
+     Strona: 47
+     Bbox: [135.6699981689453, 124.239990234375, 487.469970703125, 478.41998291015625]
+     Tekst: Rys. 5.1. Schemat układu pomiarowego Zbadano rezystancję elektryczną filamentu Black Magic 3D PLA z przewodzącym grafenem o średnicy 1,75 mm. Pomiary wykonano dla pięciu różnych odległości elektrod napięciowych, co zilustrowano na rysunku 5.1. Wyniki zebrano w tabeli 5.2. oraz przedstawiono graficznie na wykresie 5.2.
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_228] Typ: missing_caption_source
+     Strona: 48
+     Bbox: [142.04857744489397, 87.547998046875, 482.0714329310826, 186.5719970703125]
+     Tekst: Tabela 5.2. Rezystancja filamentu w zależności od odległości elektrod
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_229] Typ: missing_caption_source
+     Strona: 49
+     Bbox: [99.22971416655041, 295.19000244140625, 524.674298967634, 487.3299738566081]
+     Tekst: Tabela 5.3. Rezystancja, rezystywność i przewodność filamentu dla kierunku wypełnienia 0°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_230] Typ: missing_caption_source
+     Strona: 49
+     Bbox: [99.22971416655041, 515.4099731445312, 524.674298967634, 630.0399780273438]
+     Tekst: Tabela 5.4. Rezystancja, rezystywność i przewodność filamentu dla kierunku wypełnienia 90°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_231] Typ: missing_caption_source
+     Strona: 50
+     Bbox: [99.26399993896484, 608.3799743652344, 524.6400146484375, 676.4199829101562]
+     Tekst: Tabela 5.5. Rezystancja, rezystywność i przewodność warstwy dla kierunku wypełnienia 0°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_232] Typ: missing_caption_source
+     Strona: 50
+     Bbox: [99.19999694824219, 70.84999084472656, 528.4500122070312, 288.54998779296875]
+     Tekst: Rys. 5.2. Zdjęcia próbek pod mikroskopem: (po lewej) – kierunek wypełnienia 90°, (po prawej) – kierunek wypełnienia 0°. Kierunek przepływu prądu zaznaczony czarnymi strzałkami
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_233] Typ: missing_caption_source
+     Strona: 51
+     Bbox: [99.28246307373047, 86.719970703125, 524.7692401592548, 154.760009765625]
+     Tekst: Tabela 5.6. Rezystancja, rezystywność i przewodność warstwy dla kierunku wypełnienia 90°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_234] Typ: missing_caption_source
+     Strona: 52
+     Bbox: [163.1699981689453, 100.0999755859375, 460.6400146484375, 340.9999694824219]
+     Tekst: Rys. 5.3. Zdjęcia pojedynczego włókna pod mikroskopem
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_235] Typ: missing_caption_source
+     Strona: 53
+     Bbox: [99.59828622000558, 312.4579711914063, 524.545671735491, 552.3549957275391]
+     Tekst: Tabela 5.8. Średnia rezystancja i odchylenie standardowe dla różnych temperatur
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_236] Typ: missing_caption_source
+     Strona: 54
+     Bbox: [99.59828622000558, 86.70797119140624, 524.545671735491, 316.2949981689453]
+     Tekst: Tabela 5.9. Średnia rezystywność i przewodność dla różnych temperatur
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_237] Typ: missing_caption_source
+     Strona: 55
+     Bbox: [99.19999694824219, 88.0999755859375, 524.6500244140625, 220.14996337890625]
+     Tekst: Rys. 5.4. Zdjęcia próbek pod mikroskopem: (po lewej) –210 °C, (w środku) – 220 °C, (po prawej) – 230 °C
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_238] Typ: missing_caption_source
+     Strona: 56
+     Bbox: [97.05257524762835, 97.89500427246094, 526.8514491489956, 262.5349884033203]
+     Tekst: Tabela 5.10. Porównanie rezystancji, rezystywności i przewodności filamentu: (po lewej) -przed, (po prawej) - po wystąpieniu zmian
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_239] Typ: missing_caption_source
+     Strona: 57
+     Bbox: [158.85764088350183, 295.1600036621094, 465.0223487405216, 419.67998123168945]
+     Tekst: Tabela 5.11. Rezystancja jednej warstwy filamentu w kierunku 0°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_240] Typ: missing_caption_source
+     Strona: 57
+     Bbox: [158.85764088350183, 464.9799919128418, 465.0223487405216, 573.8799743652344]
+     Tekst: Tabela 5.12. Rezystancja jednej warstwy filamentu w kierunku 90°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_241] Typ: missing_caption_source
+     Strona: 58
+     Bbox: [101.45000076293945, 312.469970703125, 522.5099983215332, 401.74998728434247]
+     Tekst: Tabela 5.13. Średnia rezystancja próbek przed i po deformacji mechanicznej – kierunek wypełnienia 0°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_242] Typ: missing_caption_source
+     Strona: 58
+     Bbox: [101.45000076293945, 457.44996388753253, 522.5099983215332, 530.7699584960938]
+     Tekst: Tabela 5.14. Średnia rezystancja próbek przed i po deformacji mechanicznej – kierunek wypełnienia 90°
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------
+[ERR_RED_243] Typ: missing_caption_source
+     Strona: 59
+     Bbox: [232.8260060628255, 283.1300048828125, 391.1868184407552, 500.70998128255206]
+     Tekst: Tabela 5.15. Zmiany rezystancji próbki w funkcji czasu
+     Komentarz: Rysunek nie posiada poprawnego źródła lub odwołania do bibliografii w swoim podpisie.
+----------------------------------------

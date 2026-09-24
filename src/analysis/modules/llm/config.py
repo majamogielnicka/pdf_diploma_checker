@@ -1,8 +1,6 @@
 import sys
 import json
 from pathlib import Path
-from common.path import resource_path
-import os
 
 def get_app_dir():
     """

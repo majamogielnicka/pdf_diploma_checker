@@ -1,5 +1,4 @@
 import sys
-import os
 from pathlib import Path
 
 current_dir = Path(__file__).resolve().parent
@@ -58,8 +57,8 @@ if __name__ == "__main__":
     
     import json
     from analysis.modules.llm.config import THESIS_PATH
-    from analysis.extraction.extraction_json import extractPDF
-    from analysis.extraction.converter_linguistics_clean import PDFMapper
+    from analysis.extraction.main_extractor import extractPDF
+    from analysis.extraction.linguistics_extraction.converter_linguistics_clean import PDFMapper
     
     print("Rozpoczynam ekstrakcję do testu scalania...")
     doc_obj = extractPDF(str(THESIS_PATH))

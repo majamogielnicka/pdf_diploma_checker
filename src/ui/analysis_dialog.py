@@ -1,6 +1,4 @@
-import sys
 import os
-import json
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
     QPushButton, QFrame, QProgressBar, QWidget, QFileDialog, QCheckBox

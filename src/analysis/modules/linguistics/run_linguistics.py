@@ -1,5 +1,3 @@
-from pathlib import Path
-import sys
 from analysis.modules.linguistics.language_error_extractor import *
 from analysis.modules.linguistics.decimal_point_extractor import decimal_check
 from analysis.modules.linguistics.dash_check import dash_check
@@ -7,12 +5,12 @@ from analysis.modules.linguistics.exeptions_check import *
 from analysis.modules.linguistics.list_check import check_coherence_in_list
 from analysis.modules.linguistics.sentence_check import *
 from analysis.modules.linguistics.proper_names import get_proper_names
-from analysis.modules.linguistics.helpers import extract_errors_to_json, get_context, extract_chapter_numbers
+from analysis.modules.linguistics.helpers import get_context, extract_chapter_numbers
 from analysis.modules.linguistics.first_definition import check_first_definition
 from analysis.modules.linguistics.check_acronym import check_if_was_defined
-from analysis.extraction.extraction_json import extractPDF
+from analysis.extraction.main_extractor import extractPDF
 from analysis.modules.linguistics.bibliography_check import check_bibliography
-from analysis.extraction.converter_linguistics_clean import PDFMapper
+from analysis.extraction.linguistics_extraction.converter_linguistics_clean import PDFMapper
 import json
 from common.path import resource_path
 import os
@@ -91,7 +89,7 @@ if __name__ == "__main__":
         mapper = PDFMapper()
         raw_blocks = mapper.map_to_schema(document)
         extracted_acronyms = raw_blocks.reference_sections.acronyms
-    except AttributeError as e:
-        print(f"Ekstrakcja zakończyła się niepowodzeniem.")
+    except AttributeError:
+        print("Ekstrakcja zakończyła się niepowodzeniem.")
     else:
         matches = run_linguistics(raw_blocks)

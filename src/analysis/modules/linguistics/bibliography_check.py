@@ -35,7 +35,7 @@ PL_MONTH_LONG = (
     r'|września|wrzesień|października|październik|listopada|listopad'
     r'|grudnia|grudzień'
 )
-R_PATTERN = rf'(?:\s*[rR]\.?)?'
+R_PATTERN = r'(?:\s*[rR]\.?)?'
 YEAR_PATTERN = rf'(?:1[6789]\d{{2}}|2[01]\d{{2}}){R_PATTERN}'
 DATE_PATTERNS = {
     rf'(?i)(?<!\w)\d{{1,2}}\s+(?:{EN_MONTH_LONG})\s+{YEAR_PATTERN}\b(?!\.\d)': 'DD Month YYYY',
@@ -88,7 +88,7 @@ URL_PATTERN = re.compile(r'https?:\s*//\S+')
 
 UPPER_CASE = r'[A-ZĄĆĘŁŃÓŚŹŻÀ-ÖØ-öø-ÿĀ-ž]'
 LOWER_CASE = r'[a-ząćęłńóśźżà-öø-ÿā-ž]'
-SPECIAL_CHARS = rf"[-–']"
+SPECIAL_CHARS = r"[-–']"
 SURNAME_PATTERN = rf'{UPPER_CASE}{LOWER_CASE}+(?:{SPECIAL_CHARS}(?:{UPPER_CASE}|{LOWER_CASE})+)*'
 FULLNAME_PATTERN = rf'{UPPER_CASE}{LOWER_CASE}+'
 SHORT_NAME_PATTERN = rf'(?<!\w){UPPER_CASE}\.?(?!\w)'

@@ -112,8 +112,8 @@ def main():
     if BASE_DIR not in sys.path:
         sys.path.insert(0, BASE_DIR)
         
-    from analysis.extraction.extraction_json import extractPDF
-    from analysis.extraction.converter_linguistics_clean import PDFMapper
+    from analysis.extraction.main_extractor import extractPDF
+    from analysis.extraction.linguistics_extraction.converter_linguistics_clean import PDFMapper
     
     start_time = time.time()
     doc_data = extractPDF(str(THESIS_PATH))
@@ -128,7 +128,7 @@ def main():
     print(f"CZAS WYKONANIA: {elapsed_time // 60} min {elapsed_time % 60} sek.")
     print("="*50)
 
-    print(f"\n--- WYNIKI ---")
+    print("\n--- WYNIKI ---")
     print(f"ID: {res_id}")
     print(f"Tytuł: {res_title}")
     print(f"Wynik: {res_score}%")

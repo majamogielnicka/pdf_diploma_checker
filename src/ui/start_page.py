@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QPushButton, QFrame, QLineEdit, QScrollArea
 )
 from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtGui import QIcon
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import QGraphicsDropShadowEffect 
 from PySide6.QtGui import QColor

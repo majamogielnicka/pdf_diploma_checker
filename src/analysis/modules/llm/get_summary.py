@@ -10,7 +10,6 @@ for _p in (os.path.dirname(_src_dir), _src_dir):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from common.path import resource_path
 
 from analysis.extraction.helper_llm.extraction_json_llm import extractPDF_llm
 from analysis.modules.llm.get_subtitles import get_subtitles

@@ -16,7 +16,6 @@ LINGUISTICS_DIR = os.path.join(SRC_DIR, "analysis", "modules", "linguistics")
 LLM_DIR = os.path.join(SRC_DIR, "analysis", "modules", "llm")
 REDACTION_DIR = os.path.join(SRC_DIR, "analysis", "modules", "redaction")
 
-from common.path import resource_path
 
 for path in [SRC_DIR, BASE_DIR, EXTRACTION_DIR, COMMON_DIR, LINGUISTICS_DIR, LLM_DIR, REDACTION_DIR]:
     if path not in sys.path:
@@ -82,7 +81,8 @@ class AnalysisPipeline:
 
         report_progress(10, "Rozpoczynam ekstrakcję tekstu z PDF...")
 
-        from analysis.extraction.extraction_json import extractPDF, get_raster_figure_numbers
+        from analysis.extraction.main_extractor import extractPDF
+        from analysis.extraction.raw_extraction.image_extractor import get_raster_figure_numbers
 
         doc_obj = extractPDF(pdf_path)
         doc_dict = doc_obj._to_dict()
@@ -132,7 +132,7 @@ class AnalysisPipeline:
                 ling_ready_event.set()
 
             try:
-                from analysis.extraction.converter_linguistics_clean import PDFMapper
+                from analysis.extraction.linguistics_extraction.converter_linguistics_clean import PDFMapper
                 import importlib.util
 
                 mapper = PDFMapper()
@@ -187,7 +187,7 @@ class AnalysisPipeline:
         def task_redaction():
             try:
                 from analysis.modules.redaction.redaction_validator import RedactionValidator
-                from analysis.extraction.converter_linguistics_clean import PDFMapper
+                from analysis.extraction.linguistics_extraction.converter_linguistics_clean import PDFMapper
 
                 mapper = PDFMapper()
 
@@ -210,7 +210,7 @@ class AnalysisPipeline:
 
                 return redaction_errors
 
-            except Exception as e:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 

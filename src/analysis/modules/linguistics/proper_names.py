@@ -45,7 +45,7 @@ def get_proper_names(blocks):
                 for ent in text.ents:
                     ent_text = ent.text.strip("(),.:;[]\n\t ")
                     if block_type == "list" and is_bib:
-                        if not ent.label_ or not ent.label_ in BIB_LABELS_PL:
+                        if not ent.label_ or ent.label_ not in BIB_LABELS_PL:
                             continue
                         if ent.label_ == "persName":
                             bibliography["people"].add(ent_text)
@@ -73,7 +73,7 @@ def get_proper_names(blocks):
                 for ent in text.ents:
                     ent_text = ent.text.strip("(),.:;[]\n\t ")
                     if block_type == "list" and is_bib:  
-                        if not ent.label_ or not ent.label_ in BIB_LABELS_EN:
+                        if not ent.label_ or ent.label_ not in BIB_LABELS_EN:
                             continue
                         if ent.label_ == "PERSON":
                             bibliography["people"].add(ent_text)

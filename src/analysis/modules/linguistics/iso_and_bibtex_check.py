@@ -1,4 +1,4 @@
-from .helpers import add_match, get_match_info
+from .helpers import add_match
 import re
 from collections import Counter 
 
